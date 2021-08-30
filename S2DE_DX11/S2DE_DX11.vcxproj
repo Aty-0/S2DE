@@ -32,6 +32,15 @@
     <ClInclude Include="Base\Utils\Logger.h" />
     <ClInclude Include="Base\Engine.h" />
     <ClInclude Include="Graphics\Renderer.h" />
+    <ClInclude Include="Libs\imgui\imconfig.h" />
+    <ClInclude Include="Libs\imgui\imgui.h" />
+    <ClInclude Include="Libs\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="Libs\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="Libs\imgui\imgui_internal.h" />
+    <ClInclude Include="Libs\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Libs\imgui\imstb_textedit.h" />
+    <ClInclude Include="Libs\imgui\imstb_truetype.h" />
+    <ClInclude Include="Libs\tinyxml2.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +50,13 @@
     <ClCompile Include="Base\Utils\Logger.cpp" />
     <ClCompile Include="Base\Engine.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
+    <ClCompile Include="Libs\imgui\imgui.cpp" />
+    <ClCompile Include="Libs\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Libs\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Libs\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Libs\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Libs\imgui\imgui_tables.cpp" />
+    <ClCompile Include="Libs\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE_DX11.rc" />
