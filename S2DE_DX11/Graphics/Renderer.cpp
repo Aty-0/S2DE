@@ -2,6 +2,10 @@
 #include "Base/Engine.h"
 
 #define S2DE_FORMAT_MODE DXGI_FORMAT_R8G8B8A8_UNORM
+#define S2DE_IMGUI_NEW_FRAME()  ImGui_ImplDX11_NewFrame(); \
+								ImGui_ImplWin32_NewFrame(); \
+								ImGui::NewFrame(); \
+
 
 namespace S2DE
 {
@@ -15,7 +19,7 @@ namespace S2DE
 							m_depthStencilView(nullptr),
 							m_vsync(true)
 	{
-
+		
 	}
 
 
@@ -26,7 +30,108 @@ namespace S2DE
 
 	bool Renderer::Reset()
 	{
+		m_deviceContext->OMSetRenderTargets(0, 0, 0);
+		Release(m_renderTargetView);
+
+		
+		if(FAILED(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0)))
+			return false;
+
+
+		ID3D11Texture2D* pBuffer;
+		if(FAILED(m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer)))
+		{
+			Logger::Error("Can't create buffer");
+			return false;
+		}
+
+
+		if (FAILED(m_device->CreateRenderTargetView(pBuffer, NULL, &m_renderTargetView)))
+		{
+			Logger::Error("Can't recreate render target view");
+			return false;
+		}
+
+		Release(pBuffer);
+
+		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
+
+
 		UpdateViewport();
+		return true;
+	}
+
+	void Renderer::LoadCustomImguiTheme()
+	{
+		ImGui::GetStyle().FrameRounding = 4.0f;
+		ImGui::GetStyle().GrabRounding = 4.0f;
+		ImGui::GetStyle().TabRounding = 4.0f;
+		ImGui::GetStyle().WindowTitleAlign = ImVec2(0.5f, 0.5f);
+		ImGui::GetStyle().WindowMinSize = ImVec2(300.0f, 400.0f);
+		ImGui::GetStyle().WindowRounding = 6.0f;
+
+		ImVec4* colors = ImGui::GetStyle().Colors;
+		colors[ImGuiCol_Text] = ImVec4(0.95f, 0.96f, 0.98f, 1.00f);
+		colors[ImGuiCol_TextDisabled] = ImVec4(0.36f, 0.42f, 0.47f, 1.00f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.11f, 0.15f, 0.17f, 0.75f);
+		colors[ImGuiCol_ChildBg] = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);
+		colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+		colors[ImGuiCol_Border] = ImVec4(0.08f, 0.10f, 0.12f, 1.00f);
+		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
+		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.12f, 0.20f, 0.28f, 1.00f);
+		colors[ImGuiCol_FrameBgActive] = ImVec4(0.09f, 0.12f, 0.14f, 1.00f);
+		colors[ImGuiCol_TitleBg] = ImVec4(0.09f, 0.12f, 0.14f, 0.65f);
+		colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.10f, 0.12f, 1.00f);
+		colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
+		colors[ImGuiCol_MenuBarBg] = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);
+		colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.39f);
+		colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.18f, 0.22f, 0.25f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.09f, 0.21f, 0.31f, 1.00f);
+		colors[ImGuiCol_CheckMark] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
+		colors[ImGuiCol_SliderGrab] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
+		colors[ImGuiCol_SliderGrabActive] = ImVec4(0.37f, 0.61f, 1.00f, 1.00f);
+		colors[ImGuiCol_Button] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
+		colors[ImGuiCol_ButtonHovered] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
+		colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+		colors[ImGuiCol_Header] = ImVec4(0.20f, 0.25f, 0.29f, 0.55f);
+		colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+		colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_Separator] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
+		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+		colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.59f, 0.98f, 0.25f);
+		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+		colors[ImGuiCol_Tab] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
+		colors[ImGuiCol_TabHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+		colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
+		colors[ImGuiCol_TabUnfocused] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
+		colors[ImGuiCol_PlotLines] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+		colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+		colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+		colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+		colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+		colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+		colors[ImGuiCol_NavHighlight] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+	}
+
+	bool Renderer::InitImGui()
+	{
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		LoadCustomImguiTheme();
+
+		// Setup Platform/Renderer backends
+		ImGui_ImplWin32_Init(Engine::GetGameWindow()->GetHWND());
+		ImGui_ImplDX11_Init(m_device, m_deviceContext);
+
 		return true;
 	}
 
@@ -134,7 +239,7 @@ namespace S2DE
 		swap_chain_desc.Windowed = !Engine::GetGameWindow()->isFullscreen();
 		swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		swap_chain_desc.SwapEffect  = DXGI_SWAP_EFFECT_DISCARD;
 		swap_chain_desc.Flags = 0;
 
 		if (m_vsync)
@@ -275,14 +380,11 @@ namespace S2DE
 
 		//Now set the rasterizer state.
 		m_deviceContext->RSSetState(m_rasterState);
-		
 		return true;	
 	}
 
 	void Renderer::UpdateViewport()
 	{
-		Logger::Log("<Renderer> UpdateViewport");
-
 		m_viewport.Width = (float)Engine::GetGameWindow()->GetWidth();
 		m_viewport.Height = (float)Engine::GetGameWindow()->GetHeight();
 		m_viewport.MinDepth = 0.0f;
@@ -290,7 +392,6 @@ namespace S2DE
 		m_viewport.TopLeftX = 0.0f;
 		m_viewport.TopLeftY = 0.0f;
 
-		// Create the viewport.
 		m_deviceContext->RSSetViewports(1, &m_viewport);
 	}
 
@@ -308,12 +409,22 @@ namespace S2DE
 		if (!CreateDepthStencil())
 			return false;
 
+		Logger::Log("<Renderer> InitImGui");
+		if (!InitImGui())
+			return false;
+
+		//FIX ME 
+		//Temp fix
+		Reset();
+
 		return true;
 	}
 
 	void Renderer::Destroy()
 	{
 		Logger::Log("Destroying renderer...");
+
+		DestroyImGui();
 
 		Release(m_swapChain);
 		Release(m_device);
@@ -328,6 +439,7 @@ namespace S2DE
 
 	void Renderer::Clear()
 	{
+		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
 		m_deviceContext->ClearRenderTargetView(m_renderTargetView, m_clearColor);
 		m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
@@ -337,9 +449,34 @@ namespace S2DE
 		m_swapChain->Present((std::uint32_t)m_vsync, 0);
 	}
 
+	void Renderer::DestroyImGui()
+	{
+		ImGui_ImplDX11_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+	}
+
+	void Renderer::RenderImGui()
+	{
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	}
+
+	void Renderer::UpdateImGuiWindows()
+	{
+		S2DE_IMGUI_NEW_FRAME();
+
+		ImGui::Begin("Test");
+		ImGui::End();
+
+		ImGui::Render();
+	}
+
 	void Renderer::Render()
 	{
+		UpdateImGuiWindows();
+
 		Clear();
+		RenderImGui();
 		End();
 	}
 }

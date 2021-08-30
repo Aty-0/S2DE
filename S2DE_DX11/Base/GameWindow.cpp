@@ -260,8 +260,8 @@ namespace S2DE
 
 	LRESULT CALLBACK GameWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		//if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-		//	return 0;
+		if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+			return 0;
 
 		switch (msg)
 		{

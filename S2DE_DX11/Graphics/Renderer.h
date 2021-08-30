@@ -1,6 +1,15 @@
 #pragma once
 #include "Base/Main/Common.h"
 
+#pragma warning(disable: 4005)
+#include "Libs/imgui/imgui.h"
+#include "Libs/imgui/imgui_impl_win32.h"
+#include "Libs/imgui/imgui_impl_dx11.h"
+
+//ImGui WndProcHandler
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+
 namespace S2DE
 {
 	class S2DE_DX11_API Renderer
@@ -9,18 +18,29 @@ namespace S2DE
 		Renderer();
 		~Renderer();
 
-		bool					 Create();
-		bool					 Reset();
-		void					 Destroy();
-		void					 Render();
+		bool						Create();
+		bool						Reset();
+		void						Destroy();
+		void						Render();
+
+		inline ID3D11Device*		GetDevice() const { return m_device; }
+		inline ID3D11DeviceContext* GetContext() const { return m_deviceContext; }
+		inline IDXGISwapChain*		GetSwapChain() const { return m_swapChain; }
 
 	private:					 
+		bool					 InitImGui();
+		void					 UpdateImGuiWindows();
+		void					 RenderImGui();
+		void					 LoadCustomImguiTheme();
+		void					 DestroyImGui();
 		bool					 GetDisplay(std::uint32_t& mode_numerator, std::uint32_t& mode_denominator);
 		bool					 CreateDeviceAndSwapChain();
 		bool					 CreateDepthStencil();
 		void					 UpdateViewport();
 		void				     Clear();
 		void					 End();
+
+
 
 		IDXGISwapChain*			 m_swapChain;
 		ID3D11Device*			 m_device;
@@ -43,6 +63,6 @@ namespace S2DE
 
 		//TODO
 		//Own class
-		float					m_clearColor[4] = { 0.7f, 0.5f, 1.0f, 1.0f };
+		float					m_clearColor[4] = { 0.3f, 0.1f, 0.4f, 1.0f };
 	};
 }
