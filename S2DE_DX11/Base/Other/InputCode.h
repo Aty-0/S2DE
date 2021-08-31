@@ -1,11 +1,10 @@
 #pragma once
-#include "Base/Common.h"
-
+#include "Base/Main/Common.h"
 
 namespace S2DE
 {
 	//Copied directinput code's but implemented in enum
-	enum S2DE_API KeyCode
+	enum S2DE_DX11_API KeyCode
 	{
 		KEY_ESCAPE = 0x01,
 		KEY_1 = 0x02,
