@@ -2,6 +2,7 @@
 
 #include "Base/Other/SplashScreen.h"
 #include "Base/ApplicationHandle.h"
+#include "Base/DebugTools/VisualConsole.h"
 
 #define S2DE_EXIT_PROCESS() exit(EXIT_SUCCESS);
 
@@ -13,6 +14,8 @@ namespace S2DE
 	GameTime Engine::m_time;
 	bool Engine::m_isEditor;
 	Renderer* Engine::m_render;
+	InputManager* Engine::m_input_m;
+	VisualConsole* Engine::m_console;
 
 	Engine::Engine()
 	{
@@ -36,6 +39,7 @@ namespace S2DE
 	{
 		SplashScreen* sp = new SplashScreen();
 		S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
+		m_console = new VisualConsole();
 
 		//Set project name
 		sp->SetProjectName(pname);
@@ -59,8 +63,11 @@ namespace S2DE
 		m_window = new GameWindow();
 		m_window->Create(GetModuleHandle(NULL), pname.c_str());
 
-		m_render = new Renderer();
+		m_input_m = new InputManager();
+		if (!m_input_m->Initialize())
+			return;
 
+		m_render = new Renderer();
 		if (!m_render->Create())
 			return;
 
@@ -97,8 +104,42 @@ namespace S2DE
 		}
 	}
 
+	void Engine::UpdateEngineInputKeys()
+	{
+		if (m_input_m->IsKeyPressed(KeyCode::KEY_GRAVE))
+		{
+			m_console->TougleDraw();
+		}
+
+		if (m_input_m->IsKeyPressed(KeyCode::KEY_ESCAPE))
+		{
+			m_engine->Destroy();
+		}
+	}
+
+	void Engine::UpdateInput()
+	{
+		//Update input manager
+		if (m_input_m->Update())
+		{
+			//Get input events from application
+			m_app_handle->InputEvents();
+			//Get in engine key events
+			UpdateEngineInputKeys();
+		}
+	}
+
+	void Engine::OnGlobalUpdate(float DeltaTime)
+	{
+		m_app_handle->OnUpdate(DeltaTime);
+	}
+
 	void Engine::OnLoop()
 	{
+		UpdateInput();
+		m_time.Tick();
+
+		OnGlobalUpdate(m_time.GetDeltaTime());
 		m_render->Render();
 	}
 
