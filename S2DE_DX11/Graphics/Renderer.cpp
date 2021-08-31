@@ -1,11 +1,15 @@
 #include "Renderer.h"
 #include "Base/Engine.h"
+#include "Base/DebugTools/VisualConsole.h"
 
 #define S2DE_FORMAT_MODE DXGI_FORMAT_R8G8B8A8_UNORM
 #define S2DE_IMGUI_NEW_FRAME()  ImGui_ImplDX11_NewFrame(); \
 								ImGui_ImplWin32_NewFrame(); \
 								ImGui::NewFrame(); \
 
+#define S2DE_CONSOLE_RENDER() \
+if (Engine::GetConsole() != nullptr) \
+	Engine::GetConsole()->Render(); \
 
 namespace S2DE
 {
@@ -41,14 +45,14 @@ namespace S2DE
 		ID3D11Texture2D* pBuffer;
 		if(FAILED(m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer)))
 		{
-			Logger::Error("Can't create buffer");
+			Logger::Error("Render Error: Can't create buffer");
 			return false;
 		}
 
 
 		if (FAILED(m_device->CreateRenderTargetView(pBuffer, NULL, &m_renderTargetView)))
 		{
-			Logger::Error("Can't recreate render target view");
+			Logger::Error("Render Error: Can't recreate render target view");
 			return false;
 		}
 
@@ -144,20 +148,20 @@ namespace S2DE
 		//Create the dxgi factory
 		if (FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory)))
 		{
-			S2DE_FATAL_ERROR("Cannot create DXGI factory");
+			S2DE_FATAL_ERROR("Render Error: Cannot create DXGI factory");
 			return false;
 		}
 
 		if (FAILED(factory->EnumAdapters(0, &adapter)))
 		{
-			S2DE_FATAL_ERROR("Cannot get adapters for this video card");
+			S2DE_FATAL_ERROR("Render Error: Cannot get adapters for this video card");
 			return false;
 		}
 
 		//Enumerate the primary adapter output (monitor).;
 		if (FAILED(adapter->EnumOutputs(0, &adapterOutput)))
 		{
-			S2DE_FATAL_ERROR("Cannot get primary adapter output");
+			S2DE_FATAL_ERROR("Render Error: Cannot get primary adapter output");
 			return false;
 		}
 
@@ -166,7 +170,7 @@ namespace S2DE
 
 		if (FAILED(adapterOutput->GetDisplayModeList(S2DE_FORMAT_MODE, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL)))
 		{
-			S2DE_FATAL_ERROR("Cannot get number of modes");
+			S2DE_FATAL_ERROR("Render Error: Cannot get number of modes");
 			return false;
 		}
 
@@ -176,7 +180,7 @@ namespace S2DE
 
 		if (FAILED(adapterOutput->GetDisplayModeList(S2DE_FORMAT_MODE, DXGI_ENUM_MODES_INTERLACED, &numModes, display_mode_list)))
 		{
-			S2DE_FATAL_ERROR("Cannot get display mods");
+			S2DE_FATAL_ERROR("Render Error: Cannot get display mods");
 			return false;
 		}
 
@@ -196,7 +200,7 @@ namespace S2DE
 
 		if (FAILED(adapter->GetDesc(&adapterDesc)))
 		{
-			S2DE_FATAL_ERROR("Cannot get adapter description");
+			S2DE_FATAL_ERROR("Render Error: Cannot get adapter description");
 			return false;
 		}
 
@@ -207,7 +211,7 @@ namespace S2DE
 		if (wcstombs_s(0, m_videocard_desc.Description, 128, adapterDesc.Description, 128)
 			!= 0)
 		{
-			S2DE_FATAL_ERROR("Cannot set name of video card");
+			S2DE_FATAL_ERROR("Render Error: Cannot set name of video card");
 			return false;
 		}
 		
@@ -262,7 +266,7 @@ namespace S2DE
 		if (FAILED(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &m_feature_level, 1,
 			D3D11_SDK_VERSION, &swap_chain_desc, &m_swapChain, &m_device, NULL, &m_deviceContext)))
 		{
-			S2DE_FATAL_ERROR("Cannot create device and swap chain");
+			S2DE_FATAL_ERROR("Render Error: Cannot create device and swap chain");
 			return false;
 		}
 
@@ -271,7 +275,7 @@ namespace S2DE
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 		if (FAILED(m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView)))
 		{
-			S2DE_FATAL_ERROR("Cannot create render target view");
+			S2DE_FATAL_ERROR("Render Error: Cannot create render target view");
 			return false;
 		}
 
@@ -300,7 +304,7 @@ namespace S2DE
 
 		if (FAILED(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer)))
 		{
-			S2DE_FATAL_ERROR("Cannot create depth buffer");
+			S2DE_FATAL_ERROR("Render Error: Cannot create depth buffer");
 			return false;
 		}
 
@@ -333,7 +337,7 @@ namespace S2DE
 		//Create the depth stencil state.
 		if (FAILED(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState)))
 		{
-			S2DE_FATAL_ERROR("Cannot create depth stencil state");
+			S2DE_FATAL_ERROR("Render Error: Cannot create depth stencil state");
 			return false;
 		}
 
@@ -351,7 +355,7 @@ namespace S2DE
 		//Create the depth stencil view.
 		if (FAILED(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView)))
 		{
-			S2DE_FATAL_ERROR("Cannot create depth stencil view");
+			S2DE_FATAL_ERROR("Render Error: Cannot create depth stencil view");
 			return false;
 		}
 
@@ -374,7 +378,7 @@ namespace S2DE
 
 		if (FAILED(m_device->CreateRasterizerState(&rasterDesc, &m_rasterState)))
 		{
-			S2DE_FATAL_ERROR("Cannot create rasterizer state");
+			S2DE_FATAL_ERROR("Render Error: Cannot create rasterizer state");
 			return false;
 		}
 
@@ -422,7 +426,7 @@ namespace S2DE
 
 	void Renderer::Destroy()
 	{
-		Logger::Log("Destroying renderer...");
+		Logger::Log("<Renderer> Destroy...");
 
 		DestroyImGui();
 
@@ -464,9 +468,7 @@ namespace S2DE
 	void Renderer::UpdateImGuiWindows()
 	{
 		S2DE_IMGUI_NEW_FRAME();
-
-		ImGui::Begin("Test");
-		ImGui::End();
+		S2DE_CONSOLE_RENDER();
 
 		ImGui::Render();
 	}
