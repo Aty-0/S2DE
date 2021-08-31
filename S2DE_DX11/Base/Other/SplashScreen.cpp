@@ -158,10 +158,10 @@ namespace S2DE
 
 
 			SelectObject(phdc, m_hfont_Build);
-			TextOut(phdc, 13, m_defaultPicHeight - 30, m_text_build_str.c_str(), (std::int32_t)m_text_build_str.length());
+			TextOut(phdc, 13, m_defaultPicHeight - 25, m_text_build_str.c_str(), (std::int32_t)m_text_build_str.length());
 
 			SelectObject(phdc, m_hfont_LoadState);
-			TextOut(phdc, m_defaultPicWidth / 2 - 50, m_defaultPicHeight - 30, m_text_load_state_str.c_str(), (std::int32_t)m_text_load_state_str.length());
+			TextOut(phdc, m_defaultPicWidth / 2 - 50, m_defaultPicHeight - 25, m_text_load_state_str.c_str(), (std::int32_t)m_text_load_state_str.length());
 	
 
 			EndPaint(hWnd, &ps);
