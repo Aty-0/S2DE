@@ -87,6 +87,12 @@
     <ClInclude Include="Libs\imgui\imstb_textedit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Base\InputManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\DebugTools\VisualConsole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Base\Utils\Logger.cpp">
@@ -126,6 +132,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Libs\imgui\imgui_widgets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\DebugTools\VisualConsole.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
