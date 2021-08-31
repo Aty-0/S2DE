@@ -2,6 +2,7 @@
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
 #include "Base/Main/BuildDate.h"
+#include "Base/DebugTools/VisualConsole.h"
 
 #pragma warning(disable:4996)
 
@@ -127,13 +128,16 @@ namespace S2DE
 		OutputDebugString(line.c_str());
 
 		//Add text to log file
-	
 		m_log_file.open(m_log_file_name, std::ios::app | std::ios_base::out);
 		m_log_file << line;
 		m_log_file.close();
 
+		if (Engine::GetConsole() != nullptr)
+			Engine::GetConsole()->Add(line);
+
 		//Add line 
 		m_linecount++;
+
 
 		line.clear();
 	}
