@@ -1,8 +1,10 @@
-# S2DE
-# Simple 2D Engine
-# That repo is big update of dx9 engine version
+# S2DE (Simple 2D Engine)
 
-## Main changes in that update:
+# Author
+S2DE is developed by Antd23rus aka A_T
+
+## This repo is a big update of dx9 version of engine 
+## Main changes in this update:
 
 - Some refactoring 
 - DX9 -> DX11
