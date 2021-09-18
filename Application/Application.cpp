@@ -1,6 +1,7 @@
 #include "Application.h"
+#include <Base\CoreMinimal.h>
+#include <GameObjects\TestObject.h>
 
-#include <Base\Engine.h>
 
 Application::Application()
 {
@@ -10,15 +11,15 @@ Application::Application()
 	engine->RunGame(this);
 }
 
-
 Application::~Application()
 {
 
 }
 
-
+TestObject* t;
 bool Application::LoadResources()
 {
+	t = new TestObject();
 	return true;
 }
 
@@ -30,7 +31,7 @@ void Application::OnUpdate(float DeltaTime)
 
 void Application::OnRender()
 {
-
+	t->Render();
 }
 
 void Application::InputEvents()
