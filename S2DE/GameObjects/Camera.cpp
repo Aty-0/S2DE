@@ -51,10 +51,7 @@ namespace S2DE
 
 	void Camera::OnDebugRenderGUI()
 	{
-		ImGui::Begin("Camera Debug Window", 0,
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings);
-
-		ImGui::SetWindowPos(ImVec2(0, -25));
+		ImGui::Begin("Camera Debug Window", 0);
 
 		ImGui::Text("Position: X:%f Y:%f Z:%f", GetPosition().x, GetPosition().y, GetPosition().z);
 		ImGui::Text("Rotation: X:%f Y:%f Z:%f", GetRotation().x, GetRotation().y, GetRotation().z);
