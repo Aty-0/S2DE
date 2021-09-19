@@ -35,7 +35,7 @@ namespace S2DE
 	static inline T* CreateGameObject(
 		std::string name = "NewObject",
 		std::string type = "GameObject",
-		std::uint32_t prefix = 1,
+		std::int32_t prefix = 1,
 		Vector3 position = Vector3::Zero(),
 		Vector3 rotation = Vector3::Zero(),
 		Vector3 scale = Vector3(1.0f, 1.0f, 1.0f))

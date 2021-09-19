@@ -33,6 +33,10 @@ namespace S2DE
 		void				 Add(GameObject* g);
 
 
+		//Check object name on exist
+		//if name existing we add number of same object
+		void				CheckNameOnExist(std::string& name);
+
 		inline SceneObjectStorage& GetStorage() { return m_storage; }
 
 	private:
