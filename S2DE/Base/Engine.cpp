@@ -36,6 +36,8 @@ namespace S2DE
 		Delete(m_app_handle);
 		Delete(m_render);
 		Delete(m_window);		
+		Delete(m_input_m);
+		Delete(m_console);
 	}
 
 	void Engine::RunGame(ApplicationHandle* app_handle, std::string pname)
@@ -163,6 +165,7 @@ namespace S2DE
 		m_app_handle->OnClose();
 		m_render->Destroy();
 		Engine::GetResourceManager().ClearAll();
+		Delete(m_scene_manager);
 
 		S2DE_EXIT_PROCESS();
 	}
