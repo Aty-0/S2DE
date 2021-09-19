@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClInclude Include="Base\ApplicationHandle.h" />
     <ClInclude Include="Base\CoreMinimal.h" />
+    <ClInclude Include="Base\DebugTools\Debug_Info.h" />
+    <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h" />
+    <ClInclude Include="Base\DebugTools\Debug_Window.h" />
     <ClInclude Include="Base\DebugTools\VisualConsole.h" />
     <ClInclude Include="Base\Engine.h" />
     <ClInclude Include="Base\GameTime.h" />
@@ -72,6 +75,9 @@
     <ResourceCompile Include="S2DE.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Base\DebugTools\Debug_Info.cpp" />
+    <ClCompile Include="Base\DebugTools\Debug_ObjectInspector.cpp" />
+    <ClCompile Include="Base\DebugTools\Debug_Window.cpp" />
     <ClCompile Include="Base\DebugTools\VisualConsole.cpp" />
     <ClCompile Include="Base\Engine.cpp" />
     <ClCompile Include="Base\GameTime.cpp" />
