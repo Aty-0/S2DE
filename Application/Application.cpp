@@ -1,7 +1,7 @@
 #include "Application.h"
 #include <Base\CoreMinimal.h>
 #include <GameObjects\TestObject.h>
-
+#include <Scene\SceneManager.h>
 
 Application::Application()
 {
@@ -16,10 +16,11 @@ Application::~Application()
 
 }
 
-TestObject* t;
 bool Application::LoadResources()
 {
-	t = new TestObject();
+	CreateGameObject<TestObject>("testobject", "GameObject", 1, Vector3(0,0,0));
+	CreateGameObject<TestObject>("testobject1", "GameObject", 1, Vector3(2,0,0));
+	CreateGameObject<TestObject>("testobject2", "GameObject", 1, Vector3(-2,0,0));
 	return true;
 }
 
@@ -31,7 +32,7 @@ void Application::OnUpdate(float DeltaTime)
 
 void Application::OnRender()
 {
-	t->Render();
+	
 }
 
 void Application::InputEvents()
