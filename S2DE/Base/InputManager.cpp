@@ -5,11 +5,16 @@
 
 namespace S2DE
 {
-	InputManager::InputManager()
+	InputManager::InputManager() :
+		m_DirectInput(nullptr),
+		m_InputKeyboard(nullptr),
+		m_InputMouse(nullptr),
+		m_KeyboardState(),
+		m_KeyboardStateLast(),
+		m_MouseCurrState(),
+		m_MouseLastState()
 	{
-		m_DirectInput = NULL;
-		m_InputKeyboard = NULL;
-		m_InputMouse = NULL;
+
 	}
 
 	InputManager::~InputManager()
@@ -59,18 +64,15 @@ namespace S2DE
 		if (m_InputKeyboard == nullptr)
 			return false;
 
-
-		HRESULT result;
-
 		for (std::int32_t i = 0; i < 256; i++)
 			m_KeyboardStateLast[i] = m_KeyboardState[i];
 
-		// Read the keyboard device.
-		result = m_InputKeyboard->GetDeviceState(sizeof(m_KeyboardState), (LPVOID)&m_KeyboardState);
+		//Read the keyboard device.
+		HRESULT result = m_InputKeyboard->GetDeviceState(sizeof(m_KeyboardState), (LPVOID)&m_KeyboardState);
 		if (FAILED(result))
 		{
-			// If the keyboard lost focus or was not acquired then try to get control back.
-			if ((result == DIERR_INPUTLOST) || (result == DIERR_NOTACQUIRED))
+			//If the keyboard lost focus or was not acquired then try to get control back.
+			if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
 				m_InputKeyboard->Acquire();
 			else
 				return false;
@@ -85,13 +87,13 @@ namespace S2DE
 		if (m_InputMouse == nullptr)
 			return false;
 
-		HRESULT result;
-		// Read the mouse device.
-		result = m_InputMouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&m_MouseCurrState);
+		//Read the mouse device.
+		HRESULT result = m_InputMouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&m_MouseCurrState);
+
 		if (FAILED(result))
 		{
-			// If the mouse lost focus or was not acquired then try to get control back.
-			if ((result == DIERR_INPUTLOST) || (result == DIERR_NOTACQUIRED))
+			//If the mouse lost focus or was not acquired then try to get control back.
+			if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
 				m_InputMouse->Acquire();
 			else
 				return false;
@@ -103,83 +105,45 @@ namespace S2DE
 
 	bool InputManager::Initialize()
 	{
-		HRESULT result = S_OK;
+		Logger::Log("[InputManager] Initialize...");
 
-		Logger::Log("Input::Initialize");
-
-
-		result = DirectInput8Create(Engine::GetGameWindow()->GetInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_DirectInput, NULL);
-
-
-		if (FAILED(result))
+		//Create DirectInput8 Interface
+		if (FAILED(DirectInput8Create(Engine::GetGameWindow()->GetInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_DirectInput, NULL)))
 		{
 			Logger::Error("Failed to create DirectInput8");
 			return false;
 		}
 
 		//Create a keyboard device
-		result = m_DirectInput->CreateDevice(GUID_SysKeyboard, &m_InputKeyboard, NULL);
-		if (FAILED(result))
+		if (FAILED(m_DirectInput->CreateDevice(GUID_SysKeyboard, &m_InputKeyboard, NULL)))
 		{
 			Logger::Error("Failed to create keyboard device");
 			return false;
 		}
 
-
-		// Set the data format.  
-		result = m_InputKeyboard->SetDataFormat(&c_dfDIKeyboard);
-		if (FAILED(result))
-			return false;
-
-
-	if(Engine::GetGameWindow()->isChild() == false)
-		result = m_InputKeyboard->SetCooperativeLevel(Engine::GetGameWindow()->GetHWND(), DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
-	else
-		result = m_InputKeyboard->SetCooperativeLevel(NULL, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
-
-		if (FAILED(result))
+		m_InputKeyboard->SetDataFormat(&c_dfDIKeyboard);
+		if (FAILED(m_InputKeyboard->SetCooperativeLevel(Engine::GetGameWindow()->isChild() == false ? Engine::GetGameWindow()->GetHWND() : NULL, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE)))
 		{
-			Logger::Error("m_InputKeyboard -> SetCooperativeLevel");
+			Logger::Error("Failed to set cooperative level for keyboard device");
 			return false;
 		}
-
-
-		result = m_InputKeyboard->Acquire();
-		if (FAILED(result))
-			return false;
-
-
+	    m_InputKeyboard->Acquire();
 
 		//Create a mouse device
-		result = m_DirectInput->CreateDevice(GUID_SysMouse, &m_InputMouse, NULL);
-		if (FAILED(result))
+		if (FAILED(m_DirectInput->CreateDevice(GUID_SysMouse, &m_InputMouse, NULL)))
 		{
 			Logger::Error("Failed to create mouse device");
 			return false;
 		}
 
-
-		// Set the data format for the mouse using the pre-defined mouse data format.
-		result = m_InputMouse->SetDataFormat(&c_dfDIMouse);
-		if (FAILED(result))
-			return false;
-
-		// Set the cooperative level of the mouse to share with other programs.
-		if (Engine::GetGameWindow()->isChild() == false)
-			result = m_InputMouse->SetCooperativeLevel(Engine::GetGameWindow()->GetHWND(), DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
-		else
-			result = m_InputMouse->SetCooperativeLevel(NULL, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
-
-		if (FAILED(result))
+		m_InputMouse->SetDataFormat(&c_dfDIMouse);
+		if (FAILED(m_InputMouse->SetCooperativeLevel(Engine::GetGameWindow()->isChild() == false ? Engine::GetGameWindow()->GetHWND() : NULL, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE)))
 		{
-			Logger::Error("m_InputMouse -> SetCooperativeLevel");
+			Logger::Error("Failed to set cooperative level for mouse device");
 			return false;
 		}
+		m_InputMouse->Acquire();
 
-
-		result = m_InputMouse->Acquire();
-		if (FAILED(result))
-			return false;
 
 		return true;
 	}

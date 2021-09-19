@@ -19,10 +19,10 @@ namespace S2DE
 		Engine();
 		~Engine();
 
-		void RunGame(ApplicationHandle* app_handle, std::string pname = std::string());
-		static void Destroy();
+		void							RunGame(ApplicationHandle* app_handle, std::string pname = std::string());
+		static void						Destroy();
 
-		static inline Engine* GetEngine() { return m_engine; }
+		static inline Engine*			GetEngine() { return m_engine; }
 		static inline ApplicationHandle* GetApplicationHandle() { return m_app_handle; }
 		static inline GameWindow*		GetGameWindow() { return m_window; }
 		static inline GameTime			GetGameTime() { return m_time; }
@@ -32,15 +32,16 @@ namespace S2DE
 		static inline SceneManager*		GetSceneManager() { return m_scene_manager; }
 		static inline ResourceManager&	GetResourceManager() { return m_resource_manager; }
 		static inline bool				isEditor() { return m_isEditor; }
-	private:
-		void		RunEngine(ApplicationHandle* app_handle, std::string pname, bool isEditor);
 
-		void		UpdateInput();
-		void		UpdateEngineInputKeys();
-		void		RunLoop();
-		void		OnLoop();
-		void		OnGlobalUpdate(float DeltaTime);
-		bool		LoadEngineResources();
+	private:
+		void							RunEngine(ApplicationHandle* app_handle, std::string pname, bool isEditor);
+
+		void							UpdateInput();
+		void							UpdateEngineInputKeys();
+		void							RunLoop();
+		void							OnLoop();
+		void							OnGlobalUpdate(float DeltaTime);
+		bool							LoadEngineResources();
 
 		static Engine* m_engine;
 		static ApplicationHandle* m_app_handle;
