@@ -125,19 +125,16 @@ namespace S2DE
 
 	inline static XVector To_XMVector4(Vector4 v)
 	{
-		XVector xv = DirectX::XMVectorSet(v.x, v.y, v.z, v.w);
-		return DirectX::XMVector4Dot(xv, xv);
+		return DirectX::XMVectorSet(v.x, v.y, v.z, v.w);
 	}
 
 	inline static XVector To_XMVector3(Vector3 v)
 	{
-		XVector xv = DirectX::XMVectorSet(v.x, v.y, v.z, 0);
-		return DirectX::XMVector3Dot(xv, xv);
+		return DirectX::XMVectorSet(v.x, v.y, v.z, 0);
 	}
 
 	inline static XVector To_XMVector2(Vector2 v)
 	{
-		XVector xv = DirectX::XMVectorSet(v.x, v.y, 0, 0);
-		return DirectX::XMVector2Dot(xv, xv);
+		return DirectX::XMVectorSet(v.x, v.y, 0, 0);
 	}
 }
