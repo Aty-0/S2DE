@@ -3,7 +3,7 @@
 # Author
 S2DE is developed by Antd23rus aka A_T
 
-## This repo is a big update of dx9 version of engine 
+## This repo is a big update of dx9 engine version  
 ## Main changes in this update:
 
 - Some refactoring 
