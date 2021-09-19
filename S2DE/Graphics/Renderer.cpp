@@ -4,6 +4,7 @@
 #include "Base/ApplicationHandle.h"
 #include "Base/GameWindow.h"
 #include "Scene/SceneManager.h"
+#include "Base/DebugTools/Debug_Info.h"
 
 #define S2DE_FORMAT_MODE DXGI_FORMAT_R8G8B8A8_UNORM
 
@@ -126,6 +127,16 @@ namespace S2DE
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
+
+		//Search custom font
+		std::string path;
+		if (Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
+		{
+			Logger::Log("Added custom font for imgui...");
+			io.Fonts->AddFontFromFileTTF(path.c_str(), 15);
+		}
+
 		LoadCustomImguiTheme();
 
 		// Setup Platform/Renderer backends
@@ -363,6 +374,9 @@ namespace S2DE
 		if (!InitImGui())
 			return false;
 
+		m_Debug_Info = new Debug_Info();
+		m_Debug_Info->TougleDraw();
+
 		return true;
 	}
 
@@ -411,8 +425,9 @@ namespace S2DE
 		S2DE_IMGUI_NEW_FRAME();
 		S2DE_CONSOLE_RENDER();
 
+		m_Debug_Info->Render();
 		Engine::GetSceneManager()->RenderDebugGUI();
-		
+
 		ImGui::Render();
 	}
 

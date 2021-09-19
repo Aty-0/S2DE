@@ -8,10 +8,11 @@
 #include "Libs/imgui/imgui_impl_dx11.h"
 
 
-#include <functional>
-
 //ImGui WndProcHandler
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+//Name of default font for ui_basic_text and imgui  
+#define S2DE_DEFAULT_FONT_NAME "default"
 
 
 namespace S2DE
@@ -30,7 +31,7 @@ namespace S2DE
 		inline ID3D11Device*		GetDevice() const { return m_device; }
 		inline ID3D11DeviceContext* GetContext() const { return m_deviceContext; }
 		inline IDXGISwapChain*		GetSwapChain() const { return m_swapChain; }
-
+		inline bool					GetVsync() const { return m_vsync; }
 
 
 	private:					 
@@ -72,5 +73,7 @@ namespace S2DE
 		//TODO
 		//Own class
 		float						m_clearColor[4] = { 0.3f, 0.1f, 0.4f, 1.0f };
+
+		class Debug_Info*			m_Debug_Info;
 	};
 }
