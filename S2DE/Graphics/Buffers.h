@@ -109,6 +109,11 @@ namespace S2DE
 			Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(num, 1, &m_buffer);
 		}
 
+		void Unbind()
+		{
+			Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(0, 0, nullptr);
+		}
+
 		inline T*& GetBufferData() { return m_buffer_data; }
 		inline ID3D11Buffer*& GetBuffer() { return m_buffer; }
 	private:

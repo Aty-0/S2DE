@@ -162,5 +162,6 @@ namespace S2DE
 		m_mainbuffer->Unlock();
 
 		m_mainbuffer->Bind(0);
+		m_mainbuffer->Unbind();
 	}
 }
