@@ -194,7 +194,7 @@ namespace S2DE
 		//FIX ME
 		//I think it's wrong implementation
 		template<typename T>
-		std::int32_t GetResCount() const
+		std::int32_t GetResourceCount() const
 		{
 			std::int32_t count = 0;
 
