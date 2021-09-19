@@ -65,6 +65,8 @@
     <ClInclude Include="Math\Vector.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="GameObjects\TestObject.h" />
+    <ClInclude Include="Scene\Scene.h" />
+    <ClInclude Include="Scene\SceneManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc" />
@@ -98,6 +100,8 @@
     <ClCompile Include="Math\Rect.cpp" />
     <ClCompile Include="Math\Vector.cpp" />
     <ClCompile Include="GameObjects\TestObject.cpp" />
+    <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="Scene\SceneManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\splash.bmp" />
