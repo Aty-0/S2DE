@@ -4,6 +4,7 @@
 #include <memory>
 #include <typeindex>
 #include <string>
+#include <utility>
 
 //Disable warning "needs to have dll-interface to be used by clients of class"
 #pragma warning(disable: 4251)
