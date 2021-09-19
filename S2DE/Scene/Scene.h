@@ -37,8 +37,8 @@ namespace S2DE
 		//if name existing we add number of same object
 		void				CheckNameOnExist(std::string& name);
 
-		inline SceneObjectStorage& GetStorage() { return m_storage; }
-
+		inline SceneObjectStorage&		GetStorage() { return m_storage; }
+		inline std::string				GetName() const { return m_name; }
 	private:
 		SceneObjectStorage m_storage;
 		std::string m_name;
