@@ -11,6 +11,7 @@ namespace S2DE
 	class S2DE_API GameWindow;
 	class S2DE_API Renderer;
 	class S2DE_API InputManager;
+	class S2DE_API SceneManager;
 
 	class S2DE_API Engine
 	{
@@ -28,6 +29,7 @@ namespace S2DE
 		static inline Renderer*			GetRenderer() { return m_render; }
 		static inline InputManager*		GetInputManager() { return m_input_m; }
 		static inline VisualConsole*	GetConsole() { return m_console; }
+		static inline SceneManager*		GetSceneManager() { return m_scene_manager; }
 		static inline ResourceManager&	GetResourceManager() { return m_resource_manager; }
 		static inline bool				isEditor() { return m_isEditor; }
 	private:
@@ -47,6 +49,7 @@ namespace S2DE
 		static Renderer* m_render;
 		static InputManager* m_input_m;
 		static VisualConsole* m_console;
+		static SceneManager* m_scene_manager;
 		static ResourceManager m_resource_manager;
 		static bool m_isEditor;
 	};

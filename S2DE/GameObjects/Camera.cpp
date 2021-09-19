@@ -18,8 +18,6 @@
 
 namespace S2DE
 {
-	Camera* Camera::_Camera;
-
 	Camera::Camera() :
 		m_forward(CAMERA_DEFAULT_FORWARD_VEC),
 		m_right(CAMERA_DEFAULT_RIGHT_VEC),
@@ -51,7 +49,7 @@ namespace S2DE
 
 	}
 
-	void Camera::DebugGUI()
+	void Camera::OnDebugRenderGUI()
 	{
 		ImGui::Begin("Camera Debug Window", 0,
 			ImGuiWindowFlags_::ImGuiWindowFlags_NoResize | ImGuiWindowFlags_::ImGuiWindowFlags_NoMove | ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings);
@@ -98,6 +96,12 @@ namespace S2DE
 		}
 
 		ImGui::End();
+	}
+
+	void Camera::OnUpdateInput()
+	{
+		UpdateControl();
+		UpdateMouseControl();
 	}
 
 	void Camera::UpdateControl()

@@ -3,8 +3,7 @@
 #include "Base/DebugTools/VisualConsole.h"
 #include "Base/ApplicationHandle.h"
 #include "Base/GameWindow.h"
-
-#include "GameObjects/Camera.h"
+#include "Scene/SceneManager.h"
 
 #define S2DE_FORMAT_MODE DXGI_FORMAT_R8G8B8A8_UNORM
 
@@ -205,6 +204,7 @@ namespace S2DE
 		//TODO
 		//Global var
 		//Turn multisampling off.
+
 		swap_chain_desc.SampleDesc.Count = 1;
 		swap_chain_desc.SampleDesc.Quality = 0;
 		swap_chain_desc.Windowed = !Engine::GetGameWindow()->isFullscreen();
@@ -228,13 +228,19 @@ namespace S2DE
 		S2DE_CHECK(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, m_device_flag, &m_feature_level, 1,
 			D3D11_SDK_VERSION, &swap_chain_desc, &m_swapChain, &m_device, NULL, &m_deviceContext), "Render Error: Cannot create device and swap chain");
 
+		//Fix weird rendering
+		//maybe need to remove it
+		if (FAILED(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0)))
+			return false;
 
 		//Create the render target view with the back buffer pointer.
 		ID3D11Texture2D* backBufferPtr;
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
-		S2DE_CHECK(m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView), "Render Error: Cannot create render target view");
 
+		S2DE_CHECK(m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView), "Render Error: Cannot create render target view");
+		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
 		Release(backBufferPtr);
+		UpdateViewport();
 
 		return true;
 	}
@@ -357,11 +363,6 @@ namespace S2DE
 		if (!InitImGui())
 			return false;
 
-		//FIX ME 
-		//Temp fix
-		Reset();
-
-		Camera::_Camera = new Camera();
 		return true;
 	}
 
@@ -380,7 +381,6 @@ namespace S2DE
 		Release(m_depthStencilState);
 		Release(m_depthStencilView);
 	}
-
 
 	void Renderer::Clear()
 	{
@@ -411,8 +411,8 @@ namespace S2DE
 		S2DE_IMGUI_NEW_FRAME();
 		S2DE_CONSOLE_RENDER();
 
-		Camera::_Camera->DebugGUI();
-
+		Engine::GetSceneManager()->RenderDebugGUI();
+		
 		ImGui::Render();
 	}
 
@@ -423,7 +423,7 @@ namespace S2DE
 		Clear();
 
 		Engine::GetApplicationHandle()->OnRender();
-		Camera::_Camera->Update(0);
+		Engine::GetSceneManager()->RenderScene();
 
 		RenderImGui();
 

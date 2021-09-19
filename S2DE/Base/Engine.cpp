@@ -6,9 +6,8 @@
 #include "Base/GameWindow.h"
 #include "Base/InputManager.h"
 #include "Base/ResourceManager.h"
+#include "Scene/SceneManager.h"
 #include "Graphics/Renderer.h"
-
-#include "GameObjects/Camera.h"
 
 
 #define S2DE_EXIT_PROCESS() exit(EXIT_SUCCESS);
@@ -24,6 +23,7 @@ namespace S2DE
 	InputManager* Engine::m_input_m;
 	VisualConsole* Engine::m_console;
 	ResourceManager Engine::m_resource_manager;
+	SceneManager* Engine::m_scene_manager;
 
 	Engine::Engine()
 	{
@@ -79,6 +79,9 @@ namespace S2DE
 		if (!m_render->Create())
 			return;
 		
+		m_scene_manager = new SceneManager();
+		m_scene_manager->CreateNewScene();
+
 		//Load engine resources, read main config, etc
 		sp->SetLoadState("Load engine resources...");
 		
@@ -95,6 +98,7 @@ namespace S2DE
 			S2DE_FATAL_ERROR("Failed to load application resources");
 			return;
 		}
+
 
 		//Close and destroy splash screen
 		sp->Close();
@@ -115,9 +119,6 @@ namespace S2DE
 
 	void Engine::UpdateEngineInputKeys()
 	{
-		Camera::_Camera->UpdateControl();
-		Camera::_Camera->UpdateMouseControl();
-
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_GRAVE))
 		{
 			m_console->TougleDraw();
@@ -134,15 +135,15 @@ namespace S2DE
 		//Update input manager
 		if (m_input_m->Update())
 		{
-			//Get input events from application
-			m_app_handle->InputEvents();
-			//Get in engine key events
 			UpdateEngineInputKeys();
+			m_app_handle->InputEvents();
+			m_scene_manager->UpdateInput();
 		}
 	}
 
 	void Engine::OnGlobalUpdate(float DeltaTime)
 	{
+		m_scene_manager->UpdateScene(DeltaTime);
 		m_app_handle->OnUpdate(DeltaTime);
 	}
 

@@ -3,6 +3,7 @@
 #include "Base/GameWindow.h"
 #include "D3DX11async.h"
 
+#include "Scene/SceneManager.h"
 #include "GameObjects/Camera.h"
 
 #include <fstream>
@@ -149,8 +150,14 @@ namespace S2DE
 			(float)Engine::GetGameWindow()->GetHeight());
 
 		m_mainbuffer->GetBufferData()->world = world;
-		m_mainbuffer->GetBufferData()->projection = Camera::_Camera->GetProjectionMatrix();
-		m_mainbuffer->GetBufferData()->view = Camera::_Camera->GetViewMatrix();
+
+		Camera* cam = GetObjectByName<Camera>(S2DE_MAIN_CAMERA_NAME);
+
+		if (cam != nullptr)
+		{
+			m_mainbuffer->GetBufferData()->projection = cam->GetProjectionMatrix();
+			m_mainbuffer->GetBufferData()->view = cam->GetViewMatrix();
+		}
 
 		m_mainbuffer->Unlock();
 

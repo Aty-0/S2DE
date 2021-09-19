@@ -16,6 +16,8 @@ namespace S2DE
 
 		void						 Render();
 		void						 Update(float DeltaTime);
+		void						 UpdateInput();
+		void						 RenderDebugGUI();
 
 		//Object initialize  
 		//Set name, id or generate it, type, prefix
@@ -40,22 +42,23 @@ namespace S2DE
 
 
 	protected:
-		virtual void         OnPositionChanged()  override { }
-		virtual void         OnRotationChanged()  override { }
-		virtual void         OnScaleChanged()     override { }
-		virtual void         OnCreate() { }
-		virtual void         OnDestroy() { }
-		virtual void         OnRender() { }
-		virtual void         OnUpdate(float DeltaTime) { }
-
+		virtual void				OnPositionChanged()  override { }
+		virtual void				OnRotationChanged()  override { }
+		virtual void				OnScaleChanged()     override { }
+		virtual void				OnCreate() { }
+		virtual void				OnDestroy() { }
+		virtual void				OnRender() { }
+		virtual void				OnUpdate(float DeltaTime) { }
+		virtual void				OnUpdateInput() { }
+		virtual void				OnDebugRenderGUI() { }
 
 	private:
-		std::string				m_name; 
-		std::int32_t			m_prefix;
-		GameObjectIDGenerator*  m_id;
-		std::string				m_type;
-		bool					m_enabled;
-		bool					m_visible;
+		std::string					m_name; 
+		std::int32_t				m_prefix;
+		GameObjectIDGenerator*		m_id;
+		std::string					m_type;
+		bool						m_enabled;
+		bool						m_visible;
 	};
 
 }
