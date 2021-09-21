@@ -1,23 +1,47 @@
 #include "TestObject.h"
 #include "GameObjects/Camera.h"
-
+#include "Math/Random.h"
 
 namespace S2DE
 {
-	TestObject::TestObject()
+	TestObject::TestObject() : 
+		m_r(0.0f),
+		m_ibuffer(nullptr),
+		m_vbuffer(nullptr),
+		m_texture(nullptr),
+		m_shader(nullptr)
 	{
-		S2DE_ASSERT(Engine::GetResourceManager().Get<Shader>("test") != nullptr);
+		if(!Engine::GetResourceManager().IsExists<Shader>("test"))
+			S2DE_ASSERT(Engine::GetResourceManager().Load<Shader>("test"));
+
+		if(!Engine::GetResourceManager().IsExists<Texture>("TestObjectTex1"))
+			Engine::GetResourceManager().Load<Texture>("TestObjectTex1");
+
+		if(!Engine::GetResourceManager().IsExists<Texture>("TestObjectTex2"))
+			Engine::GetResourceManager().Load<Texture>("TestObjectTex2");
+
+		if(!Engine::GetResourceManager().IsExists<Texture>("TestObjectTex3"))
+			Engine::GetResourceManager().Load<Texture>("TestObjectTex3");
+
+
+
 		m_shader = new Shader(*Engine::GetResourceManager().Get<Shader>("test"));
 
+		std::int32_t rnd_tex = RandomByMinMax<std::int32_t>(1, 4);
 
+		Logger::Log("pick texture %d", rnd_tex);
+
+		m_texture = new Texture(*Engine::GetResourceManager().Get<Texture>("TestObjectTex" + std::to_string(rnd_tex)));
+
+		S2DE_ASSERT(m_texture != nullptr);
 
 		m_vbuffer = new VertexBuffer();
 		m_vbuffer->GetArray() =
 		{
-				{ XFloat3(-1.0f,   1.0f,   1.0f), XFloat4(255, 255, 255, 255),  XFloat2(0.0f, 0.0f)	},
-				{ XFloat3(1.0f,   1.0f,   1.0f),  XFloat4(255, 255, 255, 255),  XFloat2(1.0f, 0.0f)	},
-				{ XFloat3(-1.0f,  -1.0f,   1.0f), XFloat4(255, 255, 255, 255),  XFloat2(0.0f, 1.0f)	},
-				{ XFloat3(1.0f,  -1.0f,   1.0f),  XFloat4(255, 255, 255, 255),  XFloat2(1.0f, 1.0f)	},
+			{ XFloat3(-1.0f,   -1.0f,   0.0f), XFloat4(255, 255, 255, 255),  XFloat2(0.0f, 1.0f) }, // Bottom left.
+			{ XFloat3(-1.0f,   1.0f,   0.0f),  XFloat4(255, 255, 255, 255),  XFloat2(0.0f, 0.0f) }, // Top left.
+			{ XFloat3(1.0f,  1.0f,   0.0f), XFloat4(255, 255, 255, 255),  XFloat2(1.0f, 0.0f)	 }, // top right.
+			{ XFloat3(1.0f,  -1.0f,   0.0f),  XFloat4(255, 255, 255, 255),  XFloat2(1.0f, 1.0f)	 }, // Bottom right.
 		};
 
 		S2DE_ASSERT(m_vbuffer->Create());
@@ -28,12 +52,16 @@ namespace S2DE
 		m_ibuffer->GetArray() =
 		{
 				0, 1, 2,
-				2, 1, 3,
+				0, 2, 3,
 		};
 
 		S2DE_ASSERT(m_ibuffer->Create());
 		m_ibuffer->Lock();
 		m_ibuffer->Unlock();
+
+		//m_scale_factor = Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f);
+		m_scale_factor = Vector3(1.0f, 1.0f, 1.0f);
+
 	}
 
 	TestObject::~TestObject()
@@ -43,16 +71,33 @@ namespace S2DE
 		Delete(m_ibuffer);
 	}
 
+	XMatrix TestObject::UpdateTransformation()
+	{
+		GetWorldMatrix() = DirectX::XMMatrixTransformation(
+			//Scale
+			//Center | Rotation | Scaling
+			XVector(), XVector(), To_XMVector3(GetScale() * m_scale_factor),
+			//Rotation
+			//Center | Quatarnion
+			XVector(), ToQuaternion(GetRotation()),
+			//Translation
+			To_XMVector3(GetPosition()));
+
+		return DirectX::XMMatrixTranspose(GetWorldMatrix());
+	}
+
 	void TestObject::OnRender()
 	{
+		m_r += 0.005f;
+		SetRotation(Vector3(0, 0, m_r));
 		m_vbuffer->Bind();
 		m_ibuffer->Bind();
 		Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		m_shader->Bind();
 		m_shader->UpdateMainShaderBuffer(UpdateTransformation());
+		m_texture->Bind();
 		Engine::GetRenderer()->GetContext()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0);
-
 		m_shader->Unbind();
 	}
 }

@@ -1,8 +1,13 @@
 #pragma once
-#include "GameObjects\GameObject.h"
+#include "GameObjects/GameObject.h"
+#include "Base/ResourceManager.h"
+#include "Graphics/Renderer.h"
+#include "Graphics/Buffers.h"
 
 namespace S2DE
 {
+	//Dumb class for test's
+
 	class S2DE_API TestObject : public GameObject
 	{
 	public:
@@ -11,11 +16,13 @@ namespace S2DE
 
 	private:
 		virtual void OnRender() override;
+		virtual XMatrix UpdateTransformation() override;
 
-
-
-		Shader* m_shader;
+		Texture*	  m_texture;
+		Shader*		  m_shader;
 		VertexBuffer* m_vbuffer;
-		IndexBuffer* m_ibuffer;
+		IndexBuffer*  m_ibuffer;
+		float		  m_r;
+		Vector3		  m_scale_factor;
 	};
 }
