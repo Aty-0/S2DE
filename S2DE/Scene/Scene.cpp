@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "Base/Engine.h"
 
 namespace S2DE
 {
@@ -14,6 +15,9 @@ namespace S2DE
 		Destroy();
 	}
 
+
+	//FIX ME 
+	//Reduces perfomance
 	void Scene::CheckNameOnExist(std::string& name)
 	{
 		std::uint32_t count = 0;

@@ -5,6 +5,7 @@
 #include <typeindex>
 #include <string>
 #include <utility>
+#include <vector>
 
 //Disable warning "needs to have dll-interface to be used by clients of class"
 #pragma warning(disable: 4251)

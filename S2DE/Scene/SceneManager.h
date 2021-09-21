@@ -1,5 +1,7 @@
 #pragma once
 #include "Base/Main/Common.h"
+#include "Base/Engine.h"
+#include "Base/ResourceManager.h"
 #include "Scene/Scene.h"
 #include "GameObjects/GameObject.h"
 
