@@ -10,31 +10,31 @@ cbuffer MainShaderBuffer
 
 struct VSINPUT
 {
-    float4 position : POSITION;
+    float3 position : POSITION;
     float4 color : COLOR;
-    float2 uv : UV;
+    float2 uv : UV0;
 };
 
 struct PSINPUT
 {
     float4 position : SV_POSITION;
     float4 color : COLOR;
-    float2 uv : UV;
+    float2 uv : UV0;
 };
 
 
 PSINPUT main(VSINPUT input)
 {
     PSINPUT output;
-    input.position.w = 1.0f;
-    output.position = mul(input.position, worldMatrix);
+
+    output.position = mul(float4(input.position, 1.0f), worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     output.uv = input.uv;
-
+    //output.uv += Time * 0.01f;
     
     float t = clamp(sin(Time), 0.5, 1);
-    output.color =  float4(t, 0, 0, 255);
+    output.color = input.color; //float4(t + cos(Time * 3.14 / 360), t + sin(Time * 3.14 / 360), t, 255);
     
     return output;
 }
