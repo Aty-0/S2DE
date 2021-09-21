@@ -1,9 +1,8 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "Graphics/Renderer.h"
-#include "Base/Utils/Logger.h"
 #include "Base/Engine.h"
-#include <vector>
+#include "Graphics/Renderer.h"
+
 
 //TODO
 //Base class
@@ -51,9 +50,6 @@ namespace S2DE
 		std::vector<std::uint32_t> m_array;
 
 	};
-
-	//TODO
-	//PS Support ?
 
 	template<typename T>
 	class S2DE_API ConstantBuffer
@@ -104,14 +100,9 @@ namespace S2DE
 			Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
 		}
 
-		void Bind(std::int32_t num)
+		void Bind(std::int32_t num = 1)
 		{
-			Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(num, 1, &m_buffer);
-		}
-
-		void Unbind()
-		{
-			Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(0, 0, nullptr);
+			Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(0, num, &m_buffer);
 		}
 
 		inline T*& GetBufferData() { return m_buffer_data; }
