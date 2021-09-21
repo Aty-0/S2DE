@@ -1,12 +1,12 @@
 #include "Shader.h"
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
-#include "D3DX11async.h"
 
 #include "Scene/SceneManager.h"
 #include "GameObjects/Camera.h"
 
 #include <fstream>
+#include <D3DX11async.h>
 
 namespace S2DE
 {
@@ -84,16 +84,17 @@ namespace S2DE
 				0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 
 				{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT,
-				0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
 		Logger::Log("[Shader] [%s] Try to create input layout...", m_name.c_str());
 		if (FAILED(Engine::GetRenderer()->GetDevice()->CreateInputLayout(elements, sizeof(elements) / sizeof(elements[0]), code_buffer->GetBufferPointer(),
 			code_buffer->GetBufferSize(), &m_layout)))
-		{
+		{		
 			Logger::Error("[Shader] Failed to create input layout");
 			return false;
 		}
+	
 
 		Release(code_buffer);
 
@@ -127,7 +128,7 @@ namespace S2DE
 		
 		m_mainbuffer = new ConstantBuffer<MainShaderBuffer>();
 		S2DE_ASSERT(m_mainbuffer->Create());
-		
+
 		Logger::Log("[Shader] [%s] Ready!", m_name.c_str());
 		return true;
 	}
@@ -160,8 +161,6 @@ namespace S2DE
 		}
 
 		m_mainbuffer->Unlock();
-
-		m_mainbuffer->Bind(0);
-		m_mainbuffer->Unbind();
+		m_mainbuffer->Bind();
 	}
 }
