@@ -173,8 +173,6 @@ namespace S2DE
 	bool Engine::LoadEngineResources()
 	{
 		S2DE_ASSERT(m_resource_manager.LoadDefaultTexture());
-		Engine::GetResourceManager().Load<Shader>("test");
-
 		return true;
 	}
 }
