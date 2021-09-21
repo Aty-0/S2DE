@@ -6,8 +6,6 @@
 #include "Scene/SceneManager.h"
 #include "Base/DebugTools/Debug_Info.h"
 
-#define S2DE_FORMAT_MODE DXGI_FORMAT_R8G8B8A8_UNORM
-
 #define S2DE_IMGUI_NEW_FRAME()  ImGui_ImplDX11_NewFrame(); \
 								ImGui_ImplWin32_NewFrame(); \
 								ImGui::NewFrame(); \
@@ -18,6 +16,10 @@ if (Engine::GetConsole() != nullptr) \
 
 namespace S2DE
 {
+	//TODO 
+	//Maybe need to move out most of desc's to header for quick var changes 
+
+
 	Renderer::Renderer() :	m_swapChain(nullptr),
 							m_device(nullptr),
 							m_deviceContext(nullptr),
@@ -162,12 +164,11 @@ namespace S2DE
 
 		//Get the number of modes 
 		std::uint32_t  numModes = 0;
-
-		S2DE_CHECK(adapterOutput->GetDisplayModeList(S2DE_FORMAT_MODE, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL), "Render Error: Cannot get number of modes");
+		S2DE_CHECK(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL), "Render Error: Cannot get number of modes");
 
 		//Create a list to hold all the possible display modes for this monitor/video card combination.
 		DXGI_MODE_DESC* display_mode_list = new DXGI_MODE_DESC[numModes];
-		S2DE_CHECK(adapterOutput->GetDisplayModeList(S2DE_FORMAT_MODE, DXGI_ENUM_MODES_INTERLACED, &numModes, display_mode_list), "Render Error: Cannot get display mods");
+		S2DE_CHECK(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, display_mode_list), "Render Error: Cannot get display mods");
 
 
 		for (std::uint32_t i = 0; i < numModes; i++)
@@ -186,13 +187,12 @@ namespace S2DE
 		S2DE_CHECK(adapter->GetDesc(&adapterDesc), "Render Error: Cannot get adapter description");
 
 		//Store the dedicated video card memory in megabytes.
-		m_videocard_desc.Memory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
+		m_videocard_desc.Memory = (std::int32_t)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 	
 		//Convert the name of the video card to a character array and store it.
-		S2DE_CHECK(wcstombs_s(0, m_videocard_desc.Description, 128, adapterDesc.Description, 128)
-			!= 0, "Render Error: Cannot set name of video card");
+		S2DE_ASSERT(wcstombs_s(0, m_videocard_desc.Description, 128, adapterDesc.Description, 128) == 0);
 		
-		Logger::Log("[Renderer] Video card %s Mem = %d initialized!", m_videocard_desc.Description, m_videocard_desc.Memory);	
+		Logger::Log("[Renderer] Video card %s initialized! Memory = %d", m_videocard_desc.Description, m_videocard_desc.Memory);	
 
 		Release(factory);
 		Release(adapter);
@@ -208,7 +208,7 @@ namespace S2DE
 		swap_chain_desc.BufferCount = 1;
 		swap_chain_desc.BufferDesc.Width = Engine::GetGameWindow()->GetWidth();
 		swap_chain_desc.BufferDesc.Height = Engine::GetGameWindow()->GetHeight();
-		swap_chain_desc.BufferDesc.Format = S2DE_FORMAT_MODE;
+		swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swap_chain_desc.OutputWindow = Engine::GetGameWindow()->GetHWND();
 
@@ -239,10 +239,15 @@ namespace S2DE
 		S2DE_CHECK(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, m_device_flag, &m_feature_level, 1,
 			D3D11_SDK_VERSION, &swap_chain_desc, &m_swapChain, &m_device, NULL, &m_deviceContext), "Render Error: Cannot create device and swap chain");
 
+		//FIX ME 
 		//Fix weird rendering
 		//maybe need to remove it
 		if (FAILED(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0)))
 			return false;
+
+		//TODO
+		//Postprocess
+		//Apply shader to back buffer
 
 		//Create the render target view with the back buffer pointer.
 		ID3D11Texture2D* backBufferPtr;
@@ -329,6 +334,9 @@ namespace S2DE
 		rasterDesc.DepthBias = 0;
 		rasterDesc.DepthBiasClamp = 0.0f;
 		rasterDesc.DepthClipEnable = true;
+
+		//TODO
+		//Fast mode switch
 		rasterDesc.FillMode = D3D11_FILL_SOLID;
 		rasterDesc.FrontCounterClockwise = false;
 		rasterDesc.MultisampleEnable = false;
