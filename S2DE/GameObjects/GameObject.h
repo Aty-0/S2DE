@@ -1,8 +1,5 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "Base/ResourceManager.h"
-#include "Graphics/Renderer.h"
-#include "Graphics/Buffers.h"
 #include "GameObjects/Transform.h"
 #include "GameObjects/GameObjectIDGenerator.h"
 
