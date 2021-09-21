@@ -50,7 +50,12 @@ namespace S2DE
 
 	void GameObject::SetName(std::string name)
 	{
-		m_name = name;
+		isStringEmpty(name) ? m_name = S2DE_DEFAULT_GAMEOBJECT_NAME : m_name = name;
+	}
+
+	void GameObject::SetType(std::string type)
+	{
+		isStringEmpty(type) ? m_type = S2DE_DEFAULT_GAMEOBJECT_TYPE : m_type = type;
 	}
 
 	void GameObject::SetVisible(bool visible)
@@ -68,18 +73,13 @@ namespace S2DE
 		m_prefix = prefix;
 	}
 
-	void GameObject::SetType(std::string type)
-	{
-		m_type = type;
-	}
-
 	void GameObject::Init(std::string name, std::string type, std::int32_t prefix, std::string id)
 	{
-		isStringEmpty(name) ? m_name = "GameObject" : m_name = name;
-		isStringEmpty(type) ? m_type = "Default" : m_type = type;
+		isStringEmpty(name) ? m_name = S2DE_DEFAULT_GAMEOBJECT_NAME : m_name = name;
+		isStringEmpty(type) ? m_type = S2DE_DEFAULT_GAMEOBJECT_TYPE : m_type = type;
 		m_prefix = prefix;
 
-		//If id not empty we set that ID
+		//If id is not empty we will set this id
 		if (!isStringEmpty(id))
 			m_id->SetID(id);
 

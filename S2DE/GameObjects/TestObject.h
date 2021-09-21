@@ -6,7 +6,8 @@
 
 namespace S2DE
 {
-	//Dumb class for test's
+	//Dumb class for dumb tests :)
+	//!Warning! Code in this class created just for lulz XDD
 
 	class S2DE_API TestObject : public GameObject
 	{

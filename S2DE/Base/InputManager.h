@@ -17,9 +17,9 @@ namespace S2DE
 		inline bool				IsKeyPressed(KeyCode keycode) const;
 		inline bool				IsKeyUp(KeyCode keycode)      const;
 		inline bool				IsKeyDown(KeyCode keycode)    const;
+
 		inline DIMOUSESTATE		GetMouseCurrState() const { return m_MouseCurrState; }
 		inline DIMOUSESTATE		GetMouseLastState() const { return m_MouseLastState; }
-
 
 		bool					Initialize();
 		bool					Update();

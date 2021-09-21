@@ -14,10 +14,12 @@ namespace S2DE
 		SceneManager();
 		~SceneManager();
 
+		//Create new scene 
 		void		  CreateNewScene();
+		//Load scene from file 
 		bool		  LoadScene(std::string name);
+		//Save current scene
 		bool		  SaveScene();
-
 
 		void		  RenderDebugGUI();
 		void		  RenderScene();
@@ -35,9 +37,9 @@ namespace S2DE
 	//Create simple game object in scene
 	template<typename T = GameObject>
 	static inline T* CreateGameObject(
-		std::string name = "NewObject",
-		std::string type = "GameObject",
-		std::int32_t prefix = 1,
+		std::string name = std::string(),
+		std::string type = std::string(),
+		std::int32_t prefix = S2DE_DEFAULT_GAMEOBJECT_PREFIX,
 		Vector3 position = Vector3::Zero(),
 		Vector3 rotation = Vector3::Zero(),
 		Vector3 scale = Vector3(1.0f, 1.0f, 1.0f))

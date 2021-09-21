@@ -19,7 +19,14 @@ namespace S2DE
 		Engine();
 		~Engine();
 
+		//TODO
+		//RunEditor
+
+		//Run engine in game mode
 		void							RunGame(ApplicationHandle* app_handle, std::string pname = std::string());
+
+		//Destroy engine and all components
+		//Application will be closed when this function is called
 		static void						Destroy();
 
 		static inline Engine*			GetEngine() { return m_engine; }
@@ -34,13 +41,21 @@ namespace S2DE
 		static inline bool				isEditor() { return m_isEditor; }
 
 	private:
+		//Run engine function
+		//Initialize all engine components, load resources, etc...
 		void							RunEngine(ApplicationHandle* app_handle, std::string pname, bool isEditor);
 
+		//Update input manager and get key events from app
 		void							UpdateInput();
 		void							UpdateEngineInputKeys();
+
+		//Run game loop
 		void							RunLoop();
 		void							OnLoop();
 		void							OnGlobalUpdate(float DeltaTime);
+
+		//Load engine resources
+		//Configs, textures, shaders
 		bool							LoadEngineResources();
 
 		static Engine* m_engine;

@@ -49,8 +49,8 @@ namespace S2DE
 	{
 		SplashScreen* sp = new SplashScreen();
 		S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
-		m_console = new VisualConsole();
 
+		m_console = new VisualConsole();
 		//Set project name
 		sp->SetProjectName(pname);
 		//Create log file 
@@ -58,7 +58,6 @@ namespace S2DE
 
 		Logger::Log("Starting engine...");
 		sp->SetLoadState("Starting engine...");
-
 
 		//Check application handle
 		if ((m_app_handle = app_handle) == nullptr)

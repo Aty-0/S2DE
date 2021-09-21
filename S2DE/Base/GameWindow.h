@@ -34,43 +34,43 @@ namespace S2DE
 		inline bool					   isFullscreen() const { return m_Fullscreen; }
 		inline static GameWindow*	   GetInstanceWindow() { return m_InstanceWindow; }
 
-		void                    SetWidht(std::uint32_t w);
-		void                    SetHeight(std::uint32_t h);
-		void                    SetLeft(std::int32_t left);
-		void                    SetTop(std::int32_t top);
-		void                    SetFullscreen(bool fullscreen);
-		void                    SetMouseVisible(bool visible);
+		void						   SetWidht(std::uint32_t w);
+		void						   SetHeight(std::uint32_t h);
+		void						   SetLeft(std::int32_t left);
+		void						   SetTop(std::int32_t top);
+		void						   SetFullscreen(bool fullscreen);
+		void						   SetMouseVisible(bool visible);
 
 		//Set width and height by client resoulution
-		void                    SetClientScreenRes();
-
-		bool                    ProcessMessage();
-		LRESULT CALLBACK        WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-	private:
-		std::uint32_t           m_Width;
-		std::uint32_t           m_Height;
-		std::int32_t            m_Top;
-		std::int32_t            m_Left;
-		HWND                    m_HWND;
-		HINSTANCE               m_Instance;
-		bool                    m_Fullscreen;
-		bool                    m_ShowCursor;
-		bool					m_isChild;
-		bool                    m_isClosing;
-		LPCSTR                  m_Name;
-		WINDOWPLACEMENT         m_WindowPlacement;
-		WNDCLASSEX              m_WindowClass;
-		static GameWindow*      m_InstanceWindow;
+		void						   SetClientScreenRes();
+									   
+		bool						   ProcessMessage();
+		LRESULT CALLBACK			   WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	private:
-		void					OnPaint(HWND hWnd);
-		void					OnMoving();
-		void					OnSizing();
-		void					OnClose();
-		void					OnDestroy();
-		void					OnSizeChanged();
-
-		static LRESULT CALLBACK InstanceWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		std::uint32_t				   m_Width;
+		std::uint32_t				   m_Height;
+		std::int32_t				   m_Top;
+		std::int32_t				   m_Left;
+		HWND						   m_HWND;
+		HINSTANCE					   m_Instance;
+		bool						   m_Fullscreen;
+		bool						   m_ShowCursor;
+		bool						   m_isChild;
+		bool						   m_isClosing;
+		LPCSTR						   m_Name;
+		WINDOWPLACEMENT				   m_WindowPlacement;
+		WNDCLASSEX					   m_WindowClass;
+		static GameWindow*			   m_InstanceWindow;
+									   
+	private:						   
+		void						   OnPaint(HWND hWnd);
+		void						   OnMoving();
+		void						   OnSizing();
+		void						   OnClose();
+		void						   OnDestroy();
+		void						   OnSizeChanged();
+									   
+		static LRESULT CALLBACK		   InstanceWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	};
 }

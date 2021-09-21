@@ -13,11 +13,12 @@ namespace S2DE
 		GameTime();
 		~GameTime();
 
-		float			GetTime()		const;
-		float			GetDeltaTime()  const;
-		std::int32_t	GetFPS()		const;
+		//Update game timer
+		void				Tick();
 
-		void	Tick();
+		inline float		GetTime()		const;
+		inline float		GetDeltaTime()  const;
+		inline std::int32_t	GetFPS()		const;
 
 	private:
 		float m_timer;
