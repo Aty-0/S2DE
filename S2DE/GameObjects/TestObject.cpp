@@ -2,7 +2,7 @@
 #include "GameObjects/Camera.h"
 #include "Math/Random.h"
 
-#define S2DE_TEST_CLASS_SPEED 2.0f
+#define S2DE_TEST_OBJECT_SPEED 2.0f
 
 namespace S2DE
 {
@@ -90,7 +90,7 @@ namespace S2DE
 
 	void TestObject::OnUpdate(float DeltaTime)
 	{
-		m_r += S2DE_TEST_CLASS_SPEED * DeltaTime;
+		m_r += S2DE_TEST_OBJECT_SPEED * DeltaTime;
 		SetRotation(Vector3(0, 0, m_r));
 	}
 
