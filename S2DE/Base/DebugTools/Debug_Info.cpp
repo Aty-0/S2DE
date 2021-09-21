@@ -1,4 +1,6 @@
 #include "Debug_Info.h"
+#include "Base/Engine.h"
+#include "Base/ResourceManager.h"
 #include "Scene/SceneManager.h"
 #include "Base/Utils/AppUsage.h"
 #include "Base/GameWindow.h"
