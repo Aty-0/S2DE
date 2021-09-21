@@ -2,6 +2,8 @@
 #include "GameObjects/Camera.h"
 #include "Math/Random.h"
 
+#define S2DE_TEST_CLASS_SPEED 2.0f
+
 namespace S2DE
 {
 	TestObject::TestObject() : 
@@ -86,10 +88,14 @@ namespace S2DE
 		return DirectX::XMMatrixTranspose(GetWorldMatrix());
 	}
 
+	void TestObject::OnUpdate(float DeltaTime)
+	{
+		m_r += S2DE_TEST_CLASS_SPEED * DeltaTime;
+		SetRotation(Vector3(0, 0, m_r));
+	}
+
 	void TestObject::OnRender()
 	{
-		m_r += 0.005f;
-		SetRotation(Vector3(0, 0, m_r));
 		m_vbuffer->Bind();
 		m_ibuffer->Bind();
 		Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

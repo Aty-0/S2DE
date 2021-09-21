@@ -15,6 +15,7 @@ namespace S2DE
 		~TestObject();
 
 	private:
+		virtual void OnUpdate(float DeltaTime) override;
 		virtual void OnRender() override;
 		virtual XMatrix UpdateTransformation() override;
 
