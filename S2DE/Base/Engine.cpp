@@ -8,7 +8,7 @@
 #include "Base/ResourceManager.h"
 #include "Scene/SceneManager.h"
 #include "Graphics/Renderer.h"
-
+#include "Graphics/ImGui_Window.h"
 
 #define S2DE_EXIT_PROCESS() exit(EXIT_SUCCESS);
 
@@ -40,13 +40,22 @@ namespace S2DE
 		Delete(m_console);
 	}
 
-	void Engine::RunGame(ApplicationHandle* app_handle, std::string pname)
+	void Engine::RunEngineInEditorMode(ApplicationHandle* app_handle)
+	{
+		//TODO 
+		//Load from config project name
+		RunEngine(app_handle, std::string(), true);
+	}
+
+	void Engine::RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname)
 	{
 		RunEngine(app_handle, pname, false);
 	}
 
 	void Engine::RunEngine(ApplicationHandle* app_handle, std::string pname, bool isEditor)
 	{
+		m_isEditor = isEditor;
+
 		SplashScreen* sp = new SplashScreen();
 		S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
 
@@ -128,6 +137,17 @@ namespace S2DE
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_ESCAPE))
 		{
 			m_engine->Destroy();
+		}
+
+
+		if (m_input_m->IsKeyPressed(KeyCode::KEY_0))
+		{
+			m_render->GetImGui_Window("DebugInfoWindow")->TougleDraw();
+		}
+
+		if (m_input_m->IsKeyPressed(KeyCode::KEY_9))
+		{
+			m_render->GetImGui_Window("DebugObjectInspectorWindow")->TougleDraw();
 		}
 	}
 

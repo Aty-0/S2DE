@@ -37,17 +37,11 @@ namespace S2DE
 		{
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
-
-			ImGui::Text("Game Window\n");
-			ImGui::Text("Widht:%d\nHeight:%d\nLeft:%d\nTop:%d\nisActive:%d\nisChild:%d\nFullscreen:%d\nShowCursor:%d",
-				Engine::GetGameWindow()->GetWidth(),
-				Engine::GetGameWindow()->GetHeight(),
-				Engine::GetGameWindow()->GetLeft(),
-				Engine::GetGameWindow()->GetTop(),
-				Engine::GetGameWindow()->isActive(),
-				Engine::GetGameWindow()->isChild(),
-				Engine::GetGameWindow()->isFullscreen(),
-				Engine::GetGameWindow()->isShowingCursor());
+			ImGui::Text("Engine:");
+			ImGui::Text("isEditor:%d\nused Mem:%d mb\nvsync:%d",
+				Engine::isEditor(),
+				GetUsedMem(),
+				Engine::GetRenderer()->GetVsync());
 
 
 			ImGui::TableSetColumnIndex(1);
@@ -59,9 +53,9 @@ namespace S2DE
 				Engine::GetGameTime().GetTime());
 
 
-			ImGui::TableSetColumnIndex(2);
 			if (Engine::GetSceneManager()->GetScene() != nullptr)
 			{
+				ImGui::TableSetColumnIndex(2);
 				ImGui::Text("Scene Stats:");
 				ImGui::Text("Objects:%d", Engine::GetSceneManager()->GetScene()->GetStorage().size());
 				ImGui::Text("Name:%s", Engine::GetSceneManager()->GetScene()->GetName().c_str());
@@ -76,12 +70,16 @@ namespace S2DE
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
 
-			ImGui::Text("Engine:");
-			ImGui::Text("isEditor:%d\nused Mem:%d mb\nvsync:%d",
-				Engine::isEditor(),
-				GetUsedMem(),
-				Engine::GetRenderer()->GetVsync());
-
+			ImGui::Text("Game Window\n");
+			ImGui::Text("Widht:%d\nHeight:%d\nLeft:%d\nTop:%d\nisActive:%d\nisChild:%d\nFullscreen:%d\nShowCursor:%d",
+				Engine::GetGameWindow()->GetWidth(),
+				Engine::GetGameWindow()->GetHeight(),
+				Engine::GetGameWindow()->GetLeft(),
+				Engine::GetGameWindow()->GetTop(),
+				Engine::GetGameWindow()->isActive(),
+				Engine::GetGameWindow()->isChild(),
+				Engine::GetGameWindow()->isFullscreen(),
+				Engine::GetGameWindow()->isShowingCursor());
 
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text("Resource Manager:");
@@ -90,6 +88,7 @@ namespace S2DE
 				Engine::GetResourceManager().GetResourceCount<Texture>(),
 				Engine::GetResourceManager().GetResourceCount<Shader>());
 			
+
 			ImGui::EndTable();
 		}
 

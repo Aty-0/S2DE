@@ -23,7 +23,9 @@ namespace S2DE
 		//RunEditor
 
 		//Run engine in game mode
-		void							RunGame(ApplicationHandle* app_handle, std::string pname = std::string());
+		void							RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname = std::string());
+		//Run engine in editor mode
+		void							RunEngineInEditorMode(ApplicationHandle* app_handle);
 
 		//Destroy engine and all components
 		//Application will be closed when this function is called

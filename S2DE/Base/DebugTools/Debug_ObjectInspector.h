@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Main/Common.h"
 
-#include "Base/DebugTools/Debug_Window.h"
+#include "Graphics/ImGui_Window.h"
 
 namespace S2DE
 {
@@ -11,7 +11,7 @@ namespace S2DE
 	//Set parameters
 	//Better design
 
-	class S2DE_API Debug_ObjectInspector : public Debug_Window
+	class S2DE_API Debug_ObjectInspector : public ImGui_Window
 	{
 	public:
 		Debug_ObjectInspector();

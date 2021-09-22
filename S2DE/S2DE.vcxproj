@@ -23,7 +23,8 @@
     <ClInclude Include="Base\CoreMinimal.h" />
     <ClInclude Include="Base\DebugTools\Debug_Info.h" />
     <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h" />
-    <ClInclude Include="Base\DebugTools\Debug_Window.h" />
+    <ClInclude Include="Editor\EditorToolstrip.h" />
+    <ClInclude Include="Graphics\ImGui_Window.h" />
     <ClInclude Include="Base\DebugTools\VisualConsole.h" />
     <ClInclude Include="Base\Engine.h" />
     <ClInclude Include="Base\GameTime.h" />
@@ -77,7 +78,8 @@
   <ItemGroup>
     <ClCompile Include="Base\DebugTools\Debug_Info.cpp" />
     <ClCompile Include="Base\DebugTools\Debug_ObjectInspector.cpp" />
-    <ClCompile Include="Base\DebugTools\Debug_Window.cpp" />
+    <ClCompile Include="Editor\EditorToolstrip.cpp" />
+    <ClCompile Include="Graphics\ImGui_Window.cpp" />
     <ClCompile Include="Base\DebugTools\VisualConsole.cpp" />
     <ClCompile Include="Base\Engine.cpp" />
     <ClCompile Include="Base\GameTime.cpp" />

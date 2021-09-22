@@ -1,10 +1,10 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "Base/DebugTools/Debug_Window.h"
+#include "Graphics/ImGui_Window.h"
 
 namespace S2DE
 {
-	class S2DE_API Debug_Info : public Debug_Window
+	class S2DE_API Debug_Info : public ImGui_Window
 	{
 	public:
 		Debug_Info();

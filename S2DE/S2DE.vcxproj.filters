@@ -165,7 +165,10 @@
     <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Base\DebugTools\Debug_Window.h">
+    <ClInclude Include="Graphics\ImGui_Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorToolstrip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -271,7 +274,10 @@
     <ClCompile Include="Base\DebugTools\Debug_ObjectInspector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Base\DebugTools\Debug_Window.cpp">
+    <ClCompile Include="Graphics\ImGui_Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\EditorToolstrip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
