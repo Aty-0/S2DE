@@ -44,7 +44,7 @@ namespace S2DE
 
 	void SplashScreen::SetProjectName(std::string name)
 	{
-		isStringEmpty(name) ? m_text_project_name_str = "S2DE" : m_text_project_name_str = name ;
+		isStringEmpty(name) ? m_text_project_name_str = "No name" : m_text_project_name_str = name ;
 
 		RECT rc;
 		GetClientRect(m_hwnd, &rc);
@@ -124,10 +124,10 @@ namespace S2DE
 				0, 0, 0, 0, 0, 0, 0, "Arial");
 			if (Engine::isEditor())
 			{
-				m_hfont_Name_Ed = CreateFont(-25, 0, 0, 0, FW_LIGHT, 0,
+				m_hfont_Name_Ed = CreateFont(-20, 0, 0, 0, FW_LIGHT, 0,
 					0, 0, 0, 0, 0, 0, 0, "Arial");
 
-				m_hfont_Ed = CreateFont(-45, 0, 0, 0, FW_LIGHT, 0,
+				m_hfont_Ed = CreateFont(-30, 0, 0, 0, FW_LIGHT, 0,
 					0, 0, 0, 0, 0, 0, 0, "Arial");
 
 				m_text_ed_str = "Editor";
