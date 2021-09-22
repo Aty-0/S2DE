@@ -16,7 +16,7 @@ namespace S2DE
 		~ImGui_Window();
 
 		virtual void Render() = 0;
-		virtual void TougleDraw();
+		virtual void ToggleDraw();
 		inline bool  isDrawing() const { return m_draw; }
 		
 	protected:

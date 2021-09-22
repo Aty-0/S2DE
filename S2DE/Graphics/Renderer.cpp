@@ -406,7 +406,7 @@ namespace S2DE
 		if (Engine::isEditor())
 		{
 			AddImGuiWindow("EditorToolStrip", new EditorToolStrip());
-			GetImGui_Window("EditorToolStrip")->TougleDraw();
+			GetImGui_Window("EditorToolStrip")->ToggleDraw();
 		}
 		
 		return true;

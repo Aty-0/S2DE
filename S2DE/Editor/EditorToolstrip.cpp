@@ -1,5 +1,7 @@
 #include "EditorToolstrip.h"
-
+#include "Base/Engine.h"
+#include "Base/ResourceManager.h"
+#include "Scene/SceneManager.h"
 
 namespace S2DE
 {
@@ -34,6 +36,9 @@ namespace S2DE
 
 			if (ImGui::BeginMenu("Edit")) 
 			{
+				//TODO
+				//Get selected object
+		
 				if (ImGui::MenuItem("Undo"))
 				{
 
@@ -66,29 +71,39 @@ namespace S2DE
 			{
 				if (ImGui::MenuItem("Reload textures"))
 				{
-
+					Engine::GetResourceManager().ReloadTextures();
 				}
 
 				if (ImGui::MenuItem("Reload shaders"))
 				{
-
+					Engine::GetResourceManager().ReloadShaders();
 				}
 
 				if (ImGui::MenuItem("Clear scene"))
 				{
+					Engine::GetSceneManager()->GetScene()->Clear();
+				}
 
+				if (ImGui::MenuItem("Toggle GameObject update"))
+				{
+					Engine::GetSceneManager()->ToggleGameObjectUpdate();
 				}
 
 				if (ImGui::BeginMenu("Render"))
 				{
-					if (ImGui::MenuItem("Tougle objects visible"))
+					if (ImGui::MenuItem("Toggle objects visible"))
+					{
+						Engine::GetSceneManager()->ToggleGameObjectVisibility();
+					}
+
+					if (ImGui::MenuItem("Toggle gizmos visible"))
 					{
 
 					}
 
-					if (ImGui::MenuItem("Tougle gizmos visible"))
+					if (ImGui::MenuItem("Toggle debug gui visible"))
 					{
-
+						Engine::GetSceneManager()->ToggleDebugGUIVisibility();
 					}
 
 					if (ImGui::BeginMenu("Fill mode"))

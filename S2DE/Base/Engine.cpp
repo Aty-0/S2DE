@@ -142,12 +142,12 @@ namespace S2DE
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_0))
 		{
-			m_render->GetImGui_Window("DebugInfoWindow")->TougleDraw();
+			m_render->GetImGui_Window("DebugInfoWindow")->ToggleDraw();
 		}
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_9))
 		{
-			m_render->GetImGui_Window("DebugObjectInspectorWindow")->TougleDraw();
+			m_render->GetImGui_Window("DebugObjectInspectorWindow")->ToggleDraw();
 		}
 	}
 

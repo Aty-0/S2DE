@@ -13,7 +13,7 @@ namespace S2DE
 
 	}
 
-	void ImGui_Window::TougleDraw()
+	void ImGui_Window::ToggleDraw()
 	{ 
 		m_draw = !m_draw; 
 	}
