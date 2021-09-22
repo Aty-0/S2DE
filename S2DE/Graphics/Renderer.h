@@ -7,7 +7,6 @@
 #include "Libs/imgui/imgui_impl_win32.h"
 #include "Libs/imgui/imgui_impl_dx11.h"
 
-
 //ImGui WndProcHandler
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -74,6 +73,11 @@ namespace S2DE
 		//Own class
 		float						m_clearColor[4] = { 0.3f, 0.1f, 0.4f, 1.0f };
 
-		class Debug_Info*			m_Debug_Info;
+		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windows_storage;
+
+	public:  
+		inline class ImGui_Window*	GetImGui_Window(std::string name) const;
+		void						AddImGuiWindow(std::string name, ImGui_Window* wnd);
+		void						DeleteImGuiWindow(std::string name);
 	};
 }
