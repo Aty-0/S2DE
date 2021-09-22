@@ -30,8 +30,16 @@ namespace S2DE
 
 		inline Scene* GetScene() const { return m_scene; }
 
+
+		void		   ToggleGameObjectVisibility();
+		void		   ToggleDebugGUIVisibility();
+		void		   ToggleGameObjectUpdate();
 	private:
-		Scene* m_scene;
+		Scene*		   m_scene;
+					   
+		bool		   m_update_enabled;
+		bool		   m_render_enabled;
+		bool		   m_render_dbg_gui_enabled;
 	};
 
 	//Create simple game object in scene

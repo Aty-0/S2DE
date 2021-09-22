@@ -3,7 +3,11 @@
 
 namespace S2DE
 {
-	SceneManager::SceneManager()
+	SceneManager::SceneManager() : 
+		m_scene(nullptr),
+		m_update_enabled(true),
+		m_render_enabled(true),
+		m_render_dbg_gui_enabled(true)
 	{
 
 	}
@@ -33,38 +37,66 @@ namespace S2DE
 
 	void SceneManager::UpdateInput()
 	{
-		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+		if (m_update_enabled && m_scene)
 		{
-			it->second->UpdateInput();
+			for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+			{
+				it->second->UpdateInput();
+			}
 		}
 	}
 		 	 
 	void SceneManager::RenderDebugGUI()
 	{
-		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+		if (m_render_dbg_gui_enabled && m_scene)
 		{
-			it->second->RenderDebugGUI();
+			for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+			{
+				it->second->RenderDebugGUI();
+			}
 		}
 	}
 
 	void SceneManager::RenderScene()
 	{
-		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+		if (m_render_enabled && m_scene)
 		{
-			it->second->Render();
+			for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+			{
+				it->second->Render();
+			}
 		}
 	}
 
 	void SceneManager::UpdateScene(float DeltaTime)
 	{
-		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+		if (m_update_enabled && m_scene)
 		{
-			it->second->Update(DeltaTime);
+			for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+			{
+				it->second->Update(DeltaTime);
+			}
 		}
+	}
+
+	void SceneManager::ToggleGameObjectVisibility()
+	{
+		m_render_enabled =! m_render_enabled;
+	}
+
+	void SceneManager::ToggleDebugGUIVisibility()
+	{
+		m_render_dbg_gui_enabled = !m_render_dbg_gui_enabled;
+	}
+
+	void SceneManager::ToggleGameObjectUpdate()
+	{
+		m_update_enabled =! m_update_enabled;
 	}
 
 	void SceneManager::Clear()
 	{
-
+		Delete(m_scene);
+		Logger::Log("[SceneManager] Current scene deleted");
 	}
 }
