@@ -61,7 +61,9 @@ namespace S2DE
 		}
 
 		std::string name = g->GetName();
+
 		CheckNameOnExist(name);
+		g->SetName(name);
 
 		Logger::Log("[Scene] [%s] Added name: %s id: %s", m_name.c_str(), name.c_str(), g->GetID().c_str());
 
