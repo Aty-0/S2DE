@@ -27,10 +27,12 @@ namespace S2DE
 			ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar /* | 
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground */);
+			ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar  | 
+			ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground );
 
-		ImGui::SetWindowPos(ImVec2(float(Engine::GetGameWindow()->GetWidth() - 550.0f), 0.0f));
+		//OLD
+		//ImGui::SetWindowPos(ImVec2(float(Engine::GetGameWindow()->GetWidth() - 550.0f), 0.0f));
+		ImGui::SetWindowPos(ImVec2(float(50.0f), Engine::GetGameWindow()->GetHeight() -  ImGui::GetWindowSize().y));
 		ImGui::SetWindowSize(ImVec2(600.0f, 400.0f));
 
 		if (ImGui::BeginTable("##table1", 3))
@@ -38,7 +40,7 @@ namespace S2DE
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
 			ImGui::Text("Engine:");
-			ImGui::Text("isEditor:%d\nused Mem:%d mb\nvsync:%d",
+			ImGui::Text("isEditor:%d\nMem:%d mb\nVsync:%d",
 				Engine::isEditor(),
 				GetUsedMem(),
 				Engine::GetRenderer()->GetVsync());
@@ -53,24 +55,16 @@ namespace S2DE
 				Engine::GetGameTime().GetTime());
 
 
-			if (Engine::GetSceneManager()->GetScene() != nullptr)
-			{
-				ImGui::TableSetColumnIndex(2);
-				ImGui::Text("Scene Stats:");
-				ImGui::Text("Objects:%d", Engine::GetSceneManager()->GetScene()->GetStorage().size());
-				ImGui::Text("Name:%s", Engine::GetSceneManager()->GetScene()->GetName().c_str());
-			}
-
 			ImGui::EndTable();
 		}
 
-		ImGui::Separator();
+		//ImGui::Separator();
 		if (ImGui::BeginTable("##table2", 3))
 		{
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
 
-			ImGui::Text("Game Window\n");
+			ImGui::Text("Game Window:\n");
 			ImGui::Text("Widht:%d\nHeight:%d\nLeft:%d\nTop:%d\nisActive:%d\nisChild:%d\nFullscreen:%d\nShowCursor:%d",
 				Engine::GetGameWindow()->GetWidth(),
 				Engine::GetGameWindow()->GetHeight(),
@@ -83,13 +77,27 @@ namespace S2DE
 
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text("Resource Manager:");
-			ImGui::Text("data name:%s", Engine::GetResourceManager().GetNameOfData().c_str());
-			ImGui::Text("num loaded texture's:%d\nnum loaded shader's:%d", 
+			ImGui::Text("Data name:%s", Engine::GetResourceManager().GetNameOfData().c_str());
+			ImGui::Text("Loaded Texture's:%d\nLoaded Shader's:%d", 
 				Engine::GetResourceManager().GetResourceCount<Texture>(),
 				Engine::GetResourceManager().GetResourceCount<Shader>());
 			
 
 			ImGui::EndTable();
+		}
+
+		if (Engine::GetSceneManager()->GetScene() != nullptr)
+		{
+			if (ImGui::BeginTable("##table3", 3))
+			{
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Scene Stats:");
+				ImGui::Text("Objects:%d", Engine::GetSceneManager()->GetScene()->GetStorage().size());
+				ImGui::Text("Name:%s", Engine::GetSceneManager()->GetScene()->GetName().c_str());
+
+				ImGui::EndTable();
+			}
 		}
 
 		ImGui::End();

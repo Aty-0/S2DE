@@ -71,7 +71,8 @@ namespace S2DE
 
 		//TODO
 		//Own class
-		float						m_clearColor[4] = { 0.3f, 0.1f, 0.4f, 1.0f };
+		// 0.3f, 0.1f, 0.4f, 1.0f 
+		float						m_clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windows_storage;
 

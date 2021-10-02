@@ -121,7 +121,12 @@ namespace S2DE
 						ImGui::EndMenu();
 					}
 
+					//TODO
+					//Open color picker window
+					if (ImGui::MenuItem("Change background color"))
+					{
 
+					}
 
 					ImGui::EndMenu();
 				}
