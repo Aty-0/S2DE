@@ -3,9 +3,9 @@
 #include "Graphics/Renderer.h"
 
 
-//It's not thing from imgui library it's just simple base class for
-//classes where I use only ImGui and I need add it to render
-//in renderer I add a std::vector<ImGui_Window> and i render all his items 
+//It's not thing from imgui library 
+//It's just simple base for fast creating and then render it
+//These windows creating in renderer
 
 namespace S2DE
 {
