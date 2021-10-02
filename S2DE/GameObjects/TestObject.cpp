@@ -1,6 +1,11 @@
 #include "TestObject.h"
 #include "GameObjects/Camera.h"
 #include "Math/Random.h"
+#include "Base/InputManager.h"
+#include "Base/GameWindow.h"
+#include "Scene/SceneManager.h"
+
+#include <DirectXCollision.h>
 
 #define S2DE_TEST_OBJECT_SPEED 2.0f
 
@@ -101,9 +106,20 @@ namespace S2DE
 		Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		m_shader->Bind();
-		m_shader->UpdateMainShaderBuffer(UpdateTransformation());
+		m_shader->ShaderConstBufferBegin();
+		m_shader->ShaderConstBufferUpdateBase(UpdateTransformation());
+		m_shader->ShaderConstBufferEnd();
 		m_texture->Bind();
 		Engine::GetRenderer()->GetContext()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0);
 		m_shader->Unbind();
+	}
+
+	bool TestObject::CheckOnIntersection()
+	{
+		if (Engine::GetInputManager()->IsKeyPressed(KeyCode::KEY_L))
+		{
+
+		}
+		return false;
 	}
 }

@@ -19,7 +19,7 @@ namespace S2DE
 		virtual void OnUpdate(float DeltaTime) override;
 		virtual void OnRender() override;
 		virtual XMatrix UpdateTransformation() override;
-
+		virtual bool CheckOnIntersection() override;
 		Texture*	  m_texture;
 		Shader*		  m_shader;
 		VertexBuffer* m_vbuffer;
