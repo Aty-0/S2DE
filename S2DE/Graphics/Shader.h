@@ -7,8 +7,9 @@
 
 namespace S2DE
 {
-	struct S2DE_API MainShaderBuffer
+	class S2DE_API ShaderMainBufferType
 	{
+	public:
 		float Delta;
 		float Time;
 		XFloat2 Resoultion;
@@ -27,25 +28,46 @@ namespace S2DE
 		Shader();
 		~Shader();
 
-		bool							 SetPaths(std::string vs, std::string ps);
-		bool							 Compile();
-		void							 Bind();
-		void							 Unbind();
-		void							 UpdateMainShaderBuffer(XMatrix world);
-		virtual void					 Cleanup() final;
-		virtual bool					 Load(std::string path) final { return true; }
+		//Set shader files path 
+		bool							SetPaths(std::string vs, std::string ps);
+		//Compile shaders
+		bool							Compile();
+		//Bind shader 
+		void							Bind();
+		//Unbind shader
+		void							Unbind();
+		//Release all resource
+		virtual void					Cleanup() final;
 
-		inline ID3D11VertexShader* const GetVertexShader() { return m_vertexShader; }
-		inline ID3D11PixelShader*  const GetPixelShader() { return m_pixelShader; }
-		inline ID3D11InputLayout*  const GetLayout() { return m_layout; }
 
+		inline ID3D11VertexShader*		GetVertexShader() const { return m_vertexShader; }
+		inline ID3D11PixelShader*		GetPixelShader()	 const { return m_pixelShader; }
+		inline ID3D11InputLayout*		GetLayout()		 const { return m_layout; }
+		inline ConstantBuffer*			GetConstBuffer()		 const { return m_const_buffer; }
+
+	
+		//TODO
+		//Remove
+		virtual bool					Load(std::string path) final { return true; }
 	private:
-
-		ID3D11VertexShader*				  m_vertexShader;
-		ID3D11PixelShader*				  m_pixelShader;
-		ID3D11InputLayout*				  m_layout;
+		ID3D11VertexShader* m_vertexShader;
+		ID3D11PixelShader* m_pixelShader;
+		ID3D11InputLayout* m_layout;
 		std::string						  m_path_vs;
 		std::string						  m_path_ps;
-		ConstantBuffer<MainShaderBuffer>* m_mainbuffer;
+		ConstantBuffer*					  m_const_buffer;
+
+	public:
+		void							ShaderConstBufferBegin();
+		void							ShaderConstBufferUpdateBase(XMatrix world);
+		void							ShaderConstBufferEnd();
+
+		template<typename T = ShaderMainBufferType>
+		void							 CreateConstBuffer()
+		{
+			m_const_buffer = new ConstantBuffer();
+			S2DE_ASSERT(m_const_buffer->Create<T>());
+		}
+
 	};
 }

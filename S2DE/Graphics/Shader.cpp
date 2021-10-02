@@ -26,7 +26,7 @@ namespace S2DE
 		Release(m_vertexShader);
 		Release(m_pixelShader);
 		Release(m_layout);
-		Delete(m_mainbuffer);
+		Delete(m_const_buffer);
 	}
 
 	void Shader::Unbind()
@@ -125,9 +125,8 @@ namespace S2DE
 
 		Release(code_buffer);
 
-		
-		m_mainbuffer = new ConstantBuffer<MainShaderBuffer>();
-		S2DE_ASSERT(m_mainbuffer->Create());
+		//Create basic constant buffer
+		CreateConstBuffer();
 
 		Logger::Log("[Shader] [%s] Ready!", m_name.c_str());
 		return true;
@@ -141,26 +140,32 @@ namespace S2DE
 		return Compile();
 	}
 
-	void Shader::UpdateMainShaderBuffer(XMatrix world)
+	void Shader::ShaderConstBufferBegin()
 	{
-		m_mainbuffer->Lock();
+		m_const_buffer->Lock<ShaderMainBufferType>();
+	}
 
-		m_mainbuffer->GetBufferData()->Delta = Engine::GetGameTime().GetDeltaTime();
-		m_mainbuffer->GetBufferData()->Time = Engine::GetGameTime().GetTime();
-		m_mainbuffer->GetBufferData()->Resoultion = XFloat2((float)Engine::GetGameWindow()->GetWidth(),
+	void Shader::ShaderConstBufferEnd()
+	{
+		m_const_buffer->Unlock();
+		m_const_buffer->Bind();
+	}
+
+	void Shader::ShaderConstBufferUpdateBase(XMatrix world)
+	{
+		m_const_buffer->GetBufferData<ShaderMainBufferType>()->Delta = Engine::GetGameTime().GetDeltaTime();
+		m_const_buffer->GetBufferData<ShaderMainBufferType>()->Time = Engine::GetGameTime().GetTime();
+		m_const_buffer->GetBufferData<ShaderMainBufferType>()->Resoultion = XFloat2((float)Engine::GetGameWindow()->GetWidth(),
 			(float)Engine::GetGameWindow()->GetHeight());
 
-		m_mainbuffer->GetBufferData()->world = world;
+		m_const_buffer->GetBufferData<ShaderMainBufferType>()->world = world;
 
 		Camera* cam = GetObjectByName<Camera>(S2DE_MAIN_CAMERA_NAME);
 
 		if (cam != nullptr)
 		{
-			m_mainbuffer->GetBufferData()->projection = cam->GetProjectionMatrix();
-			m_mainbuffer->GetBufferData()->view = cam->GetViewMatrix();
+			m_const_buffer->GetBufferData<ShaderMainBufferType>()->projection = cam->GetProjectionMatrix();
+			m_const_buffer->GetBufferData<ShaderMainBufferType>()->view = cam->GetViewMatrix();
 		}
-
-		m_mainbuffer->Unlock();
-		m_mainbuffer->Bind();
 	}
 }

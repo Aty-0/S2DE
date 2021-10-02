@@ -51,7 +51,6 @@ namespace S2DE
 
 	};
 
-	template<typename T>
 	class S2DE_API ConstantBuffer
 	{
 	public:
@@ -64,10 +63,11 @@ namespace S2DE
 
 		~ConstantBuffer()
 		{
-			Release(m_buffer);
 			Delete(m_buffer_data);
+			Release(m_buffer);
 		}
 
+		template<typename T>
 		bool Create()
 		{
 			m_buffer_data = new T();
@@ -84,6 +84,7 @@ namespace S2DE
 			return SUCCEEDED(Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, nullptr, &m_buffer));
 		}
 
+		template<typename T>
 		bool Lock()
 		{
 			D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -105,11 +106,12 @@ namespace S2DE
 			Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(0, num, &m_buffer);
 		}
 
-		inline T*& GetBufferData() { return m_buffer_data; }
+		template<typename T>
+		inline T*& GetBufferData() { return reinterpret_cast<T*&>(m_buffer_data); }
 		inline ID3D11Buffer*& GetBuffer() { return m_buffer; }
 	private:
 		ID3D11Buffer* m_buffer;
-		T* m_buffer_data;
+		void* m_buffer_data;
 
 	};
 }
