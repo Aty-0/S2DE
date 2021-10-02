@@ -3,6 +3,10 @@
 #include "GameObjects/Transform.h"
 #include "GameObjects/GameObjectIDGenerator.h"
 
+//TODO
+//Prefix
+
+
 #define S2DE_DEFAULT_GAMEOBJECT_NAME "BasicGameObjectName"
 #define S2DE_DEFAULT_GAMEOBJECT_TYPE "BasicGameObjectType"
 #define S2DE_DEFAULT_GAMEOBJECT_PREFIX 0
@@ -34,13 +38,14 @@ namespace S2DE
 		inline std::string           GetName()   const { return m_name; }
 		inline boost::uuids::uuid    GetUUID()	 const { return m_id->GetUUID(); }
 		inline std::string           GetID()     const { return m_id->GetIDString(); }
+		inline std::int32_t			 GetPrefix() const { return m_prefix; }
 		inline std::string           GetType()   const { return m_type; }
 		inline bool                  isVisible() const { return m_visible; }
 		inline bool                  isEnabled() const { return m_enabled; }
 									 
 		template<typename T>		 
 		T*							 Clone() const { return new T(*this); }
-
+		
 
 	protected:
 		virtual void				OnPositionChanged()  override { }
@@ -52,7 +57,7 @@ namespace S2DE
 		virtual void				OnUpdate(float DeltaTime) { }
 		virtual void				OnUpdateInput() { }
 		virtual void				OnDebugRenderGUI() { }
-		
+		virtual bool 				CheckOnIntersection() { return false; }
 	private:
 		std::string					m_name; 
 		std::int32_t				m_prefix;
@@ -60,6 +65,7 @@ namespace S2DE
 		std::string					m_type;
 		bool						m_enabled;
 		bool						m_visible;
+		bool						m_isSelected;
 	};
 
 }

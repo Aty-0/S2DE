@@ -28,11 +28,13 @@ namespace S2DE
 		void						SetMode(CameraProjectionMode mode);
 		void						SetZoom(float zoom);
 		
-		float						GetFov() const { return m_Fov; }
-		CameraProjectionMode		GetMode() const { return m_mode; }
-		float						GetZoom() const { return m_Zoom; };
-		XMatrix&					GetViewMatrix() { return m_viewMatrix; }
-		XMatrix&					GetProjectionMatrix() { return m_projectionMatrix; }
+		inline float				GetFov() const { return m_Fov; }
+		inline CameraProjectionMode	GetMode() const { return m_mode; }
+		inline float				GetZoom() const { return m_Zoom; };
+		inline XMatrix&			    GetViewMatrix() { return m_viewMatrix; }
+		inline XMatrix&				GetProjectionMatrix() { return m_projectionMatrix; }
+		inline float				GetZNear() const { return m_zNear; }
+		inline float				GetZFar() const { return m_zFar; }
 
 	private:
 		XMatrix						m_projectionMatrix;
@@ -49,7 +51,10 @@ namespace S2DE
 		bool						m_block_mouse_control;
 		bool						m_block_movement_control;
 		float						m_sensitivity;
+		float					    m_zNear;
+		float					    m_zFar;
 
+	protected:
 		virtual void				OnRender() override;
 		virtual void				OnUpdate(float DeltaTime) override;
 		virtual void				OnUpdateInput() override;

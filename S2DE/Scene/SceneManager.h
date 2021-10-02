@@ -15,20 +15,22 @@ namespace S2DE
 		~SceneManager();
 
 		//Create new scene 
-		void		  CreateNewScene();
+		void		   CreateNewScene();
+
 		//Load scene from file 
-		bool		  LoadScene(std::string name);
+		bool		   LoadScene(std::string name);
+
 		//Save current scene
-		bool		  SaveScene();
-
-		void		  RenderDebugGUI();
-		void		  RenderScene();
-		void		  UpdateInput();
-		void		  UpdateScene(float DeltaTime);
-
-		void		  Clear();
-
-		inline Scene* GetScene() const { return m_scene; }
+		bool		   SaveScene();
+					   
+		void		   RenderDebugGUI();
+		void		   RenderScene();
+		void		   UpdateInput();
+		void		   UpdateScene(float DeltaTime);
+					   
+		void		   Clear();
+					   
+		inline Scene*  GetScene() const { return m_scene; }
 
 
 		void		   ToggleGameObjectVisibility();

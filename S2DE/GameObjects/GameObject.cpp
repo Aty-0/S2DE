@@ -1,5 +1,5 @@
 #include "GameObject.h"
-
+#include "GameObjects/Camera.h"
 
 namespace S2DE
 {
@@ -9,7 +9,8 @@ namespace S2DE
 		m_prefix(0),
 		m_visible(true),
 		m_enabled(true),
-		m_id(new GameObjectIDGenerator())
+		m_id(new GameObjectIDGenerator()),
+		m_isSelected(false)
 	{
 
 	}
@@ -34,6 +35,8 @@ namespace S2DE
 	{
 		if (m_enabled == true)
 			OnUpdateInput();
+
+		CheckOnIntersection();
 	}
 
 	void GameObject::RenderDebugGUI()
@@ -75,9 +78,10 @@ namespace S2DE
 
 	void GameObject::Init(std::string name, std::string type, std::int32_t prefix, std::string id)
 	{
-		isStringEmpty(name) ? m_name = S2DE_DEFAULT_GAMEOBJECT_NAME : m_name = name;
-		isStringEmpty(type) ? m_type = S2DE_DEFAULT_GAMEOBJECT_TYPE : m_type = type;
-		m_prefix = prefix;
+		//Set name, type and prefix 
+		SetName(name);
+		SetType(type);
+		SetPrefix(prefix);
 
 		//If id is not empty we will set this id
 		if (!isStringEmpty(id))

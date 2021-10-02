@@ -5,6 +5,10 @@
 
 #include <winuser.h>
 
+//#define S2DE_DRAW_EDITOR_PROJECT_NAME_LABEL
+//#define S2DE_DRAW_EDITOR_MODE_LABEL
+
+
 namespace S2DE
 {
 	SplashScreen* SplashScreen::m_instanceWindow;
@@ -42,23 +46,25 @@ namespace S2DE
 		return SplashScreen::GetInstanceWindow()->WndProc(hWnd, msg, wParam, lParam);
 	}
 
-	void SplashScreen::SetProjectName(std::string name)
+	void SplashScreen::RedrawWindowElements()
 	{
-		isStringEmpty(name) ? m_text_project_name_str = "No name" : m_text_project_name_str = name ;
-
 		RECT rc;
 		GetClientRect(m_hwnd, &rc);
 		RedrawWindow(m_hwnd, &rc, 0, RDW_INTERNALPAINT | RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_INVALIDATE);
+	}
 
+	void SplashScreen::SetProjectName(std::string name)
+	{
+#ifdef S2DE_DRAW_EDITOR_PROJECT_NAME_LABEL
+		isStringEmpty(name) ? m_text_project_name_str = "No name" : m_text_project_name_str = name;
+		RedrawWindowElements();
+#endif
 	}
 
 	void SplashScreen::SetLoadState(std::string state)
 	{
 		m_text_load_state_str = state;
-
-		RECT rc;
-		GetClientRect(m_hwnd, &rc);
-		RedrawWindow(m_hwnd, &rc, 0, RDW_INTERNALPAINT | RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_INVALIDATE);
+		RedrawWindowElements();
 	}
 
 	void SplashScreen::Close()
@@ -120,17 +126,23 @@ namespace S2DE
 
 			m_hfont_LoadState = CreateFont(-15, 0, 0, 0, FW_LIGHT, 0,
 				0, 0, 0, 0, 0, 0, 0, "Arial");
+
 			m_hfont_Build = CreateFont(-15, 0, 0, 0, FW_LIGHT, 0,
 				0, 0, 0, 0, 0, 0, 0, "Arial");
+
 			if (Engine::isEditor())
 			{
+#ifdef S2DE_DRAW_EDITOR_PROJECT_NAME_LABEL
 				m_hfont_Name_Ed = CreateFont(-20, 0, 0, 0, FW_LIGHT, 0,
 					0, 0, 0, 0, 0, 0, 0, "Arial");
+#endif
 
+#ifdef S2DE_DRAW_EDITOR_MODE_LABEL
 				m_hfont_Ed = CreateFont(-30, 0, 0, 0, FW_LIGHT, 0,
 					0, 0, 0, 0, 0, 0, 0, "Arial");
 
 				m_text_ed_str = "Editor";
+#endif
 			}
 
 			break;
@@ -150,10 +162,15 @@ namespace S2DE
 
 			if (Engine::isEditor())
 			{
+#ifdef S2DE_DRAW_EDITOR_PROJECT_NAME_LABEL	
 				SelectObject(phdc, m_hfont_Ed);
 				TextOut(phdc, 5, 0, m_text_project_name_str.c_str(), (std::int32_t)m_text_project_name_str.length());
+#endif
+
+#ifdef S2DE_DRAW_EDITOR_MODE_LABEL
 				SelectObject(phdc, m_hfont_Name_Ed);
 				TextOut(phdc, 5, 50, m_text_ed_str.c_str(), (std::int32_t)m_text_ed_str.length());
+#endif
 			}
 
 

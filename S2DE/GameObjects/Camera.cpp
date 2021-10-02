@@ -15,6 +15,8 @@
 #define CAMERA_DEFAULT_RIGHT_VEC	To_XMVector3(Vector3(1, 0, 0))
 #define CAMERA_DEFAULT_UP_VEC		To_XMVector3(Vector3(0, 1, 0))
 #define CAMERA_DEFAULT_TARGET_VEC	To_XMVector3(Vector3(0, 0, 0))
+#define CAMERA_DEFAULT_ZNEAR 0.0f
+#define CAMERA_DEFAULT_ZFAR 1000.0f
 
 namespace S2DE
 {
@@ -29,13 +31,10 @@ namespace S2DE
 		m_speed(CAMERA_DEFAULT_SPEED),
 		m_sensitivity(CAMERA_DEFAULT_SENSITIVITY),
 		m_block_mouse_control(false),
-		m_block_movement_control(false)
+		m_block_movement_control(false),
+		m_zNear(CAMERA_DEFAULT_ZNEAR),
+		m_zFar(CAMERA_DEFAULT_ZFAR)
 	{
-		//TODO
-		//Add check on exist on scene 
-		//and if main camera is existing we disable update of matrix 
-		//and render camera icon on scene if we runned in editor
-		//or we just render gizmos box or somthing like that
 		Init(S2DE_MAIN_CAMERA_NAME, "Engine_Element", -1);
 
 		m_viewMatrix = DirectX::XMMatrixIdentity();
@@ -186,7 +185,10 @@ namespace S2DE
 
 	void Camera::OnRender()
 	{
-		
+		//TODO
+		//Render camera icon
+
+
 	}
 
 	void Camera::OnUpdate(float DeltaTime)
@@ -206,7 +208,7 @@ namespace S2DE
 			m_viewMatrix = DirectX::XMMatrixMultiply(DirectX::XMMatrixIdentity(), DirectX::XMMatrixTranslation(-GetPosition().x, -GetPosition().y, 0.0f));
 			m_viewMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(GetRotation().z)));
 
-			m_projectionMatrix = DirectX::XMMatrixOrthographicLH( w * m_Zoom, h * m_Zoom, 0, 1000.0f);
+			m_projectionMatrix = DirectX::XMMatrixOrthographicLH( w * m_Zoom, h * m_Zoom, m_zNear, m_zFar);
 		}
 
 		m_viewMatrix = DirectX::XMMatrixTranspose(m_viewMatrix);

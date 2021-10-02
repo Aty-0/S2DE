@@ -19,7 +19,7 @@
 //Dx11
 //////////////////////////////////////////////
 
-//Disable warning about old sdk 
+//Disable warning about old sdk using
 #pragma warning(disable: 4005)
 
 #include <dxgi.h>
@@ -38,6 +38,11 @@ namespace S2DE
 	{
 		if (t)
 		{
+//Debug stuff
+#if 0
+			OutputDebugString(std::string("\nDeleted " + std::string(typeid(t).name())).c_str());
+#endif 
+
 			delete t;
 			t = NULL;
 		}
@@ -48,6 +53,10 @@ namespace S2DE
 	{
 		if (t)
 		{
+//Debug stuff
+#if 0
+			OutputDebugString(std::string("\nReleased " + std::string(typeid(t).name())).c_str());
+#endif 
 			t->Release();
 			t = nullptr;
 		}
@@ -74,9 +83,14 @@ namespace S2DE
 	//DirectX Math library defines
 	typedef S2DE_API DirectX::XMVECTOR XVector;
 	typedef S2DE_API DirectX::XMMATRIX XMatrix;
+
 	typedef S2DE_API DirectX::XMFLOAT2 XFloat2;
 	typedef S2DE_API DirectX::XMFLOAT3 XFloat3;
 	typedef S2DE_API DirectX::XMFLOAT4 XFloat4;
+
+	typedef S2DE_API DirectX::XMFLOAT4X4 XMatrix4x4;
+	typedef S2DE_API DirectX::XMFLOAT4X3 XMatrix4x3;
+	typedef S2DE_API DirectX::XMFLOAT3X3 XMatrix3x3;
 
 	struct S2DE_API Vertex
 	{

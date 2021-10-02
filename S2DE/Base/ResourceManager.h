@@ -39,7 +39,7 @@ namespace S2DE
 
 		virtual void Clear() override
 		{
-			static_assert(!std::is_base_of<T, IO_Disposible>::value, "It's not IO_Disposible based class, it can't be resource");
+			static_assert(!std::is_base_of<T, IO_Disposible>::value, "It's not IO_Disposible based class");
 
 			m_resource->Cleanup();
 			Delete(m_resource);
@@ -47,7 +47,7 @@ namespace S2DE
 
 		virtual bool Load(std::string name) const override
 		{
-			static_assert(!std::is_base_of<T, IO_File>::value, "It's not IO_File based class, it can't be resource");
+			static_assert(!std::is_base_of<T, IO_File>::value, "It's not IO_File based class");
 
 			m_resource = new T();
 			m_resource->SetFileName(name);
@@ -77,7 +77,7 @@ namespace S2DE
 
 		virtual bool Save(std::string name, void* output) const override
 		{
-			static_assert(!std::is_base_of<T, IO_File>::value, "It's not IO_File based class, it can't be resource");
+			static_assert(!std::is_base_of<T, IO_File>::value, "It's not IO_File based class");
 
 			return true;
 		}

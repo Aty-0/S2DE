@@ -50,6 +50,8 @@ namespace S2DE
 		std::string				  m_text_ed_str;
 		static SplashScreen*      m_instanceWindow;
 
+
+		void					  RedrawWindowElements();
 	private:
 		static SplashScreen*      GetInstanceWindow() { return m_instanceWindow; }
 		static LRESULT CALLBACK   InstanceWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

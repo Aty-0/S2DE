@@ -31,7 +31,7 @@ namespace S2DE
 		inline ID3D11DeviceContext* GetContext() const { return m_deviceContext; }
 		inline IDXGISwapChain*		GetSwapChain() const { return m_swapChain; }
 		inline bool					GetVsync() const { return m_vsync; }
-
+		inline D3D11_VIEWPORT		GetViewport() const { return m_viewport; }
 
 	private:					 
 		bool						InitImGui();

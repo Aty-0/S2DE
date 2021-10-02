@@ -71,6 +71,7 @@
     <ClInclude Include="GameObjects\TestObject.h" />
     <ClInclude Include="Scene\Scene.h" />
     <ClInclude Include="Scene\SceneManager.h" />
+    <ClInclude Include="GameObjects\Sprite.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc" />
@@ -110,6 +111,7 @@
     <ClCompile Include="GameObjects\TestObject.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp" />
+    <ClCompile Include="GameObjects\Sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\splash.bmp" />

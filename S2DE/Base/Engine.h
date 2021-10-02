@@ -19,9 +19,6 @@ namespace S2DE
 		Engine();
 		~Engine();
 
-		//TODO
-		//RunEditor
-
 		//Run engine in game mode
 		void							RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname = std::string());
 		//Run engine in editor mode
