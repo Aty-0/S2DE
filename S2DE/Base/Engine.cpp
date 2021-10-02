@@ -192,6 +192,8 @@ namespace S2DE
 	bool Engine::LoadEngineResources()
 	{
 		S2DE_ASSERT(m_resource_manager.LoadDefaultTexture());
+		S2DE_ASSERT(m_resource_manager.Load<Shader>("Sprite"));
+
 		return true;
 	}
 }
