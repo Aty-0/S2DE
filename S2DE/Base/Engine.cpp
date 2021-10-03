@@ -9,6 +9,7 @@
 #include "Scene/SceneManager.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/ImGui_Window.h"
+#include "Editor/EditorToolstrip.h"
 
 #define S2DE_EXIT_PROCESS() exit(EXIT_SUCCESS);
 
@@ -129,14 +130,14 @@ namespace S2DE
 
 	void Engine::UpdateEngineInputKeys()
 	{
-		if (m_input_m->IsKeyPressed(KeyCode::KEY_GRAVE))
-		{
-			m_console->TougleDraw();
-		}
-
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_ESCAPE))
 		{
 			m_engine->Destroy();
+		}
+
+		if (m_input_m->IsKeyPressed(KeyCode::KEY_GRAVE))
+		{
+			m_console->TougleDraw();
 		}
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_F11))
@@ -144,6 +145,7 @@ namespace S2DE
 			m_window->SetFullscreen(!m_window->isFullscreen());
 		}
 
+#ifdef _DEBUG
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_0))
 		{
 			m_render->GetImGui_Window("DebugInfoWindow")->ToggleDraw();
@@ -153,6 +155,16 @@ namespace S2DE
 		{
 			m_render->GetImGui_Window("DebugObjectInspectorWindow")->ToggleDraw();
 		}
+#endif
+
+		if (Engine::isEditor())
+		{
+			if (m_input_m->IsKeyPressed(KeyCode::KEY_F10))
+			{
+				m_render->GetImGui_Window("EditorToolStrip")->ToggleDraw();
+			}
+		}
+
 	}
 
 	void Engine::UpdateInput()
