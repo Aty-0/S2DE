@@ -32,6 +32,7 @@ namespace S2DE
 							m_depthStencilBuffer(nullptr),
 							m_depthStencilState(nullptr),
 							m_depthStencilView(nullptr),
+							m_blendState(nullptr),
 							m_vsync(true),
 							m_device_flag(0),
 							m_feature_level(D3D_FEATURE_LEVEL_11_0),
@@ -283,10 +284,30 @@ namespace S2DE
 	void Renderer::SwitchFillMode(RenderFillMode mode)
 	{
 		m_render_fill_mode = mode;
-		CreateRasterizer();
+		CreateRasterizerState();
 	}
 
-	bool Renderer::CreateRasterizer()
+	bool Renderer::CreateBlendState()
+	{
+		D3D11_BLEND_DESC blend_desc;
+		ZeroMemory(&blend_desc, sizeof(D3D11_BLEND_DESC));
+
+		blend_desc.RenderTarget[0].BlendEnable = true;
+		blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blend_desc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+
+		S2DE_CHECK(m_device->CreateBlendState(&blend_desc, &m_blendState), "Can't create blend state");
+
+		m_deviceContext->OMSetBlendState(m_blendState, 0, 0xffffffff);
+		return true;
+	}
+
+	bool Renderer::CreateRasterizerState()
 	{
 		if (m_rasterState != nullptr)
 		{
@@ -382,9 +403,6 @@ namespace S2DE
 
 		m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
 
-		if (!CreateRasterizer())
-			return false;
-
 		return true;	
 	}
 
@@ -412,6 +430,14 @@ namespace S2DE
 		
 		Logger::Log("[Renderer] Create depth stencil...");
 		if (!CreateDepthStencil())
+			return false;
+
+		Logger::Log("[Renderer] Create rasterizer state...");
+		if (!CreateRasterizerState())
+			return false;
+
+		Logger::Log("[Renderer] Create blend state...");
+		if (!CreateBlendState())
 			return false;
 
 		Logger::Log("[Renderer] Initialize ImGui...");

@@ -53,14 +53,15 @@ namespace S2DE
 		void						UpdateViewport();
 		void						Clear();
 		void						End();
-		bool						CreateRasterizer();
-
+		bool						CreateRasterizerState();
+		bool						CreateBlendState();
 
 		IDXGISwapChain*				m_swapChain;
 		ID3D11Device*				m_device;
 		ID3D11DeviceContext*		m_deviceContext;
 		ID3D11RenderTargetView*		m_renderTargetView;
 		ID3D11RasterizerState*		m_rasterState;
+		ID3D11BlendState*			m_blendState;
 		VideoCardDesc				m_videocard_desc;
 
 		//Depth strencil
