@@ -44,7 +44,7 @@ namespace S2DE
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			Logger::Error("HRESULT failed! Error Details %s", err.ErrorMessage());
+			Logger::Error("HRESULT failed! Error Code: 0x%08X Details %s ", hr, err.ErrorMessage());
 			return false;
 	
 		}
