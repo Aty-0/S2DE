@@ -77,6 +77,7 @@ namespace S2DE
 				if (ImGui::MenuItem("Reload shaders"))
 				{
 					Engine::GetResourceManager().ReloadShaders();
+					Engine::GetSceneManager()->UpdateShaders();
 				}
 
 				if (ImGui::MenuItem("Clear scene"))

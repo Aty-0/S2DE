@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include "GameObjects/Camera.h"
+#include "GameObjects/Sprite.h"
 
 namespace S2DE
 {
@@ -34,6 +35,20 @@ namespace S2DE
 		S2DE_NO_IMPL();
 		return true;
 	}	 
+
+	void SceneManager::UpdateShaders()
+	{
+		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+		{
+			if(it->second == dynamic_cast<Sprite*>(it->second))
+				reinterpret_cast<Sprite*>(it->second)->UpdateShader();
+		}
+	}
+
+	void SceneManager::UpdateTextures()
+	{
+		S2DE_NO_IMPL();
+	}
 
 	void SceneManager::UpdateInput()
 	{

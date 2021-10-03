@@ -17,7 +17,13 @@ namespace S2DE
 
 	void ResourceManager::ReloadShaders()
 	{
-		S2DE_NO_IMPL();
+		Logger::Log("[ResourceManager] Reload shaders...");
+
+		for (auto& p : m_ResourceStorage)
+		{
+			if (p.first.second == std::type_index(typeid(Shader)))
+				reinterpret_cast<ResourceManager_Resource<Shader>*>(p.second.get())->Get()->Compile();
+		}
 	}
 	
 	void ResourceManager::ReloadTextures()

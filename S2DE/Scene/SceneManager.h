@@ -28,6 +28,9 @@ namespace S2DE
 		void		   UpdateInput();
 		void		   UpdateScene(float DeltaTime);
 					   
+		void		   UpdateShaders();
+		void		   UpdateTextures();
+
 		void		   Clear();
 					   
 		inline Scene*  GetScene() const { return m_scene; }

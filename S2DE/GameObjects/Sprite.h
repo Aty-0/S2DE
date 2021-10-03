@@ -38,6 +38,7 @@ namespace S2DE
 
 		void			SetAtlasFramePosition(std::int32_t x, std::int32_t y);
 		void			SetAtlasSize(Vector2 size);
+		virtual void	UpdateShader();
 	private:
 		Texture*		m_texture;
 		bool			m_unload_texture;
@@ -47,6 +48,7 @@ namespace S2DE
 		Vector2			m_tile_size;
 		std::int32_t	m_tile_frame_x;
 		std::int32_t	m_tile_frame_y;
+
 	protected:
 		virtual void	OnUpdate(float DeltaTime) override { }
 		virtual void	OnRender() override;

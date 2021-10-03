@@ -146,15 +146,31 @@ namespace S2DE
 		m_index_buffer->Unlock();
 	}	 
 		 
+	void Sprite::UpdateShader()
+	{
+		//Get shader name
+		std::string name = m_shader->GetName();
+		//Delete previous shader 
+		Delete(m_shader);
+
+		//Try to get shader by name from resource manager
+		m_shader = new Shader(*Engine::GetResourceManager().Get<Shader>(name));
+
+		//Shader can't be nullptr
+		S2DE_ASSERT(m_shader != nullptr);
+
+		//TODO 
+		//We need to use custom type 
+		//if we used custom shader with custom const buffer type
+
+		//Create constant buffer with sprite const buffer type
+		m_shader->CreateConstBuffer<SpriteConstBuffer>();
+	}
+
 	void Sprite::SetDefaultShader()
 	{	 
 		m_shader = new Shader(*Engine::GetResourceManager().Get<Shader>("Sprite"));
 		m_shader->CreateConstBuffer<SpriteConstBuffer>();
-		Logger::Log("offset's sprite_tile_frame_x = %d sprite_tile_size = %d  sprite_texture_res = %d sprite_tile_frame_y = %d",
-			(std::int32_t)offsetof(struct SpriteConstBuffer, sprite_tile_frame_x),
-			(std::int32_t)offsetof(struct SpriteConstBuffer, sprite_tile_size),
-			(std::int32_t)offsetof(struct SpriteConstBuffer, sprite_texture_res),
-			(std::int32_t)offsetof(struct SpriteConstBuffer, sprite_tile_frame_y));
 	}	 
 		 
 	void Sprite::CalcScaleFactor()
