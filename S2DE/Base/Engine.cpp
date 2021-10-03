@@ -139,6 +139,10 @@ namespace S2DE
 			m_engine->Destroy();
 		}
 
+		if (m_input_m->IsKeyPressed(KeyCode::KEY_F11))
+		{
+			m_window->SetFullscreen(!m_window->isFullscreen());
+		}
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_0))
 		{

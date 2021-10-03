@@ -15,10 +15,21 @@ namespace S2DE
 {
 	GameWindow* GameWindow::m_InstanceWindow;
 
-	GameWindow::GameWindow() 
+	GameWindow::GameWindow() :
+		m_Fullscreen(false),
+		m_Height(0),
+		m_Width(0),
+		m_HWND(NULL),
+		m_Instance(NULL),
+		m_isChild(false),
+		m_isClosing(false),
+		m_Left(0),
+		m_Top(0),
+		m_Name(),
+		m_PreviousHeight(0),
+		m_PreviousWidth(0),
+		m_ShowCursor(false)
 	{
-		m_isChild = false;
-		m_isClosing = false;
 		m_InstanceWindow = this;
 	}
 
@@ -210,33 +221,46 @@ namespace S2DE
 		MoveWindow(m_HWND, m_Top, m_Left, m_Width, m_Height, TRUE);
 	}
 
-	void GameWindow::SetFullscreen(bool s)
+	void GameWindow::SetFullscreen(bool fullscreen)
 	{
-		m_Fullscreen = s;
+		m_Fullscreen = fullscreen;
 
 		if (m_Fullscreen == true)
 		{
-			Logger::Log("Set fullscreen...");
+			Logger::Log("Set fullscreen mode...");
+
+			m_PreviousWidth = m_Width;
+			m_PreviousHeight = m_Height;
 
 			SetWindowLong(m_HWND, GWL_STYLE, S2DE_FULLSCREEN_WINDOW_STYLE);
 			SetWindowLong(m_HWND, GWL_EXSTYLE, WS_EX_TOPMOST);
 
 			GetWindowPlacement(m_HWND, &m_WindowPlacement);
 			ShowWindow(m_HWND, SW_SHOWMAXIMIZED);
+
+			m_Width = GetClientRes().right;
+			m_Height = GetClientRes().bottom;
 		}
 		else
 		{
 			Logger::Log("Set window mode...");
 
+			m_Width = m_PreviousWidth;
+			m_Height = m_PreviousHeight;
+
+			m_PreviousWidth = 0;
+			m_PreviousHeight = 0;
+
 			SetWindowLong(m_HWND, GWL_STYLE, S2DE_DEFAULT_WINDOW_STYLE);
 			SetWindowLong(m_HWND, GWL_EXSTYLE, 0L);
 
+			MoveWindow(m_HWND, m_Top, m_Left, m_Width, m_Height, TRUE);
 			SetWindowPlacement(m_HWND, &m_WindowPlacement);
 			ShowWindow(m_HWND, SW_SHOWDEFAULT);
 		}
 
 
-		//Engine::GetRenderer()->Reset();
+		Engine::GetRenderer()->Reset();
 	}
 
 	void GameWindow::Close()

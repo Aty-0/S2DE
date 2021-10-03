@@ -63,6 +63,10 @@ namespace S2DE
 		WNDCLASSEX					   m_WindowClass;
 		static GameWindow*			   m_InstanceWindow;
 									   
+		//Temp vars for changing from fullscreen to window mode 
+		std::uint32_t				   m_PreviousWidth;
+		std::uint32_t				   m_PreviousHeight;
+
 	private:						   
 		void						   OnPaint(HWND hWnd);
 		void						   OnMoving();

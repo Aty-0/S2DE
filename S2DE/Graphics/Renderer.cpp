@@ -49,11 +49,12 @@ namespace S2DE
 
 	bool Renderer::Reset()
 	{
+		m_swapChain->SetFullscreenState(Engine::GetGameWindow()->isFullscreen(), nullptr);
+
 		m_deviceContext->OMSetRenderTargets(0, 0, 0);
 		Release(m_renderTargetView);
 
-		
-		if(FAILED(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0)))
+		if (FAILED(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0)))
 			return false;
 
 
@@ -64,7 +65,6 @@ namespace S2DE
 		Release(pBuffer);
 
 		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
-
 
 		UpdateViewport();
 		return true;
