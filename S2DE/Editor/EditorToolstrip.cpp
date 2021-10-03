@@ -110,12 +110,12 @@ namespace S2DE
 					{
 						if (ImGui::MenuItem("Wireframe"))
 						{
-
+							Engine::GetRenderer()->SwitchFillMode(RenderFillMode::Wireframe);
 						}
 
 						if (ImGui::MenuItem("Solid"))
 						{
-
+							Engine::GetRenderer()->SwitchFillMode(RenderFillMode::Solid);
 						}
 
 						ImGui::EndMenu();

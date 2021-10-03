@@ -34,7 +34,8 @@ namespace S2DE
 							m_depthStencilView(nullptr),
 							m_vsync(true),
 							m_device_flag(0),
-							m_feature_level(D3D_FEATURE_LEVEL_11_0)
+							m_feature_level(D3D_FEATURE_LEVEL_11_0),
+							m_render_fill_mode(RenderFillMode::Solid)
 	{
 		
 	}
@@ -279,6 +280,42 @@ namespace S2DE
 		return true;
 	}
 
+	void Renderer::SwitchFillMode(RenderFillMode mode)
+	{
+		m_render_fill_mode = mode;
+		CreateRasterizer();
+	}
+
+	bool Renderer::CreateRasterizer()
+	{
+		if (m_rasterState != nullptr)
+		{
+			m_deviceContext->RSSetState(nullptr);
+			Release(m_rasterState);
+		}
+
+		D3D11_RASTERIZER_DESC rasterDesc;
+
+		rasterDesc.AntialiasedLineEnable = false;
+		rasterDesc.CullMode = D3D11_CULL_BACK;
+		rasterDesc.DepthBias = 0;
+		rasterDesc.DepthBiasClamp = 0.0f;
+		rasterDesc.DepthClipEnable = true;
+		rasterDesc.FillMode = static_cast<D3D11_FILL_MODE>(m_render_fill_mode);
+		rasterDesc.FrontCounterClockwise = false;
+		rasterDesc.MultisampleEnable = false;
+		rasterDesc.ScissorEnable = false;
+		rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+		//Create the rasterizer state from the description we just filled out.
+		S2DE_CHECK(m_device->CreateRasterizerState(&rasterDesc, &m_rasterState), "Render Error: Cannot create rasterizer state");
+
+
+		m_deviceContext->RSSetState(m_rasterState);
+
+		return true;
+	}
+
 	bool Renderer::CreateDepthStencil()
 	{
 		D3D11_TEXTURE2D_DESC depthBufferDesc;
@@ -345,28 +382,9 @@ namespace S2DE
 
 		m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
 
-		D3D11_RASTERIZER_DESC rasterDesc;
+		if (!CreateRasterizer())
+			return false;
 
-		rasterDesc.AntialiasedLineEnable = false;
-		rasterDesc.CullMode = D3D11_CULL_BACK;
-		rasterDesc.DepthBias = 0;
-		rasterDesc.DepthBiasClamp = 0.0f;
-		rasterDesc.DepthClipEnable = true;
-
-		//TODO
-		//Fast mode switch
-		rasterDesc.FillMode = D3D11_FILL_SOLID;
-		rasterDesc.FrontCounterClockwise = false;
-		rasterDesc.MultisampleEnable = false;
-		rasterDesc.ScissorEnable = false;
-		rasterDesc.SlopeScaledDepthBias = 0.0f;
-
-		//Create the rasterizer state from the description we just filled out.
-		S2DE_CHECK(m_device->CreateRasterizerState(&rasterDesc, &m_rasterState), "Render Error: Cannot create rasterizer state");
-
-
-		//Now set the rasterizer state.
-		m_deviceContext->RSSetState(m_rasterState);
 		return true;	
 	}
 

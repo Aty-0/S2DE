@@ -16,6 +16,12 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace S2DE
 {
+	enum class RenderFillMode : std::int32_t
+	{
+		Solid = D3D11_FILL_MODE::D3D11_FILL_SOLID,
+		Wireframe = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME,
+	};
+
 	class S2DE_API Renderer
 	{
 	public:
@@ -33,6 +39,8 @@ namespace S2DE
 		inline bool					GetVsync() const { return m_vsync; }
 		inline D3D11_VIEWPORT		GetViewport() const { return m_viewport; }
 
+		void						SwitchFillMode(RenderFillMode mode);
+
 	private:					 
 		bool						InitImGui();
 		void						UpdateImGuiWindows();
@@ -45,7 +53,7 @@ namespace S2DE
 		void						UpdateViewport();
 		void						Clear();
 		void						End();
-
+		bool						CreateRasterizer();
 
 
 		IDXGISwapChain*				m_swapChain;
@@ -76,6 +84,7 @@ namespace S2DE
 
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windows_storage;
 
+		RenderFillMode				m_render_fill_mode;
 	public:  
 		inline class ImGui_Window*	GetImGui_Window(std::string name) const;
 		void						AddImGuiWindow(std::string name, ImGui_Window* wnd);
