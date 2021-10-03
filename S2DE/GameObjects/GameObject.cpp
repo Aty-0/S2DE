@@ -1,5 +1,4 @@
 #include "GameObject.h"
-#include "GameObjects/Camera.h"
 
 namespace S2DE
 {
