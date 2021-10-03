@@ -4,11 +4,14 @@
 namespace S2DE
 {
 	Sprite::Sprite() :
+		ScaleFactor(Vector3(1, 1, 1)),
 		m_texture(nullptr),
 		m_shader(nullptr),
 		m_index_buffer(nullptr),
 		m_vertex_buffer(nullptr),
-		m_scale_factor(Vector2())
+		m_tile_size(Vector2(0, 0)),
+		m_tile_frame_x(0),
+		m_tile_frame_y(0)
 	{
 		CreateVertexBuffer();
 		CreateIndexBuffer();
@@ -20,12 +23,47 @@ namespace S2DE
 	{
 		Delete(m_vertex_buffer);
 		Delete(m_index_buffer);
+		Delete(m_shader);
+		Delete(m_texture);
+
+		//TODO
+		//unload_texture
 	}
 
-
-	void Sprite::OnUpdate(float DeltaTime)
+	void Sprite::SetAtlasFramePosition(std::int32_t x, std::int32_t y)
 	{
+		m_tile_frame_x = x;
+		m_tile_frame_y = y;
+	}
 
+	void Sprite::SetAtlasSize(Vector2 size)
+	{
+		m_tile_size = size;
+		CalcScaleFactor();
+	}
+
+	bool Sprite::LoadTexture(std::string name, bool unload_texture, bool auto_load_texture)
+	{
+		m_unload_texture = unload_texture;
+
+		//If texture not be loaded before 
+		//and we get default texture when try to get it from resource manager then
+		//we try to load needed texture from gamedata
+		if (Engine::GetResourceManager().Get<Texture>(name) == Engine::GetResourceManager().GetDefaultTexture()
+			&& auto_load_texture == true)
+		{
+			if (!Engine::GetResourceManager().Load<Texture>(name))
+				return false;
+		}
+
+		//Set texture 
+		m_texture = new Texture(*Engine::GetResourceManager().Get<Texture>(name));
+
+		//Texture can't be null 
+		S2DE_ASSERT(m_texture != nullptr);	
+
+		CalcScaleFactor();
+		return true;
 	}
 
 	void Sprite::OnRender()
@@ -39,8 +77,9 @@ namespace S2DE
 		m_shader->ShaderConstBufferBegin();
 		m_shader->ShaderConstBufferUpdateBase(UpdateTransformation());
 
-		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_tile_offset = XFloat2(0, 0);
-		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_tile_size = XFloat2(16, 16);
+		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_tile_frame_x = m_tile_frame_x;
+		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_tile_frame_y = m_tile_frame_y;
+		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_tile_size = XFloat2(m_tile_size.x, m_tile_size.y);
 		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_texture_res = XFloat2(m_texture->GetWidth(), m_texture->GetHeight());
 
 		m_shader->ShaderConstBufferEnd();
@@ -67,7 +106,7 @@ namespace S2DE
 			//Center | Rotation | Scaling
 
 			//Added scale factor
-			XVector(), XVector(), To_XMVector3(GetScale() * m_scale_factor),
+			XVector(), XVector(), To_XMVector3(GetScale() * ScaleFactor),
 			//Rotation
 			//Center | Quatarnion
 			XVector(), ToQuaternion(GetRotation()),
@@ -109,14 +148,29 @@ namespace S2DE
 		 
 	void Sprite::SetDefaultShader()
 	{	 
-		S2DE_ASSERT(Engine::GetResourceManager().IsExists<Shader>("Sprite"));
 		m_shader = new Shader(*Engine::GetResourceManager().Get<Shader>("Sprite"));
 		m_shader->CreateConstBuffer<SpriteConstBuffer>();
+		Logger::Log("offset's sprite_tile_frame_x = %d sprite_tile_size = %d  sprite_texture_res = %d sprite_tile_frame_y = %d",
+			(std::int32_t)offsetof(struct SpriteConstBuffer, sprite_tile_frame_x),
+			(std::int32_t)offsetof(struct SpriteConstBuffer, sprite_tile_size),
+			(std::int32_t)offsetof(struct SpriteConstBuffer, sprite_texture_res),
+			(std::int32_t)offsetof(struct SpriteConstBuffer, sprite_tile_frame_y));
 	}	 
 		 
+	void Sprite::CalcScaleFactor()
+	{
+		//TODO
+		//Better scale factor
+		//But for now it's ok
+		if(m_tile_size.ZeroCordinate())
+			ScaleFactor = Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f);
+		else
+			ScaleFactor = Vector3(m_tile_size.x * 0.01f, m_tile_size.y * 0.01f, 1.0f);
+	}
+
 	void Sprite::SetDefaultTexture()
 	{
 		m_texture = new Texture(*Engine::GetResourceManager().GetDefaultTexture());
-		m_scale_factor = Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f);
+		CalcScaleFactor();
 	}
 }

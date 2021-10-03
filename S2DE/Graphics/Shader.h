@@ -7,9 +7,8 @@
 
 namespace S2DE
 {
-	class S2DE_API ShaderMainBufferType
+	struct S2DE_API ShaderMainBufferType
 	{
-	public:
 		float Delta;
 		float Time;
 		XFloat2 Resoultion;
