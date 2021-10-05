@@ -28,7 +28,8 @@ namespace S2DE
 			ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar |
 			ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar  | 
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground );
+			ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | 
+			ImGuiWindowFlags_::ImGuiWindowFlags_NoMouseInputs);
 
 		//OLD
 		//ImGui::SetWindowPos(ImVec2(float(Engine::GetGameWindow()->GetWidth() - 550.0f), 0.0f));
