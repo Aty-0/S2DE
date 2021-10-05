@@ -156,7 +156,7 @@ namespace S2DE
 		if (Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
 		{
 			Logger::Log("Added custom font for imgui...");
-			io.Fonts->AddFontFromFileTTF(path.c_str(), 15);
+			io.Fonts->AddFontFromFileTTF(path.c_str(), 18);
 		}
 
 		LoadCustomImguiTheme();
