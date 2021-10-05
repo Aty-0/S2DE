@@ -47,7 +47,11 @@ namespace S2DE
 
 	void SceneManager::UpdateTextures()
 	{
-		S2DE_NO_IMPL();
+		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
+		{
+			if (it->second == dynamic_cast<Sprite*>(it->second))
+				reinterpret_cast<Sprite*>(it->second)->UpdateTexture();
+		}
 	}
 
 	void SceneManager::UpdateInput()

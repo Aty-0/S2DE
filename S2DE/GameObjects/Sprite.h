@@ -9,9 +9,9 @@ namespace S2DE
 	struct S2DE_API SpriteConstBuffer : ShaderMainBufferType
 	{
 		int			 sprite_tile_frame_x;
+		int			 sprite_tile_frame_y;
 		XFloat2		 sprite_tile_size;
 		XFloat2		 sprite_texture_res;
-		int			 sprite_tile_frame_y;
 	};
 
 	class S2DE_API Sprite : public GameObject
@@ -38,7 +38,13 @@ namespace S2DE
 
 		void			SetAtlasFramePosition(std::int32_t x, std::int32_t y);
 		void			SetAtlasSize(Vector2 size);
+
+		//Get new version of current shader from resource manager
 		virtual void	UpdateShader();
+
+		//Get new version of current texture from resource manager
+		virtual void	UpdateTexture();
+
 	private:
 		Texture*		m_texture;
 		bool			m_unload_texture;

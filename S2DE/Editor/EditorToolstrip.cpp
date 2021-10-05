@@ -17,6 +17,9 @@ namespace S2DE
 
 	void EditorToolStrip::Render()
 	{
+		if (!m_draw)
+			return;
+
 		if (ImGui::BeginMainMenuBar()) 
 		{
 			if (ImGui::BeginMenu("File")) 
@@ -72,6 +75,7 @@ namespace S2DE
 				if (ImGui::MenuItem("Reload textures"))
 				{
 					Engine::GetResourceManager().ReloadTextures();
+					Engine::GetSceneManager()->UpdateTextures();
 				}
 
 				if (ImGui::MenuItem("Reload shaders"))

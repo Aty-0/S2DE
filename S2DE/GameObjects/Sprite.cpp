@@ -146,6 +146,29 @@ namespace S2DE
 		m_index_buffer->Unlock();
 	}	 
 		 
+	void Sprite::UpdateTexture()
+	{
+		//Get texture name
+		std::string name = m_texture->GetName();
+
+		//Delete previous texture
+		Delete(m_texture);
+
+		Texture* upd_tx = Engine::GetResourceManager().Get<Texture>(name);
+
+		if (upd_tx == nullptr)
+		{
+			Logger::Error("%s Can't update texture!", GetName().c_str());
+			return;
+		}
+
+		//Try to get texture by name from resource manager
+		m_texture = new Texture(*upd_tx);
+
+		//Texture can't be nullptr
+		S2DE_ASSERT(m_texture != nullptr);
+	}
+	 
 	void Sprite::UpdateShader()
 	{
 		//Get shader name
@@ -153,8 +176,17 @@ namespace S2DE
 		//Delete previous shader 
 		Delete(m_shader);
 
+		Shader* upd_sh = Engine::GetResourceManager().Get<Shader>(name);
+
+		if (upd_sh == nullptr)
+		{
+			Logger::Error("%s Can't update shader!", GetName().c_str());
+			return;
+		}
+
+
 		//Try to get shader by name from resource manager
-		m_shader = new Shader(*Engine::GetResourceManager().Get<Shader>(name));
+		m_shader = new Shader(*upd_sh);
 
 		//Shader can't be nullptr
 		S2DE_ASSERT(m_shader != nullptr);

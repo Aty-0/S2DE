@@ -15,6 +15,9 @@ namespace S2DE
 
 	}
 
+	//TODO 
+	//Check file update and then load it 
+
 	void ResourceManager::ReloadShaders()
 	{
 		Logger::Log("[ResourceManager] Reload shaders...");
@@ -28,7 +31,16 @@ namespace S2DE
 	
 	void ResourceManager::ReloadTextures()
 	{
-		S2DE_NO_IMPL();
+		Logger::Log("[ResourceManager] Reload textures...");
+
+		for (auto& p : m_ResourceStorage)
+		{
+			if (p.first.second == std::type_index(typeid(Texture)))
+			{
+				Texture* t = reinterpret_cast<ResourceManager_Resource<Texture>*>(p.second.get())->Get();
+				t->Load(GetFilePath(t->GetName(), t));
+			}
+		}
 	}
 
 	bool ResourceManager::LoadDefaultTexture() 
