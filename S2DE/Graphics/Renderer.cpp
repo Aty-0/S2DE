@@ -36,9 +36,11 @@ namespace S2DE
 							m_vsync(true),
 							m_device_flag(0),
 							m_feature_level(D3D_FEATURE_LEVEL_11_0),
-							m_render_fill_mode(RenderFillMode::Solid)
+							m_render_fill_mode(RenderFillMode::Solid),
+							m_clearColor(Color<float>(0.0f, 0.0f, 0.0f, 1.0f))
+
 	{
-		
+
 	}
 
 
@@ -474,8 +476,10 @@ namespace S2DE
 
 	void Renderer::Clear()
 	{
+		float color_array[4] = { m_clearColor.r / 1000, m_clearColor.g / 1000, m_clearColor.b / 1000, m_clearColor.a / 1000 };
+
 		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
-		m_deviceContext->ClearRenderTargetView(m_renderTargetView, m_clearColor);
+		m_deviceContext->ClearRenderTargetView(m_renderTargetView, color_array);
 		m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
@@ -555,5 +559,10 @@ namespace S2DE
 		
 		m_windows_storage.erase(it, m_windows_storage.end());
 		Logger::Log("[Renderer] Removed window %s", name.c_str());
+	}
+
+	void Renderer::SetBackColor(Color<float> color)
+	{
+		m_clearColor = color;
 	}
 }

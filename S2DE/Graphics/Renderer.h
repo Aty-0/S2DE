@@ -41,6 +41,7 @@ namespace S2DE
 
 		void						SwitchFillMode(RenderFillMode mode);
 
+		void						SetBackColor(Color<float> color);
 	private:					 
 		bool						InitImGui();
 		void						UpdateImGuiWindows();
@@ -78,10 +79,7 @@ namespace S2DE
 
 		std::uint32_t				m_device_flag;
 
-		//TODO
-		//Own class
-		// 0.3f, 0.1f, 0.4f, 1.0f 
-		float						m_clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		Color<float>				m_clearColor;
 
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windows_storage;
 
