@@ -20,16 +20,9 @@ namespace S2DE
 		//Get current ID in UUID format  
 		inline boost::uuids::uuid	GetUUID() const { return m_uuid; };
 
+		static inline boost::uuids::uuid ConvertStringToUUID(const std::string id);
+
 	private:
 		boost::uuids::uuid m_uuid;
 	};
-
-	static inline boost::uuids::uuid ConvertStringToUUID(const std::string id)
-	{
-		boost::uuids::uuid uuid;
-		ZeroMemory(&uuid, sizeof(uuid));
-		std::istringstream strm(id);
-		strm >> uuid;
-		return uuid;
-	}
 }

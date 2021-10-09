@@ -1,8 +1,8 @@
 #include "GameObjectIDGenerator.h"
-
-#include <sstream>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+
+#include <sstream>
 
 namespace S2DE
 {
@@ -27,5 +27,14 @@ namespace S2DE
 	std::string GameObjectIDGenerator::GetIDString() const
 	{
 		return boost::uuids::to_string(m_uuid);
+	}
+
+	boost::uuids::uuid GameObjectIDGenerator::ConvertStringToUUID(const std::string id)
+	{
+		boost::uuids::uuid uuid;
+		ZeroMemory(&uuid, sizeof(uuid));
+		std::istringstream strm(id);
+		strm >> uuid;
+		return uuid;
 	}
 }
