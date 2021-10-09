@@ -1,6 +1,8 @@
 #include "Scene.h"
 #include "Base/Engine.h"
 
+#include <boost/uuid/uuid_io.hpp>
+
 namespace S2DE
 {
 	Scene::Scene() : 
@@ -83,12 +85,39 @@ namespace S2DE
 		 
 	void Scene::Delete(std::string object_name)
 	{	 
-		S2DE_NO_IMPL();
+		Logger::Log("[Scene] [%s] Delete object %s", m_name.c_str(), object_name.c_str());
+
+		SceneObjectStorage::iterator it = std::remove_if(m_storage.begin(), m_storage.end(),
+			[&object_name](std::pair<std::pair<std::string, boost::uuids::uuid>, GameObject*> const& elem) {
+				return elem.first.first == object_name;
+			});
+
+		if (it == m_storage.end() || it->second->GetPrefix() == -1)
+		{
+			Logger::Error("[Scene] [%s] Can't delete object %s", m_name.c_str(), object_name.c_str());
+			return;
+		}
+
+		m_storage.erase(it, m_storage.end());
 	}	 
 		 
 	void Scene::Delete(boost::uuids::uuid object_id)
 	{	 
-		S2DE_NO_IMPL();
+		Logger::Log("[Scene] [%s] Delete object %s", m_name.c_str(), boost::uuids::to_string(object_id).c_str());
+
+		SceneObjectStorage::iterator it = std::remove_if(m_storage.begin(), m_storage.end(),
+			[&object_id](std::pair<std::pair<std::string, boost::uuids::uuid>, GameObject*> const& elem) {
+				return elem.first.second == object_id;
+			});
+
+		if (it == m_storage.end() || it->second->GetPrefix() == -1)
+		{
+			Logger::Error("[Scene] [%s] Can't delete object %s", m_name.c_str(), boost::uuids::to_string(object_id).c_str());
+			return;
+		}
+
+		m_storage.erase(it, m_storage.end());
+		m_storage.shrink_to_fit();
 	}	 
 		 
 	void Scene::Replace(std::string object_name, GameObject* object)
@@ -113,11 +142,26 @@ namespace S2DE
 
 	void Scene::Clear()
 	{
-		S2DE_NO_IMPL();
+		Logger::Log("[Scene] [%s] Try to clear scene...", m_name.c_str());
+
+		for (SceneObjectStorage::iterator it = m_storage.begin(); it != m_storage.end();)
+		{
+			if (it->second->GetPrefix() != -1)
+			{
+				S2DE::Delete(it->second);
+				it = m_storage.erase(it);
+			}
+			else
+				it++;
+		}
+
+		m_storage.shrink_to_fit();
 	}
 
 	void Scene::Destroy()
 	{
-		S2DE_NO_IMPL();
+		Logger::Log("[Scene] [%s] Destroy ", m_name.c_str());
+		m_storage.erase(m_storage.begin(), m_storage.end());
+		m_storage.shrink_to_fit();
 	}
 }
