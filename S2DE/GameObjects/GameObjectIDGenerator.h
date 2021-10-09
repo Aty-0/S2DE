@@ -11,14 +11,25 @@ namespace S2DE
 		GameObjectIDGenerator();
 		~GameObjectIDGenerator();
 
-		//Set special id in string format
-		void				SetID(const std::string id_str);
-		//Get corrent ID in string format 
-		std::string			GetIDString() const;
-		//Get corrent ID in UUID 
-		boost::uuids::uuid	GetUUID() const { return m_uuid; };
+		//Set special id by string 
+		void						SetID(const std::string id_str);
+
+		//Get current ID in string format 
+		inline std::string			GetIDString() const;
+
+		//Get current ID in UUID format  
+		inline boost::uuids::uuid	GetUUID() const { return m_uuid; };
 
 	private:
 		boost::uuids::uuid m_uuid;
 	};
+
+	static inline boost::uuids::uuid ConvertStringToUUID(const std::string id)
+	{
+		boost::uuids::uuid uuid;
+		ZeroMemory(&uuid, sizeof(uuid));
+		std::istringstream strm(id);
+		strm >> uuid;
+		return uuid;
+	}
 }
