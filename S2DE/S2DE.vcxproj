@@ -105,7 +105,6 @@
     <ClCompile Include="Libs\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Libs\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libs\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Math\Color.cpp" />
     <ClCompile Include="Math\Rect.cpp" />
     <ClCompile Include="Math\Vector.cpp" />
     <ClCompile Include="GameObjects\TestObject.cpp" />

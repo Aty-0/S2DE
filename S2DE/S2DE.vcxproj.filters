@@ -247,9 +247,6 @@
     <ClCompile Include="Libs\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Color.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Rect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
