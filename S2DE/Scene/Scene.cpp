@@ -1,7 +1,4 @@
 #include "Scene.h"
-#include "Base/Engine.h"
-
-#include <boost/uuid/uuid_io.hpp>
 
 namespace S2DE
 {
@@ -103,7 +100,7 @@ namespace S2DE
 		 
 	void Scene::Delete(boost::uuids::uuid object_id)
 	{	 
-		Logger::Log("[Scene] [%s] Delete object %s", m_name.c_str(), boost::uuids::to_string(object_id).c_str());
+		Logger::Log("[Scene] [%s] Delete object %s", m_name.c_str(), GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
 
 		SceneObjectStorage::iterator it = std::remove_if(m_storage.begin(), m_storage.end(),
 			[&object_id](std::pair<std::pair<std::string, boost::uuids::uuid>, GameObject*> const& elem) {
@@ -112,7 +109,7 @@ namespace S2DE
 
 		if (it == m_storage.end() || it->second->GetPrefix() == -1)
 		{
-			Logger::Error("[Scene] [%s] Can't delete object %s", m_name.c_str(), boost::uuids::to_string(object_id).c_str());
+			Logger::Error("[Scene] [%s] Can't delete object %s", m_name.c_str(), GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
 			return;
 		}
 
@@ -129,16 +126,6 @@ namespace S2DE
 	{	 
 		S2DE_NO_IMPL();
 	}	 
-		 
-	void Scene::Clone(std::string object_name)
-	{	 
-		S2DE_NO_IMPL();
-	}	 
-		 
-	void Scene::Clone(boost::uuids::uuid object_id)
-	{
-		S2DE_NO_IMPL();
-	}
 
 	void Scene::Clear()
 	{
