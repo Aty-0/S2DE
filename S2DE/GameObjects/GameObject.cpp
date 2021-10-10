@@ -82,9 +82,12 @@ namespace S2DE
 		SetType(type);
 		SetPrefix(prefix);
 
-		//If id is not empty we will set this id
-		if (!isStringEmpty(id))
-			m_id->SetID(id);
+		//TODO
+		//Need check special id on invalid
+		if(id == "REGENERATE")
+			m_id->RegenerateUUID();
+		else if (!isStringEmpty(id))
+			m_id->SetUUID(id);
 
 		OnCreate();
 	}

@@ -14,12 +14,22 @@ namespace S2DE
 
 	GameObjectIDGenerator::~GameObjectIDGenerator()
 	{
-		ZeroMemory(&m_uuid, sizeof(m_uuid));
+		m_uuid = boost::uuids::nil_uuid();
 	}
 	
-	void GameObjectIDGenerator::SetID(const std::string id_str)
+	void GameObjectIDGenerator::RegenerateUUID()
 	{
-		ZeroMemory(&m_uuid, sizeof(m_uuid));
+		m_uuid = boost::uuids::random_generator()();
+	}
+
+	void GameObjectIDGenerator::SetUUID(boost::uuids::uuid uuid)
+	{
+		m_uuid = uuid;
+	}
+
+	void GameObjectIDGenerator::SetUUID(const std::string id_str)
+	{
+		m_uuid = boost::uuids::nil_uuid();
 		std::istringstream strm(id_str);
 		strm >> m_uuid;
 	}
@@ -31,10 +41,14 @@ namespace S2DE
 
 	boost::uuids::uuid GameObjectIDGenerator::ConvertStringToUUID(const std::string id)
 	{
-		boost::uuids::uuid uuid;
-		ZeroMemory(&uuid, sizeof(uuid));
+		boost::uuids::uuid uuid = boost::uuids::nil_uuid();
 		std::istringstream strm(id);
 		strm >> uuid;
 		return uuid;
+	}
+
+	std::string GameObjectIDGenerator::ConvertUUIDToString(boost::uuids::uuid uuid)
+	{
+		return boost::uuids::to_string(uuid);
 	}
 }

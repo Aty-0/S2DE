@@ -11,16 +11,26 @@ namespace S2DE
 		GameObjectIDGenerator();
 		~GameObjectIDGenerator();
 
-		//Set special id by string 
-		void						SetID(const std::string id_str);
+		//Set uuid by string 
+		void							SetUUID(const std::string id_str);
 
-		//Get current ID in string format 
-		inline std::string			GetIDString() const;
+		//Set uuid by existing uuid
+		void							SetUUID(boost::uuids::uuid uuid);
 
-		//Get current ID in UUID format  
-		inline boost::uuids::uuid	GetUUID() const { return m_uuid; };
+		//Get current uuid in string format 
+		inline std::string				GetIDString() const;
 
+		//Get current uuid
+		inline boost::uuids::uuid		GetUUID() const { return m_uuid; };
+
+		//Generate new UUID
+		void							RegenerateUUID();
+
+		//Convert string to uuid 
 		static inline boost::uuids::uuid ConvertStringToUUID(const std::string id);
+
+		//Convert uuid to string 
+		static inline std::string		 ConvertUUIDToString(boost::uuids::uuid uuid);
 
 	private:
 		boost::uuids::uuid m_uuid;

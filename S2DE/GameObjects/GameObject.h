@@ -19,20 +19,31 @@ namespace S2DE
 		GameObject();
 		~GameObject();
 
-		//Object initialization  
+		//Object initialization 
 		//Set name, type, prefix
-		//ID will be automatically genarated but we can set custom id
+		//ID automatically genarated when object is created 
+		//but we can regenerate UUID or type custom uuid
+		//if id string is empty it's does nothing
+		//if we type REGENERATE we get new uuid
 		void						 Init(std::string name, std::string type, std::int32_t prefix, std::string id = std::string());
 
+		//Main gameobject render function
 		void						 Render();
+		//Main gameobject update function
 		void						 Update(float DeltaTime);
+		//Main gameobject input update function
 		void						 UpdateInput();
 		void						 RenderDebugGUI();
 
+		//Set new name for gameobject
 		void						 SetName(std::string name);
+		//Set new prefix for gameobject
 		void						 SetPrefix(std::int32_t prefix);
+		//Set new type for gameobject
 		void						 SetType(std::string type);
+		//Set visible condition for gameobject
 		void						 SetVisible(bool visible);
+		//Set enabled condition for gameobject
 		void						 SetEnabled(bool enabled);
 									 
 		inline std::string           GetName()   const { return m_name; }
@@ -58,6 +69,7 @@ namespace S2DE
 		virtual void				OnUpdateInput() { }
 		virtual void				OnDebugRenderGUI() { }
 		virtual bool 				CheckOnIntersection() { return false; }
+
 	private:
 		std::string					m_name; 
 		std::int32_t				m_prefix;
