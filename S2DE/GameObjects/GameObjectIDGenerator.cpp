@@ -34,7 +34,7 @@ namespace S2DE
 		strm >> m_uuid;
 	}
 
-	std::string GameObjectIDGenerator::GetIDString() const
+	std::string GameObjectIDGenerator::GetUUIDString() const
 	{
 		return boost::uuids::to_string(m_uuid);
 	}

@@ -18,7 +18,7 @@ namespace S2DE
 		void							SetUUID(boost::uuids::uuid uuid);
 
 		//Get current uuid in string format 
-		inline std::string				GetIDString() const;
+		inline std::string				GetUUIDString() const;
 
 		//Get current uuid
 		inline boost::uuids::uuid		GetUUID() const { return m_uuid; };
