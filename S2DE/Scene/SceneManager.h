@@ -65,7 +65,7 @@ namespace S2DE
 		object->SetRotation(rotation);
 		object->SetScale(scale);
 
-		Engine::GetSceneManager()->GetScene()->Add(object);
+		Engine::GetSceneManager()->GetScene()->Add<T>(object);
 
 		return object;
 	}
@@ -77,7 +77,7 @@ namespace S2DE
 		S2DE_ASSERT(Engine::GetSceneManager()->GetScene() != nullptr);
 		auto object = new T();
 
-		Engine::GetSceneManager()->GetScene()->Add(object);
+		Engine::GetSceneManager()->GetScene()->Add<T>(object);
 
 		return object;
 	}
@@ -91,11 +91,11 @@ namespace S2DE
 			Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
 			Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
 			[&name](std::pair<std::pair<std::string, boost::uuids::uuid>,
-				GameObject*> const& elem) {
+				std::shared_ptr<GameObject>> const& elem) {
 				return elem.first.first == name;
 			});
 
-		return dynamic_cast<T*>(it->second);
+		return dynamic_cast<T*>(it->second.get());
 	}
 
 	//Get game object from scene by uuid
@@ -107,10 +107,10 @@ namespace S2DE
 			Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
 			Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
 			[&id](std::pair<std::pair<std::string, boost::uuids::uuid>,
-				GameObject*> const& elem) {
+				std::shared_ptr<GameObject>> const& elem) {
 					return elem.first.second == id;
 			});
 
-		return dynamic_cast<T*>(it->second);
+		return dynamic_cast<T*>(it->second.get());
 	}
 }

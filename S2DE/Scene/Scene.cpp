@@ -30,7 +30,7 @@ namespace S2DE
 			SceneObjectStorage::iterator it = std::find_if(
 				m_storage.begin(), m_storage.end(),
 				[&new_name](std::pair<std::pair<std::string, boost::uuids::uuid>,
-					GameObject*> const& elem) {
+					std::shared_ptr<GameObject>> const& elem) {
 						return elem.first.first == new_name;
 				});
 
@@ -45,31 +45,6 @@ namespace S2DE
 		}
 	}
 
-	void Scene::Add(GameObject* g)
-	{
-		//Check object on valid
-		if (g == nullptr)
-		{
-			Logger::Error("[Scene] [%s] Can't add this game object because it is nullptr!", m_name.c_str());
-			return;
-		}
-		else if (isStringEmpty(g->GetName()) || isStringEmpty(g->GetID()))
-		{
-			Logger::Error("[Scene] [%s] Can't add this game object because it is not initialized!", m_name.c_str());
-			return;
-		}
-
-		std::string name = g->GetName();
-
-		CheckNameOnExist(name);
-		g->SetName(name);
-
-		Logger::Log("[Scene] [%s] Added name: %s id: %s", m_name.c_str(), name.c_str(), g->GetID().c_str());
-
-		//Add object to storage
-		m_storage.push_back(std::make_pair(std::make_pair(name, g->GetUUID()), g));
-	}
-
 	void Scene::Rename(std::string object_name, std::string new_object_name)
 	{	 
 		S2DE_NO_IMPL();
@@ -82,36 +57,40 @@ namespace S2DE
 		 
 	void Scene::Delete(std::string object_name)
 	{	 
-		Logger::Log("[Scene] [%s] Delete object %s", m_name.c_str(), object_name.c_str());
-
 		SceneObjectStorage::iterator it = std::remove_if(m_storage.begin(), m_storage.end(),
-			[&object_name](std::pair<std::pair<std::string, boost::uuids::uuid>, GameObject*> const& elem) {
+			[&object_name](std::pair<std::pair<std::string, boost::uuids::uuid>, 
+				std::shared_ptr<GameObject>> const& elem) {
 				return elem.first.first == object_name;
 			});
 
 		if (it == m_storage.end() || it->second->GetPrefix() == -1)
 		{
-			Logger::Error("[Scene] [%s] Can't delete object %s", m_name.c_str(), object_name.c_str());
+			Logger::Error("[Scene] [%s] Can't delete object Name: %s", m_name.c_str(), object_name.c_str());
 			return;
 		}
 
+		Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
+
+
 		m_storage.erase(it, m_storage.end());
+		m_storage.shrink_to_fit();
 	}	 
 		 
 	void Scene::Delete(boost::uuids::uuid object_id)
 	{	 
-		Logger::Log("[Scene] [%s] Delete object %s", m_name.c_str(), GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
-
 		SceneObjectStorage::iterator it = std::remove_if(m_storage.begin(), m_storage.end(),
-			[&object_id](std::pair<std::pair<std::string, boost::uuids::uuid>, GameObject*> const& elem) {
+			[&object_id](std::pair<std::pair<std::string, boost::uuids::uuid>, 
+				std::shared_ptr<GameObject>> const& elem) {
 				return elem.first.second == object_id;
 			});
 
 		if (it == m_storage.end() || it->second->GetPrefix() == -1)
 		{
-			Logger::Error("[Scene] [%s] Can't delete object %s", m_name.c_str(), GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
+			Logger::Error("[Scene] [%s] Can't delete object UUID: %s", m_name.c_str(), GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
 			return;
 		}
+
+		Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
 
 		m_storage.erase(it, m_storage.end());
 		m_storage.shrink_to_fit();
@@ -135,8 +114,8 @@ namespace S2DE
 		{
 			if (it->second->GetPrefix() != -1)
 			{
-				S2DE::Delete(it->second);
-				it = m_storage.erase(it);
+				Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
+				it = m_storage.erase(it, m_storage.end());
 			}
 			else
 				it++;

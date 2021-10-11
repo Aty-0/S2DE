@@ -40,8 +40,8 @@ namespace S2DE
 	{
 		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
 		{
-			if(it->second == dynamic_cast<Sprite*>(it->second))
-				reinterpret_cast<Sprite*>(it->second)->UpdateShader();
+			if(it->second.get() == dynamic_cast<Sprite*>(it->second.get()))
+				reinterpret_cast<Sprite*>(it->second.get())->UpdateShader();
 		}
 	}
 
@@ -49,8 +49,8 @@ namespace S2DE
 	{
 		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
 		{
-			if (it->second == dynamic_cast<Sprite*>(it->second))
-				reinterpret_cast<Sprite*>(it->second)->UpdateTexture();
+			if (it->second.get() == dynamic_cast<Sprite*>(it->second.get()))
+				reinterpret_cast<Sprite*>(it->second.get())->UpdateTexture();
 		}
 	}
 
