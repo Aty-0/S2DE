@@ -17,7 +17,7 @@ namespace S2DE
 	{
 	public:
 		GameObject();
-		~GameObject();
+		virtual ~GameObject();
 
 		//Object initialization 
 		//Set name, type, prefix
@@ -29,35 +29,37 @@ namespace S2DE
 
 		//Main gameobject render function
 		void						 Render();
+
 		//Main gameobject update function
 		void						 Update(float DeltaTime);
+
 		//Main gameobject input update function
 		void						 UpdateInput();
 		void						 RenderDebugGUI();
 
 		//Set new name for gameobject
 		void						 SetName(std::string name);
+
 		//Set new prefix for gameobject
 		void						 SetPrefix(std::int32_t prefix);
+
 		//Set new type for gameobject
 		void						 SetType(std::string type);
+
 		//Set visible condition for gameobject
 		void						 SetVisible(bool visible);
+
 		//Set enabled condition for gameobject
 		void						 SetEnabled(bool enabled);
 									 
 		inline std::string           GetName()   const { return m_name; }
 		inline boost::uuids::uuid    GetUUID()	 const { return m_id->GetUUID(); }
-		inline std::string           GetID()     const { return m_id->GetIDString(); }
+		inline std::string           GetUUIDString()     const { return m_id->GetUUIDString(); }
 		inline std::int32_t			 GetPrefix() const { return m_prefix; }
 		inline std::string           GetType()   const { return m_type; }
 		inline bool                  isVisible() const { return m_visible; }
 		inline bool                  isEnabled() const { return m_enabled; }
-									 
-		template<typename T>		 
-		T*							 Clone() const { return new T(*this); }
 		
-
 	protected:
 		virtual void				OnPositionChanged()  override { }
 		virtual void				OnRotationChanged()  override { }
