@@ -6,6 +6,9 @@
 
 namespace S2DE
 {
+	//FIX ME
+	//Wrong x y vars in shader
+	//Maybe wrong buffer size 
 	struct S2DE_API SpriteConstBuffer : ShaderMainBufferType
 	{
 		int			 sprite_tile_frame_x;
@@ -34,16 +37,17 @@ namespace S2DE
 		//This function get texture from resource manager and setting it to sprite
 		//If texture not found in resource manager and if auto_load_texture == true we try to load it
 		//If unload_texture == true we unload the corrent texture when sprite destroying 
-		virtual bool	LoadTexture(std::string name, bool unload_texture = true, bool auto_load_texture = true);
-
-		void			SetAtlasFramePosition(std::int32_t x, std::int32_t y);
-		void			SetAtlasSize(Vector2 size);
+		virtual bool	LoadTexture(std::string name, bool unload_texture = false, bool auto_load_texture = true);
 
 		//Get new version of current shader from resource manager
 		virtual void	UpdateShader();
 
 		//Get new version of current texture from resource manager
 		virtual void	UpdateTexture();
+
+
+		void			SetAtlasFramePosition(std::int32_t x, std::int32_t y);
+		void			SetAtlasSize(Vector2 size);
 
 	private:
 		Texture*		m_texture;
@@ -59,7 +63,6 @@ namespace S2DE
 		virtual void	OnUpdate(float DeltaTime) override { }
 		virtual void	OnRender() override;
 		virtual XMatrix UpdateTransformation() override;
-
 
 		virtual void	CreateVertexBuffer();
 		virtual void	CreateIndexBuffer();

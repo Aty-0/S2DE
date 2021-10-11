@@ -33,6 +33,7 @@ namespace S2DE
 
 
 		m_shader = new Shader(*Engine::GetResourceManager().Get<Shader>("test"));
+		S2DE_ASSERT(m_shader != nullptr);
 
 		std::int32_t rnd_tex = RandomByMinMax<std::int32_t>(1, 4);
 
@@ -74,8 +75,15 @@ namespace S2DE
 	TestObject::~TestObject()
 	{
 		m_shader->Cleanup();
+		Delete(m_shader);
+
+		m_texture->Cleanup();
+		Delete(m_texture);
+
 		Delete(m_vbuffer);
 		Delete(m_ibuffer);
+
+		Logger::Log("Destroyed %s", GetName().c_str());
 	}
 
 	XMatrix TestObject::UpdateTransformation()

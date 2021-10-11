@@ -21,13 +21,15 @@ namespace S2DE
 
 	Sprite::~Sprite()
 	{
+		if (m_unload_texture == true)
+			Engine::GetResourceManager().Erase<Texture>(m_texture->GetName());
+
 		Delete(m_vertex_buffer);
 		Delete(m_index_buffer);
+		m_shader->Cleanup();
 		Delete(m_shader);
+		m_texture->Cleanup();
 		Delete(m_texture);
-
-		//TODO
-		//unload_texture
 	}
 
 	void Sprite::SetAtlasFramePosition(std::int32_t x, std::int32_t y)
