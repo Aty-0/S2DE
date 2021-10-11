@@ -13,7 +13,7 @@ namespace S2DE
 	Shader::Shader() 
 	{
 		m_type = "Shader";
-		m_ex = { ".hlsl", ".s", ".fx" };
+		m_ex = { ".hlsl", ".shader", ".fx" };
 	}
 
 	Shader::~Shader()
@@ -26,7 +26,6 @@ namespace S2DE
 		Release(m_vertexShader);
 		Release(m_pixelShader);
 		Release(m_layout);
-		Delete(m_const_buffer);
 	}
 
 	void Shader::Unbind()
@@ -49,22 +48,22 @@ namespace S2DE
 		ID3D10Blob* code_buffer;
 		ID3D10Blob* err_buffer;
 
-		
 		Logger::Log("[Shader] [%s] Compile vertex shader...", m_name.c_str());
 		if (FAILED(D3DX11CompileFromFileA(m_path_vs.c_str(), nullptr, nullptr, "main", "vs_5_0",
 			D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &code_buffer, &err_buffer, NULL)))
 		{
-			Logger::Error("[Shader] Failed");
+			std::string details;
+
 			if (err_buffer != nullptr)
 			{
-				Logger::Error("Details:\n%s", (char*)err_buffer->GetBufferPointer());
+				details = (char*)err_buffer->GetBufferPointer();
 				Release(err_buffer);
 			}
 			else
-			{
-				Logger::Error("Details:\nNo details");
-			}
+				details = "No description available!";
+			
 
+			Logger::Error("[Shader] Failed\nError details:\n%s", details.c_str());
 			return false;
 		}
 		
@@ -102,17 +101,18 @@ namespace S2DE
 		if (FAILED(D3DX11CompileFromFileA(m_path_ps.c_str(), nullptr, nullptr, "main", "ps_5_0",
 			D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &code_buffer, &err_buffer, NULL)))
 		{
-			Logger::Error("[Shader] Failed");
+			std::string details;
+
 			if (err_buffer != nullptr)
 			{
-				Logger::Error("Details:\n%s", (char*)err_buffer->GetBufferPointer());
+				details = (char*)err_buffer->GetBufferPointer();
 				Release(err_buffer);
 			}
 			else
-			{
-				Logger::Error("Details:\nNo details");
-			}
+				details = "No description available!";
 
+
+			Logger::Error("[Shader] Failed\nError details:\n%s", details.c_str());
 			return false;
 		}
 		
