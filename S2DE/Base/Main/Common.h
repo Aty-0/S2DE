@@ -84,6 +84,10 @@ namespace S2DE
 	typedef S2DE_API DirectX::XMVECTOR XVector;
 	typedef S2DE_API DirectX::XMMATRIX XMatrix;
 
+	typedef S2DE_API DirectX::XMINT2 XInt2;
+	typedef S2DE_API DirectX::XMINT3 XInt3;
+	typedef S2DE_API DirectX::XMINT4 XInt4;
+
 	typedef S2DE_API DirectX::XMFLOAT2 XFloat2;
 	typedef S2DE_API DirectX::XMFLOAT3 XFloat3;
 	typedef S2DE_API DirectX::XMFLOAT4 XFloat4;
