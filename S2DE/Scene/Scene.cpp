@@ -11,9 +11,8 @@ namespace S2DE
 
 	Scene::~Scene()
 	{
-		Destroy();
-	}
 
+	}
 
 	//FIX ME 
 	//Reduces perfomance
@@ -35,7 +34,7 @@ namespace S2DE
 				});
 
 			//if we not found object
-			if (it == std::end(m_storage))
+			if (it == m_storage.end())
 			{
 				name = new_name;
 				break;
@@ -57,28 +56,30 @@ namespace S2DE
 		 
 	void Scene::Delete(std::string object_name)
 	{	 
-		SceneObjectStorage::iterator it = std::remove_if(m_storage.begin(), m_storage.end(),
-			[&object_name](std::pair<std::pair<std::string, boost::uuids::uuid>, 
+		SceneObjectStorage::iterator it = std::remove_if(
+			m_storage.begin(),
+			m_storage.end(),
+			[&object_name](std::pair<std::pair<std::string, boost::uuids::uuid>,
 				std::shared_ptr<GameObject>> const& elem) {
-				return elem.first.first == object_name;
+					return elem.first.first == object_name;
 			});
-
+		
 		if (it == m_storage.end() || it->second->GetPrefix() == -1)
 		{
 			Logger::Error("[Scene] [%s] Can't delete object Name: %s", m_name.c_str(), object_name.c_str());
 			return;
 		}
-
+		
 		Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
-
-
-		m_storage.erase(it, m_storage.end());
-		m_storage.shrink_to_fit();
+		
+		m_storage.erase(it);
 	}	 
 		 
 	void Scene::Delete(boost::uuids::uuid object_id)
 	{	 
-		SceneObjectStorage::iterator it = std::remove_if(m_storage.begin(), m_storage.end(),
+		SceneObjectStorage::iterator it = std::remove_if(
+			m_storage.begin(), 
+			m_storage.end(),
 			[&object_id](std::pair<std::pair<std::string, boost::uuids::uuid>, 
 				std::shared_ptr<GameObject>> const& elem) {
 				return elem.first.second == object_id;
@@ -92,8 +93,7 @@ namespace S2DE
 
 		Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
 
-		m_storage.erase(it, m_storage.end());
-		m_storage.shrink_to_fit();
+		m_storage.erase(it);
 	}	 
 		 
 	void Scene::Replace(std::string object_name, GameObject* object)
@@ -115,7 +115,7 @@ namespace S2DE
 			if (it->second->GetPrefix() != -1)
 			{
 				Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
-				it = m_storage.erase(it, m_storage.end());
+				it = m_storage.erase(it);
 			}
 			else
 				it++;

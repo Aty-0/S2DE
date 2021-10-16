@@ -69,7 +69,7 @@ namespace S2DE
 			Logger::Log("[Scene] [%s] Added %s Name: %s UUID: %s", m_name.c_str(), typeid(g).name() ,name.c_str(), g->GetUUIDString().c_str());
 
 			//Add object to storage
-			m_storage.push_back(std::make_pair(std::make_pair(name, g->GetUUID()), std::make_shared<T>(*g)));
+			m_storage.push_back(std::move(std::make_pair(std::make_pair(name, g->GetUUID()), std::make_shared<T>(*g))));
 		}
 
 
