@@ -31,6 +31,8 @@
 
 #include <comdef.h>
 
+#define S2DE_ALIGN(s) __declspec(align(s))
+
 namespace S2DE
 {
 	template<typename T>
@@ -103,4 +105,5 @@ namespace S2DE
 		XFloat2 uv;
 	};
 }
+
 

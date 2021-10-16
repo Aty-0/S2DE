@@ -10,8 +10,7 @@ namespace S2DE
 		m_index_buffer(nullptr),
 		m_vertex_buffer(nullptr),
 		m_tile_size(Vector2(0, 0)),
-		m_tile_frame_x(0),
-		m_tile_frame_y(0)
+		m_tile_frame_pos(XInt2(0, 0))
 	{
 		CreateVertexBuffer();
 		CreateIndexBuffer();
@@ -35,8 +34,7 @@ namespace S2DE
 
 	void Sprite::SetAtlasFramePosition(std::int32_t x, std::int32_t y)
 	{
-		m_tile_frame_x = x;
-		m_tile_frame_y = y;
+		m_tile_frame_pos = XInt2(x, y);
 	}
 
 	void Sprite::SetAtlasSize(Vector2 size)
@@ -80,8 +78,7 @@ namespace S2DE
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
 		m_sprite_const_buf->Lock();
-		m_sprite_const_buf->GetBufferData()->sprite_tile_frame_x = m_tile_frame_x;
-		m_sprite_const_buf->GetBufferData()->sprite_tile_frame_y = m_tile_frame_y;
+		m_sprite_const_buf->GetBufferData()->sprite_tile_frame = XInt2(m_tile_frame_pos.x, m_tile_frame_pos.y);
 		m_sprite_const_buf->GetBufferData()->sprite_tile_size = XFloat3(m_tile_size.x, m_tile_size.y, 0);
 		m_sprite_const_buf->GetBufferData()->sprite_texture_res = XFloat2(m_texture->GetWidth(), m_texture->GetHeight());
 		m_sprite_const_buf->Unlock();

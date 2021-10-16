@@ -45,8 +45,8 @@ namespace S2DE
 		VertexBuffer*	m_vertex_buffer;
 		IndexBuffer*	m_index_buffer;
 		Vector2			m_tile_size;
-		std::int32_t	m_tile_frame_x;
-		std::int32_t	m_tile_frame_y;
+		XInt2			m_tile_frame_pos;
+
 	protected:
 		virtual void	OnUpdate(float DeltaTime) override { }
 		virtual void	OnRender() override;
@@ -60,12 +60,10 @@ namespace S2DE
 		Vector3			ScaleFactor;
 
 	public:
-		__declspec(align(16))
-		struct SpriteConstBuffer 
+		struct S2DE_ALIGN(16) SpriteConstBuffer
 		{
-			std::int32_t	sprite_tile_frame_x;
+			XInt2			sprite_tile_frame;
 			XFloat3			sprite_tile_size;
-			std::int32_t	sprite_tile_frame_y;
 			XFloat2			sprite_texture_res;
 		};
 
