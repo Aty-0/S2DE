@@ -9,7 +9,6 @@
 #include "Scene/SceneManager.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/ImGui_Window.h"
-#include "Editor/EditorToolstrip.h"
 
 #define S2DE_EXIT_PROCESS() exit(EXIT_SUCCESS);
 
@@ -163,6 +162,7 @@ namespace S2DE
 			if (m_input_m->IsKeyPressed(KeyCode::KEY_F10))
 			{
 				m_render->GetImGui_Window("EditorToolStrip")->ToggleDraw();
+				m_render->GetImGui_Window("EditorObjectInspector")->ToggleDraw();
 			}
 		}
 
