@@ -1,4 +1,4 @@
-cbuffer SpriteConstBuffer
+cbuffer SpriteConstBuffer  : register(b0)
 {
     float Delta;
 	float Time;
@@ -6,10 +6,14 @@ cbuffer SpriteConstBuffer
     matrix worldMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
-    int    sprite_tile_frame_x;
+}
+
+cbuffer SpriteConstBuffer  : register(b1)
+{
+    int   sprite_tile_frame_x;
+    int   sprite_tile_frame_y;
     float2 sprite_tile_size;
     float2 sprite_texture_res;
-    int    sprite_tile_frame_y;
 }
 
 struct VSINPUT
@@ -28,7 +32,9 @@ struct PSINPUT
 
 float2 GetAtlasUV(float2 uv)
 {
-    float2 size = float2(1.0f  / (length(sprite_texture_res) / sprite_tile_size.x), 1.0f / (length(sprite_texture_res) / sprite_tile_size.y));
+    float2 size = float2(1.0f  / (length(sprite_texture_res) / sprite_tile_size.x), 
+    1.0f / (length(sprite_texture_res) / sprite_tile_size.y));
+
     float2 offset = float2(size.x * sprite_tile_frame_x, size.y * sprite_tile_frame_y);   
     float2 tileuv = uv  * size + offset;
     return tileuv;
