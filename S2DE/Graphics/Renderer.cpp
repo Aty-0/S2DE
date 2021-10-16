@@ -9,6 +9,7 @@
 #include "Base/DebugTools/Debug_Info.h"
 #include "Base/DebugTools/Debug_ObjectInspector.h"
 #include "Editor/EditorToolstrip.h"
+#include "Editor/EditorObjectInspector.h"
 
 #define S2DE_IMGUI_NEW_FRAME()  ImGui_ImplDX11_NewFrame(); \
 								ImGui_ImplWin32_NewFrame(); \
@@ -453,6 +454,9 @@ namespace S2DE
 		{
 			AddImGuiWindow("EditorToolStrip", new EditorToolStrip());
 			GetImGui_Window("EditorToolStrip")->ToggleDraw();
+
+			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector());
+			GetImGui_Window("EditorObjectInspector")->ToggleDraw();
 		}
 		
 		return true;
