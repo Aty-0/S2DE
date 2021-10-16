@@ -59,27 +59,28 @@ namespace S2DE
 		inline std::string           GetType()   const { return m_type; }
 		inline bool                  isVisible() const { return m_visible; }
 		inline bool                  isEnabled() const { return m_enabled; }
+		inline bool                  isSelected() const { return m_isSelected; }
 		
 	protected:
-		virtual void				OnPositionChanged()  override { }
-		virtual void				OnRotationChanged()  override { }
-		virtual void				OnScaleChanged()     override { }
-		virtual void				OnCreate() { }
-		virtual void				OnDestroy() { }
-		virtual void				OnRender() { }
-		virtual void				OnUpdate(float DeltaTime) { }
-		virtual void				OnUpdateInput() { }
-		virtual void				OnDebugRenderGUI() { }
-		virtual bool 				CheckOnIntersection() { return false; }
+		virtual void				 OnPositionChanged()  override { }
+		virtual void				 OnRotationChanged()  override { }
+		virtual void				 OnScaleChanged()     override { }
+		virtual void				 OnCreate() { }
+		virtual void				 OnDestroy() { }
+		virtual void				 OnRender() { }
+		virtual void				 OnUpdate(float DeltaTime) { }
+		virtual void				 OnUpdateInput() { }
+		virtual void				 OnDebugRenderGUI() { }
+		virtual bool 				 CheckOnIntersection() { return false; }
 
 	private:
-		std::string					m_name; 
-		std::int32_t				m_prefix;
-		GameObjectIDGenerator*		m_id;
-		std::string					m_type;
-		bool						m_enabled;
-		bool						m_visible;
-		bool						m_isSelected;
+		std::string					 m_name; 
+		std::int32_t				 m_prefix;
+		GameObjectIDGenerator*		 m_id;
+		std::string					 m_type;
+		bool						 m_enabled;
+		bool						 m_visible;
+		bool						 m_isSelected;
 	};
 
 }
