@@ -44,10 +44,10 @@ namespace S2DE
 			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() - 10), 400.0f));
 			break;
 		case VisualConsoleSizeMode::Fullscreen:
-			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() - 10), float(Engine::GetGameWindow()->GetHeight() - 30)));
+			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() - 10), float(Engine::GetGameWindow()->GetHeight() - 35.0f)));
 			break;
 		case VisualConsoleSizeMode::Half:
-			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() / 2), float(Engine::GetGameWindow()->GetHeight() - 30)));
+			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() / 2), float(Engine::GetGameWindow()->GetHeight() - 35.0f)));
 			break;
 		}
 	}
@@ -59,10 +59,10 @@ namespace S2DE
 
 		ImGui::Begin("Console", &m_draw,
 			m_free == false ? 
-			  ImGuiWindowFlags_::ImGuiWindowFlags_NoMove
-			| ImGuiWindowFlags_::ImGuiWindowFlags_NoResize
-			| ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings 
-			| ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar
+			  ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
+			  ImGuiWindowFlags_::ImGuiWindowFlags_NoResize |
+			  ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
+			  ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar 
 
 			: ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings);
 
@@ -109,8 +109,10 @@ namespace S2DE
 
 		//Console text	
 		//////////////////////////////////////////////////////
-		ImGui::BeginChild("scrolling");
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
+		ImGui::BeginChild("scrolling", ImVec2(0, 0), false, 
+			ImGuiWindowFlags_::ImGuiWindowFlags_AlwaysVerticalScrollbar |
+			ImGuiWindowFlags_::ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+		ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
 		ImGui::TextUnformatted(m_imgui_text_buffer.begin());
 
 		if (m_scroll_to_bottom)
