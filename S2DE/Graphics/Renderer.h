@@ -38,10 +38,11 @@ namespace S2DE
 		inline IDXGISwapChain*		GetSwapChain() const { return m_swapChain; }
 		inline bool					GetVsync() const { return m_vsync; }
 		inline D3D11_VIEWPORT		GetViewport() const { return m_viewport; }
-
+		inline ID3D11ShaderResourceView* GetFramebufferShaderResource() const { return m_framebuffer_shaderResourceView; }
+		inline ID3D11Texture2D*			 GetFramebufferTextureData() const { return m_framebuffer_data; }
 		void						SwitchFillMode(RenderFillMode mode);
-
 		void						SetBackColor(Color<float> color);
+
 	private:					 
 		bool						InitImGui();
 		void						UpdateImGuiWindows();
@@ -56,6 +57,9 @@ namespace S2DE
 		void						End();
 		bool						CreateRasterizerState();
 		bool						CreateBlendState();
+		bool						CreateFramebufferTexture(ID3D11Texture2D* sw_buff);
+		void						UpdateFramebufferShaderResource();
+
 
 		IDXGISwapChain*				m_swapChain;
 		ID3D11Device*				m_device;
@@ -84,6 +88,10 @@ namespace S2DE
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windows_storage;
 
 		RenderFillMode				m_render_fill_mode;
+
+		ID3D11Texture2D*			m_framebuffer_data;
+		ID3D11ShaderResourceView*	m_framebuffer_shaderResourceView;
+
 	public:  
 		inline class ImGui_Window*	GetImGui_Window(std::string name) const;
 		void						AddImGuiWindow(std::string name, ImGui_Window* wnd);

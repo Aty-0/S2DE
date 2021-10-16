@@ -10,6 +10,7 @@
 #include "Base/DebugTools/Debug_ObjectInspector.h"
 #include "Editor/EditorToolstrip.h"
 #include "Editor/EditorObjectInspector.h"
+#include "Editor/EditorRenderWindow.h"
 
 #define S2DE_IMGUI_NEW_FRAME()  ImGui_ImplDX11_NewFrame(); \
 								ImGui_ImplWin32_NewFrame(); \
@@ -65,11 +66,13 @@ namespace S2DE
 		S2DE_CHECK(m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer), "Render Error: Can't create buffer");
 		S2DE_CHECK(m_device->CreateRenderTargetView(pBuffer, NULL, &m_renderTargetView), "Render Error: Can't recreate render target view");
 
+		CreateFramebufferTexture(pBuffer);
 		Release(pBuffer);
 
 		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
 
 		UpdateViewport();
+
 		return true;
 	}
 
@@ -152,7 +155,7 @@ namespace S2DE
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
+		io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_DockingEnable;
 
 		//Search custom font
 		std::string path;
@@ -274,10 +277,13 @@ namespace S2DE
 
 		//Create the render target view with the back buffer pointer.
 		ID3D11Texture2D* backBufferPtr;
-		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 
+		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 		S2DE_CHECK(m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView), "Render Error: Cannot create render target view");
+
 		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
+		
+		CreateFramebufferTexture(backBufferPtr);
 		Release(backBufferPtr);
 		UpdateViewport();
 
@@ -452,11 +458,14 @@ namespace S2DE
 
 		if (Engine::isEditor())
 		{
+			AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow());
+			GetImGui_Window("EditorRenderWindow")->ToggleDraw();
+
 			AddImGuiWindow("EditorToolStrip", new EditorToolStrip());
 			GetImGui_Window("EditorToolStrip")->ToggleDraw();
 
 			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector());
-			GetImGui_Window("EditorObjectInspector")->ToggleDraw();
+			GetImGui_Window("EditorObjectInspector")->ToggleDraw(); 
 		}
 		
 		return true;
@@ -526,8 +535,14 @@ namespace S2DE
 
 		Engine::GetApplicationHandle()->OnRender();
 		Engine::GetSceneManager()->RenderScene();
+		UpdateFramebufferShaderResource();
+		
 
 		RenderImGui();
+
+		if(Engine::isEditor())
+			if(m_framebuffer_shaderResourceView != nullptr && GetImGui_Window("EditorRenderWindow") != nullptr)
+				reinterpret_cast<EditorRenderWindow*>(GetImGui_Window("EditorRenderWindow"))->PushRenderTexture((void*)m_framebuffer_shaderResourceView);
 
 		End();
 	}
@@ -568,5 +583,37 @@ namespace S2DE
 	void Renderer::SetBackColor(Color<float> color)
 	{
 		m_clearColor = color;
+	}
+
+	bool Renderer::CreateFramebufferTexture(ID3D11Texture2D* sw_buff)
+	{
+		D3D11_TEXTURE2D_DESC td;
+		sw_buff->GetDesc(&td);
+		td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		S2DE_CHECK(m_device->CreateTexture2D(&td, NULL, &m_framebuffer_data), "Can't create framebuffer texture data");
+		return true;
+	}
+
+	void Renderer::UpdateFramebufferShaderResource()
+	{
+		ID3D11Texture2D* pBuffer;
+		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
+
+		m_deviceContext->CopyResource(m_framebuffer_data, pBuffer);
+		Release(pBuffer);
+
+		if (m_framebuffer_data == nullptr)
+			return;
+
+		D3D11_TEXTURE2D_DESC textureDesc;
+		m_framebuffer_data->GetDesc(&textureDesc);
+
+		
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+		shaderResourceViewDesc.Format = textureDesc.Format;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		shaderResourceViewDesc.Texture2D.MipLevels = 1;
+		m_device->CreateShaderResourceView(m_framebuffer_data, &shaderResourceViewDesc, &m_framebuffer_shaderResourceView);
 	}
 }
