@@ -28,11 +28,12 @@ namespace S2DE
 			ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar);
 
 		ImGui::SetWindowPos(ImVec2(0.0f, 25.0f));
-		ImGui::SetWindowSize(ImVec2(300.0f, Engine::GetGameWindow()->GetHeight()));
+		ImGui::SetWindowSize(ImVec2(300.0f, Engine::GetGameWindow()->GetHeight() / 2));
 
 		if (Engine::GetSceneManager()->GetScene() != nullptr)
 		{
-			if (ImGui::ListBoxHeader("", ImVec2(0.0f, (ImGui::GetWindowSize().y / 2) - 100.0f )))
+			ImGui::Text("TODO: Select object\nBasic object parameterts change");
+			if (ImGui::ListBoxHeader("", ImVec2(0.0f, (ImGui::GetWindowSize().y / 2) + 50.0f )))
 			{
 				for (SceneObjectStorage::iterator it = Engine::GetSceneManager()->GetScene()->GetStorage().begin();
 					it != Engine::GetSceneManager()->GetScene()->GetStorage().end();
@@ -53,10 +54,13 @@ namespace S2DE
 
 
 
+			ImGui::Text("TODO: Customed components ");
 			ImGui::Text("Name: ");
 			ImGui::Text("Type: ");
 			ImGui::Text("Prefix: ");
 			ImGui::Text("UUID: ");
+			ImGui::Text("Visible: ");
+			ImGui::Text("Enabled: ");
 			ImGui::Text("Position: ");
 			ImGui::Text("Rotation: ");
 			ImGui::Text("Scale: ");
