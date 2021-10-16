@@ -115,7 +115,7 @@ namespace S2DE
 
 	void SceneManager::Clear()
 	{
-		Delete(m_scene);
+		m_scene->Destroy();
 		Logger::Log("[SceneManager] Current scene deleted");
 	}
 }

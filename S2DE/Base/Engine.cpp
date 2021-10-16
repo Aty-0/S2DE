@@ -35,6 +35,7 @@ namespace S2DE
 	{
 		Delete(m_engine);
 		Delete(m_app_handle);
+		Delete(m_scene_manager);
 		Delete(m_render);
 		Delete(m_window);		
 		Delete(m_input_m);
@@ -199,8 +200,8 @@ namespace S2DE
 
 		m_app_handle->OnClose();
 		m_render->Destroy();
+		m_scene_manager->Clear();
 		Engine::GetResourceManager().ClearAll();
-		Delete(m_scene_manager);
 
 		S2DE_EXIT_PROCESS();
 	}
