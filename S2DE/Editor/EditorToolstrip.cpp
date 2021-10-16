@@ -139,17 +139,6 @@ namespace S2DE
 
 				ImGui::EndMenu();
 			}
-
-			if (ImGui::BeginMenu("Help"))
-			{
-				if (ImGui::MenuItem("About"))
-				{
-
-				}
-
-				ImGui::EndMenu();
-			}
-
 			ImGui::EndMainMenuBar();
 		}
 	}
