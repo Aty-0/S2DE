@@ -28,7 +28,7 @@ namespace S2DE
 			ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar);
 
 		ImGui::SetWindowPos(ImVec2(0.0f, 25.0f));
-		ImGui::SetWindowSize(ImVec2(300.0f, Engine::GetGameWindow()->GetHeight() / 2));
+		ImGui::SetWindowSize(ImVec2(300.0f, float(Engine::GetGameWindow()->GetHeight() / 2)));
 
 		if (Engine::GetSceneManager()->GetScene() != nullptr)
 		{

@@ -18,7 +18,7 @@ namespace S2DE
 
 	void EditorRenderWindow::SetDefaultResolution()
 	{
-		ImGui::SetWindowSize("EditorRenderWindow", ImVec2(Engine::GetGameWindow()->GetWidth() / 2, Engine::GetGameWindow()->GetHeight() / 2));
+		ImGui::SetWindowSize("EditorRenderWindow", ImVec2(float(Engine::GetGameWindow()->GetWidth() / 2), float(Engine::GetGameWindow()->GetHeight() / 2)));
 	}
 
 	void EditorRenderWindow::PushRenderTexture(void* texture)
