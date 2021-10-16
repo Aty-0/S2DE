@@ -28,13 +28,12 @@ namespace S2DE
 			ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar |
 			ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar  | 
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | 
 			ImGuiWindowFlags_::ImGuiWindowFlags_NoMouseInputs);
 
 		//OLD
 		//ImGui::SetWindowPos(ImVec2(float(Engine::GetGameWindow()->GetWidth() - 550.0f), 0.0f));
-		ImGui::SetWindowPos(ImVec2(float(50.0f), Engine::GetGameWindow()->GetHeight() -  ImGui::GetWindowSize().y));
-		ImGui::SetWindowSize(ImVec2(600.0f, 400.0f));
+		ImGui::SetWindowPos(ImVec2(0.0f, Engine::GetGameWindow()->GetHeight() -  ImGui::GetWindowSize().y));
+		ImGui::SetWindowSize(ImVec2(550.0f, 300.0f));
 
 		if (ImGui::BeginTable("##table1", 3))
 		{
