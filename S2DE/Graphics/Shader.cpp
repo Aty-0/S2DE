@@ -126,7 +126,8 @@ namespace S2DE
 		Release(code_buffer);
 
 		//Create basic constant buffer
-		CreateConstBuffer();
+		m_const_buffer = new ConstantBuffer<ShaderMainConstantBuffer>();
+		S2DE_ASSERT(m_const_buffer->Create());
 
 		Logger::Log("[Shader] [%s] Ready!", m_name.c_str());
 		return true;
@@ -140,32 +141,25 @@ namespace S2DE
 		return Compile();
 	}
 
-	void Shader::ShaderConstBufferBegin()
+	void Shader::UpdateMainConstBuffer(XMatrix world)
 	{
-		m_const_buffer->Lock<ShaderMainBufferType>();
-	}
-
-	void Shader::ShaderConstBufferEnd()
-	{
-		m_const_buffer->Unlock();
-		m_const_buffer->Bind();
-	}
-
-	void Shader::ShaderConstBufferUpdateBase(XMatrix world)
-	{
-		m_const_buffer->GetBufferData<ShaderMainBufferType>()->Delta = Engine::GetGameTime().GetDeltaTime();
-		m_const_buffer->GetBufferData<ShaderMainBufferType>()->Time = Engine::GetGameTime().GetTime();
-		m_const_buffer->GetBufferData<ShaderMainBufferType>()->Resoultion = XFloat2((float)Engine::GetGameWindow()->GetWidth(),
+		m_const_buffer->Lock();
+		m_const_buffer->GetBufferData()->Delta = Engine::GetGameTime().GetDeltaTime();
+		m_const_buffer->GetBufferData()->Time = Engine::GetGameTime().GetTime();
+		m_const_buffer->GetBufferData()->Resoultion = XFloat2((float)Engine::GetGameWindow()->GetWidth(),
 			(float)Engine::GetGameWindow()->GetHeight());
 
-		m_const_buffer->GetBufferData<ShaderMainBufferType>()->world = world;
+		m_const_buffer->GetBufferData()->world = world;
 
 		Camera* cam = GetObjectByName<Camera>(S2DE_MAIN_CAMERA_NAME);
 
 		if (cam != nullptr)
 		{
-			m_const_buffer->GetBufferData<ShaderMainBufferType>()->projection = cam->GetProjectionMatrix();
-			m_const_buffer->GetBufferData<ShaderMainBufferType>()->view = cam->GetViewMatrix();
+			m_const_buffer->GetBufferData()->projection = cam->GetProjectionMatrix();
+			m_const_buffer->GetBufferData()->view = cam->GetViewMatrix();
 		}
+
+		m_const_buffer->Unlock();
+		m_const_buffer->Bind();
 	}
 }

@@ -51,6 +51,7 @@ namespace S2DE
 
 	};
 
+	template<typename T>
 	class S2DE_API ConstantBuffer
 	{
 	public:
@@ -63,11 +64,10 @@ namespace S2DE
 
 		~ConstantBuffer()
 		{
-			Delete(m_buffer_data);
+			//Delete(m_buffer_data);
 			Release(m_buffer);
 		}
 
-		template<typename T>
 		bool Create()
 		{
 			m_buffer_data = new T();
@@ -80,14 +80,20 @@ namespace S2DE
 			bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			bufferDesc.MiscFlags = 0;
 			bufferDesc.StructureByteStride = 0;
+			
 
-			return SUCCEEDED(Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, nullptr, &m_buffer));
+			D3D11_SUBRESOURCE_DATA subresource;
+			subresource.pSysMem = m_buffer_data;
+			subresource.SysMemPitch = 0;
+			subresource.SysMemSlicePitch = 0;
+
+			return SUCCEEDED(Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subresource, &m_buffer));
 		}
 
-		template<typename T>
 		bool Lock()
 		{
 			D3D11_MAPPED_SUBRESOURCE mappedResource;
+
 			if (FAILED(Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 				return false;
 
@@ -101,17 +107,16 @@ namespace S2DE
 			Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
 		}
 
-		void Bind(std::int32_t num = 1)
+		void Bind(std::int32_t num = 0)
 		{
-			Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(0, num, &m_buffer);
+			Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(num, 1, &m_buffer);
 		}
 
-		template<typename T>
-		inline T*& GetBufferData() { return reinterpret_cast<T*&>(m_buffer_data); }
+		inline T*&			  GetBufferData() { return reinterpret_cast<T*&>(m_buffer_data); }
 		inline ID3D11Buffer*& GetBuffer() { return m_buffer; }
 	private:
 		ID3D11Buffer* m_buffer;
-		void* m_buffer_data;
+		void*			  m_buffer_data;
 
 	};
 }

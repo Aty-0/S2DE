@@ -6,17 +6,6 @@
 
 namespace S2DE
 {
-	//FIX ME
-	//Wrong x y vars in shader
-	//Maybe wrong buffer size 
-	struct S2DE_API SpriteConstBuffer : ShaderMainBufferType
-	{
-		int			 sprite_tile_frame_x;
-		int			 sprite_tile_frame_y;
-		XFloat2		 sprite_tile_size;
-		XFloat2		 sprite_texture_res;
-	};
-
 	class S2DE_API Sprite : public GameObject
 	{
 	public:
@@ -58,7 +47,6 @@ namespace S2DE
 		Vector2			m_tile_size;
 		std::int32_t	m_tile_frame_x;
 		std::int32_t	m_tile_frame_y;
-
 	protected:
 		virtual void	OnUpdate(float DeltaTime) override { }
 		virtual void	OnRender() override;
@@ -70,5 +58,18 @@ namespace S2DE
 		virtual void	SetDefaultTexture();
 		virtual void	CalcScaleFactor();
 		Vector3			ScaleFactor;
+
+	public:
+		__declspec(align(16))
+		struct SpriteConstBuffer 
+		{
+			std::int32_t	sprite_tile_frame_x;
+			XFloat3			sprite_tile_size;
+			std::int32_t	sprite_tile_frame_y;
+			XFloat2			sprite_texture_res;
+		};
+
+	private:
+		ConstantBuffer<SpriteConstBuffer>* m_sprite_const_buf;
 	};
 }

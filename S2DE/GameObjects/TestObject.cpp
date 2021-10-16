@@ -114,9 +114,7 @@ namespace S2DE
 		Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		m_shader->Bind();
-		m_shader->ShaderConstBufferBegin();
-		m_shader->ShaderConstBufferUpdateBase(UpdateTransformation());
-		m_shader->ShaderConstBufferEnd();
+		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 		m_texture->Bind();
 		Engine::GetRenderer()->GetContext()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0);
 		m_shader->Unbind();

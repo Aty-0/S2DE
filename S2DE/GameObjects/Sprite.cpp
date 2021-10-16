@@ -28,6 +28,7 @@ namespace S2DE
 		Delete(m_index_buffer);
 		m_shader->Cleanup();
 		Delete(m_shader);
+		Delete(m_sprite_const_buf);
 		m_texture->Cleanup();
 		Delete(m_texture);
 	}
@@ -76,15 +77,15 @@ namespace S2DE
 		Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//Bind and update variables in const buffer
-		m_shader->ShaderConstBufferBegin();
-		m_shader->ShaderConstBufferUpdateBase(UpdateTransformation());
+		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
-		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_tile_frame_x = m_tile_frame_x;
-		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_tile_frame_y = m_tile_frame_y;
-		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_tile_size = XFloat2(m_tile_size.x, m_tile_size.y);
-		m_shader->GetConstBuffer()->GetBufferData<SpriteConstBuffer>()->sprite_texture_res = XFloat2(m_texture->GetWidth(), m_texture->GetHeight());
-
-		m_shader->ShaderConstBufferEnd();
+		m_sprite_const_buf->Lock();
+		m_sprite_const_buf->GetBufferData()->sprite_tile_frame_x = m_tile_frame_x;
+		m_sprite_const_buf->GetBufferData()->sprite_tile_frame_y = m_tile_frame_y;
+		m_sprite_const_buf->GetBufferData()->sprite_tile_size = XFloat3(m_tile_size.x, m_tile_size.y, 0);
+		m_sprite_const_buf->GetBufferData()->sprite_texture_res = XFloat2(m_texture->GetWidth(), m_texture->GetHeight());
+		m_sprite_const_buf->Unlock();
+		m_sprite_const_buf->Bind(1);
 
 		//Bind shader
 		m_shader->Bind();
@@ -198,13 +199,16 @@ namespace S2DE
 		//if we used custom shader with custom const buffer type
 
 		//Create constant buffer with sprite const buffer type
-		m_shader->CreateConstBuffer<SpriteConstBuffer>();
+		m_sprite_const_buf = new ConstantBuffer<SpriteConstBuffer>();
+		S2DE_ASSERT(m_sprite_const_buf->Create());
 	}
 
 	void Sprite::SetDefaultShader()
 	{	 
 		m_shader = new Shader(*Engine::GetResourceManager().Get<Shader>("Sprite"));
-		m_shader->CreateConstBuffer<SpriteConstBuffer>();
+
+		m_sprite_const_buf = new ConstantBuffer<SpriteConstBuffer>();
+		S2DE_ASSERT(m_sprite_const_buf->Create());
 	}	 
 		 
 	void Sprite::CalcScaleFactor()
