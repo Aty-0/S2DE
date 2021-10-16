@@ -475,6 +475,9 @@ namespace S2DE
 	{
 		Logger::Log("[Renderer] Destroy...");
 
+		m_windows_storage.clear();
+		m_windows_storage.shrink_to_fit();
+
 		DestroyImGui();
 
 		Release(m_swapChain);
@@ -485,6 +488,8 @@ namespace S2DE
 		Release(m_depthStencilBuffer);
 		Release(m_depthStencilState);
 		Release(m_depthStencilView);
+		Release(m_framebuffer_data);
+		Release(m_framebuffer_shaderResourceView);
 	}
 
 	void Renderer::Clear()
