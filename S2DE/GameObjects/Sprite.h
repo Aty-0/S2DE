@@ -34,8 +34,10 @@ namespace S2DE
 		//Get new version of current texture from resource manager
 		virtual void	UpdateTexture();
 
-
+		//Set frame position 
 		void			SetAtlasFramePosition(std::int32_t x, std::int32_t y);
+
+		//Set frame size 
 		void			SetAtlasSize(Vector2 size);
 
 	private:
