@@ -6,11 +6,6 @@ Only for Windows
 # Author
 S2DE is developed by Antd23rus aka A_T
 
-## This repo is a big update of dx9 engine version  
-## Main changes in this update:
 
-- Some refactoring 
-- DX9 -> DX11
-- In Engine Editor
-
-
+# License
+S2DE is licensed under the MIT License, see LICENSE.txt for more information.
