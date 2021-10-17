@@ -60,10 +60,11 @@ namespace S2DE
 		S2DE_ASSERT(Engine::GetSceneManager()->GetScene() != nullptr);
 		auto object = new T();
 
-		object->Init(name, type, prefix, std::string());
 		object->SetPosition(position);
 		object->SetRotation(rotation);
 		object->SetScale(scale);
+
+		object->Init(name, type, prefix, std::string());
 
 		Engine::GetSceneManager()->GetScene()->Add<T>(object);
 
