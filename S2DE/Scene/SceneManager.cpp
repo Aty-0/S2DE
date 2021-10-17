@@ -8,7 +8,7 @@ namespace S2DE
 		m_scene(nullptr),
 		m_update_enabled(true),
 		m_render_enabled(true),
-		m_render_dbg_gui_enabled(true)
+		m_render_dbg_gui_enabled(false)
 	{
 
 	}
