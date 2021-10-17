@@ -458,8 +458,8 @@ namespace S2DE
 
 		if (Engine::isEditor())
 		{
-			AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow());
-			GetImGui_Window("EditorRenderWindow")->ToggleDraw();
+			//AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow());
+			//GetImGui_Window("EditorRenderWindow")->ToggleDraw();
 
 			AddImGuiWindow("EditorToolStrip", new EditorToolStrip());
 			GetImGui_Window("EditorToolStrip")->ToggleDraw();
@@ -545,9 +545,11 @@ namespace S2DE
 
 		RenderImGui();
 
-		if(Engine::isEditor())
-			if(m_framebuffer_shaderResourceView != nullptr && GetImGui_Window("EditorRenderWindow") != nullptr)
+		if (Engine::isEditor())
+		{
+			if (m_framebuffer_shaderResourceView != nullptr && GetImGui_Window("EditorRenderWindow") != nullptr)
 				reinterpret_cast<EditorRenderWindow*>(GetImGui_Window("EditorRenderWindow"))->PushRenderTexture((void*)m_framebuffer_shaderResourceView);
+		}
 
 		End();
 	}
@@ -559,7 +561,10 @@ namespace S2DE
 				return elem.first == name;
 			});
 
-		return it->second;
+		if(it != m_windows_storage.end())
+			return it->second;
+
+		return nullptr;
 	}
 
 	void Renderer::AddImGuiWindow(std::string name, ImGui_Window* wnd)
