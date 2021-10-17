@@ -1,13 +1,13 @@
 #pragma once
-#include "Base\Engine.h"
-#include "Base\ResourceManager.h"
-#include "Base\GameWindow.h"
+#include "Base/Engine.h"
+#include "Base/ResourceManager.h"
+#include "Base/GameWindow.h"
 
 //////////////////////////////////////////
-#include "Graphics\Renderer.h"
-#include "Graphics\Buffers.h"
-#include "Graphics\Texture.h"
-#include "Graphics\Shader.h"
+#include "Graphics/Renderer.h"
+#include "Graphics/Buffers.h"
+#include "Graphics/Texture.h"
+#include "Graphics/Shader.h"
 
 //////////////////////////////////////////
 #include "GameObjects/GameObject.h"
