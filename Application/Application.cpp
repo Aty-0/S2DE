@@ -1,14 +1,13 @@
 #include "Application.h"
 #include <Base\CoreMinimal.h>
-#include <GameObjects\TestObject.h>
-#include <Scene\SceneManager.h>
+
 
 Application::Application()
 {
 	Engine* engine = new Engine();
 
 
-	engine->RunGame(this);
+	engine->RunEngineInEditorMode(this);
 }
 
 Application::~Application()
@@ -18,9 +17,9 @@ Application::~Application()
 
 bool Application::LoadResources()
 {
-	CreateGameObject<TestObject>("testobject", "GameObject", 1, Vector3(0,0,0));
-	CreateGameObject<TestObject>("testobject1", "GameObject", 1, Vector3(2,0,0));
-	CreateGameObject<TestObject>("testobject2", "GameObject", 1, Vector3(-2,0,0));
+	CreateGameObject<Sprite>("testobject", "GameObject", 1, Vector3(0,0,0));
+	CreateGameObject<Sprite>("testobject1", "GameObject", 1, Vector3(2,0,0));
+	CreateGameObject<Sprite>("testobject2", "GameObject", 1, Vector3(-2,0,0));
 	return true;
 }
 
