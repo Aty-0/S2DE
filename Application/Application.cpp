@@ -15,11 +15,15 @@ Application::~Application()
 
 }
 
+void Application::OnStart()
+{
+	//Create 5 test objects
+	for(std::int32_t i = 0; i <= 5; i++)
+		CreateGameObject<Sprite>("testobject", "GameObject", 1, Vector3(i * 2, 0, 0));
+}
+
 bool Application::LoadResources()
 {
-	CreateGameObject<Sprite>("testobject", "GameObject", 1, Vector3(0,0,0));
-	CreateGameObject<Sprite>("testobject1", "GameObject", 1, Vector3(2,0,0));
-	CreateGameObject<Sprite>("testobject2", "GameObject", 1, Vector3(-2,0,0));
 	return true;
 }
 
@@ -59,8 +63,3 @@ void Application::OnWindowResize()
 
 }
 
-
-void Application::OnStart()
-{
-
-}
