@@ -2,6 +2,7 @@
 #include "Base/Engine.h"
 #include "Base/ResourceManager.h"
 #include "Base/GameWindow.h"
+#include "Base/InputManager.h"
 
 //////////////////////////////////////////
 #include "Graphics/Renderer.h"
@@ -12,7 +13,7 @@
 //////////////////////////////////////////
 #include "GameObjects/GameObject.h"
 #include "GameObjects/Sprite.h"
-
+#include "GameObjects/Camera.h"
 
 //////////////////////////////////////////
 #include "Scene/Scene.h"
