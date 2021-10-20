@@ -35,7 +35,7 @@ namespace S2DE
 		m_shader = new Shader(*Engine::GetResourceManager().Get<Shader>("test"));
 		S2DE_ASSERT(m_shader != nullptr);
 
-		std::int32_t rnd_tex = RandomByMinMax<std::int32_t>(1, 4);
+		std::int32_t rnd_tex = Random::RandomRange<std::int32_t>(1, 4);
 
 		Logger::Log("pick texture %d", rnd_tex);
 
