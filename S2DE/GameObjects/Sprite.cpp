@@ -10,7 +10,7 @@ namespace S2DE
 		m_index_buffer(nullptr),
 		m_vertex_buffer(nullptr),
 		m_tile_size(Vector2(0, 0)),
-		m_tile_frame_pos(XInt2(0, 0))
+		m_tile_frame_pos(IntVector2(0, 0))
 	{
 		CreateVertexBuffer();
 		CreateIndexBuffer();
@@ -34,7 +34,7 @@ namespace S2DE
 
 	void Sprite::SetAtlasFramePosition(std::int32_t x, std::int32_t y)
 	{
-		m_tile_frame_pos = XInt2(x, y);
+		m_tile_frame_pos = IntVector2(x, y);
 	}
 
 	void Sprite::SetAtlasSize(Vector2 size)

@@ -3,6 +3,7 @@
 #include "Base/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/Buffers.h"
+#include "Math/IntVector.h"
 
 namespace S2DE
 {
@@ -47,7 +48,7 @@ namespace S2DE
 		VertexBuffer*	m_vertex_buffer;
 		IndexBuffer*	m_index_buffer;
 		Vector2			m_tile_size;
-		XInt2			m_tile_frame_pos;
+		IntVector2		m_tile_frame_pos;
 
 	protected:
 		virtual void	OnUpdate(float DeltaTime) override { }
