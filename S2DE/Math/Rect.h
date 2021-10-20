@@ -3,57 +3,45 @@
 
 namespace S2DE
 {
-	class S2DE_API FloatRect
+	template<typename T>
+	class S2DE_API Rect
 	{
 	public:
-		FloatRect() = default;
-		explicit FloatRect(float left, float top, float width, float height);
-
-		bool operator !=(FloatRect r) const noexcept;
-		bool operator ==(FloatRect  r) const noexcept;
-		void operator =(FloatRect  r);
-
-		static RECT inRECT(FloatRect rect)  noexcept
+		Rect() = default;
+		explicit Rect(T left, T top, T width, T height)
 		{
-			RECT r;
-			r.bottom = (LONG)rect.height;
-			r.right = (LONG)rect.width;
-			r.left = (LONG)rect.left;
-			r.top = (LONG)rect.top;
-
-			return r;
+			this->left = left;
+			this->top = top;
+			this->height = height;
+			this->width = width;
 		}
+
+		inline bool operator !=(const Rect& r) const noexcept
+		{
+			return !(left == r.left && top == r.top && height == r.height && width == r.width);
+		}
+
+		inline bool operator ==(const Rect& r) const noexcept
+		{
+			return (left == r.left && top == r.top && height == r.height && width == r.width);
+		}
+
 		
-		float left = 0.0f;
-		float top = 0.0f;
-		float height = 0.0f;
-		float width = 0.0f;
-	};
-
-	class S2DE_API  IntRect
-	{
-	public:
-		IntRect() = default;
-		explicit IntRect(std::int32_t left, std::int32_t top, std::int32_t width, std::int32_t height);
-		bool operator !=(IntRect r) const noexcept;
-		bool operator ==(IntRect r) const noexcept;
-		void operator =(IntRect r);
-
-		static RECT inRECT(IntRect rect) noexcept
+		static RECT ToWinRect(Rect rect) noexcept
 		{
 			RECT r;
 			r.bottom = (LONG)rect.height;
-			r.right = (LONG)rect.width;
-			r.left = (LONG)rect.left;
-			r.top = (LONG)rect.top;
+			r.right =  (LONG)rect.width;
+			r.left =   (LONG)rect.left;
+			r.top =    (LONG)rect.top;
 
 			return r;
 		}
 
-		std::int32_t left = 0;
-		std::int32_t top = 0;
-		std::int32_t height = 0;
-		std::int32_t width = 0;
+		T left = 0;
+		T top = 0;
+		T height = 0;
+		T width = 0;
 
     };
 }
