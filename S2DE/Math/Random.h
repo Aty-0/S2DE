@@ -11,63 +11,67 @@
 
 namespace S2DE
 {
-	template<class T>
-	static T RandomRange(T range)
+	class Random
 	{
-		boost::random::random_device rngdevice;
-		boost::random::mt19937 gen(rngdevice);
-		if (range == static_cast<float>(range) || range == static_cast<double>(range))
+	public:
+		static inline bool RandomBool()
 		{
-			boost::random::uniform_real_distribution<> dist_real{ 0.0, (double)range };
-			return static_cast<T>(dist_real(gen));
-		}
-		else
-		{
-			boost::random::uniform_int_distribution<> dist_int{ 0, (std::int32_t)range };
-			return static_cast<T>(dist_int(gen));
+			boost::random::random_device rngdevice;
+			boost::random::mt19937 gen(rngdevice);
+			boost::random::bernoulli_distribution<> dist;
+
+			return static_cast<bool>(dist(gen));
 		}
 
-
-		return 0;
-	}
-
-	static bool RandomBool()
-	{
-		boost::random::random_device rngdevice;
-		boost::random::mt19937 gen(rngdevice);
-		boost::random::bernoulli_distribution<> dist;
-
-		return static_cast<bool>(dist(gen));
-	}
-
-	template<class T>
-	static T Random()
-	{
-		boost::random::random_device gen;
-		return  static_cast<T>(gen());
-	}
-
-	template<class T>
-	static T RandomByMinMax(T min, T max)
-	{
-		boost::random::random_device rngdevice;
-		boost::random::mt19937 gen(rngdevice);
-
-		if (max == static_cast<float>(max) || max == static_cast<double>(max))
+		template<class T>
+		static inline T RandomNum()
 		{
-			boost::random::uniform_real_distribution<> dist_real{ (double)min, (double)max };
-			return static_cast<T>(dist_real(gen));
-		}
-		else
-		{
-			boost::random::uniform_int_distribution<> dist_int{ (std::int32_t)min, (std::int32_t)max };
-			return static_cast<T>(dist_int(gen));
+			boost::random::random_device gen;
+			return  static_cast<T>(gen());
 		}
 
+		template<class T>
+		static inline T RandomRange(T max)
+		{
+			boost::random::random_device rngdevice;
+			boost::random::mt19937 gen(rngdevice);
 
-		return 0;
-	}
+			if (std::is_same<T, float>::value)
+			{
+				boost::random::uniform_real_distribution<> dist_real{ (double)0, (double)max };
+				return static_cast<T>(dist_real(gen));
+			}
+			else
+			{
+				boost::random::uniform_int_distribution<> dist_int{ (std::int32_t)0, (std::int32_t)max };
+				return static_cast<T>(dist_int(gen));
+			}
 
+
+			return 0;
+		}
+
+		template<class T>
+		static inline T RandomRange(T min, T max)
+		{
+			boost::random::random_device rngdevice;
+			boost::random::mt19937 gen(rngdevice);
+
+			if (std::is_same<T, float>::value)
+			{
+				boost::random::uniform_real_distribution<> dist_real{ (double)min, (double)max };
+				return static_cast<T>(dist_real(gen));
+			}
+			else
+			{
+				boost::random::uniform_int_distribution<> dist_int{ (std::int32_t)min, (std::int32_t)max };
+				return static_cast<T>(dist_int(gen));
+			}
+
+
+			return 0;
+		}
+	};
 }
 
 
