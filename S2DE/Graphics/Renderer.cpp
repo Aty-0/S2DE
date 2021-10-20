@@ -155,14 +155,14 @@ namespace S2DE
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags = Engine::isEditor() ? ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange : ImGuiConfigFlags_NoMouseCursorChange;
 
 		//Search custom font
 		std::string path;
 		if (Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
 		{
 			Logger::Log("Added custom font for imgui...");
-			io.Fonts->AddFontFromFileTTF(path.c_str(), 18);
+			io.Fonts->AddFontFromFileTTF(path.c_str(), 19);
 		}
 
 		LoadCustomImguiTheme();
