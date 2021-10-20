@@ -22,7 +22,7 @@ namespace S2DE
 
 	void VisualConsole::Clear()
 	{
-		m_imgui_text_buffer.clear();
+		m_buffer.clear();
 	}
 
 	void VisualConsole::TougleDraw()
@@ -32,7 +32,7 @@ namespace S2DE
 
 	void VisualConsole::Add(std::string text)
 	{
-		m_imgui_text_buffer.appendf(text.c_str());
+		m_buffer.push_back(text);
 		m_scroll_to_bottom = true;
 	}
 
@@ -80,7 +80,7 @@ namespace S2DE
 		ImGui::SameLine();
 
 		if (ImGui::Button("Clear"))
-			m_imgui_text_buffer.clear();
+			m_buffer.clear();
 
 		ImGui::SameLine();
 
@@ -112,8 +112,26 @@ namespace S2DE
 		ImGui::BeginChild("scrolling", ImVec2(0, 0), false, 
 			ImGuiWindowFlags_::ImGuiWindowFlags_AlwaysVerticalScrollbar |
 			ImGuiWindowFlags_::ImGuiWindowFlags_AlwaysHorizontalScrollbar);
-		ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
-		ImGui::TextUnformatted(m_imgui_text_buffer.begin());
+		ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
+
+		for (std::int32_t i = 0; i < m_buffer.size(); i++)
+		{
+			const char* item = m_buffer[i].c_str();
+
+			ImVec4 col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); 
+
+			if (strstr(item, "[Error]")) 
+				col = ImColor(1.0f, 0.4f, 0.4f, 1.0f);
+			else if (strstr(item, "[Fatal]"))
+				col = ImColor(1.0f, 0.0f, 0.0f, 1.0f);
+			else if (strstr(item, "[Warning]"))
+				col = ImColor(0.8f, 0.8f, 0.0f, 1.0f);
+	
+
+			ImGui::PushStyleColor(ImGuiCol_Text, col);
+			ImGui::TextUnformatted(item);
+			ImGui::PopStyleColor();
+		}
 
 		if (m_scroll_to_bottom)
 			ImGui::SetScrollHereY(1.0f);

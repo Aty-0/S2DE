@@ -31,7 +31,7 @@ namespace S2DE
 		void					UpdateSizeMode();
 	private:
 		bool					m_scroll_to_bottom;
-		ImGuiTextBuffer			m_imgui_text_buffer;
+		std::vector<std::string> 		m_buffer;
 		bool					m_draw;
 		bool					m_free;
 		VisualConsoleSizeMode	m_sizemode;
