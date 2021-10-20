@@ -7,120 +7,229 @@ namespace S2DE
 	class S2DE_API Vector2
 	{
 	public:
-		Vector2() = default;
-		Vector2(float x, float y);
-		Vector2(std::nullptr_t n) { x = 0; y = 0; }
+		Vector2() :
+			x(0.0f),
+			y(0.0f)
+		{
 
-		Vector2		   operator = (const Vector2& v) noexcept;
-		Vector2		   operator -= (const Vector2& v) noexcept;
-		Vector2		   operator += (const Vector2& v) noexcept;
+		}
 
-		Vector2		   operator / (const float v) const noexcept;
-		Vector2		   operator / (const Vector2& v) const noexcept;
+		Vector2(float _x, float _y) :
+			x(_x),
+			y(_y)
+		{
 
-		Vector2		   operator * (const float v) const noexcept;
-		Vector2		   operator * (const Vector2& v) const noexcept;
+		}
 
-		Vector2		   operator + (const float v) const noexcept;
-		Vector2		   operator + () const noexcept;
-		Vector2		   operator + (const Vector2& v) const noexcept;
+		Vector2(std::nullptr_t) : 
+			x(0.0f),
+			y(0.0f)
+		{ 
 
-		Vector2		   operator - (const float v) const noexcept;
-		Vector2		   operator - (const Vector2& v) const noexcept;
-		Vector2		   operator - () const noexcept;
+		}
 
-		bool		   operator ==(const Vector2& v) const noexcept;
-		bool		   operator !=(const Vector2& v) const noexcept;
+		inline Vector2		   operator = (const Vector2& v) noexcept;
+		inline Vector2		   operator -= (const Vector2& v) noexcept;
+		inline Vector2		   operator += (const Vector2& v) noexcept;
 
-		bool		   ZeroCordinate() const noexcept;
-		static Vector2 Zero();
-		void           Normalize();
-		float          Length();
+		inline Vector2		   operator / (const float v) const noexcept;
+		inline Vector2		   operator / (const Vector2& v) const noexcept;
+
+		inline Vector2		   operator * (const float v) const noexcept;
+		inline Vector2		   operator * (const Vector2& v) const noexcept;
+
+		inline Vector2		   operator + (const float v) const noexcept;
+		inline Vector2		   operator + () const noexcept;
+		inline Vector2		   operator + (const Vector2& v) const noexcept;
+
+		inline Vector2		   operator - (const float v) const noexcept;
+		inline Vector2		   operator - (const Vector2& v) const noexcept;
+		inline Vector2		   operator - () const noexcept;
+
+		inline bool		   operator ==(const Vector2& v) const noexcept;
+		inline bool		   operator !=(const Vector2& v) const noexcept;
+
+		inline bool					Zero() const noexcept;
+		static inline Vector2		Reset() noexcept;
+		static inline Vector2		Normalize(Vector2 vec) noexcept;
+		inline float				Length() const noexcept;
 
 
-		float x = 0.0f;
-		float y = 0.0f;
+		float x;
+		float y;
 	};
 
 
 	class S2DE_API Vector3
 	{
 	public:
-		Vector3() = default;
-		Vector3(float x, float y, float z);
-		Vector3(float x, float y);
-		Vector3(Vector2 v);
-		Vector3(std::nullptr_t n) { x = 0; y = 0; z = 0; }
+		Vector3() :
+			x(0.0f),
+			y(0.0f),
+			z(0.0f)
+		{
 
-		Vector3			operator = (const Vector3& v)  noexcept;
-		Vector3			operator = (const Vector2& v)  noexcept;
-		Vector3			operator -= (const Vector3& v) noexcept;
-		Vector3			operator += (const Vector3& v) noexcept;
+		}
 
-		Vector3			operator / (const float v) const noexcept;
-		Vector3			operator / (const Vector3& v) const noexcept;
+		Vector3(float _x, float _y) :
+			x(_x),
+			y(_y),
+			z(0.0f)
+		{
 
-		Vector3			operator * (const float v) const noexcept;
-		Vector3			operator * (const Vector3& v) const noexcept;
+		}
+		Vector3(float _x, float _y, float _z) :
+			x(_x),
+			y(_y),
+			z(_z)
+		{
 
-		Vector3			operator + (const float v) const noexcept;
-		Vector3			operator + () const noexcept;
-		Vector3			operator + (const Vector3& v) const noexcept;
+		}
+		Vector3(Vector2 v) :
+			x(v.x),
+			y(v.y),
+			z(0.0f)
+		{
 
-		Vector3			operator - (const float v) const noexcept;
-		Vector3			operator - (const Vector3& v) const noexcept;
-		Vector3			operator - () const noexcept;
+		}
 
-		bool			operator == (const Vector3& v) const noexcept;
-		bool			operator !=(const Vector3& v) const noexcept;
+		Vector3(std::nullptr_t) :
+			x(0.0f),
+			y(0.0f),
+			z(0.0f)
+		{
 
-		bool			ZeroCordinate() const noexcept;
-		static	Vector3 Zero();
-		void			Normalize();
-		float			Length();
+		}
 
-		float x = 0.0f;
-		float y = 0.0f;
-		float z = 0.0f;
+		inline Vector3			operator = (const Vector3& v)  noexcept;
+		inline Vector3			operator = (const Vector2& v)  noexcept;
+		inline Vector3			operator -= (const Vector3& v) noexcept;
+		inline Vector3			operator += (const Vector3& v) noexcept;
+
+		inline Vector3			operator / (const float v) const noexcept;
+		inline Vector3			operator / (const Vector3& v) const noexcept;
+
+		inline Vector3			operator * (const float v) const noexcept;
+		inline Vector3			operator * (const Vector3& v) const noexcept;
+
+		inline Vector3			operator + (const float v) const noexcept;
+		inline Vector3			operator + () const noexcept;
+		inline Vector3			operator + (const Vector3& v) const noexcept;
+
+		inline Vector3			operator - (const float v) const noexcept;
+		inline Vector3			operator - (const Vector3& v) const noexcept;
+		inline Vector3			operator - () const noexcept;
+
+		inline bool					operator == (const Vector3& v) const noexcept;
+		inline bool					operator !=(const Vector3& v) const noexcept;
+
+		inline bool					Zero() const noexcept;
+		static inline Vector3		Reset() noexcept;
+		static inline Vector3		Normalize(Vector3 vec) noexcept;
+		inline float				Length() const noexcept;
+
+		float x;
+		float y;
+		float z;
 	};
 
 	class S2DE_API Vector4
 	{
 	public:
-		Vector4() = default;
-		Vector4(float x, float y, float z, float w);
-		Vector4(std::nullptr_t n) { x = 0;  y = 0; z = 0; w = 0; }
+		Vector4() :
+			x(0.0f),
+			y(0.0f),
+			z(0.0f),
+			w(0.0f)
+		{
 
-		Vector4			operator = (const Vector4& v)  noexcept;
-		Vector4			operator -= (const Vector4& v) noexcept;
-		Vector4			operator += (const Vector4& v) noexcept;
+		}
 
-		Vector4			operator / (const float v) const noexcept;
-		Vector4			operator / (const Vector4& v) const noexcept;
+		Vector4(float _x, float _y) :
+			x(_x),
+			y(_y),
+			z(0.0f),
+			w(0.0f)
+		{
 
-		Vector4			operator * (const float v) const noexcept;
-		Vector4			operator * (const Vector4& v) const noexcept;
+		}
 
-		Vector4			operator + () const noexcept;
-		Vector4			operator + (const float v) const noexcept;
-		Vector4			operator + (const Vector4& v) const noexcept;
+		Vector4(float _x, float _y, float _z) :
+			x(_x),
+			y(_y),
+			z(_z),
+			w(0.0f)
+		{
 
-		Vector4			operator - (const Vector4& v) const noexcept;
-		Vector4			operator - (const float v) const noexcept;
-		Vector4			operator - () const noexcept;
+		}
 
-		bool			operator == (const Vector4& v) const noexcept;
-		bool			operator !=(const Vector4 & v) const noexcept;
+		Vector4(float _x, float _y, float _z, float _w) :
+			x(_x),
+			y(_y),
+			z(_z),
+			w(_w)
+		{
 
-		bool			ZeroCordinate() const noexcept;
-		static	Vector4 Zero();
-		void			Normalize();
-		float			Length();
+		}
 
-		float x = 0.0f;
-		float y = 0.0f;
-		float z = 0.0f;
-		float w = 0.0f;
+		Vector4(Vector2 v) :
+			x(v.x),
+			y(v.y),
+			z(0.0f),
+			w(0.0f)
+		{
+
+		}
+
+		Vector4(Vector3 v) :
+			x(v.x),
+			y(v.y),
+			z(v.z),
+			w(0.0f)
+		{
+
+		}
+
+		Vector4(std::nullptr_t) :
+			x(0.0f),
+			y(0.0f),
+			z(0.0f),
+			w(0.0f)
+		{
+
+		}
+	
+
+		inline Vector4				operator = (const Vector4& v)  noexcept;
+		inline Vector4				operator -= (const Vector4& v) noexcept;
+		inline Vector4				operator += (const Vector4& v) noexcept;
+
+		inline Vector4				operator / (const float v) const noexcept;
+		inline Vector4				operator / (const Vector4& v) const noexcept;
+
+		inline Vector4				operator * (const float v) const noexcept;
+		inline Vector4				operator * (const Vector4& v) const noexcept;
+
+		inline Vector4				operator + () const noexcept;
+		inline Vector4				operator + (const float v) const noexcept;
+		inline Vector4				operator + (const Vector4& v) const noexcept;
+
+		inline Vector4				operator - (const Vector4& v) const noexcept;
+		inline Vector4				operator - (const float v) const noexcept;
+		inline Vector4				operator - () const noexcept;
+
+		inline bool					operator == (const Vector4& v) const noexcept;
+		inline bool					operator !=(const Vector4 & v) const noexcept;
+
+		inline bool					Zero() const noexcept;
+		static inline Vector4		Reset() noexcept;
+		static inline Vector4		Normalize(Vector4 vec) noexcept;
+		inline float				Length() const noexcept;
+
+		float x;
+		float y;
+		float z;
+		float w;
 	};
 
 	inline static XVector To_XMVector4(Vector4 v)

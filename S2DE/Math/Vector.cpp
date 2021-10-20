@@ -2,12 +2,6 @@
 
 namespace S2DE
 {
-	Vector2::Vector2(float x, float y)
-	{
-		this->x = x;
-		this->y = y;
-	}
-
 	Vector2 Vector2::operator = (const Vector2& v) noexcept
 	{
 		x = v.x;
@@ -77,7 +71,7 @@ namespace S2DE
 		return Vector2(x - v.x, y - v.y);
 	}
 
-	Vector2 Vector2::Zero()
+	Vector2 Vector2::Reset() noexcept
 	{
 		return Vector2(0.0f, 0.0f);
 	}
@@ -97,41 +91,22 @@ namespace S2DE
 		return !(this->x == v.x && this->y == v.y);
 	}
 
-	void Vector2::Normalize()
+	Vector2 Vector2::Normalize(Vector2 vec) noexcept
 	{
-		x /= Length();
-		y /= Length();
+		vec.x /= vec.Length();
+		vec.y /= vec.Length();
+
+		return vec;
 	}
 
-	float Vector2::Length()
+	float Vector2::Length() const noexcept
 	{
 		return sqrt(x*x + y * y);
 	}
 
-	bool Vector2::ZeroCordinate() const noexcept
+	bool Vector2::Zero() const noexcept
 	{
 		return this->x == 0.0f && this->y == 0.0f;
-	}
-
-	Vector3::Vector3(Vector2 v)
-	{
-		this->x = v.x;
-		this->y = v.y;
-		this->z = 0.0f;
-	}
-
-	Vector3::Vector3(float x, float y)
-	{
-		this->x = x;
-		this->y = y;
-		this->z = 0.0f;
-	}
-
-	Vector3::Vector3(float x, float y, float z)
-	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
 	}
 
 	Vector3 Vector3::operator = (const Vector3& v)  noexcept
@@ -229,34 +204,28 @@ namespace S2DE
 		return !(this->x == v.x && this->y == v.y && this->z == v.z);
 	}
 
-	bool Vector3::ZeroCordinate() const noexcept
+	bool Vector3::Zero() const noexcept
 	{
 		return this->x == 0.0f && this->y == 0.0f&& this->z == 0.0f;
 	}
 
-	Vector3 Vector3::Zero()
+	Vector3 Vector3::Reset() noexcept
 	{
 		return Vector3(0.0f, 0.0f, 0.0f);
 	}
 
-	void Vector3::Normalize()
+	Vector3 Vector3::Normalize(Vector3 vec) noexcept
 	{
-		x /= Length();
-		y /= Length();
-		z /= Length();
+		vec.x /= vec.Length();
+		vec.y /= vec.Length();
+		vec.z /= vec.Length();
+
+		return vec;
 	}
 
-	float Vector3::Length()
+	float Vector3::Length() const noexcept
 	{
 		return sqrt(x * x + y * y + z * z);
-	}
-
-	Vector4::Vector4(float x, float  y, float  z, float w)
-	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
-		this->w = w;
 	}
 
 	Vector4 Vector4::operator = (const Vector4& v) noexcept
@@ -349,25 +318,27 @@ namespace S2DE
 		return !(this->x == v.y && this->y == v.y && this->z == v.z && this->w == v.w);
 	}
 
-	bool Vector4::ZeroCordinate() const noexcept
+	bool Vector4::Zero() const noexcept
 	{
 		return this->x == 0.0f && this->y == 0.0f && this->z == 0.0f && this->w == 0.0f;
 	}
 
-	Vector4 Vector4::Zero()
+	Vector4 Vector4::Reset() noexcept
 	{
 		return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
-	void Vector4::Normalize()
+	Vector4 Vector4::Normalize(Vector4 vec) noexcept
 	{
-		x /= Length();
-		y /= Length();
-		z /= Length();
-		w /= Length();
+		vec.x /= vec.Length();
+		vec.y /= vec.Length();
+		vec.z /= vec.Length();
+		vec.w /= vec.Length();
+
+		return vec;
 	}
 
-	float Vector4::Length()
+	float Vector4::Length() const noexcept
 	{
 		return sqrt(x * x + y * y + z * z + w * w);
 	}
