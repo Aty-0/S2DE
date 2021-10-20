@@ -49,6 +49,7 @@
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Graphics\Shader.h" />
     <ClInclude Include="Graphics\Texture.h" />
+    <ClInclude Include="Math\IntVector.h" />
     <ClInclude Include="IO\IO_Disposible.h" />
     <ClInclude Include="IO\IO_File.h" />
     <ClInclude Include="Libs\imgui\imconfig.h" />
@@ -101,6 +102,7 @@
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
+    <ClCompile Include="Math\IntVector.cpp" />
     <ClCompile Include="IO\IO_File.cpp" />
     <ClCompile Include="Libs\imgui\imgui.cpp" />
     <ClCompile Include="Libs\imgui\imgui_demo.cpp" />
@@ -109,7 +111,6 @@
     <ClCompile Include="Libs\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Libs\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libs\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Math\Rect.cpp" />
     <ClCompile Include="Math\Vector.cpp" />
     <ClCompile Include="GameObjects\TestObject.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
