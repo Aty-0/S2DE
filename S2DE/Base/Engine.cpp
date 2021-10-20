@@ -99,16 +99,16 @@ namespace S2DE
 		if (!LoadEngineResources())
 			return;
 
-		//Application On start
-		Logger::Log("Application OnStart event");
-		m_app_handle->OnStart();
-
 		sp->SetLoadState("Load game resources...");
 		if (!m_app_handle->LoadResources())
 		{
 			S2DE_FATAL_ERROR("Failed to load application resources");
 			return;
 		}
+
+		//Application On start
+		Logger::Log("Application OnStart event");
+		m_app_handle->OnStart();
 
 
 		//Close and destroy splash screen
