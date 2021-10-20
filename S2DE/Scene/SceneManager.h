@@ -53,8 +53,8 @@ namespace S2DE
 		std::string name = std::string(),
 		std::string type = std::string(),
 		std::int32_t prefix = S2DE_DEFAULT_GAMEOBJECT_PREFIX,
-		Vector3 position = Vector3::Zero(),
-		Vector3 rotation = Vector3::Zero(),
+		Vector3 position = Vector3::Reset(),
+		Vector3 rotation = Vector3::Reset(),
 		Vector3 scale = Vector3(1.0f, 1.0f, 1.0f))
 	{
 		S2DE_ASSERT(Engine::GetSceneManager()->GetScene() != nullptr);

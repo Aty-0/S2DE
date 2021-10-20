@@ -213,7 +213,7 @@ namespace S2DE
 		//TODO
 		//Better scale factor
 		//But for now it's ok
-		if(m_tile_size.ZeroCordinate())
+		if(m_tile_size.Zero())
 			ScaleFactor = Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f);
 		else
 			ScaleFactor = Vector3(m_tile_size.x * 0.01f, m_tile_size.y * 0.01f, 1.0f);

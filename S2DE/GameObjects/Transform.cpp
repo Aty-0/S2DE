@@ -5,8 +5,8 @@
 namespace S2DE
 {
 	Transform::Transform() : 
-		m_Position(Vector3::Zero()),
-		m_Rotation(Vector3::Zero()),
+		m_Position(Vector3::Reset()),
+		m_Rotation(Vector3::Reset()),
 		m_Scale(Vector3(1.0f, 1.0f, 1.0f))
 	{
 
@@ -14,14 +14,15 @@ namespace S2DE
 
 	Transform::~Transform()
 	{
-		m_Position = Vector3::Zero();
-		m_Scale = Vector3::Zero();
-		m_Rotation = Vector3::Zero();
+		m_Position = Vector3::Reset();
+		m_Scale = Vector3::Reset();
+		m_Rotation = Vector3::Reset();
 	}
 
 	void Transform::Reset()
 	{
-		m_Position = Vector3::Zero();
+		m_Position = Vector3::Reset();
+		m_Rotation = Vector3::Reset();
 		m_Scale = Vector3(1.0f, 1.0f, 1.0f);
 
 		OnPositionChanged();
