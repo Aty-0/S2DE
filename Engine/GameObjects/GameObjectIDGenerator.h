@@ -27,10 +27,10 @@ namespace S2DE
 		void							RegenerateUUID();
 
 		//Convert string to uuid 
-		static inline boost::uuids::uuid ConvertStringToUUID(const std::string id);
+		static boost::uuids::uuid		ConvertStringToUUID(const std::string id);
 
 		//Convert uuid to string 
-		static inline std::string		 ConvertUUIDToString(boost::uuids::uuid uuid);
+		static std::string				ConvertUUIDToString(boost::uuids::uuid uuid);
 
 	private:
 		boost::uuids::uuid m_uuid;

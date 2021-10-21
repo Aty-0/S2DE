@@ -30,7 +30,7 @@ namespace S2DE
 
 
 		m_timer_duration = m_time - m_time_begin;
-		std::chrono::duration_cast<std::chrono::microseconds>(m_timer_duration);
+		m_timer_duration = std::chrono::duration_cast<std::chrono::microseconds>(m_timer_duration);
 		m_timer += m_timer_duration.count() / 10;
 
 		if (m_time - m_time_begin >= std::chrono::seconds{ 1 })

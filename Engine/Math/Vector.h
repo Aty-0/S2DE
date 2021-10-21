@@ -50,7 +50,7 @@ namespace S2DE
 		inline bool		   operator !=(const Vector2& v) const noexcept;
 
 		inline bool					Zero() const noexcept;
-		static inline Vector2		Reset() noexcept;
+		static inline Vector2		Reset() noexcept { return Vector2(0.0f, 0.0f); }
 		static inline Vector2		Normalize(Vector2 vec) noexcept;
 		inline float				Length() const noexcept;
 
@@ -124,7 +124,7 @@ namespace S2DE
 		inline bool					operator !=(const Vector3& v) const noexcept;
 
 		inline bool					Zero() const noexcept;
-		static inline Vector3		Reset() noexcept;
+		static inline Vector3		Reset() noexcept { return Vector3(0.0f, 0.0f, 0.0f); }
 		static inline Vector3		Normalize(Vector3 vec) noexcept;
 		inline float				Length() const noexcept;
 
@@ -222,7 +222,7 @@ namespace S2DE
 		inline bool					operator !=(const Vector4 & v) const noexcept;
 
 		inline bool					Zero() const noexcept;
-		static inline Vector4		Reset() noexcept;
+		static inline Vector4		Reset() noexcept { return Vector4(0.0f, 0.0f, 0.0f, 0.0f); }
 		static inline Vector4		Normalize(Vector4 vec) noexcept;
 		inline float				Length() const noexcept;
 

@@ -7,7 +7,8 @@ namespace S2DE
 	Transform::Transform() : 
 		m_Position(Vector3::Reset()),
 		m_Rotation(Vector3::Reset()),
-		m_Scale(Vector3(1.0f, 1.0f, 1.0f))
+		m_Scale(Vector3(1.0f, 1.0f, 1.0f)),
+		m_WorldMatrix()
 	{
 
 	}
@@ -102,22 +103,7 @@ namespace S2DE
 		OnScaleChanged();
 	}
 
-	Vector3 Transform::GetRotation()  const
-	{
-		return m_Rotation;
-	}
-
-	Vector3 Transform::GetPosition()  const
-	{
-		return m_Position;
-	}
-
-	Vector3 Transform::GetScale()     const
-	{
-		return m_Scale;
-	}
-
-	XVector Transform::ToQuaternion(Vector3 rot)
+	inline XVector Transform::ToQuaternion(Vector3 rot)
 	{
 		return DirectX::XMQuaternionRotationRollPitchYawFromVector(To_XMVector3(rot));
 	}

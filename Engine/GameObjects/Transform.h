@@ -44,16 +44,16 @@ namespace S2DE
 
 		inline Transform*   GetTransform() { return this; }
 
-		inline Vector3      GetPosition()   const;
-		inline Vector3      GetRotation()   const;
-		inline Vector3      GetScale()      const;
+		inline Vector3      GetPosition()   const { return m_Position; }
+		inline Vector3      GetRotation()   const { return m_Rotation; }
+		inline Vector3      GetScale()      const { return m_Scale; }
+
+		//Get object world matrix
+		inline XMatrix&		 GetWorldMatrix() { return m_WorldMatrix; }
 
 		//Update matrix functions
 		virtual XMatrix      UpdateTransformation();
 		virtual XMatrix 	 UpdateTransformation2D();
-
-		//Get object world matrix
-		inline XMatrix&		 GetWorldMatrix() { return m_WorldMatrix; }
 
 	protected:
 		virtual void         OnPositionChanged() { }
@@ -68,6 +68,6 @@ namespace S2DE
 		XMatrix             m_WorldMatrix;
 
 	public:
-		static XVector	    ToQuaternion(Vector3 rot);
+		static XVector	ToQuaternion(Vector3 rot);
 	};
 }

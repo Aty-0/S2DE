@@ -2,14 +2,15 @@
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
 
-#define S2DE_CONSOLE_DEFAULT_MODE static_cast<std::int32_t>(VisualConsoleSizeMode::Fullscreen)
+#define S2DE_CONSOLE_DEFAULT_MODE VisualConsoleSizeMode::Fullscreen
 
 namespace S2DE
 {
 	VisualConsole::VisualConsole() : 
 		m_scroll_to_bottom(false), 
 		m_draw(false),
-		m_free(false)
+		m_free(false),
+		m_sizemode(S2DE_CONSOLE_DEFAULT_MODE)
 	{ 
 
 	}
@@ -93,13 +94,13 @@ namespace S2DE
 
 		//Size slider
 		//////////////////////////////////////////////////////
-		static std::int32_t m = S2DE_CONSOLE_DEFAULT_MODE;
-		m_sizemode = static_cast<VisualConsoleSizeMode>(m);
+		static std::int32_t mode = static_cast<std::int32_t>(S2DE_CONSOLE_DEFAULT_MODE);
+		m_sizemode = static_cast<VisualConsoleSizeMode>(mode);
 
 
 
 		ImGui::PushItemWidth(100);
-		if (ImGui::SliderInt("Mode", &m, 0, 2, "", 0))
+		if (ImGui::SliderInt("Mode", &mode, 0, 2, "", 0))
 			UpdateSizeMode();
 		
 
@@ -114,7 +115,7 @@ namespace S2DE
 			ImGuiWindowFlags_::ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 		ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
 
-		for (std::int32_t i = 0; i < m_buffer.size(); i++)
+		for (std::int32_t i = 0; i < (std::int32_t)m_buffer.size(); i++)
 		{
 			const char* item = m_buffer[i].c_str();
 
