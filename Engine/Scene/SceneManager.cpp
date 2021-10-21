@@ -1,6 +1,6 @@
 #include "SceneManager.h"
 #include "GameObjects/Camera.h"
-#include "GameObjects/Sprite.h"
+#include "GameObjects/Drawable.h"
 
 namespace S2DE
 {
@@ -40,8 +40,8 @@ namespace S2DE
 	{
 		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
 		{
-			if(it->second.get() == dynamic_cast<Sprite*>(it->second.get()))
-				reinterpret_cast<Sprite*>(it->second.get())->UpdateShader();
+			if(it->second.get() == dynamic_cast<Drawable*>(it->second.get()))
+				reinterpret_cast<Drawable*>(it->second.get())->UpdateShader();
 		}
 	}
 
@@ -49,8 +49,8 @@ namespace S2DE
 	{
 		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
 		{
-			if (it->second.get() == dynamic_cast<Sprite*>(it->second.get()))
-				reinterpret_cast<Sprite*>(it->second.get())->UpdateTexture();
+			if (it->second.get() == dynamic_cast<Drawable*>(it->second.get()))
+				reinterpret_cast<Drawable*>(it->second.get())->UpdateTexture();
 		}
 	}
 

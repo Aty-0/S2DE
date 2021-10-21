@@ -1,5 +1,5 @@
 #pragma once
-#include "GameObjects/GameObject.h"
+#include "GameObjects/Drawable.h"
 #include "Base/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/Buffers.h"
@@ -7,7 +7,7 @@
 
 namespace S2DE
 {
-	class S2DE_API Sprite : public GameObject
+	class S2DE_API Sprite : public Drawable
 	{
 	public:
 		Sprite();
@@ -27,13 +27,13 @@ namespace S2DE
 		//This function get texture from resource manager and setting it to sprite
 		//If texture not found in resource manager and if auto_load_texture == true we try to load it
 		//If unload_texture == true we unload the corrent texture when sprite destroying 
-		virtual bool	LoadTexture(std::string name, bool unload_texture = false, bool auto_load_texture = true);
+		virtual bool	LoadTexture(std::string name, bool unload_texture = false, bool auto_load_texture = true) override;
 
 		//Get new version of current shader from resource manager
-		virtual void	UpdateShader();
+		virtual void	UpdateShader() override;
 
 		//Get new version of current texture from resource manager
-		virtual void	UpdateTexture();
+		virtual void	UpdateTexture() override;
 
 		//Set frame position 
 		void			SetAtlasFramePosition(std::int32_t x, std::int32_t y);
