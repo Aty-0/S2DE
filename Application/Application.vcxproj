@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../S2DE/;$(DXSDK_DIR)Include;$(IncludePath);../Libs/boost_1_76_0/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Engine/;$(DXSDK_DIR)Include;$(IncludePath);../Libs/boost_1_76_0/;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
