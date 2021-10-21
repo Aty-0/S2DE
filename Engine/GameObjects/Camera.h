@@ -27,7 +27,10 @@ namespace S2DE
 		void						Move(float Right, float Forward);
 		void						SetMode(CameraProjectionMode mode);
 		void						SetZoom(float zoom);
-		
+		void						DisableMouseControl(bool block);
+		void						DisableControl(bool block);
+
+
 		inline float				GetFov() const { return m_Fov; }
 		inline CameraProjectionMode	GetMode() const { return m_mode; }
 		inline float				GetZoom() const { return m_Zoom; };

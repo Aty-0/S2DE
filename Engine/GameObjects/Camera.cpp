@@ -183,6 +183,16 @@ namespace S2DE
 		m_Zoom = zoom;
 	}
 
+	void Camera::DisableMouseControl(bool block)
+	{
+		m_block_mouse_control = block;
+	}
+
+	void Camera::DisableControl(bool block)
+	{
+		m_block_movement_control = block;
+	}
+
 	void Camera::OnRender()
 	{
 		//TODO
