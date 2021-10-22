@@ -6,7 +6,8 @@
 
 namespace S2DE
 {
-	EditorObjectInspector::EditorObjectInspector()
+	EditorObjectInspector::EditorObjectInspector() : 
+		m_handle(nullptr)
 	{
 
 	}
@@ -21,18 +22,10 @@ namespace S2DE
 		if (!m_draw)
 			return;
 
-		ImGui::Begin("EditorObjectInspector", 0,
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar);
-
-		ImGui::SetWindowPos(ImVec2(0.0f, 25.0f));
-		ImGui::SetWindowSize(ImVec2(300.0f, float(Engine::GetGameWindow()->GetHeight() / 2)));
+		ImGui::Begin("EditorObjectInspector", 0, ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar);
 
 		if (Engine::GetSceneManager()->GetScene() != nullptr)
 		{
-			ImGui::Text("TODO: Select object\nBasic object parameterts change");
 			if (ImGui::ListBoxHeader("", ImVec2(0.0f, (ImGui::GetWindowSize().y / 2) + 50.0f )))
 			{
 				for (SceneObjectStorage::iterator it = Engine::GetSceneManager()->GetScene()->GetStorage().begin();
@@ -42,10 +35,18 @@ namespace S2DE
 					if (it->second == nullptr)
 						continue;
 
-					bool select = it->second->isSelected();
-					if (ImGui::Selectable(it->first.first.c_str(), &select))
+					if (ImGui::Selectable(it->first.first.c_str(), it->second->isSelected()))
 					{
-
+						if (m_handle == nullptr)
+						{
+							m_handle = it->second.get();
+							m_handle->Select();
+						}
+						else if (m_handle != it->second.get())
+						{
+							m_handle->Unselect();
+							m_handle = it->second.get();
+						}
 					}
 
 				}
@@ -53,18 +54,18 @@ namespace S2DE
 			}
 
 
-
-			ImGui::Text("TODO: Customed components ");
-			ImGui::Text("Name: ");
-			ImGui::Text("Type: ");
-			ImGui::Text("Prefix: ");
-			ImGui::Text("UUID: ");
-			ImGui::Text("Visible: ");
-			ImGui::Text("Enabled: ");
-			ImGui::Text("Position: ");
-			ImGui::Text("Rotation: ");
-			ImGui::Text("Scale: ");
-
+			if (m_handle)
+			{
+				ImGui::Text("Name: %s ", m_handle->GetName().c_str());
+				ImGui::Text("Type: %s ", m_handle->GetType().c_str());
+				ImGui::Text("Prefix: %d ", m_handle->GetPrefix());
+				ImGui::Text("UUID: %s ", m_handle->GetUUIDString().c_str());
+				ImGui::Text("Visible: %d ", m_handle->isVisible());
+				ImGui::Text("Enabled: %d ", m_handle->isEnabled());
+				ImGui::Text("Position: X: %10.5f Y: %10.5f Z: %10.5f", m_handle->GetPosition().x, m_handle->GetPosition().y, m_handle->GetPosition().z);
+				ImGui::Text("Rotation: X: %10.5f Y: %10.5f Z: %10.5f", m_handle->GetRotation().x, m_handle->GetRotation().y, m_handle->GetRotation().z);
+				ImGui::Text("Scale: X: %10.5f Y: %10.5f Z: %10.5f", m_handle->GetScale().x, m_handle->GetScale().y, m_handle->GetScale().z);
+			}
 			ImGui::End();
 		}
 		

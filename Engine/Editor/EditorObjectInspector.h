@@ -11,7 +11,8 @@ namespace S2DE
 		~EditorObjectInspector();
 
 		virtual void Render() override;
-	private:
 
+	private:
+		class GameObject* m_handle;
 	};
 }
