@@ -498,7 +498,7 @@ namespace S2DE
 
 		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
 		m_deviceContext->ClearRenderTargetView(m_renderTargetView, color_array);
-		m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 
 	void Renderer::End()

@@ -10,6 +10,7 @@
 #define S2DE_DEFAULT_GAMEOBJECT_NAME "BasicGameObjectName"
 #define S2DE_DEFAULT_GAMEOBJECT_TYPE "BasicGameObjectType"
 #define S2DE_DEFAULT_GAMEOBJECT_PREFIX 0
+#define	S2DE_ENGINE_GAMEOBJECT_TYPE "_Engine"
 
 namespace S2DE
 {
@@ -61,6 +62,9 @@ namespace S2DE
 		inline bool                  isEnabled() const { return m_enabled; }
 		inline bool                  isSelected() const { return m_isSelected; }
 		
+		virtual void				 Select() { m_isSelected = true; }
+		virtual void				 Unselect() { m_isSelected = false; }
+
 	protected:
 		virtual void				 OnPositionChanged()  override { }
 		virtual void				 OnRotationChanged()  override { }

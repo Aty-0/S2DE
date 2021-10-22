@@ -2,7 +2,7 @@
 #include "Base/Main/Common.h"
 #include "GameObjects/GameObject.h"
 
-#define S2DE_MAIN_CAMERA_NAME "main_camera"
+#define S2DE_MAIN_CAMERA_NAME "MainCamera"
 
 namespace S2DE
 {

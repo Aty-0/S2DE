@@ -35,7 +35,8 @@ namespace S2DE
 		m_zNear(CAMERA_DEFAULT_ZNEAR),
 		m_zFar(CAMERA_DEFAULT_ZFAR)
 	{
-		Init(S2DE_MAIN_CAMERA_NAME, "Engine_Element", -1);
+		Init(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+		SetPosition_Z(1.0f);
 
 		m_viewMatrix = DirectX::XMMatrixIdentity();
 		m_projectionMatrix = DirectX::XMMatrixIdentity();
@@ -45,7 +46,7 @@ namespace S2DE
 
 	Camera::~Camera()
 	{
-
+		
 	}
 
 	void Camera::OnDebugRenderGUI()
@@ -55,6 +56,10 @@ namespace S2DE
 		ImGui::Text("Position: X:%f Y:%f Z:%f", GetPosition().x, GetPosition().y, GetPosition().z);
 		ImGui::Text("Rotation: X:%f Y:%f Z:%f", GetRotation().x, GetRotation().y, GetRotation().z);
 		ImGui::Separator();
+
+
+		ImGui::SliderFloat("ZNear", &m_zNear, -1000.0f, 1000.0f, "", 1.0f);
+		ImGui::SliderFloat("zFar", &m_zFar, 0.0f, 1000.0f, "", 1.0f);
 
 		ImGui::SliderFloat("Zoom", &m_Zoom, 0.001f, 1.0f, "", 1.0f);
 		ImGui::SliderFloat("Speed", &m_speed, 0.1f, 25.0f, "", 1.0f);
@@ -107,7 +112,7 @@ namespace S2DE
 
 		if (m_mode == CameraProjectionMode::Perspective)
 		{
-
+		
 		}
 		else
 		{
@@ -220,7 +225,7 @@ namespace S2DE
 
 			m_projectionMatrix = DirectX::XMMatrixOrthographicLH( w * m_Zoom, h * m_Zoom, m_zNear, m_zFar);
 		}
-
+		GetWorldMatrix() = DirectX::XMMatrixIdentity();
 		m_viewMatrix = DirectX::XMMatrixTranspose(m_viewMatrix);
 	}
 }

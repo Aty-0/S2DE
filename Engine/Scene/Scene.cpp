@@ -112,7 +112,7 @@ namespace S2DE
 
 		for (SceneObjectStorage::iterator it = m_storage.begin(); it != m_storage.end();)
 		{
-			if (it->second->GetPrefix() != -1)
+			if (it->second->GetPrefix() != -1 || it->second->GetType() == S2DE_ENGINE_GAMEOBJECT_TYPE)
 			{
 				Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
 				it = m_storage.erase(it);
