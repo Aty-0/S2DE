@@ -75,13 +75,23 @@ namespace S2DE
 
 	bool SplashScreen::ShowSplashScreen(HINSTANCE hinstance)
 	{
-		std::int32_t SplashScreenX = (GetSystemMetrics(SM_CXSCREEN)  / 2) - 200;
-		std::int32_t SplashScreenY = (GetSystemMetrics(SM_CYSCREEN) / 2) - 100;
+		m_res_hInst = LoadLibrary(S2DE_NAME_DLL);
+		if (m_res_hInst == NULL)
+			return false;
+
+		m_hBitmap = (HBITMAP)LoadBitmap(m_res_hInst, MAKEINTRESOURCE(IDB_BITMAP1));
+		if (m_hBitmap == NULL)
+			return false;
+
+		GetObject(m_hBitmap, sizeof(BITMAP), &m_bitmap);
+
+		std::int32_t SplashScreenX = (GetSystemMetrics(SM_CXSCREEN)  / 2) - m_bitmap.bmWidth / 2;
+		std::int32_t SplashScreenY = (GetSystemMetrics(SM_CYSCREEN) / 2) - m_bitmap.bmHeight / 2;
 		std::int32_t SplashScreenMenuHeight = GetSystemMetrics(SM_CYMENU);
 		std::int32_t SplashScreenFrameWidth = GetSystemMetrics(SM_CXSIZEFRAME);
 		std::int32_t SplashScreenFrameHeight = GetSystemMetrics(SM_CYSIZEFRAME);
-		std::int32_t SplashScreenWindowWidth = m_defaultPicWidth + SplashScreenFrameWidth * 2;
-		std::int32_t SplashScreenWindowHeight = m_defaultPicHeight + SplashScreenFrameHeight * 2 + SplashScreenMenuHeight;
+		std::int32_t SplashScreenWindowWidth = m_bitmap.bmWidth + SplashScreenFrameWidth * 2;
+		std::int32_t SplashScreenWindowHeight = m_bitmap.bmHeight + SplashScreenFrameHeight * 2 + SplashScreenMenuHeight;
 	
 		ZeroMemory(&m_splashWindowClass, sizeof(WNDCLASSEX));
 		m_splashWindowClass.cbSize = sizeof(WNDCLASSEX);
@@ -102,7 +112,7 @@ namespace S2DE
 
 		UpdateWindow(m_hwnd);
 
-		HRGN hrgn = CreateRectRgn(0, 0, m_defaultPicWidth, m_defaultPicHeight);
+		HRGN hrgn = CreateRectRgn(0, 0, m_bitmap.bmWidth, m_bitmap.bmHeight);
 		SetWindowRgn(m_hwnd, hrgn, TRUE);
 
 
@@ -114,10 +124,6 @@ namespace S2DE
 		switch (msg)
 		{
 		case WM_CREATE:
-			m_res_hInst = LoadLibrary(S2DE_NAME_DLL);
-			m_hBitmap = (HBITMAP)LoadBitmap(m_res_hInst, MAKEINTRESOURCE(IDB_BITMAP1));
-			GetObject(m_hBitmap, sizeof(BITMAP), &m_bitmap);
-
 			m_hdc_bp = GetDC(hWnd);
 			m_hdcMem_bp = CreateCompatibleDC(m_hdc_bp);
 			m_hOldBitmap = (HBITMAP)SelectObject(m_hdcMem_bp, m_hBitmap);
@@ -175,10 +181,10 @@ namespace S2DE
 
 
 			SelectObject(phdc, m_hfont_Build);
-			TextOut(phdc, 13, m_defaultPicHeight - 25, m_text_build_str.c_str(), (std::int32_t)m_text_build_str.length());
+			TextOut(phdc, 13, m_bitmap.bmHeight - 25, m_text_build_str.c_str(), (std::int32_t)m_text_build_str.length());
 
 			SelectObject(phdc, m_hfont_LoadState);
-			TextOut(phdc, m_defaultPicWidth / 2 - 50, m_defaultPicHeight - 25, m_text_load_state_str.c_str(), (std::int32_t)m_text_load_state_str.length());
+			TextOut(phdc, m_bitmap.bmWidth / 2 - 50, m_bitmap.bmHeight - 25, m_text_load_state_str.c_str(), (std::int32_t)m_text_load_state_str.length());
 	
 
 			EndPaint(hWnd, &ps);

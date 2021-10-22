@@ -29,8 +29,6 @@ namespace S2DE
 
 		const LPCSTR			  m_className = "S2DE_SPLASH_SCREEN_WND_CLASS";
 		const LPCSTR			  m_name = "S2DE Splash Screen";
-		const std::int32_t		  m_defaultPicWidth = 440;
-		const std::int32_t		  m_defaultPicHeight = 225;
 
 		BITMAP					  m_bitmap;
 		HDC						  m_hdc_bp;
