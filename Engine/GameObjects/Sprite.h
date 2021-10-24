@@ -66,7 +66,7 @@ namespace S2DE
 		struct S2DE_ALIGN(16) SpriteConstBuffer
 		{
 			XInt2			sprite_tile_frame;
-			XFloat3			sprite_tile_size;
+			XFloat2			sprite_tile_size;
 			XFloat2			sprite_texture_res;
 		};
 

@@ -79,7 +79,7 @@ namespace S2DE
 
 		m_sprite_const_buf->Lock();
 		m_sprite_const_buf->GetBufferData()->sprite_tile_frame = XInt2(m_tile_frame_pos.x, m_tile_frame_pos.y);
-		m_sprite_const_buf->GetBufferData()->sprite_tile_size = XFloat3(m_tile_size.x, m_tile_size.y, 0);
+		m_sprite_const_buf->GetBufferData()->sprite_tile_size = XFloat2(m_tile_size.x, m_tile_size.y);
 		m_sprite_const_buf->GetBufferData()->sprite_texture_res = XFloat2((float)m_texture->GetWidth(), (float)m_texture->GetHeight());
 		m_sprite_const_buf->Unlock();
 		m_sprite_const_buf->Bind(1);
