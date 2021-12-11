@@ -1,11 +1,7 @@
 #pragma once
 #include <Base/ApplicationHandle.h>
 
-
-
-using namespace S2DE;
-
-class Application : public ApplicationHandle
+class Application : public S2DE::Core::ApplicationHandle
 {
 public:
 	Application();

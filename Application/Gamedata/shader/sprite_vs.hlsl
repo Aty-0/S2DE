@@ -18,7 +18,7 @@ cbuffer SpriteConstBuffer  : register(b1)
 
 struct VSINPUT
 {
-    float3 position : POSITION;
+    float4 position : POSITION;
     float4 color : COLOR;
     float2 uv : UV0;
 };
@@ -43,8 +43,9 @@ float2 GetAtlasUV(float2 uv)
 PSINPUT main(VSINPUT input)
 {
     PSINPUT output;
-
-    output.position = mul(float4(input.position, 1.0f), worldMatrix);
+    
+    input.position.w = 1.0f;
+    output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     output.color = input.color;
