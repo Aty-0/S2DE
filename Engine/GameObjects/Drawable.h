@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObjects/GameObject.h"
 
-namespace S2DE
+namespace S2DE::GameObjects
 {
 	//Base class for drawable objects
 

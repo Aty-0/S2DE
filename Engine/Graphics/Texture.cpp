@@ -4,7 +4,7 @@
 
 #include <D3DX11tex.h>
 
-namespace S2DE
+namespace S2DE::Render
 {
 	Texture::Texture() 
 	{
@@ -19,25 +19,25 @@ namespace S2DE
 
 	void Texture::Cleanup()
 	{
-		Release(m_resource);
-		Release(m_texture_resource);
+		Core::Release(m_resource);
+		Core::Release(m_texture_resource);
 	}
 
 	bool Texture::Load(std::string path)
 	{
-		if (isStringEmpty(path))
+		if (Core::Other::isStringEmpty(path))
 			return false;
 
 		ID3D11Resource* res;
 
-		S2DE_CHECK(D3DX11CreateShaderResourceViewFromFile(Engine::GetRenderer()->GetDevice(), path.c_str(), NULL, NULL, &m_resource, NULL), "Can't create texture!");
+		S2DE_CHECK(D3DX11CreateShaderResourceViewFromFile(Core::Engine::GetRenderer()->GetDevice(), path.c_str(), NULL, NULL, &m_resource, NULL), "Can't create texture!");
 
 		m_resource->GetResource(&res);
 		res->QueryInterface<ID3D11Texture2D>(&m_texture_resource);
 
 		m_texture_resource->GetDesc(&m_texture_desc);
 
-		Release(res);
+		Core::Release(res);
 
 		D3D11_SAMPLER_DESC samplerDesc;
 
@@ -60,14 +60,14 @@ namespace S2DE
 
 		samplerDesc.MaxAnisotropy = 0;
 
-		S2DE_CHECK(Engine::GetRenderer()->GetDevice()->CreateSamplerState(&samplerDesc, &m_texture_sampler_state), "Can't create sampler state");
+		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&samplerDesc, &m_texture_sampler_state), "Can't create sampler state");
 
 		return true;
 	}
 
 	void Texture::Bind(std::uint32_t NumViews)
 	{
-		Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, NumViews, &m_resource);
-		Engine::GetRenderer()->GetContext()->PSGetSamplers(0, NumViews, &m_texture_sampler_state);
+		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, NumViews, &m_resource);
+		Core::Engine::GetRenderer()->GetContext()->PSGetSamplers(0, NumViews, &m_texture_sampler_state);
 	}
 }

@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-namespace S2DE
+namespace S2DE::GameObjects
 {
 	GameObjectIDGenerator::GameObjectIDGenerator()
 		:	m_uuid(boost::uuids::random_generator()())

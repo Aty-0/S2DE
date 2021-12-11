@@ -3,7 +3,7 @@
 
 #include "Graphics/ImGui_Window.h"
 
-namespace S2DE
+namespace S2DE::Core::Debug
 {
 	//TODO
 	//Keyboard manipulate
@@ -11,7 +11,7 @@ namespace S2DE
 	//Set parameters
 	//Better design
 
-	class S2DE_API Debug_ObjectInspector : public ImGui_Window
+	class S2DE_API Debug_ObjectInspector : public Render::ImGui_Window
 	{
 	public:
 		Debug_ObjectInspector();

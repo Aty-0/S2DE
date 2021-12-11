@@ -2,7 +2,7 @@
 #include "Base/Utils/Logger.h"
 
 
-namespace S2DE
+namespace S2DE::Core
 {
 	GameTime::GameTime() :
 		m_time(std::chrono::high_resolution_clock::now()),

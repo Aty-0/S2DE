@@ -3,7 +3,7 @@
 #include "Base/Utils/Logger.h"
 #include "Graphics/Renderer.h"
 
-namespace S2DE
+namespace S2DE::Core::Debug
 {
 	enum class S2DE_API VisualConsoleSizeMode
 	{

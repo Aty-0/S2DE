@@ -1,7 +1,7 @@
 #include "IO_File.h"
 #include "Base/Utils/Logger.h"
 
-namespace S2DE
+namespace S2DE::IO
 {
 	void IO_File::SetFileName(std::string name)
 	{
@@ -10,7 +10,7 @@ namespace S2DE
 
 	bool IO_File::Load(std::string path)
 	{
-		Logger::Warning("Function Load not overrided %s", m_name.c_str());
+		Core::Utils::Logger::Warning("Function Load not overrided %s", m_name.c_str());
 		return true;
 	}
 

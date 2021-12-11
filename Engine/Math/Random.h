@@ -9,7 +9,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/random/random_device.hpp>
 
-namespace S2DE
+namespace S2DE::Math
 {
 	class Random
 	{

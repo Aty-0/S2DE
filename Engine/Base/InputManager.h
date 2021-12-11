@@ -6,7 +6,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
-namespace S2DE
+namespace S2DE::Core
 {
 	class S2DE_API InputManager
 	{
@@ -14,9 +14,9 @@ namespace S2DE
 		InputManager();
 		~InputManager();
 
-		inline bool				IsKeyPressed(KeyCode keycode) const;
-		inline bool				IsKeyUp(KeyCode keycode)      const;
-		inline bool				IsKeyDown(KeyCode keycode)    const;
+		inline bool				IsKeyPressed(Other::KeyCode keycode) const;
+		inline bool				IsKeyUp(Other::KeyCode keycode)      const;
+		inline bool				IsKeyDown(Other::KeyCode keycode)    const;
 
 		inline DIMOUSESTATE		GetMouseCurrState() const { return m_MouseCurrState; }
 		inline DIMOUSESTATE		GetMouseLastState() const { return m_MouseLastState; }

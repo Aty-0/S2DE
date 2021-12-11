@@ -2,7 +2,7 @@
 #include "GameObjects/Camera.h"
 #include "GameObjects/Drawable.h"
 
-namespace S2DE
+namespace S2DE::Scene
 {
 	SceneManager::SceneManager() : 
 		m_scene(nullptr),
@@ -15,13 +15,13 @@ namespace S2DE
 
 	SceneManager::~SceneManager()
 	{
-		Delete(m_scene);
+		Core::Delete(m_scene);
 	}
 
 	void SceneManager::CreateNewScene()
 	{	 
 		m_scene = new Scene();
-		CreateGameObjectNoInit<Camera>();
+		CreateGameObjectNoInit<GameObjects::Camera>();
 	}	 
 		 
 	bool SceneManager::LoadScene(std::string name)
@@ -40,8 +40,8 @@ namespace S2DE
 	{
 		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
 		{
-			if(it->second.get() == dynamic_cast<Drawable*>(it->second.get()))
-				reinterpret_cast<Drawable*>(it->second.get())->UpdateShader();
+			if(it->second.get() == dynamic_cast<GameObjects::Drawable*>(it->second.get()))
+				reinterpret_cast<GameObjects::Drawable*>(it->second.get())->UpdateShader();
 		}
 	}
 
@@ -49,8 +49,8 @@ namespace S2DE
 	{
 		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
 		{
-			if (it->second.get() == dynamic_cast<Drawable*>(it->second.get()))
-				reinterpret_cast<Drawable*>(it->second.get())->UpdateTexture();
+			if (it->second.get() == dynamic_cast<GameObjects::Drawable*>(it->second.get()))
+				reinterpret_cast<GameObjects::Drawable*>(it->second.get())->UpdateTexture();
 		}
 	}
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Main/Common.h"
 
-namespace S2DE
+namespace S2DE::Math
 {
 	constexpr static double PI = 3.141592653589793238462643383279;
 	constexpr static double TWO_PI = 6.283185307179586476925286766559;

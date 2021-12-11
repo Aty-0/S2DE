@@ -8,7 +8,7 @@
 #include <fstream>
 #include <D3DX11async.h>
 
-namespace S2DE
+namespace S2DE::Render
 {
 	Shader::Shader() 
 	{
@@ -23,24 +23,24 @@ namespace S2DE
 
 	void Shader::Cleanup()
 	{
-		Release(m_vertexShader);
-		Release(m_pixelShader);
-		Release(m_layout);
+		Core::Release(m_vertexShader);
+		Core::Release(m_pixelShader);
+		Core::Release(m_layout);
 	}
 
 	void Shader::Unbind()
 	{
-		Engine::GetRenderer()->GetContext()->IASetInputLayout(0);
-		Engine::GetRenderer()->GetContext()->VSSetShader(0, nullptr, 0);
-		Engine::GetRenderer()->GetContext()->PSSetShader(0, nullptr, 0);
+		Core::Engine::GetRenderer()->GetContext()->IASetInputLayout(0);
+		Core::Engine::GetRenderer()->GetContext()->VSSetShader(0, nullptr, 0);
+		Core::Engine::GetRenderer()->GetContext()->PSSetShader(0, nullptr, 0);
 	}
 
 
 	void Shader::Bind()
 	{
-		Engine::GetRenderer()->GetContext()->IASetInputLayout(m_layout);
-		Engine::GetRenderer()->GetContext()->VSSetShader(m_vertexShader, nullptr, 0);
-		Engine::GetRenderer()->GetContext()->PSSetShader(m_pixelShader, nullptr, 0);
+		Core::Engine::GetRenderer()->GetContext()->IASetInputLayout(m_layout);
+		Core::Engine::GetRenderer()->GetContext()->VSSetShader(m_vertexShader, nullptr, 0);
+		Core::Engine::GetRenderer()->GetContext()->PSSetShader(m_pixelShader, nullptr, 0);
 	}
 
 	bool Shader::Compile()
@@ -57,7 +57,7 @@ namespace S2DE
 			if (err_buffer != nullptr)
 			{
 				details = (char*)err_buffer->GetBufferPointer();
-				Release(err_buffer);
+				Core::Release(err_buffer);
 			}
 			else
 				details = "No description available!";
@@ -67,7 +67,7 @@ namespace S2DE
 			return false;
 		}
 		
-		if (FAILED(Engine::GetRenderer()->GetDevice()->CreateVertexShader(code_buffer->GetBufferPointer(), 
+		if (FAILED(Core::Engine::GetRenderer()->GetDevice()->CreateVertexShader(code_buffer->GetBufferPointer(),
 			code_buffer->GetBufferSize(), nullptr, &m_vertexShader)))
 		{
 			Logger::Error("[Shader] Can't create vertex shader");
@@ -87,7 +87,7 @@ namespace S2DE
 		};
 
 		Logger::Log("[Shader] [%s] Try to create input layout...", m_name.c_str());
-		if (FAILED(Engine::GetRenderer()->GetDevice()->CreateInputLayout(elements, sizeof(elements) / sizeof(elements[0]), code_buffer->GetBufferPointer(),
+		if (FAILED(Core::Engine::GetRenderer()->GetDevice()->CreateInputLayout(elements, sizeof(elements) / sizeof(elements[0]), code_buffer->GetBufferPointer(),
 			code_buffer->GetBufferSize(), &m_layout)))
 		{		
 			Logger::Error("[Shader] Failed to create input layout");
@@ -95,7 +95,7 @@ namespace S2DE
 		}
 	
 
-		Release(code_buffer);
+		Core::Release(code_buffer);
 
 		Logger::Log("[Shader] [%s] Compile pixel shader...", m_name.c_str());
 		if (FAILED(D3DX11CompileFromFileA(m_path_ps.c_str(), nullptr, nullptr, "main", "ps_5_0",
@@ -106,7 +106,7 @@ namespace S2DE
 			if (err_buffer != nullptr)
 			{
 				details = (char*)err_buffer->GetBufferPointer();
-				Release(err_buffer);
+				Core::Release(err_buffer);
 			}
 			else
 				details = "No description available!";
@@ -116,14 +116,14 @@ namespace S2DE
 			return false;
 		}
 		
-		if (FAILED(Engine::GetRenderer()->GetDevice()->CreatePixelShader(code_buffer->GetBufferPointer(),
+		if (FAILED(Core::Engine::GetRenderer()->GetDevice()->CreatePixelShader(code_buffer->GetBufferPointer(),
 			code_buffer->GetBufferSize(), nullptr, &m_pixelShader)))
 		{
 			Logger::Error("[Shader] Can't create pixel shader");
 			return false;
 		}
 
-		Release(code_buffer);
+		Core::Release(code_buffer);
 
 		//Create basic constant buffer
 		m_const_buffer = new ConstantBuffer<ShaderMainConstantBuffer>();
@@ -135,23 +135,23 @@ namespace S2DE
 
 	bool Shader::SetPaths(std::string vs, std::string ps)
 	{
-		if((isStringEmpty(m_path_vs = vs) || isStringEmpty(m_path_ps = ps)))
+		if((Core::Other::isStringEmpty(m_path_vs = vs) || Core::Other::isStringEmpty(m_path_ps = ps)))
 			return false;
 
 		return Compile();
 	}
 
-	void Shader::UpdateMainConstBuffer(XMatrix world)
+	void Shader::UpdateMainConstBuffer(Math::XMatrix world)
 	{
 		m_const_buffer->Lock();
-		m_const_buffer->GetBufferData()->Delta = Engine::GetGameTime().GetDeltaTime();
-		m_const_buffer->GetBufferData()->Time = Engine::GetGameTime().GetTime();
-		m_const_buffer->GetBufferData()->Resoultion = XFloat2((float)Engine::GetGameWindow()->GetWidth(),
-			(float)Engine::GetGameWindow()->GetHeight());
+		m_const_buffer->GetBufferData()->Delta = Core::Engine::GetGameTime().GetDeltaTime();
+		m_const_buffer->GetBufferData()->Time = Core::Engine::GetGameTime().GetTime();
+		m_const_buffer->GetBufferData()->Resoultion = Math::XFloat2((float)Core::Engine::GetGameWindow()->GetWidth(),
+			(float)Core::Engine::GetGameWindow()->GetHeight());
 
 		m_const_buffer->GetBufferData()->world = world;
 
-		Camera* cam = GetObjectByName<Camera>(S2DE_MAIN_CAMERA_NAME);
+		GameObjects::Camera* cam = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
 
 		if (cam != nullptr)
 		{

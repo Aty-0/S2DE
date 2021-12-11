@@ -3,7 +3,7 @@
 #include "Graphics/Renderer.h"
 
 
-namespace S2DE
+namespace S2DE::Math
 {
 	template<typename T = std::int32_t>
     class S2DE_API Color

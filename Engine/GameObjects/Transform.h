@@ -4,7 +4,7 @@
 #include "Math/Matrix.h"
 #include "Graphics/Renderer.h"
 
-namespace S2DE
+namespace S2DE::GameObjects
 {
 	class S2DE_API Transform
 	{
@@ -16,7 +16,7 @@ namespace S2DE
 		void                Reset();
 
 		//Set position by vector3
-		void                SetPosition(Vector3 pos);
+		void                SetPosition(Math::Vector3 pos);
 		//Set X axis for postion vector
 		void                SetPosition_X(float x);
 		//Set Y axis for postion vector
@@ -25,7 +25,7 @@ namespace S2DE
 		void                SetPosition_Z(float z);
 
 		//Set rotation by vector3
-		void                SetRotation(Vector3 r);
+		void                SetRotation(Math::Vector3 r);
 		//Set X axis for rotation vector
 		void                SetRotation_X(float x);
 		//Set Y axis for rotation vector
@@ -34,7 +34,7 @@ namespace S2DE
 		void                SetRotation_Z(float z);
 
 		//Set scale by vector3
-		void                SetScale(Vector3 scale);
+		void                SetScale(Math::Vector3 scale);
 		//Set X axis for scale vector
 		void                SetScale_X(float x);
 		//Set Y axis for scale vector
@@ -44,16 +44,16 @@ namespace S2DE
 
 		inline Transform*   GetTransform() { return this; }
 
-		inline Vector3      GetPosition()   const { return m_Position; }
-		inline Vector3      GetRotation()   const { return m_Rotation; }
-		inline Vector3      GetScale()      const { return m_Scale; }
+		inline Math::Vector3      GetPosition()   const { return m_Position; }
+		inline Math::Vector3      GetRotation()   const { return m_Rotation; }
+		inline Math::Vector3      GetScale()      const { return m_Scale; }
 
 		//Get object world matrix
-		inline XMatrix&		 GetWorldMatrix() { return m_WorldMatrix; }
+		inline Math::XMatrix&		 GetWorldMatrix() { return m_WorldMatrix; }
 
 		//Update matrix functions
-		virtual XMatrix      UpdateTransformation();
-		virtual XMatrix 	 UpdateTransformation2D();
+		virtual Math::XMatrix      UpdateTransformation();
+		virtual Math::XMatrix 	 UpdateTransformation2D();
 
 	protected:
 		virtual void         OnPositionChanged() { }
@@ -61,13 +61,13 @@ namespace S2DE
 		virtual void         OnScaleChanged() {	}
 
 	private:
-		Vector3              m_Position;
-		Vector3              m_Rotation;
-		Vector3              m_Scale;
+		Math::Vector3              m_Position;
+		Math::Vector3              m_Rotation;
+		Math::Vector3              m_Scale;
 
-		XMatrix             m_WorldMatrix;
+		Math::XMatrix             m_WorldMatrix;
 
 	public:
-		static XVector	ToQuaternion(Vector3 rot);
+		static Math::XVector	ToQuaternion(Math::Vector3 rot);
 	};
 }

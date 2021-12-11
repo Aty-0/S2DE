@@ -5,7 +5,7 @@
 #include "Graphics/Buffers.h"
 #include "Math/IntVector.h"
 
-namespace S2DE
+namespace S2DE::GameObjects
 {
 	class S2DE_API Sprite : public Drawable
 	{
@@ -39,38 +39,40 @@ namespace S2DE
 		void			SetAtlasFramePosition(std::int32_t x, std::int32_t y);
 
 		//Set frame size 
-		void			SetAtlasSize(Vector2 size);
+		void			SetAtlasSize(Math::Vector2 size);
 
 	private:
-		Texture*		m_texture;
-		bool			m_unload_texture;
-		Shader*			m_shader;
-		VertexBuffer*	m_vertex_buffer;
-		IndexBuffer*	m_index_buffer;
-		Vector2			m_tile_size;
-		IntVector2		m_tile_frame_pos;
+		Render::Texture*		m_texture;
+		bool					m_unload_texture;
+		Render::Shader*			m_shader;
+		Render::VertexBuffer*	m_vertex_buffer;
+		Render::IndexBuffer*	m_index_buffer;
+		Math::Vector2			m_tile_size;
+		Math::IntVector2		m_tile_frame_pos;
 
 	protected:
 		virtual void	OnUpdate(float DeltaTime) override { }
 		virtual void	OnRender() override;
-		virtual XMatrix UpdateTransformation() override;
+		virtual Math::XMatrix UpdateTransformation() override;
 
 		virtual void	CreateVertexBuffer();
 		virtual void	CreateIndexBuffer();
 		virtual void	SetDefaultShader();
 		virtual void	SetDefaultTexture();
 		virtual void	CalcScaleFactor();
-		Vector3			ScaleFactor;
+
+
+		Math::Vector3			ScaleFactor;
 
 	public:
 		struct S2DE_ALIGN(16) SpriteConstBuffer
 		{
-			XInt2			sprite_tile_frame;
-			XFloat2			sprite_tile_size;
-			XFloat2			sprite_texture_res;
+			Math::XInt2				sprite_tile_frame;
+			Math::XFloat2			sprite_tile_size;
+			Math::XFloat2			sprite_texture_res;
 		};
 
 	private:
-		ConstantBuffer<SpriteConstBuffer>* m_sprite_const_buf;
+		Render::ConstantBuffer<SpriteConstBuffer>* m_sprite_const_buf;
 	};
 }

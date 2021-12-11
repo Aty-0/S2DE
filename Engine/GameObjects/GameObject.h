@@ -12,7 +12,7 @@
 #define S2DE_DEFAULT_GAMEOBJECT_PREFIX 0
 #define	S2DE_ENGINE_GAMEOBJECT_TYPE "_Engine"
 
-namespace S2DE
+namespace S2DE::GameObjects
 {
 	class S2DE_API GameObject : public Transform
 	{

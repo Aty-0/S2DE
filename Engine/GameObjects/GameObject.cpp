@@ -1,6 +1,6 @@
 #include "GameObject.h"
 
-namespace S2DE
+namespace S2DE::GameObjects
 {
 	GameObject::GameObject() :
 		m_name(std::string()),
@@ -52,12 +52,12 @@ namespace S2DE
 
 	void GameObject::SetName(std::string name)
 	{
-		isStringEmpty(name) ? m_name = S2DE_DEFAULT_GAMEOBJECT_NAME : m_name = name;
+		Core::Other::isStringEmpty(name) ? m_name = S2DE_DEFAULT_GAMEOBJECT_NAME : m_name = name;
 	}
 
 	void GameObject::SetType(std::string type)
 	{
-		isStringEmpty(type) ? m_type = S2DE_DEFAULT_GAMEOBJECT_TYPE : m_type = type;
+		Core::Other::isStringEmpty(type) ? m_type = S2DE_DEFAULT_GAMEOBJECT_TYPE : m_type = type;
 	}
 
 	void GameObject::SetVisible(bool visible)
@@ -86,7 +86,7 @@ namespace S2DE
 		//Need check special id on invalid
 		if(id == "REGENERATE")
 			m_id->RegenerateUUID();
-		else if (!isStringEmpty(id))
+		else if (!Core::Other::isStringEmpty(id))
 			m_id->SetUUID(id);
 
 		OnCreate();

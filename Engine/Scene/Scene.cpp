@@ -1,6 +1,6 @@
 #include "Scene.h"
 
-namespace S2DE
+namespace S2DE::Scene
 {
 	Scene::Scene() : 
 		m_name("Untitled"),
@@ -29,7 +29,7 @@ namespace S2DE
 			SceneObjectStorage::iterator it = std::find_if(
 				m_storage.begin(), m_storage.end(),
 				[&new_name](std::pair<std::pair<std::string, boost::uuids::uuid>,
-					std::shared_ptr<GameObject>> const& elem) {
+					std::shared_ptr<GameObjects::GameObject>> const& elem) {
 						return elem.first.first == new_name;
 				});
 
@@ -60,7 +60,7 @@ namespace S2DE
 			m_storage.begin(),
 			m_storage.end(),
 			[&object_name](std::pair<std::pair<std::string, boost::uuids::uuid>,
-				std::shared_ptr<GameObject>> const& elem) {
+				std::shared_ptr<GameObjects::GameObject>> const& elem) {
 					return elem.first.first == object_name;
 			});
 		
@@ -81,13 +81,13 @@ namespace S2DE
 			m_storage.begin(), 
 			m_storage.end(),
 			[&object_id](std::pair<std::pair<std::string, boost::uuids::uuid>, 
-				std::shared_ptr<GameObject>> const& elem) {
+				std::shared_ptr<GameObjects::GameObject>> const& elem) {
 				return elem.first.second == object_id;
 			});
 
 		if (it == m_storage.end() || it->second->GetPrefix() == -1 || it->second->GetType() == S2DE_ENGINE_GAMEOBJECT_TYPE)
 		{
-			Logger::Error("[Scene] [%s] Can't delete object UUID: %s", m_name.c_str(), GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
+			Logger::Error("[Scene] [%s] Can't delete object UUID: %s", m_name.c_str(), GameObjects::GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
 			return;
 		}
 
@@ -96,12 +96,12 @@ namespace S2DE
 		m_storage.erase(it);
 	}	 
 		 
-	void Scene::Replace(std::string object_name, GameObject* object)
+	void Scene::Replace(std::string object_name, GameObjects::GameObject* object)
 	{	 
 		S2DE_NO_IMPL();
 	}	 
 		 
-	void Scene::Replace(boost::uuids::uuid object_id, GameObject* object)
+	void Scene::Replace(boost::uuids::uuid object_id, GameObjects::GameObject* object)
 	{	 
 		S2DE_NO_IMPL();
 	}	 

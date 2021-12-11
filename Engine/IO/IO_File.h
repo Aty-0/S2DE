@@ -2,7 +2,7 @@
 #include "Base/Main/Common.h"
 #include <vector>
 
-namespace S2DE
+namespace S2DE::IO
 {
 	class S2DE_API IO_File
 	{

@@ -7,11 +7,11 @@
 #define S2DE_WINDOW_CLASS_NAME "S2DE_WND_CLASS_NAME"
 
 //Styles
-#define S2DE_DEFAULT_WINDOW_STYLE WS_OVERLAPPED | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_CAPTION
+#define S2DE_DEFAULT_WINDOW_STYLE WS_OVERLAPPED | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_CAPTION
 #define S2DE_FULLSCREEN_WINDOW_STYLE WS_EX_TOPMOST | WS_POPUP
 #define S2DE_CHILD_WINDOW_STYLE WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP
 
-namespace S2DE
+namespace S2DE::Core
 {
 	GameWindow* GameWindow::m_InstanceWindow;
 
@@ -131,23 +131,21 @@ namespace S2DE
 		std::string str;
 
 #ifdef NDEBUG
-		str = isStringEmpty(name) ? "S2DE DirectX11 Build: " + std::string(S2DE_BUILD_DATE) : name;
+		str = isStringEmpty(name) ? "S2DE Build: " + std::string(S2DE_BUILD_DATE) : name;
 		
 		if (Engine::isEditor())
 			str.append(L" Editor Mode");
 
 #else
-		str = "S2DE DirectX11 Build: " + std::string(S2DE_BUILD_DATE);
+		str = "S2DE Build: " + std::string(S2DE_BUILD_DATE);
 
 		if (Engine::isEditor())
 			str.append(" Editor Mode");
 
-		if (!isStringEmpty(name))
+		if (!Core::Other::isStringEmpty(name))
 			str.append(std::string(" (") + name + ")");
-		else
-			Logger::Warning("No game name setted");
-		
-		str.append(" Debug version");
+
+		str.append(" in Debug Mode");
 #endif
 		ZeroMemory(&m_WindowClass, sizeof(WNDCLASSEX));
 

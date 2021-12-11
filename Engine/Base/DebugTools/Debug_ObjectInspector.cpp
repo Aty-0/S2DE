@@ -3,7 +3,7 @@
 #include "Scene/SceneManager.h"
 #include "Scene/Scene.h"
 
-namespace S2DE
+namespace S2DE::Core::Debug
 {
 	Debug_ObjectInspector::Debug_ObjectInspector()
 	{

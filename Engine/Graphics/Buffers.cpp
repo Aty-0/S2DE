@@ -1,7 +1,7 @@
 #include "Buffers.h"
 
 
-namespace S2DE
+namespace S2DE::Render
 {
 	VertexBuffer::VertexBuffer() : 
 		m_buffer(nullptr),
@@ -13,7 +13,7 @@ namespace S2DE
 	VertexBuffer::~VertexBuffer()
 	{
 		m_array.clear();
-		Release(m_buffer);
+		Core::Release(m_buffer);
 	}
 
 	bool VertexBuffer::Create(D3D11_USAGE usage)
@@ -34,7 +34,7 @@ namespace S2DE
 		InitData.SysMemSlicePitch = 0;
 
 	
-		return SUCCEEDED(Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &InitData, &m_buffer));
+		return SUCCEEDED(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &InitData, &m_buffer));
 	}
 
 	void VertexBuffer::Bind()
@@ -44,18 +44,18 @@ namespace S2DE
 		std::uint32_t stride = sizeof(Vertex);	
 		std::uint32_t offset = 0;
 
-		Engine::GetRenderer()->GetContext()->IASetVertexBuffers(0, 1, &m_buffer, &stride, &offset);
+		Core::Engine::GetRenderer()->GetContext()->IASetVertexBuffers(0, 1, &m_buffer, &stride, &offset);
 	}
 
 	void VertexBuffer::Lock()
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	}
 
 	void VertexBuffer::Unlock()
 	{
-		Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
+		Core::Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
 	}
 
 
@@ -69,7 +69,7 @@ namespace S2DE
 	IndexBuffer::~IndexBuffer()
 	{
 		m_array.clear();
-		Release(m_buffer);
+		Core::Release(m_buffer);
 	}
 
 	bool IndexBuffer::Create(D3D11_USAGE usage)
@@ -91,22 +91,22 @@ namespace S2DE
 		InitData.SysMemSlicePitch = 0;
 
 
-		return SUCCEEDED(Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &InitData, &m_buffer));
+		return SUCCEEDED(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &InitData, &m_buffer));
 	}
 
 	void IndexBuffer::Bind()
 	{
-		Engine::GetRenderer()->GetContext()->IASetIndexBuffer(m_buffer, DXGI_FORMAT_R32_UINT, 0);
+		Core::Engine::GetRenderer()->GetContext()->IASetIndexBuffer(m_buffer, DXGI_FORMAT_R32_UINT, 0);
 	}
 
 	void IndexBuffer::Lock()
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	}
 
 	void IndexBuffer::Unlock()
 	{
-		Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
+		Core::Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
 	}
 }

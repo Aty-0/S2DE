@@ -14,7 +14,7 @@
 		std::vsnprintf(buffer, sizeof(buffer), text, args); \
 		va_end(args);	\
 
-namespace S2DE
+namespace S2DE::Core::Utils
 {
 	std::uint32_t		Logger::m_linecount;
 	time_t				Logger::m_time;
@@ -132,8 +132,8 @@ namespace S2DE
 		m_log_file << line;
 		m_log_file.close();
 
-		if (Engine::GetConsole() != nullptr)
-			Engine::GetConsole()->Add(line);
+		if (Core::Engine::GetConsole() != nullptr)
+			Core::Engine::GetConsole()->Add(line);
 
 		//Add line 
 		m_linecount++;

@@ -4,7 +4,7 @@
 
 #define S2DE_CONSOLE_DEFAULT_MODE VisualConsoleSizeMode::Fullscreen
 
-namespace S2DE
+namespace S2DE::Core::Debug
 {
 	VisualConsole::VisualConsole() : 
 		m_scroll_to_bottom(false), 

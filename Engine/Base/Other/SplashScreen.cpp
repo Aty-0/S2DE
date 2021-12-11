@@ -9,7 +9,7 @@
 //#define S2DE_DRAW_EDITOR_MODE_LABEL
 
 
-namespace S2DE
+namespace S2DE::Core::Other
 {
 	SplashScreen* SplashScreen::m_instanceWindow;
 

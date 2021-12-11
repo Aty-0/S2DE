@@ -6,7 +6,7 @@
 #include "GameObjects/GameObject.h"
 
 
-namespace S2DE
+namespace S2DE::Scene
 {
 	class S2DE_API SceneManager
 	{
@@ -48,16 +48,16 @@ namespace S2DE
 	};
 
 	//Create simple game object in scene
-	template<typename T = GameObject>
+	template<typename T = GameObjects::GameObject>
 	static inline T* CreateGameObject(
 		std::string name = std::string(),
 		std::string type = std::string(),
 		std::int32_t prefix = S2DE_DEFAULT_GAMEOBJECT_PREFIX,
-		Vector3 position = Vector3::Reset(),
-		Vector3 rotation = Vector3::Reset(),
-		Vector3 scale = Vector3(1.0f, 1.0f, 1.0f))
+		Math::Vector3 position = Math::Vector3::Reset(),
+		Math::Vector3 rotation = Math::Vector3::Reset(),
+		Math::Vector3 scale = Math::Vector3(1.0f, 1.0f, 1.0f))
 	{
-		S2DE_ASSERT(Engine::GetSceneManager()->GetScene() != nullptr);
+		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
 		auto object = new T();
 
 		object->SetPosition(position);
@@ -66,33 +66,33 @@ namespace S2DE
 
 		object->Init(name, type, prefix, std::string());
 
-		Engine::GetSceneManager()->GetScene()->Add<T>(object);
+		Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
 
 		return object;
 	}
 
 	//Create game object without initialize object
-	template<typename T = GameObject>
+	template<typename T = GameObjects::GameObject>
 	static inline T* CreateGameObjectNoInit()
 	{
-		S2DE_ASSERT(Engine::GetSceneManager()->GetScene() != nullptr);
+		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
 		auto object = new T();
 
-		Engine::GetSceneManager()->GetScene()->Add<T>(object);
+		Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
 
 		return object;
 	}
 
 	//Get game object from scene by name
-	template<typename T = GameObject>
+	template<typename T = GameObjects::GameObject>
 	static inline T* GetObjectByName(std::string name)
 	{
-		S2DE_ASSERT(Engine::GetSceneManager()->GetScene() != nullptr);
+		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
 		SceneObjectStorage::iterator it = std::find_if(
-			Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
-			Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
+			Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
+			Core::Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
 			[&name](std::pair<std::pair<std::string, boost::uuids::uuid>,
-				std::shared_ptr<GameObject>> const& elem) {
+				std::shared_ptr<GameObjects::GameObject>> const& elem) {
 				return elem.first.first == name;
 			});
 
@@ -100,15 +100,15 @@ namespace S2DE
 	}
 
 	//Get game object from scene by uuid
-	template<typename T = GameObject>
+	template<typename T = GameObjects::GameObject>
 	static inline T* GetObjectByUUID(boost::uuids::uuid id)
 	{
-		S2DE_ASSERT(Engine::GetSceneManager()->GetScene() != nullptr);
+		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
 		SceneObjectStorage::iterator it = std::find_if(
-			Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
-			Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
+			Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
+			Core::Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
 			[&id](std::pair<std::pair<std::string, boost::uuids::uuid>,
-				std::shared_ptr<GameObject>> const& elem) {
+				std::shared_ptr<GameObjects::GameObject>> const& elem) {
 					return elem.first.second == id;
 			});
 

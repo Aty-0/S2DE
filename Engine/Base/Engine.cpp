@@ -10,9 +10,15 @@
 #include "Graphics/Renderer.h"
 #include "Graphics/ImGui_Window.h"
 
+using namespace S2DE::Scene;
+using namespace S2DE::Math;
+using namespace S2DE::Render;
+using namespace S2DE::Core::Other;
+using namespace S2DE::Core::Debug;
+
 #define S2DE_EXIT_PROCESS() exit(EXIT_SUCCESS);
 
-namespace S2DE
+namespace S2DE::Core
 {
 	Engine* Engine::m_engine;
 	ApplicationHandle* Engine::m_app_handle;
@@ -24,6 +30,7 @@ namespace S2DE
 	VisualConsole* Engine::m_console;
 	ResourceManager Engine::m_resource_manager;
 	SceneManager* Engine::m_scene_manager;
+	std::string Engine::m_params;
 
 	Engine::Engine()
 	{
@@ -41,15 +48,17 @@ namespace S2DE
 		Delete(m_console);
 	}
 
-	void Engine::RunEngineInEditorMode(ApplicationHandle* app_handle)
+	void Engine::RunEngineInEditorMode(ApplicationHandle* app_handle, std::string params)
 	{
 		//TODO 
 		//Load from config project name
+		m_params = params;
 		RunEngine(app_handle, std::string(), true);
 	}
 
-	void Engine::RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname)
+	void Engine::RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname, std::string params)
 	{
+		m_params = params;
 		RunEngine(app_handle, pname, false);
 	}
 

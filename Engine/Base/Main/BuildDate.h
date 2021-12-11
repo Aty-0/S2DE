@@ -44,7 +44,7 @@
 
 #define S2DE_BUILD_VER '0'
 
-namespace S2DE
+namespace S2DE::Core
 {
 	static const wchar_t S2DE_BUILD_DATE_W[]
 	{

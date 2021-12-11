@@ -5,9 +5,9 @@
 #include "IO/IO_File.h"
 #include "IO/IO_Disposible.h"
 
-namespace S2DE
+namespace S2DE::Render
 {
-	class S2DE_API Shader : public IO_File, public IO_Disposible
+	class S2DE_API Shader : public IO::IO_File, public IO::IO_Disposible
 	{
 	public:
 		Shader();
@@ -41,18 +41,19 @@ namespace S2DE
 		{
 			float Delta;
 			float Time;
-			XFloat2 Resoultion;
+			Math::XFloat2 Resoultion;
 
 			//Game object
-			XMatrix world;
+			Math::XMatrix world;
 
 			//Camera stuff
-			XMatrix view;
-			XMatrix projection;
+			Math::XMatrix view;
+			Math::XMatrix projection;
 		};
 
-		void											 UpdateMainConstBuffer(XMatrix world);
-		inline ConstantBuffer<ShaderMainConstantBuffer>* GetConstBuffer() const { return m_const_buffer; }
+		void UpdateMainConstBuffer(Math::XMatrix world);
+		inline ConstantBuffer<ShaderMainConstantBuffer>* 
+			GetConstBuffer() const { return m_const_buffer; }
 	private:
 		ConstantBuffer<ShaderMainConstantBuffer>* m_const_buffer;
 

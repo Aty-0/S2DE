@@ -4,7 +4,7 @@
 #include "Scene/SceneManager.h"
 #include "Base/GameWindow.h"
 
-namespace S2DE
+namespace S2DE::Editor
 {
 	EditorRenderWindow::EditorRenderWindow()
 	{
@@ -18,7 +18,7 @@ namespace S2DE
 
 	void EditorRenderWindow::SetDefaultResolution()
 	{
-		ImGui::SetWindowSize("EditorRenderWindow", ImVec2(float(Engine::GetGameWindow()->GetWidth() / 2), float(Engine::GetGameWindow()->GetHeight() / 2)));
+		ImGui::SetWindowSize("EditorRenderWindow", ImVec2(float(Core::Engine::GetGameWindow()->GetWidth() / 2), float(Core::Engine::GetGameWindow()->GetHeight() / 2)));
 	}
 
 	void EditorRenderWindow::PushRenderTexture(void* texture)
@@ -32,7 +32,7 @@ namespace S2DE
 			return;
 
 		ImGui::Begin("EditorRenderWindow", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
-		ImGui::Image((void*)m_bufferdata, ImVec2((float)Engine::GetGameWindow()->GetWidth(), (float)Engine::GetGameWindow()->GetHeight()));
+		ImGui::Image((void*)m_bufferdata, ImVec2((float)Core::Engine::GetGameWindow()->GetWidth(), (float)Core::Engine::GetGameWindow()->GetHeight()));
 		ImGui::End();
 
 	}

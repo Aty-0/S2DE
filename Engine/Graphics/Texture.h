@@ -3,9 +3,9 @@
 #include "IO/IO_File.h"
 #include "IO/IO_Disposible.h"
 
-namespace S2DE
+namespace S2DE::Render
 {
-	class S2DE_API Texture : public IO_File, public IO_Disposible
+	class S2DE_API Texture : public IO::IO_File, public IO::IO_Disposible
 	{
 	public:
 		Texture();

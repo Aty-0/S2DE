@@ -2,9 +2,9 @@
 #include "Base/Main/Common.h"
 #include "Graphics/ImGui_Window.h"
 
-namespace S2DE
+namespace S2DE::Core::Debug
 {
-	class S2DE_API Debug_Info : public ImGui_Window
+	class S2DE_API Debug_Info : public Render::ImGui_Window
 	{
 	public:
 		Debug_Info();

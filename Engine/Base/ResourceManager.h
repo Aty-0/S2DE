@@ -10,7 +10,9 @@
 
 #define S2DE_DEFAULT_RESOURCE_DATA_NAME "Gamedata/"
 
-namespace S2DE
+using namespace S2DE::IO;
+
+namespace S2DE::Core
 {
 	class S2DE_API ResourceManager_ResourceBase
 	{
@@ -53,9 +55,9 @@ namespace S2DE
 			m_resource->SetFileName(name);
 
 			//If we have diffrent load functions 
-			if (std::is_same<T, Shader>::value)
+			if (std::is_same<T, Render::Shader>::value)
 			{
-				if (!reinterpret_cast<Shader*>(m_resource)->SetPaths(
+				if (!reinterpret_cast<Render::Shader*>(m_resource)->SetPaths(
 					Engine::GetResourceManager().GetFilePath(name + "_vs", reinterpret_cast<T*>(m_resource)),
 					Engine::GetResourceManager().GetFilePath(name + "_ps", reinterpret_cast<T*>(m_resource))
 				))
@@ -109,7 +111,7 @@ namespace S2DE
 		void				ClearAll();
 
 		//Get default texture
-		inline Texture*		GetDefaultTexture() const { return m_default_texture.get(); }
+		inline Render::Texture*		GetDefaultTexture() const { return m_default_texture.get(); }
 		//Get data folder name
 		inline std::string  GetNameOfData() const { return m_resource_data_name; }
 
@@ -133,7 +135,7 @@ namespace S2DE
 	    std::map<std::pair<std::string, std::type_index>,
 			std::unique_ptr<ResourceManager_ResourceBase>>	m_ResourceStorage;
 
-		std::unique_ptr <Texture>			m_default_texture;
+		std::unique_ptr <Render::Texture>			m_default_texture;
 		std::string						    m_resource_data_name;
 	private:
 		//Find funtion
@@ -146,7 +148,7 @@ namespace S2DE
 		template <typename T>
 		bool Load(std::string filename, std::string name = std::string())
 		{
-			if (isStringEmpty(filename))
+			if (Other::isStringEmpty(filename))
 				return false;
 
 			ResourceManager_Resource<T>* r = new ResourceManager_Resource<T>();
@@ -157,7 +159,7 @@ namespace S2DE
 				return false;
 			}
 
-			auto key = std::make_pair(isStringEmpty(name) ? filename : name, std::type_index(typeid(T)));
+			auto key = std::make_pair(Other::isStringEmpty(name) ? filename : name, std::type_index(typeid(T)));
 			m_ResourceStorage[key] = std::make_unique<ResourceManager_Resource<T>>(*r);
 
 			return true;
@@ -188,7 +190,7 @@ namespace S2DE
 			auto it = m_ResourceStorage.find(key);
 
 			if (it == m_ResourceStorage.end())
-				return std::is_same<T, Texture>::value ? reinterpret_cast<T*>(Engine::GetResourceManager().GetDefaultTexture()) : nullptr;
+				return std::is_same<T, Render::Texture>::value ? reinterpret_cast<T*>(Engine::GetResourceManager().GetDefaultTexture()) : nullptr;
 	
 			return reinterpret_cast<ResourceManager_Resource<T>*>(it->second.get())->Get();
 		}

@@ -2,7 +2,7 @@
 #include "Base/Main/Common.h"
 
 
-namespace S2DE
+namespace S2DE::Math
 {
 	class S2DE_API IntVector2
 	{

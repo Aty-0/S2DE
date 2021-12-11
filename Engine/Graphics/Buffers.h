@@ -7,7 +7,7 @@
 //TODO
 //Base class
 
-namespace S2DE
+namespace S2DE::Render
 {
 	class S2DE_API VertexBuffer
 	{
@@ -64,8 +64,7 @@ namespace S2DE
 
 		~ConstantBuffer()
 		{
-			//Delete(m_buffer_data);
-			Release(m_buffer);
+			Core::Release(m_buffer);
 		}
 
 		bool Create()
@@ -87,14 +86,14 @@ namespace S2DE
 			subresource.SysMemPitch = 0;
 			subresource.SysMemSlicePitch = 0;
 
-			return SUCCEEDED(Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subresource, &m_buffer));
+			return SUCCEEDED(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subresource, &m_buffer));
 		}
 
 		bool Lock()
 		{
 			D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-			if (FAILED(Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+			if (FAILED(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 				return false;
 
 			m_buffer_data = reinterpret_cast<T*>(mappedResource.pData);
@@ -104,12 +103,12 @@ namespace S2DE
 
 		void Unlock()
 		{
-			Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
+			Core::Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
 		}
 
 		void Bind(std::int32_t num = 0)
 		{
-			Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(num, 1, &m_buffer);
+			Core::Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(num, 1, &m_buffer);
 		}
 
 		inline T*&			  GetBufferData() { return reinterpret_cast<T*&>(m_buffer_data); }

@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <psapi.h>
 
-namespace S2DE
+namespace S2DE::Core::Utils
 {
 	static const DWORDLONG GetUsedMem()
 	{

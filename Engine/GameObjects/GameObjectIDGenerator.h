@@ -3,7 +3,7 @@
 
 #include <boost/uuid/uuid.hpp>
 
-namespace S2DE
+namespace S2DE::GameObjects
 {
 	class S2DE_API GameObjectIDGenerator
 	{

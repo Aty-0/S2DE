@@ -3,7 +3,7 @@
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
 
-namespace S2DE
+namespace S2DE::Core
 {
 	InputManager::InputManager() :
 		m_DirectInput(nullptr),
@@ -24,17 +24,17 @@ namespace S2DE
 		Release(m_DirectInput);
 	}
 
-	bool InputManager::IsKeyPressed(KeyCode keycode) const
+	bool InputManager::IsKeyPressed(Other::KeyCode keycode) const
 	{
 		return ((m_KeyboardState[(std::uint32_t)keycode] & 0x80) && (~m_KeyboardStateLast[(std::uint32_t)keycode] & 0x80)) ? true : false;
 	}
 
-	bool InputManager::IsKeyUp(KeyCode keycode) const
+	bool InputManager::IsKeyUp(Other::KeyCode keycode) const
 	{
 		return (m_KeyboardState[(std::uint32_t)keycode] & 0x80) ? false	: true;
 	}
 
-	bool InputManager::IsKeyDown(KeyCode keycode) const
+	bool InputManager::IsKeyDown(Other::KeyCode keycode) const
 	{
 		return (m_KeyboardState[(std::uint32_t)keycode] & 0x80) ? true : false;
 	}

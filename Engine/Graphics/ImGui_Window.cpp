@@ -1,6 +1,6 @@
 #include "ImGui_Window.h"
 
-namespace S2DE
+namespace S2DE::Render
 {
 	ImGui_Window::ImGui_Window()
 		: m_draw(false)

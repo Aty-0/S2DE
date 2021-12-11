@@ -7,7 +7,7 @@
 //It's just simple base for fast creating and then render it
 //These windows creating in renderer
 
-namespace S2DE
+namespace S2DE::Render
 {
 	class S2DE_API ImGui_Window
 	{

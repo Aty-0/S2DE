@@ -5,14 +5,33 @@
 
 namespace S2DE
 {
-	class S2DE_API ApplicationHandle;
-	class S2DE_API VisualConsole;
-	class S2DE_API ResourceManager;
-	class S2DE_API GameWindow;
-	class S2DE_API Renderer;
-	class S2DE_API InputManager;
-	class S2DE_API SceneManager;
+	namespace Core
+	{
+		class ApplicationHandle;
+		class ResourceManager;
+		class GameWindow;
+		class InputManager;
+		namespace Debug
+		{
+			class VisualConsole;
+		}
+	}
 
+	namespace Render
+	{
+		class Renderer;
+	}
+
+	namespace Scene
+	{
+		class SceneManager;
+	}
+}
+
+using namespace S2DE::Core::Utils;
+
+namespace S2DE::Core
+{
 	class S2DE_API Engine
 	{
 	public:
@@ -20,9 +39,9 @@ namespace S2DE
 		~Engine();
 
 		//Run engine in game mode
-		void							RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname = std::string());
+		void							RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname = std::string(), std::string params = std::string());
 		//Run engine in editor mode
-		void							RunEngineInEditorMode(ApplicationHandle* app_handle);
+		void							RunEngineInEditorMode(ApplicationHandle* app_handle, std::string params = std::string());
 
 		//Destroy engine and all components
 		//Application will be closed when this function is called
@@ -32,12 +51,14 @@ namespace S2DE
 		static inline ApplicationHandle* GetApplicationHandle() { return m_app_handle; }
 		static inline GameWindow*		GetGameWindow() { return m_window; }
 		static inline GameTime			GetGameTime() { return m_time; }
-		static inline Renderer*			GetRenderer() { return m_render; }
+		static inline Render::Renderer*			GetRenderer() { return m_render; }
 		static inline InputManager*		GetInputManager() { return m_input_m; }
-		static inline VisualConsole*	GetConsole() { return m_console; }
-		static inline SceneManager*		GetSceneManager() { return m_scene_manager; }
+		static inline Debug::VisualConsole*	GetConsole() { return m_console; }
+		static inline Scene::SceneManager*		GetSceneManager() { return m_scene_manager; }
 		static inline ResourceManager&	GetResourceManager() { return m_resource_manager; }
 		static inline bool				isEditor() { return m_isEditor; }
+
+		static inline bool				CheckAppParam(std::string param) { return m_params.find(param) != std::string::npos; }
 
 	private:
 		//Run engine function
@@ -61,11 +82,13 @@ namespace S2DE
 		static ApplicationHandle* m_app_handle;
 		static GameWindow* m_window;
 		static GameTime m_time;
-		static Renderer* m_render;
+		static Render::Renderer* m_render;
 		static InputManager* m_input_m;
-		static VisualConsole* m_console;
-		static SceneManager* m_scene_manager;
+		static Debug::VisualConsole* m_console;
+		static Scene::SceneManager* m_scene_manager;
 		static ResourceManager m_resource_manager;
 		static bool m_isEditor;
+
+		static std::string m_params;
 	};
 }

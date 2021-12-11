@@ -33,14 +33,14 @@
 
 #define S2DE_ALIGN(s) __declspec(align(s))
 
-namespace S2DE
+namespace S2DE::Core
 {
 	template<typename T>
 	static void  Delete(T t)
 	{
 		if (t)
 		{
-//Debug stuff
+			//Debug stuff
 #if 0
 			OutputDebugString(std::string("\nDeleted " + std::string(typeid(t).name())).c_str());
 #endif 
@@ -55,7 +55,7 @@ namespace S2DE
 	{
 		if (t)
 		{
-//Debug stuff
+			//Debug stuff
 #if 0
 			OutputDebugString(std::string("\nReleased " + std::string(typeid(t).name())).c_str());
 #endif 
@@ -75,13 +75,10 @@ namespace S2DE
 			t = nullptr;
 		}
 	}
+}
 
-	struct S2DE_API VideoCardDesc
-	{
-		std::int32_t Memory;
-		char Description[128];
-	};
-
+namespace S2DE::Math
+{
 	//DirectX Math library defines
 	typedef S2DE_API DirectX::XMVECTOR XVector;
 	typedef S2DE_API DirectX::XMMATRIX XMatrix;
@@ -97,13 +94,23 @@ namespace S2DE
 	typedef S2DE_API DirectX::XMFLOAT4X4 XMatrix4x4;
 	typedef S2DE_API DirectX::XMFLOAT4X3 XMatrix4x3;
 	typedef S2DE_API DirectX::XMFLOAT3X3 XMatrix3x3;
+}
+
+namespace S2DE::Render
+{
+	struct S2DE_API VideoCardDesc
+	{
+		std::int32_t Memory;
+		char Description[128];
+	};
 
 	struct S2DE_API Vertex
 	{
-		XFloat3 position;
-		XFloat4 color;
-		XFloat2 uv;
+		Math::XFloat3 position;
+		Math::XFloat4 color;
+		Math::XFloat2 uv;
 	};
 }
+
 
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Main/Common.h"
 
-namespace S2DE
+namespace S2DE::Core
 {
 	class S2DE_API ApplicationHandle
 	{

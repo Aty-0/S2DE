@@ -11,14 +11,14 @@
 #define CAMERA_DEFAULT_SPEED 16.3f
 #define CAMERA_DEFAULT_PROJ_MODE CameraProjectionMode::Ortho
 #define CAMERA_DEFAULT_SENSITIVITY 0.005f
-#define CAMERA_DEFAULT_FORWARD_VEC	To_XMVector3(Vector3(0, 0, 1))
-#define CAMERA_DEFAULT_RIGHT_VEC	To_XMVector3(Vector3(1, 0, 0))
-#define CAMERA_DEFAULT_UP_VEC		To_XMVector3(Vector3(0, 1, 0))
-#define CAMERA_DEFAULT_TARGET_VEC	To_XMVector3(Vector3(0, 0, 0))
-#define CAMERA_DEFAULT_ZNEAR 0.0f
-#define CAMERA_DEFAULT_ZFAR 1000.0f
+#define CAMERA_DEFAULT_FORWARD_VEC	Math::To_XMVector3(Math::Vector3(0, 0, 1))
+#define CAMERA_DEFAULT_RIGHT_VEC	Math::To_XMVector3(Math::Vector3(1, 0, 0))
+#define CAMERA_DEFAULT_UP_VEC		Math::To_XMVector3(Math::Vector3(0, 1, 0))
+#define CAMERA_DEFAULT_TARGET_VEC	Math::To_XMVector3(Math::Vector3(0, 0, 0))
+#define CAMERA_DEFAULT_ZNEAR 0.001f
+#define CAMERA_DEFAULT_ZFAR 10000.0f
 
-namespace S2DE
+namespace S2DE::GameObjects
 {
 	Camera::Camera() :
 		m_forward(CAMERA_DEFAULT_FORWARD_VEC),
@@ -58,16 +58,23 @@ namespace S2DE
 		ImGui::Separator();
 
 
-		ImGui::SliderFloat("ZNear", &m_zNear, -1000.0f, 1000.0f, "", 1.0f);
+		ImGui::Text("ZNear %f", m_zNear);
+		ImGui::Text("zFar %f", m_zFar);
+		ImGui::Separator();
+		ImGui::SliderFloat("ZNear", &m_zNear, 0.0f, 1000.0f, "", 1.0f);
 		ImGui::SliderFloat("zFar", &m_zFar, 0.0f, 1000.0f, "", 1.0f);
 
+		ImGui::Text("Zoom %f", m_Zoom);
+		ImGui::Text("Speed %f", m_speed);
+		ImGui::Text("Fov %f", m_Fov);
+		ImGui::Separator();
 		ImGui::SliderFloat("Zoom", &m_Zoom, 0.001f, 1.0f, "", 1.0f);
-		ImGui::SliderFloat("Speed", &m_speed, 0.1f, 25.0f, "", 1.0f);
+		ImGui::SliderFloat("Speed", &m_speed, 0.1f, 45.0f, "", 1.0f);
 		ImGui::SliderFloat("Fov", &m_Fov, 30, 110, "", 1.0f);
 		ImGui::Separator();
 
-		ImGui::Checkbox("Block mouse", &m_block_mouse_control);
-		ImGui::Checkbox("Block move", &m_block_movement_control);
+		ImGui::Checkbox("Block mouse control", &m_block_mouse_control);
+		ImGui::Checkbox("Block movement control", &m_block_movement_control);
 		ImGui::Separator();
 
 		ImGui::Text("Mode:%d ", m_mode);
@@ -89,9 +96,19 @@ namespace S2DE
 
 		if (ImGui::Button("Reset"))
 		{
+			m_forward = CAMERA_DEFAULT_FORWARD_VEC;
+			m_right = CAMERA_DEFAULT_RIGHT_VEC;
+			m_up = CAMERA_DEFAULT_UP_VEC;
+			m_target = CAMERA_DEFAULT_TARGET_VEC;
 			m_Zoom = CAMERA_DEFAULT_ZOOM;
 			m_Fov = CAMERA_DEFAULT_FOV;
+			m_mode = CAMERA_DEFAULT_PROJ_MODE;
 			m_speed = CAMERA_DEFAULT_SPEED;
+			m_sensitivity = CAMERA_DEFAULT_SENSITIVITY;
+			m_block_mouse_control = false;
+			m_block_movement_control = false;
+			m_zNear = CAMERA_DEFAULT_ZNEAR;
+			m_zFar = CAMERA_DEFAULT_ZFAR;
 
 			Reset();
 		}
@@ -116,22 +133,22 @@ namespace S2DE
 		}
 		else
 		{
-			if (Engine::GetInputManager()->IsKeyDown(KeyCode::KEY_W))
+			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
 			{
 				Fly(1.0f);
 			}
 
-			if (Engine::GetInputManager()->IsKeyDown(KeyCode::KEY_S))
+			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_S))
 			{
 				Fly(-1.0f);
 			}
 
-			if (Engine::GetInputManager()->IsKeyDown(KeyCode::KEY_D))
+			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_D))
 			{
 				Strafe(1.0f);
 			}
 
-			if (Engine::GetInputManager()->IsKeyDown(KeyCode::KEY_A))
+			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_A))
 			{
 				Strafe(-1.0f);
 			}
@@ -145,37 +162,22 @@ namespace S2DE
 
 	void Camera::UpdateMouseControl()
 	{
-		if (m_mode == CameraProjectionMode::Ortho || m_block_mouse_control == true)
-			return;
-
-		if ((Engine::GetInputManager()->GetMouseCurrState().lX != Engine::GetInputManager()->GetMouseLastState().lX)
-			|| (Engine::GetInputManager()->GetMouseCurrState().lX != Engine::GetInputManager()->GetMouseLastState().lY))
-		{
-			Vector3  r = GetRotation();
-
-			r.x += Engine::GetInputManager()->GetMouseLastState().lX * m_sensitivity;
-			r.y += Engine::GetInputManager()->GetMouseCurrState().lY * m_sensitivity;
-
-			Engine::GetInputManager()->GetMouseLastState() = Engine::GetInputManager()->GetMouseCurrState();
-
-			SetRotation(Vector3(r.x, r.y));
-		}
-
+		S2DE_NO_IMPL();
 	}
 
 	void Camera::Strafe(float side)
 	{
-		SetPosition_X(GetPosition().x + side * m_speed * Engine::GetGameTime().GetDeltaTime());
+		SetPosition_X(GetPosition().x + side * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
 	}
 
 	void Camera::Fly(float side)
 	{
-		SetPosition_Y(GetPosition().y + side * m_speed * Engine::GetGameTime().GetDeltaTime());
+		SetPosition_Y(GetPosition().y + side * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
 	}
 
 	void Camera::Walk(float side)
 	{
-		SetPosition_Z(GetPosition().z + side * m_speed * Engine::GetGameTime().GetDeltaTime());
+		SetPosition_Z(GetPosition().z + side * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
 	}
 
 	void Camera::SetMode(CameraProjectionMode mode)
@@ -211,8 +213,8 @@ namespace S2DE
 		if (GetName() != S2DE_MAIN_CAMERA_NAME)
 			return;
 
-		float w = (float)Engine::GetGameWindow()->GetWidth();
-		float h = (float)Engine::GetGameWindow()->GetHeight();
+		float w = (float)Core::Engine::GetGameWindow()->GetWidth();
+		float h = (float)Core::Engine::GetGameWindow()->GetHeight();
 
 		if (m_mode == CameraProjectionMode::Perspective)
 		{
@@ -220,12 +222,14 @@ namespace S2DE
 		}
 		else
 		{
-			m_viewMatrix = DirectX::XMMatrixMultiply(DirectX::XMMatrixIdentity(), DirectX::XMMatrixTranslation(-GetPosition().x, -GetPosition().y, 0.0f));
+			m_viewMatrix = DirectX::XMMatrixTranslation(-GetPosition().x, -GetPosition().y, -1.0f);
 			m_viewMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(GetRotation().z)));
+			m_viewMatrix = DirectX::XMMatrixTranspose(m_viewMatrix);
 
 			m_projectionMatrix = DirectX::XMMatrixOrthographicLH( w * m_Zoom, h * m_Zoom, m_zNear, m_zFar);
 		}
-		GetWorldMatrix() = DirectX::XMMatrixIdentity();
-		m_viewMatrix = DirectX::XMMatrixTranspose(m_viewMatrix);
+
+
+		m_orthoMatrix = DirectX::XMMatrixOrthographicLH( w * m_Zoom, h * m_Zoom, m_zNear, m_zFar);
 	}
 }

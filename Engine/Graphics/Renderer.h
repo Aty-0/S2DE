@@ -14,7 +14,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #define S2DE_DEFAULT_FONT_NAME "default"
 
 
-namespace S2DE
+namespace S2DE::Render
 {
 	enum class RenderFillMode : std::int32_t
 	{
@@ -41,7 +41,7 @@ namespace S2DE
 		inline ID3D11ShaderResourceView* GetFramebufferShaderResource() const { return m_framebuffer_shaderResourceView; }
 		inline ID3D11Texture2D*			 GetFramebufferTextureData() const { return m_framebuffer_data; }
 		void						SwitchFillMode(RenderFillMode mode);
-		void						SetBackColor(Color<float> color);
+		void						SetBackColor(Math::Color<float> color);
 
 	private:					 
 		bool						InitImGui();
@@ -83,7 +83,7 @@ namespace S2DE
 
 		std::uint32_t				m_device_flag;
 
-		Color<float>				m_clearColor;
+		Math::Color<float>				m_clearColor;
 
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windows_storage;
 

@@ -20,7 +20,13 @@
 if (Engine::GetConsole() != nullptr) \
 	Engine::GetConsole()->Render(); \
 
-namespace S2DE
+using namespace S2DE::Core;
+using namespace S2DE::Core::Other;
+using namespace S2DE::Core::Debug;
+using namespace S2DE::Math;
+using namespace S2DE::Editor;
+
+namespace S2DE::Render
 {
 	//TODO 
 	//Maybe need to move out most of desc's to header for quick var changes 
@@ -53,22 +59,21 @@ namespace S2DE
 
 	bool Renderer::Reset()
 	{
-		m_swapChain->SetFullscreenState(Engine::GetGameWindow()->isFullscreen(), nullptr);
-
+		//Remove previous render target
 		m_deviceContext->OMSetRenderTargets(0, 0, 0);
 		Release(m_renderTargetView);
-
-		if (FAILED(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0)))
-			return false;
-
-
+		
+		//Reset buffers
+		S2DE_CHECK(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Render Error: Can't reset buffers");
+		
+		
 		ID3D11Texture2D* pBuffer;
-		S2DE_CHECK(m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer), "Render Error: Can't create buffer");
+		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
 		S2DE_CHECK(m_device->CreateRenderTargetView(pBuffer, NULL, &m_renderTargetView), "Render Error: Can't recreate render target view");
-
+		
 		CreateFramebufferTexture(pBuffer);
 		Release(pBuffer);
-
+		
 		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
 
 		UpdateViewport();
@@ -154,7 +159,8 @@ namespace S2DE
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+		ImGuiIO& io = ImGui::GetIO(); 
 		io.ConfigFlags = Engine::isEditor() ? ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange : ImGuiConfigFlags_NoMouseCursorChange;
 
 		//Search custom font
@@ -196,13 +202,13 @@ namespace S2DE
 		DXGI_MODE_DESC* display_mode_list = new DXGI_MODE_DESC[numModes];
 		S2DE_CHECK(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, display_mode_list), "Render Error: Cannot get display mods");
 
-
 		for (std::uint32_t i = 0; i < numModes; i++)
 		{
 			if (display_mode_list[i].Width == Engine::GetGameWindow()->GetWidth())
 			{
 				if (display_mode_list[i].Height == Engine::GetGameWindow()->GetHeight())
 				{
+					//Logger::Log("format = %d w = %d h = %d refresh rate = %d scaling = %d scanline ordering = %d ", display_mode_list[i].Format, display_mode_list[i].Width, display_mode_list[i].Height, display_mode_list[i].RefreshRate, display_mode_list[i].Scaling, display_mode_list[i].ScanlineOrdering);
 					mode_numerator = display_mode_list[i].RefreshRate.Numerator;
 					mode_denominator = display_mode_list[i].RefreshRate.Denominator;
 				}
@@ -231,22 +237,23 @@ namespace S2DE
 	bool Renderer::CreateDeviceAndSwapChain()
 	{
 		DXGI_SWAP_CHAIN_DESC swap_chain_desc;
-		swap_chain_desc.BufferCount = 1;
+
+		//Buffer mode desc init
 		swap_chain_desc.BufferDesc.Width = Engine::GetGameWindow()->GetWidth();
 		swap_chain_desc.BufferDesc.Height = Engine::GetGameWindow()->GetHeight();
 		swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swap_chain_desc.OutputWindow = Engine::GetGameWindow()->GetHWND();
 
-		//TODO
-		//Global var
-		//Turn multisampling off.
+		//swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		//swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
+		//Swap chain desc init
+		swap_chain_desc.BufferCount = 1;
 		swap_chain_desc.SampleDesc.Count = 1;
 		swap_chain_desc.SampleDesc.Quality = 0;
 		swap_chain_desc.Windowed = !Engine::GetGameWindow()->isFullscreen();
-		swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		swap_chain_desc.OutputWindow = Engine::GetGameWindow()->GetHWND();
+
+		swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swap_chain_desc.SwapEffect  = DXGI_SWAP_EFFECT_DISCARD;
 		swap_chain_desc.Flags = 0;
 
@@ -261,30 +268,21 @@ namespace S2DE
 			swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
 		}
 
-
 		S2DE_CHECK(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, m_device_flag, &m_feature_level, 1,
 			D3D11_SDK_VERSION, &swap_chain_desc, &m_swapChain, &m_device, NULL, &m_deviceContext), "Render Error: Cannot create device and swap chain");
 
-		//FIX ME 
-		//Fix weird rendering
-		//maybe need to remove it
-		if (FAILED(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0)))
-			return false;
-
-		//TODO
-		//Postprocess
-		//Apply shader to back buffer
+		//Reset buffers
+		//without reseting buffers we get something like broken resolution 
+		S2DE_CHECK(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Render Error: Can't reset buffers");
 
 		//Create the render target view with the back buffer pointer.
 		ID3D11Texture2D* backBufferPtr;
 
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 		S2DE_CHECK(m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView), "Render Error: Cannot create render target view");
-
-		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
-		
 		CreateFramebufferTexture(backBufferPtr);
 		Release(backBufferPtr);
+
 		UpdateViewport();
 
 		return true;
@@ -366,17 +364,15 @@ namespace S2DE
 
 		S2DE_CHECK(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer), "Render Error: Cannot create depth buffer");
 
-
-		D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-
 		//Initialize the description of the stencil state.
+		D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 		ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 
 		//Set up the description of the stencil state.
 		depthStencilDesc.DepthEnable = true;
 		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
+		
 		depthStencilDesc.StencilEnable = true;
 		depthStencilDesc.StencilReadMask = 0xFF;
 		depthStencilDesc.StencilWriteMask = 0xFF;
@@ -393,13 +389,7 @@ namespace S2DE
 		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-		//Create the depth stencil state.
-		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState), "Render Error: Cannot create depth stencil state");
-
-		m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
-
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-
 		ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 
 		//Set up the depth stencil view description.
@@ -407,10 +397,13 @@ namespace S2DE
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-		//Create the depth stencil view.
-		S2DE_CHECK(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView), "Render Error: Cannot create depth stencil view");
+		//Create the depth stencil state.
+		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState), "Render Error: Cannot create depth stencil state");
+		m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
 
-		m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
+		//Create the depth stencil view.
+		S2DE_CHECK(m_device->CreateDepthStencilView(m_depthStencilBuffer, nullptr, &m_depthStencilView), "Render Error: Cannot create depth stencil view");
+		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 
 		return true;	
 	}
@@ -498,7 +491,7 @@ namespace S2DE
 
 		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
 		m_deviceContext->ClearRenderTargetView(m_renderTargetView, color_array);
-		m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		m_deviceContext->ClearDepthStencilView(m_depthStencilView,  D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 1);
 	}
 
 	void Renderer::End()
@@ -571,7 +564,7 @@ namespace S2DE
 	{
 		if (isStringEmpty(name) || wnd == nullptr)
 		{
-			Logger::Error("[Renderer] Can't add window!");
+			Logger::Error("[Renderer] Can't add window to storage!");
 			return;
 		}
 

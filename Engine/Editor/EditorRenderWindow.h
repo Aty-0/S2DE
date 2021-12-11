@@ -2,9 +2,9 @@
 #include "Base/Main/Common.h"
 #include "Graphics/ImGui_Window.h"
 
-namespace S2DE
+namespace S2DE::Editor
 {
-	class S2DE_API EditorRenderWindow : public ImGui_Window
+	class S2DE_API EditorRenderWindow : public Render::ImGui_Window
 	{
 	public:
 		EditorRenderWindow();

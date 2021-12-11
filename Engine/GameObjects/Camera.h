@@ -4,7 +4,7 @@
 
 #define S2DE_MAIN_CAMERA_NAME "MainCamera"
 
-namespace S2DE
+namespace S2DE::GameObjects
 {
 	enum class S2DE_API CameraProjectionMode
 	{
@@ -34,22 +34,23 @@ namespace S2DE
 		inline float				GetFov() const { return m_Fov; }
 		inline CameraProjectionMode	GetMode() const { return m_mode; }
 		inline float				GetZoom() const { return m_Zoom; };
-		inline XMatrix&			    GetViewMatrix() { return m_viewMatrix; }
-		inline XMatrix&				GetProjectionMatrix() { return m_projectionMatrix; }
+		inline Math::XMatrix&		GetViewMatrix() { return m_viewMatrix; }
+		inline Math::XMatrix&		GetProjectionMatrix() { return m_projectionMatrix; }
 		inline float				GetZNear() const { return m_zNear; }
 		inline float				GetZFar() const { return m_zFar; }
 
 	private:
-		XMatrix						m_projectionMatrix;
-		XMatrix						m_rotationMatrix;
-		XMatrix						m_viewMatrix;
+		Math::XMatrix				m_orthoMatrix;
+		Math::XMatrix				m_projectionMatrix;
+		Math::XMatrix				m_rotationMatrix;
+		Math::XMatrix				m_viewMatrix;
 		float						m_Zoom;
 		float						m_Fov;
 		CameraProjectionMode		m_mode;
-		XVector						m_up;
-		XVector						m_right;
-		XVector						m_forward;
-		XVector						m_target;
+		Math::XVector						m_up;
+		Math::XVector						m_right;
+		Math::XVector						m_forward;
+		Math::XVector						m_target;
 		float						m_speed;
 		bool						m_block_mouse_control;
 		bool						m_block_movement_control;

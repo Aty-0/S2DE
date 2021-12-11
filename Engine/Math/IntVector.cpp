@@ -1,6 +1,6 @@
 #include "IntVector.h"
 
-namespace S2DE
+namespace S2DE::Math
 {
 	IntVector2 IntVector2::operator = (const IntVector2& v) noexcept
 	{
