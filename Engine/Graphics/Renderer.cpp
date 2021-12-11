@@ -65,12 +65,11 @@ namespace S2DE::Render
 		
 		//Reset buffers
 		S2DE_CHECK(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Render Error: Can't reset buffers");
-		
-		
+
 		ID3D11Texture2D* pBuffer;
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
 		S2DE_CHECK(m_device->CreateRenderTargetView(pBuffer, NULL, &m_renderTargetView), "Render Error: Can't recreate render target view");
-		
+
 		CreateFramebufferTexture(pBuffer);
 		Release(pBuffer);
 		
@@ -243,8 +242,8 @@ namespace S2DE::Render
 		swap_chain_desc.BufferDesc.Height = Engine::GetGameWindow()->GetHeight();
 		swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-		//swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		//swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
 		//Swap chain desc init
 		swap_chain_desc.BufferCount = 1;
@@ -491,7 +490,7 @@ namespace S2DE::Render
 
 		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
 		m_deviceContext->ClearRenderTargetView(m_renderTargetView, color_array);
-		m_deviceContext->ClearDepthStencilView(m_depthStencilView,  D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 1);
+		m_deviceContext->ClearDepthStencilView(m_depthStencilView,  D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 
 	void Renderer::End()
