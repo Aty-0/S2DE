@@ -134,13 +134,13 @@ namespace S2DE::Core
 		str = isStringEmpty(name) ? "S2DE Build: " + std::string(S2DE_BUILD_DATE) : name;
 		
 		if (Engine::isEditor())
-			str.append(L" Editor Mode");
+			str.append(L" Editor");
 
 #else
 		str = "S2DE Build: " + std::string(S2DE_BUILD_DATE);
 
 		if (Engine::isEditor())
-			str.append(" Editor Mode");
+			str.append(" Editor");
 
 		if (!Core::Other::isStringEmpty(name))
 			str.append(std::string(" (") + name + ")");

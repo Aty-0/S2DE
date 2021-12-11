@@ -50,9 +50,10 @@ namespace S2DE::Core
 
 	void Engine::RunEngineInEditorMode(ApplicationHandle* app_handle, std::string params)
 	{
+		m_params = params;
+
 		//TODO 
 		//Load from config project name
-		m_params = params;
 		RunEngine(app_handle, std::string(), true);
 	}
 
