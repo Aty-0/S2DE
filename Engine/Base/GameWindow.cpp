@@ -7,7 +7,7 @@
 #define S2DE_WINDOW_CLASS_NAME "S2DE_WND_CLASS_NAME"
 
 //Styles
-#define S2DE_DEFAULT_WINDOW_STYLE WS_OVERLAPPED | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_CAPTION
+#define S2DE_DEFAULT_WINDOW_STYLE WS_TILEDWINDOW
 #define S2DE_FULLSCREEN_WINDOW_STYLE WS_EX_TOPMOST | WS_POPUP
 #define S2DE_CHILD_WINDOW_STYLE WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP
 
@@ -109,20 +109,10 @@ namespace S2DE::Core
 	{
 		Logger::Log("Create game window...");
 
-		m_Fullscreen = Fullscreen;
-
 		//Get desktop resolution if fullscreen mode on
-		if (Fullscreen == true)
-		{
-			m_Width = GetClientRes().right;
-			m_Height = GetClientRes().bottom;
-		}
-		else
-		{
-			m_Width = w;
-			m_Height = h;
-		}
-
+		m_Width = Fullscreen == true ? GetClientRes().right : w;
+		m_Height = Fullscreen == true ? GetClientRes().bottom : h;
+		m_Fullscreen = Fullscreen;
 		m_Top = top;
 		m_Left = left;
 		m_ShowCursor = Show_Cursor;
@@ -171,10 +161,7 @@ namespace S2DE::Core
 		AdjustWindowRect(&r, WS_CAPTION, false);
 		RegisterClassEx(&m_WindowClass);
 
-		if (Fullscreen == false)
-			m_HWND = CreateWindowEx(NULL, S2DE_WINDOW_CLASS_NAME, str.c_str(), S2DE_DEFAULT_WINDOW_STYLE, r.left, r.top, r.right, r.bottom, NULL, NULL, m_WindowClass.hInstance, NULL);
-		else
-			m_HWND = CreateWindowEx(NULL, S2DE_WINDOW_CLASS_NAME, str.c_str(), S2DE_FULLSCREEN_WINDOW_STYLE, r.left, r.top, r.right, r.bottom, NULL, NULL, m_WindowClass.hInstance, NULL);
+		m_HWND = CreateWindowEx(NULL, S2DE_WINDOW_CLASS_NAME, str.c_str(), Fullscreen ? S2DE_FULLSCREEN_WINDOW_STYLE : S2DE_DEFAULT_WINDOW_STYLE, r.left, r.top, r.right, r.bottom, NULL, NULL, m_WindowClass.hInstance, NULL);
 
 		if (m_HWND == NULL)
 		{
@@ -364,28 +351,24 @@ namespace S2DE::Core
 		}
 	}
 
-	//FIX ME:
-	//is that right?
 	bool GameWindow::ProcessMessage()
 	{
 		MSG msg;
-		ZeroMemory(&msg, sizeof(MSG));
-
+		
 		if (PeekMessage(&msg, m_HWND, 0, 0, PM_REMOVE))
 		{
+			if (msg.message == WM_NULL)
+			{
+				if (!IsWindow(m_HWND))
+				{
+					Close();
+					return false;
+				}
+			}
+
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
-		if (msg.message == WM_NULL)
-		{
-			if (!IsWindow(m_HWND))
-			{
-				Close();
-				return false;
-			}
-		}
-
 
 		return true;
 	}
