@@ -110,11 +110,11 @@ namespace S2DE::Core::Other
 		if (!ShowWindow(m_hwnd, SW_SHOW))
 			return false;
 
-		UpdateWindow(m_hwnd);
-
 		HRGN hrgn = CreateRectRgn(0, 0, m_bitmap.bmWidth, m_bitmap.bmHeight);
 		SetWindowRgn(m_hwnd, hrgn, TRUE);
-
+		SetForegroundWindow(m_hwnd);
+		SetFocus(m_hwnd);
+		UpdateWindow(m_hwnd);
 
 		return true;
 	}
