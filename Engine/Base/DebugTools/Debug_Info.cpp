@@ -22,17 +22,17 @@ namespace S2DE::Core::Debug
 		if (!m_draw)
 			return;
 
-		ImGui::Begin("Debug info window", 0,
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar  | 
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoMouseInputs);
+		ImGui::Begin("Info Window", 0,
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoBackground |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoMouseInputs);
 
-		//OLD
-		//ImGui::SetWindowPos(ImVec2(float(Engine::GetGameWindow()->GetWidth() - 550.0f), 0.0f));
-		ImGui::SetWindowPos(ImVec2(0.0f, Engine::GetGameWindow()->GetHeight() -  ImGui::GetWindowSize().y));
+		ImGui::SetWindowPos(ImVec2(Engine::GetGameWindow()->GetWidth() / 2 - ImGui::GetWindowSize().x, 
+			/* Engine::GetGameWindow()->GetHeight() - */ ImGui::GetWindowSize().y));
 		ImGui::SetWindowSize(ImVec2(550.0f, 300.0f));
 
 		if (ImGui::BeginTable("##table1", 3))
@@ -92,14 +92,13 @@ namespace S2DE::Core::Debug
 			{
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("Scene Stats:");
+				ImGui::Text("Scene Statistics:");
 				ImGui::Text("Objects:%d", Engine::GetSceneManager()->GetScene()->GetStorage().size());
 				ImGui::Text("Name:%s", Engine::GetSceneManager()->GetScene()->GetName().c_str());
 
 				ImGui::EndTable();
 			}
 		}
-
 		ImGui::End();
 	}
 }
