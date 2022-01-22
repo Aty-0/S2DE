@@ -31,7 +31,7 @@ namespace S2DE::Editor
 		if (!m_draw)
 			return;
 
-		ImGui::Begin("EditorRenderWindow", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration);
+		ImGui::Begin("EditorRenderWindow");
 		ImGui::Image((void*)m_bufferdata, ImVec2((float)Core::Engine::GetGameWindow()->GetWidth(), (float)Core::Engine::GetGameWindow()->GetHeight()));
 		ImGui::End();
 
