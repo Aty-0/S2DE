@@ -4,6 +4,8 @@
 #include "Base/Main/BuildDate.h"
 #include "Base/DebugTools/VisualConsole.h"
 
+#include "Graphics/Renderer.h"
+
 #pragma warning(disable:4996)
 
 #include <cstdarg> 
@@ -132,12 +134,16 @@ namespace S2DE::Core::Utils
 		m_log_file << line;
 		m_log_file.close();
 
-		if (Core::Engine::GetConsole() != nullptr)
-			Core::Engine::GetConsole()->Add(line);
+		Debug::VisualConsole::ConsoleBuffer.push_back(line);
 
 		//Add line 
 		m_linecount++;
 
+		//FIX ME
+		//Bad
+		if (Core::Engine::GetRenderer() != nullptr)
+			if (Core::Engine::GetRenderer()->GetImGui_Window("EngineConsole") != nullptr)
+				reinterpret_cast<Debug::VisualConsole*>(Core::Engine::GetRenderer()->GetImGui_Window("EngineConsole"))->Scroll();
 
 		line.clear();
 	}
