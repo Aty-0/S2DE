@@ -23,10 +23,16 @@
     <ClInclude Include="Base\CoreMinimal.h" />
     <ClInclude Include="Base\DebugTools\Debug_Info.h" />
     <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h" />
+    <ClInclude Include="Editor\EditorCenterCursor.h" />
+    <ClInclude Include="Editor\EditorColorPicker.h" />
+    <ClInclude Include="Editor\EditorCursor.h" />
     <ClInclude Include="GameObjects\Drawable.h" />
     <ClInclude Include="Editor\EditorRenderWindow.h" />
     <ClInclude Include="Editor\EditorObjectInspector.h" />
     <ClInclude Include="Editor\EditorToolstrip.h" />
+    <ClInclude Include="GameObjects\NoTextureTestObject.h" />
+    <ClInclude Include="Graphics\Buffer.h" />
+    <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\ImGui_Window.h" />
     <ClInclude Include="Base\DebugTools\VisualConsole.h" />
     <ClInclude Include="Base\Engine.h" />
@@ -47,9 +53,12 @@
     <ClInclude Include="GameObjects\GameObjectIDGenerator.h" />
     <ClInclude Include="GameObjects\Transform.h" />
     <ClInclude Include="Graphics\Buffers.h" />
+    <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Graphics\Shader.h" />
     <ClInclude Include="Graphics\Texture.h" />
+    <ClInclude Include="Graphics\VertexBuffer.h" />
+    <ClInclude Include="Libs\utfcpp\utf8.h" />
     <ClInclude Include="Math\IntVector.h" />
     <ClInclude Include="IO\IO_Disposible.h" />
     <ClInclude Include="IO\IO_File.h" />
@@ -76,6 +85,7 @@
     <ClInclude Include="Scene\Scene.h" />
     <ClInclude Include="Scene\SceneManager.h" />
     <ClInclude Include="GameObjects\Sprite.h" />
+    <ClInclude Include="GameObjects\UI\UI_Drawable.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc" />
@@ -83,10 +93,15 @@
   <ItemGroup>
     <ClCompile Include="Base\DebugTools\Debug_Info.cpp" />
     <ClCompile Include="Base\DebugTools\Debug_ObjectInspector.cpp" />
+    <ClCompile Include="Editor\EditorCenterCursor.cpp" />
+    <ClCompile Include="Editor\EditorColorPicker.cpp" />
+    <ClCompile Include="Editor\EditorCursor.cpp" />
     <ClCompile Include="GameObjects\Drawable.cpp" />
     <ClCompile Include="Editor\EditorRenderWindow.cpp" />
     <ClCompile Include="Editor\EditorObjectInspector.cpp" />
     <ClCompile Include="Editor\EditorToolstrip.cpp" />
+    <ClCompile Include="GameObjects\NoTextureTestObject.cpp" />
+    <ClCompile Include="GameObjects\UI\UI_Drawable.cpp" />
     <ClCompile Include="Graphics\ImGui_Window.cpp" />
     <ClCompile Include="Base\DebugTools\VisualConsole.cpp" />
     <ClCompile Include="Base\Engine.cpp" />
@@ -100,7 +115,6 @@
     <ClCompile Include="GameObjects\GameObject.cpp" />
     <ClCompile Include="GameObjects\GameObjectIDGenerator.cpp" />
     <ClCompile Include="GameObjects\Transform.cpp" />
-    <ClCompile Include="Graphics\Buffers.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
@@ -192,19 +206,19 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;S2DE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;S2DE_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(IncludePath);../Libs/boost_1_76_0/;#(SolutionDir);../Engine/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;#(SolutionDir)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>../Libs/boost_1_76_0/stage/x86/lib;$(DXSDK_DIR)Lib\x86;$(LibraryPath);../Libs/tinyxml2/libs;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;tinyxml2-d.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;dxguid.lib;dinput8.lib;D3DCompiler.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Libs/boost_1_76_0/stage/x86/lib;;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/;$(LibraryPath);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;dxguid.lib;d3d11.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
