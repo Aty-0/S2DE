@@ -66,11 +66,17 @@ namespace S2DE::Scene
 		
 		if (it == m_storage.end() || it->second->GetPrefix() == -1 || it->second->GetType() == S2DE_ENGINE_GAMEOBJECT_TYPE)
 		{
-			Logger::Error("[Scene] [%s] Can't delete object Name: %s", m_name.c_str(), object_name.c_str());
+			Logger::Error("[Scene] [%s] Can't delete object Name: %s",
+				m_name.c_str(), 
+				object_name.c_str());
 			return;
 		}
 		
-		Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
+		Logger::Log("[Scene] [%s] Delete [%s] Name: %s UUID: %s", 
+			m_name.c_str(), 
+			Core::Other::GetClassNameInString(it->second.get()).c_str(), 
+			it->second.get()->GetName().c_str(), 
+			it->second.get()->GetUUIDString().c_str());
 		
 		m_storage.erase(it);
 	}	 
@@ -87,11 +93,17 @@ namespace S2DE::Scene
 
 		if (it == m_storage.end() || it->second->GetPrefix() == -1 || it->second->GetType() == S2DE_ENGINE_GAMEOBJECT_TYPE)
 		{
-			Logger::Error("[Scene] [%s] Can't delete object UUID: %s", m_name.c_str(), GameObjects::GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
+			Logger::Error("[Scene] [%s] Can't delete object UUID: %s", 
+				m_name.c_str(), 
+				GameObjects::GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
 			return;
 		}
 
-		Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
+		Logger::Log("[Scene] [%s] Delete [%s] Name: %s UUID: %s", 
+			m_name.c_str(), 
+			Core::Other::GetClassNameInString(it->second.get()).c_str(), 
+			it->second.get()->GetName().c_str(),
+			it->second.get()->GetUUIDString().c_str());
 
 		m_storage.erase(it);
 	}	 
@@ -114,7 +126,12 @@ namespace S2DE::Scene
 		{
 			if (it->second->GetPrefix() != -1 || it->second->GetType() != S2DE_ENGINE_GAMEOBJECT_TYPE)
 			{
-				Logger::Log("[Scene] [%s] Delete %s Name: %s UUID: %s", m_name.c_str(), typeid(it->second.get()).name(), it->second.get()->GetName().c_str(), it->second.get()->GetUUIDString().c_str());
+				Logger::Log("[Scene] [%s] Delete [%s] Name: %s UUID: %s", 
+					m_name.c_str(), 
+					Core::Other::GetClassNameInString(it->second.get()).c_str(),
+					it->second.get()->GetName().c_str(),
+					it->second.get()->GetUUIDString().c_str());
+
 				it = m_storage.erase(it);
 			}
 			else

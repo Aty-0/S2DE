@@ -8,7 +8,7 @@ namespace S2DE::Scene
 		m_scene(nullptr),
 		m_update_enabled(true),
 		m_render_enabled(true),
-		m_render_dbg_gui_enabled(false)
+		m_render_imgui_enabled(true)
 	{
 
 	}
@@ -21,7 +21,7 @@ namespace S2DE::Scene
 	void SceneManager::CreateNewScene()
 	{	 
 		m_scene = new Scene();
-		CreateGameObjectNoInit<GameObjects::Camera>();
+		CreateGameObject<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
 	}	 
 		 
 	bool SceneManager::LoadScene(std::string name)
@@ -38,64 +38,46 @@ namespace S2DE::Scene
 
 	void SceneManager::UpdateShaders()
 	{
-		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
-		{
-			if(it->second.get() == dynamic_cast<GameObjects::Drawable*>(it->second.get()))
-				reinterpret_cast<GameObjects::Drawable*>(it->second.get())->UpdateShader();
-		}
+		for (const auto& object : m_scene->GetStorage())
+			if(object.second.get() == dynamic_cast<GameObjects::Drawable*>(object.second.get()))
+				reinterpret_cast<GameObjects::Drawable*>(object.second.get())->UpdateShader();
 	}
 
 	void SceneManager::UpdateTextures()
 	{
-		for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
-		{
-			if (it->second.get() == dynamic_cast<GameObjects::Drawable*>(it->second.get()))
-				reinterpret_cast<GameObjects::Drawable*>(it->second.get())->UpdateTexture();
-		}
+		for (const auto& object : m_scene->GetStorage())
+			if (object.second.get() == dynamic_cast<GameObjects::Drawable*>(object.second.get()))
+				reinterpret_cast<GameObjects::Drawable*>(object.second.get())->UpdateTexture();	
 	}
 
 	void SceneManager::UpdateInput()
 	{
 		if (m_update_enabled && m_scene)
-		{
-			for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
-			{
-				it->second->UpdateInput();
-			}
-		}
+			for (const auto& object : m_scene->GetStorage())
+				object.second.get()->UpdateInput();
 	}
 		 	 
-	void SceneManager::RenderDebugGUI()
+	void SceneManager::RenderImGUI()
 	{
-		if (m_render_dbg_gui_enabled && m_scene)
-		{
-			for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
-			{
-				it->second->RenderDebugGUI();
-			}
-		}
+		if (m_render_imgui_enabled && m_scene)
+			for (const auto& object : m_scene->GetStorage())
+				object.second.get()->RenderImGUI();
+
 	}
 
 	void SceneManager::RenderScene()
 	{
 		if (m_render_enabled && m_scene)
-		{
-			for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
-			{
-				it->second->Render();
-			}
-		}
+			for (const auto& object : m_scene->GetStorage())
+				object.second.get()->Render();
+
 	}
 
 	void SceneManager::UpdateScene(float DeltaTime)
 	{
 		if (m_update_enabled && m_scene)
-		{
-			for (SceneObjectStorage::iterator it = m_scene->GetStorage().begin(); it != m_scene->GetStorage().end(); it++)
-			{
-				it->second->Update(DeltaTime);
-			}
-		}
+			for (const auto& object : m_scene->GetStorage())
+				object.second.get()->Update(DeltaTime);
 	}
 
 	void SceneManager::ToggleGameObjectVisibility()
@@ -103,9 +85,9 @@ namespace S2DE::Scene
 		m_render_enabled =! m_render_enabled;
 	}
 
-	void SceneManager::ToggleDebugGUIVisibility()
+	void SceneManager::ToggleImGUIVisibility()
 	{
-		m_render_dbg_gui_enabled = !m_render_dbg_gui_enabled;
+		m_render_imgui_enabled =! m_render_imgui_enabled;
 	}
 
 	void SceneManager::ToggleGameObjectUpdate()
