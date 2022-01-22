@@ -13,13 +13,18 @@ namespace S2DE::Render
 	{
 	public:
 		ImGui_Window();
-		~ImGui_Window();
+		virtual ~ImGui_Window();
 
 		virtual void Render() = 0;
 		virtual void ToggleDraw();
+		virtual void SetDrawState(bool draw);
+		virtual void SetName(std::string name);
+		inline std::string GetName() { return m_name; }
 		inline bool  isDrawing() const { return m_draw; }
 		
+
 	protected:
 		bool		 m_draw;
+		std::string	 m_name;
 	};
 }
