@@ -4,6 +4,12 @@
 #include "Scene/SceneManager.h"
 #include "Graphics/Renderer.h"
 
+#include "GameObjects/Sprite.h"
+#include "GameObjects/TestObject.h"
+#include "GameObjects/NoTextureTestObject.h"
+
+#include "Editor/EditorColorPicker.h"
+
 namespace S2DE::Editor
 {
 	EditorToolStrip::EditorToolStrip() 
@@ -23,7 +29,7 @@ namespace S2DE::Editor
 
 		m_inspector = reinterpret_cast<EditorObjectInspector*>(Core::Engine::GetRenderer()->GetImGui_Window("EditorObjectInspector"));
 		S2DE_ASSERT(m_inspector);
-		
+
 		if (ImGui::BeginMainMenuBar()) 
 		{
 			if (ImGui::BeginMenu("File")) 
@@ -53,8 +59,6 @@ namespace S2DE::Editor
 
 			if (ImGui::BeginMenu("Edit")) 
 			{
-				//TODO
-				//Get selected object
 				if (ImGui::MenuItem("Undo"))
 				{
 
@@ -80,7 +84,7 @@ namespace S2DE::Editor
 
 				if (ImGui::MenuItem("Clone"))
 				{
-			
+				
 				}
 
 				if (ImGui::MenuItem("Rename"))
@@ -93,6 +97,37 @@ namespace S2DE::Editor
 
 			if (ImGui::BeginMenu("Tools"))
 			{
+				if (ImGui::BeginMenu("Create"))
+				{
+					if (ImGui::MenuItem("GameObject"))
+					{
+						Scene::CreateGameObject<GameObjects::GameObject>("GameObject", "GameObject", 1);
+					}
+					if (ImGui::MenuItem("Sprite"))
+					{
+						Scene::CreateGameObject<GameObjects::Sprite>("Sprite", "GameObject", 1);
+					}
+					if (ImGui::MenuItem("Camera"))
+					{
+
+					}
+
+					if (ImGui::BeginMenu("Test's"))
+					{
+						if (ImGui::MenuItem("Basic Test object"))
+						{
+							Scene::CreateGameObject<GameObjects::TestObject>("TestObject", "GameObject", 1);
+						}
+
+						if (ImGui::MenuItem("No texture test object"))
+						{
+							Scene::CreateGameObject<GameObjects::NoTextureTestObject>("NoTextureTestObject", "GameObject", 1);
+						}
+						ImGui::EndMenu();
+					}
+					ImGui::EndMenu();
+				}
+
 				if (ImGui::MenuItem("Reload textures"))
 				{
 					Core::Engine::GetResourceManager().ReloadTextures();
@@ -128,9 +163,9 @@ namespace S2DE::Editor
 
 					}
 
-					if (ImGui::MenuItem("Toggle debug gui visible"))
+					if (ImGui::MenuItem("Toggle imgui visible"))
 					{
-						Core::Engine::GetSceneManager()->ToggleDebugGUIVisibility();
+						Core::Engine::GetSceneManager()->ToggleImGUIVisibility();
 					}
 
 					if (ImGui::BeginMenu("Fill mode"))
@@ -148,11 +183,9 @@ namespace S2DE::Editor
 						ImGui::EndMenu();
 					}
 
-					//TODO
-					//Open color picker window
 					if (ImGui::MenuItem("Change background color"))
 					{
-
+						Core::Engine::GetRenderer()->GetImGui_Window("EditorBgColorPicker")->ToggleDraw();
 					}
 
 					ImGui::EndMenu();
