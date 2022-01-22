@@ -42,24 +42,24 @@ namespace S2DE::GameObjects
 		void			SetAtlasSize(Math::Vector2 size);
 
 	private:
-		Render::Texture*		m_texture;
-		bool					m_unload_texture;
-		Render::Shader*			m_shader;
-		Render::VertexBuffer*	m_vertex_buffer;
-		Render::IndexBuffer*	m_index_buffer;
-		Math::Vector2			m_tile_size;
-		Math::IntVector2		m_tile_frame_pos;
+		Render::Texture*						m_texture;
+		bool									m_unload_texture;
+		Render::Shader*							m_shader;
+		Render::VertexBuffer<Render::Vertex>*	m_vertex_buffer;
+		Render::IndexBuffer<std::int32_t>*		m_index_buffer;
+		Math::Vector2							m_tile_size;
+		Math::IntVector2						m_tile_frame_pos;
 
 	protected:
-		virtual void	OnUpdate(float DeltaTime) override { }
-		virtual void	OnRender() override;
-		virtual Math::XMatrix UpdateTransformation() override;
+		virtual void			OnUpdate(float DeltaTime) override { }
+		virtual void			OnRender() override;
+		virtual Math::XMatrix	UpdateTransformation() override;
 
-		virtual void	CreateVertexBuffer();
-		virtual void	CreateIndexBuffer();
-		virtual void	SetDefaultShader();
-		virtual void	SetDefaultTexture();
-		virtual void	CalcScaleFactor();
+		virtual void			CreateVertexBuffer();
+		virtual void			CreateIndexBuffer();
+		virtual void			SetDefaultShader();
+		virtual void			SetDefaultTexture();
+		virtual void			CalcScaleFactor();
 
 
 		Math::Vector3			ScaleFactor;

@@ -23,9 +23,9 @@ namespace S2DE::GameObjects
 		virtual void				 OnCreate() override { }
 		virtual void				 OnDestroy() override { }
 		virtual void				 OnRender()  override { }
+		virtual void				 OnRenderImGUI() override { }
 		virtual void				 OnUpdate(float DeltaTime) override { }
 		virtual void				 OnUpdateInput() override { }
-		virtual void				 OnDebugRenderGUI() override { }
 		virtual bool 				 CheckOnIntersection() override { return false; }
 
 		virtual void				 CreateVertexBuffer() { }

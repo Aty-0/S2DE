@@ -25,10 +25,10 @@ namespace S2DE::GameObjects
 
 		Core::Delete(m_vertex_buffer);
 		Core::Delete(m_index_buffer);
-		m_shader->Cleanup();
+		//m_shader->Cleanup();
 		Core::Delete(m_shader);
 		Core::Delete(m_sprite_const_buf);
-		m_texture->Cleanup();
+		//m_texture->Cleanup();
 		Core::Delete(m_texture);
 	}
 
@@ -78,9 +78,9 @@ namespace S2DE::GameObjects
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
 		m_sprite_const_buf->Lock();
-		m_sprite_const_buf->GetBufferData()->sprite_tile_frame = Math::XInt2(m_tile_frame_pos.x, m_tile_frame_pos.y);
-		m_sprite_const_buf->GetBufferData()->sprite_tile_size = Math::XFloat2(m_tile_size.x, m_tile_size.y);
-		m_sprite_const_buf->GetBufferData()->sprite_texture_res = Math::XFloat2((float)m_texture->GetWidth(), (float)m_texture->GetHeight());
+		m_sprite_const_buf->GetData()->sprite_tile_frame = Math::XInt2(m_tile_frame_pos.x, m_tile_frame_pos.y);
+		m_sprite_const_buf->GetData()->sprite_tile_size = Math::XFloat2(m_tile_size.x, m_tile_size.y);
+		m_sprite_const_buf->GetData()->sprite_texture_res = Math::XFloat2((float)m_texture->GetWidth(), (float)m_texture->GetHeight());
 		m_sprite_const_buf->Unlock();
 		m_sprite_const_buf->Bind(1);
 
@@ -118,7 +118,7 @@ namespace S2DE::GameObjects
 
 	void Sprite::CreateVertexBuffer()
 	{	 
-		m_vertex_buffer = new Render::VertexBuffer();
+		m_vertex_buffer = new Render::VertexBuffer<Render::Vertex>();
 		m_vertex_buffer->GetArray() =
 		{
 			{ Math::XFloat3(-1.0f,   -1.0f,   0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 1.0f) }, // Bottom left.
@@ -128,13 +128,12 @@ namespace S2DE::GameObjects
 		};
 
 		S2DE_ASSERT(m_vertex_buffer->Create());
-		m_vertex_buffer->Lock();
-		m_vertex_buffer->Unlock();
+		m_vertex_buffer->Update();
 	}	 
 		 
 	void Sprite::CreateIndexBuffer()
 	{	 
-		m_index_buffer = new Render::IndexBuffer();
+		m_index_buffer = new Render::IndexBuffer<std::int32_t>();
 		m_index_buffer->GetArray() =
 		{
 				0, 1, 2,
@@ -142,8 +141,7 @@ namespace S2DE::GameObjects
 		};
 
 		S2DE_ASSERT(m_index_buffer->Create());
-		m_index_buffer->Lock();
-		m_index_buffer->Unlock();
+		m_index_buffer->Update();
 	}	 
 		 
 	void Sprite::UpdateTexture()

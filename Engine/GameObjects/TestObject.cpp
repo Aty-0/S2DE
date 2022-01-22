@@ -40,13 +40,13 @@ namespace S2DE::GameObjects
 
 		std::int32_t rnd_tex = Math::Random::RandomRange<std::int32_t>(1, 4);
 
-		Logger::Log("! [test object: %s] pick texture: %d", GetName().c_str(), rnd_tex);
+		Logger::Log("[test object] pick texture: %d", rnd_tex);
 
 		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>("TestObjectTex" + std::to_string(rnd_tex)));
 
 		S2DE_ASSERT(m_texture != nullptr);
 
-		m_vbuffer = new Render::VertexBuffer();
+		m_vbuffer = new Render::VertexBuffer<Render::Vertex>();
 		m_vbuffer->GetArray() =
 		{
 			{ Math::XFloat3(-1.0f,   -1.0f,   0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 1.0f) }, // Bottom left.
@@ -56,10 +56,9 @@ namespace S2DE::GameObjects
 		};
 
 		S2DE_ASSERT(m_vbuffer->Create());
-		m_vbuffer->Lock();
-		m_vbuffer->Unlock();
-
-		m_ibuffer = new Render::IndexBuffer();
+		m_vbuffer->Update();
+		
+		m_ibuffer = new Render::IndexBuffer<std::int32_t>();
 		m_ibuffer->GetArray() =
 		{
 				0, 1, 2,
@@ -67,8 +66,8 @@ namespace S2DE::GameObjects
 		};
 
 		S2DE_ASSERT(m_ibuffer->Create());
-		m_ibuffer->Lock();
-		m_ibuffer->Unlock();
+		m_ibuffer->Update();
+
 
 		//m_scale_factor = Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f);
 		m_scale_factor = Math::Vector3(1.0f, 1.0f, 1.0f);
@@ -77,14 +76,14 @@ namespace S2DE::GameObjects
 
 	TestObject::~TestObject()
 	{
-		m_shader->Cleanup();
+		//m_shader->Cleanup();
 		Core::Delete(m_shader);
-		m_texture->Cleanup();
+		//m_texture->Cleanup();
 		Core::Delete(m_texture);
 		Core::Delete(m_vbuffer);
 		Core::Delete(m_ibuffer);
 
-		Logger::Log("! Destroyed %s", GetName().c_str());
+		Logger::Log("[test object] Destroyed %s", GetName().c_str());
 	}
 
 	Math::XMatrix TestObject::UpdateTransformation()
@@ -128,5 +127,51 @@ namespace S2DE::GameObjects
 
 		}
 		return false;
+	}
+
+	void TestObject::UpdateTexture()
+	{
+		//Get texture name
+		std::string name = m_texture->GetName();
+
+		//Delete previous texture
+		Core::Delete(m_texture);
+
+		Render::Texture* upd_tx = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
+
+		if (upd_tx == nullptr)
+		{
+			Logger::Error("%s Can't update texture!", GetName().c_str());
+			return;
+		}
+
+		//Try to get texture by name from resource manager
+		m_texture = new Render::Texture(*upd_tx);
+
+		//Texture can't be nullptr
+		S2DE_ASSERT(m_texture != nullptr);
+	}
+
+	void TestObject::UpdateShader()
+	{
+		//Get shader name
+		std::string name = m_shader->GetName();
+		//Delete previous shader 
+		Core::Delete(m_shader);
+
+		Render::Shader* upd_sh = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
+
+		if (upd_sh == nullptr)
+		{
+			Logger::Error("%s Can't update shader!", GetName().c_str());
+			return;
+		}
+
+
+		//Try to get shader by name from resource manager
+		m_shader = new Render::Shader(*upd_sh);
+
+		//Shader can't be nullptr
+		S2DE_ASSERT(m_shader != nullptr);
 	}
 }

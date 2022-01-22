@@ -42,32 +42,31 @@ namespace S2DE::GameObjects
 		//Set Z axis for scale vector
 		void                SetScale_Z(float z);
 
-		inline Transform*   GetTransform() { return this; }
+		inline Transform*			GetTransform() { return this; }
 
-		inline Math::Vector3      GetPosition()   const { return m_Position; }
-		inline Math::Vector3      GetRotation()   const { return m_Rotation; }
-		inline Math::Vector3      GetScale()      const { return m_Scale; }
+		inline Math::Vector3		GetPosition()   const { return m_Position; }
+		inline Math::Vector3		GetRotation()   const { return m_Rotation; }
+		inline Math::Vector3		GetScale()      const { return m_Scale; }
 
 		//Get object world matrix
-		inline Math::XMatrix&		 GetWorldMatrix() { return m_WorldMatrix; }
+		inline Math::XMatrix&		GetWorldMatrix() { return m_WorldMatrix; }
 
 		//Update matrix functions
-		virtual Math::XMatrix      UpdateTransformation();
-		virtual Math::XMatrix 	 UpdateTransformation2D();
+		virtual Math::XMatrix		UpdateTransformation();
+		virtual Math::XMatrix 		UpdateTransformation2D();
 
 	protected:
-		virtual void         OnPositionChanged() { }
-		virtual void         OnRotationChanged() { }
-		virtual void         OnScaleChanged() {	}
+		virtual void				OnPositionChanged() { }
+		virtual void				OnRotationChanged() { }
+		virtual void				OnScaleChanged() {	}
 
-	private:
-		Math::Vector3              m_Position;
-		Math::Vector3              m_Rotation;
-		Math::Vector3              m_Scale;
-
-		Math::XMatrix             m_WorldMatrix;
+	//private:
+		Math::Vector3				m_Position;
+		Math::Vector3				m_Rotation;
+		Math::Vector3				m_Scale;
+		Math::XMatrix				m_WorldMatrix;
 
 	public:
-		static Math::XVector	ToQuaternion(Math::Vector3 rot);
+		static Math::XVector		ToQuaternion(Math::Vector3 rot);
 	};
 }
