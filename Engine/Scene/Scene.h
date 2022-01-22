@@ -47,7 +47,7 @@ namespace S2DE::Scene
 		template<typename T>
 		void							Add(T* g)
 		{
-			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value, "This is not GameObject based class");
+			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
 			//Check object on valid
 			if (g == nullptr)
@@ -66,7 +66,7 @@ namespace S2DE::Scene
 			CheckNameOnExist(name);
 			g->SetName(name);
 
-			Logger::Log("[Scene] [%s] Added %s Name: %s UUID: %s", m_name.c_str(), typeid(g).name() ,name.c_str(), g->GetUUIDString().c_str());
+			Logger::Log("[Scene] [%s] Added [%s] Name: %s UUID: %s", m_name.c_str(), Core::Other::GetClassNameInString(g).c_str(), name.c_str(), g->GetUUIDString().c_str());
 
 			//Add object to storage
 			m_storage.push_back(std::move(std::make_pair(std::make_pair(name, g->GetUUID()), std::make_shared<T>(*g))));
@@ -77,7 +77,7 @@ namespace S2DE::Scene
 		template<typename T>
 		void							Clone(std::string object_name, std::string new_name = std::string())
 		{
-			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value, "This is not GameObject based class");
+			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
 			Logger::Log("[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), object_name.c_str(),
 				Core::Other::isStringEmpty(new_name) ? "No" : new_name.c_str());
@@ -110,7 +110,7 @@ namespace S2DE::Scene
 		template<typename T>
 		void							Clone(boost::uuids::uuid object_id, std::string new_name = std::string())
 		{
-			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value, "This is not GameObject based class");
+			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
 			Logger::Log("[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), GameObjects::GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str(),
 				Core::Other::isStringEmpty(new_name) ? "No" : new_name.c_str());
