@@ -6,15 +6,15 @@
 
 namespace S2DE::Core::Debug
 {
+	std::vector<std::string> VisualConsole::ConsoleBuffer;
+
 	VisualConsole::VisualConsole() : 
 		m_scroll_to_bottom(false), 
-		m_draw(false),
-		m_free(false),
+		m_free(Engine::isEditor()),
 		m_sizemode(S2DE_CONSOLE_DEFAULT_MODE)
 	{ 
 
 	}
-
 
 	VisualConsole::~VisualConsole()
 	{
@@ -23,17 +23,11 @@ namespace S2DE::Core::Debug
 
 	void VisualConsole::Clear()
 	{
-		m_buffer.clear();
+		ConsoleBuffer.clear();
 	}
 
-	void VisualConsole::TougleDraw()
+	void VisualConsole::Scroll()
 	{
-		m_draw =! m_draw;
-	}
-
-	void VisualConsole::Add(std::string text)
-	{
-		m_buffer.push_back(text);
 		m_scroll_to_bottom = true;
 	}
 
@@ -45,7 +39,7 @@ namespace S2DE::Core::Debug
 			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() - 10), 400.0f));
 			break;
 		case VisualConsoleSizeMode::Fullscreen:
-			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() - 10), float(Engine::GetGameWindow()->GetHeight() - 35.0f)));
+			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() - 10), float(Engine::GetGameWindow()->GetHeight() - 32.0f)));
 			break;
 		case VisualConsoleSizeMode::Half:
 			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() / 2), float(Engine::GetGameWindow()->GetHeight() - 35.0f)));
@@ -62,10 +56,9 @@ namespace S2DE::Core::Debug
 			m_free == false ? 
 			  ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
 			  ImGuiWindowFlags_::ImGuiWindowFlags_NoResize |
-			  ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
 			  ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar 
 
-			: ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings);
+			: 0);
 
 		//Reset position if it's not free mode
 		if (m_free == false)
@@ -81,28 +74,30 @@ namespace S2DE::Core::Debug
 		ImGui::SameLine();
 
 		if (ImGui::Button("Clear"))
-			m_buffer.clear();
+			ConsoleBuffer.clear();
 
-		ImGui::SameLine();
 
 		//Free check box
 		//////////////////////////////////////////////////////
-		ImGui::Checkbox("Free mode", &m_free);
-
-
-		ImGui::SameLine();
+		if (!Engine::isEditor())
+		{
+			ImGui::SameLine();
+			ImGui::Checkbox("Free mode", &m_free);
+			ImGui::SameLine();
+		}
 
 		//Size slider
 		//////////////////////////////////////////////////////
-		static std::int32_t mode = static_cast<std::int32_t>(S2DE_CONSOLE_DEFAULT_MODE);
-		m_sizemode = static_cast<VisualConsoleSizeMode>(mode);
 
 
-
-		ImGui::PushItemWidth(100);
-		if (ImGui::SliderInt("Mode", &mode, 0, 2, "", 0))
-			UpdateSizeMode();
-		
+		if (!Engine::isEditor())
+		{
+			static std::int32_t mode = static_cast<std::int32_t>(S2DE_CONSOLE_DEFAULT_MODE);
+			m_sizemode = static_cast<VisualConsoleSizeMode>(mode);
+			ImGui::PushItemWidth(100);
+			if (ImGui::SliderInt("Mode", &mode, 0, 2, "", 0))
+				UpdateSizeMode();
+		}
 
 
 		//Separate 
@@ -115,22 +110,30 @@ namespace S2DE::Core::Debug
 			ImGuiWindowFlags_::ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 		ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
 
-		for (std::int32_t i = 0; i < (std::int32_t)m_buffer.size(); i++)
+		for (std::int32_t i = 0; i < (std::int32_t)ConsoleBuffer.size(); i++)
 		{
-			const char* item = m_buffer[i].c_str();
+			std::string item = ConsoleBuffer[i].c_str();
 
 			ImVec4 col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); 
 
-			if (strstr(item, "[Error]")) 
+			std::int32_t max_lines = 175 + Engine::GetGameWindow()->GetWidth() / 50;
+
+			if (item.length() >= max_lines)
+			{
+				for (std::int32_t i = 1; i <= std::int32_t(item.length() / max_lines); i++)
+					item.insert(max_lines * i, "\n");
+			}
+
+			if (strstr(item.c_str(), "[Error]")) 
 				col = ImColor(1.0f, 0.4f, 0.4f, 1.0f);
-			else if (strstr(item, "[Fatal]"))
+			else if (strstr(item.c_str(), "[Fatal]"))
 				col = ImColor(1.0f, 0.0f, 0.0f, 1.0f);
-			else if (strstr(item, "[Warning]"))
+			else if (strstr(item.c_str(), "[Warning]"))
 				col = ImColor(0.8f, 0.8f, 0.0f, 1.0f);
 	
 
 			ImGui::PushStyleColor(ImGuiCol_Text, col);
-			ImGui::TextUnformatted(item);
+			ImGui::TextUnformatted(item.c_str());
 			ImGui::PopStyleColor();
 		}
 
