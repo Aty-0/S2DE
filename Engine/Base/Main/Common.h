@@ -15,16 +15,10 @@
 
 #include <windows.h>
 
-//////////////////////////////////////////////
 //Dx11
-//////////////////////////////////////////////
-
-//Disable warning about old sdk using
-#pragma warning(disable: 4005)
-
 #include <dxgi.h>
+#include <d3d11_1.h>
 #include <d3dcommon.h>
-#include <d3d11.h>
 #include <directxmath.h>
 
 #include "Base/Other/StringUtils.h"
@@ -42,7 +36,7 @@ namespace S2DE::Core
 		{
 			//Debug stuff
 #if 0
-			OutputDebugString(std::string("\nDeleted " + std::string(typeid(t).name())).c_str());
+			OutputDebugString(std::string("\nDeleted " + std::string(typeid(t).name()) + "\n").c_str());
 #endif 
 
 			delete t;
@@ -57,7 +51,7 @@ namespace S2DE::Core
 		{
 			//Debug stuff
 #if 0
-			OutputDebugString(std::string("\nReleased " + std::string(typeid(t).name())).c_str());
+			OutputDebugString(std::string("\nReleased " + std::string(typeid(t).name()) + "\n").c_str());
 #endif 
 			t->Release();
 			t = nullptr;
