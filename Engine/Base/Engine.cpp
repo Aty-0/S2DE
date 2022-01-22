@@ -2,7 +2,6 @@
 
 #include "Base/Other/SplashScreen.h"
 #include "Base/ApplicationHandle.h"
-#include "Base/DebugTools/VisualConsole.h"
 #include "Base/GameWindow.h"
 #include "Base/InputManager.h"
 #include "Base/ResourceManager.h"
@@ -14,7 +13,6 @@ using namespace S2DE::Scene;
 using namespace S2DE::Math;
 using namespace S2DE::Render;
 using namespace S2DE::Core::Other;
-using namespace S2DE::Core::Debug;
 
 #define S2DE_EXIT_PROCESS() exit(EXIT_SUCCESS);
 
@@ -27,7 +25,6 @@ namespace S2DE::Core
 	bool Engine::m_isEditor;
 	Renderer* Engine::m_render;
 	InputManager* Engine::m_input_m;
-	VisualConsole* Engine::m_console;
 	ResourceManager Engine::m_resource_manager;
 	SceneManager* Engine::m_scene_manager;
 	std::string Engine::m_params;
@@ -45,21 +42,15 @@ namespace S2DE::Core
 		Delete(m_render);
 		Delete(m_window);		
 		Delete(m_input_m);
-		Delete(m_console);
 	}
 
-	void Engine::RunEngineInEditorMode(ApplicationHandle* app_handle, std::string params)
+	void Engine::RunEngineInEditorMode(ApplicationHandle* app_handle)
 	{
-		m_params = params;
-
-		//TODO 
-		//Load from config project name
 		RunEngine(app_handle, std::string(), true);
 	}
 
-	void Engine::RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname, std::string params)
+	void Engine::RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname)
 	{
-		m_params = params;
 		RunEngine(app_handle, pname, false);
 	}
 
@@ -67,10 +58,12 @@ namespace S2DE::Core
 	{
 		m_isEditor = isEditor;
 
+		//Get params
+		m_params = GetCommandLineA();
+
 		SplashScreen* sp = new SplashScreen();
 		S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
 
-		m_console = new VisualConsole();
 		//Set project name
 		sp->SetProjectName(pname);
 		//Create log file 
@@ -89,17 +82,21 @@ namespace S2DE::Core
 		//Delay for showing splash screen
 		Sleep(1000);
 
+		sp->SetLoadState("Create game window...");
 		m_window = new GameWindow();
 		m_window->Create(GetModuleHandle(NULL), pname.c_str());
 
+		sp->SetLoadState("Initialize input manager...");
 		m_input_m = new InputManager();
 		if (!m_input_m->Initialize())
 			return;
 
+		sp->SetLoadState("Initialize render...");
 		m_render = new Renderer();
 		if (!m_render->Create())
 			return;
 		
+		sp->SetLoadState("Initialize scene...");
 		m_scene_manager = new SceneManager();
 		m_scene_manager->CreateNewScene();
 
@@ -147,7 +144,7 @@ namespace S2DE::Core
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_GRAVE))
 		{
-			m_console->TougleDraw();
+			m_render->GetImGui_Window("EngineConsole")->ToggleDraw();
 		}
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_F11))
@@ -171,8 +168,7 @@ namespace S2DE::Core
 		{
 			if (m_input_m->IsKeyPressed(KeyCode::KEY_F10))
 			{
-				m_render->GetImGui_Window("EditorToolStrip")->ToggleDraw();
-				m_render->GetImGui_Window("EditorObjectInspector")->ToggleDraw();
+				m_render->ToggleImGuiWindowsVisible();
 			}
 		}
 
@@ -209,9 +205,9 @@ namespace S2DE::Core
 		Logger::Log("Destroying engine...");
 
 		m_app_handle->OnClose();
-		m_render->Destroy();
 		m_scene_manager->Clear();
 		Engine::GetResourceManager().ClearAll();
+		m_render->Destroy();
 
 		S2DE_EXIT_PROCESS();
 	}
@@ -220,6 +216,7 @@ namespace S2DE::Core
 	{
 		S2DE_ASSERT(m_resource_manager.LoadDefaultTexture());
 		S2DE_ASSERT(m_resource_manager.Load<Shader>("Sprite"));
+		S2DE_ASSERT(m_resource_manager.Load<Shader>("Line"));
 
 		return true;
 	}

@@ -1,6 +1,9 @@
 #pragma once
 #include "Base/Main/Common.h"
 
+#define S2DE_DEFAULT_WINDOW_WIDTH 1280
+#define S2DE_DEFAULT_WINDOW_HEIGHT 768
+
 namespace S2DE::Core
 {
 	class S2DE_API GameWindow
@@ -10,8 +13,8 @@ namespace S2DE::Core
 		~GameWindow();
 
 		//Create a game window function with default setup
-		bool							Create(HINSTANCE hinstance, std::string name = std::string(), std::uint32_t w = 1280, std::uint32_t h = 768, 
-												std::int32_t top = 100, std::int32_t left = 100, bool Show_Cursor = true, bool Fullscreen = false);
+		bool							Create(HINSTANCE hinstance, std::string name = std::string(), std::uint32_t w = S2DE_DEFAULT_WINDOW_WIDTH, std::uint32_t h = S2DE_DEFAULT_WINDOW_HEIGHT,
+												std::int32_t top = 100, std::int32_t left = 100, bool Show_Cursor = false, bool Fullscreen = false);
 
 		//Can be used for attaching render window to winform elements
 		bool						   AttachChildWindow(HINSTANCE hinstance, std::uint32_t ClientRectangleX, std::uint32_t ClientRectangleY, 
@@ -24,7 +27,7 @@ namespace S2DE::Core
 		inline std::uint32_t           GetHeight() const { return m_Height; }
 		inline std::int32_t            GetLeft()   const { return m_Left; }
 		inline std::int32_t            GetTop()    const { return m_Top; }
-		inline HWND                    GetHWND() const { return m_HWND; }
+		inline HWND&                   GetHWND() { return m_HWND; }
 		inline HINSTANCE               GetInstance() const { return m_Instance; };
 		inline RECT                    GetClientRes() const;
 		inline bool					   isActive() const { return GetActiveWindow() == NULL ? false : true; }

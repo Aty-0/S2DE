@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Base/Main/Common.h"
+#include "Base/Engine.h"
 
 ///////////////////////////////////
 ///Resources headers
@@ -101,10 +102,6 @@ namespace S2DE::Core
 		ResourceManager();
 		~ResourceManager();
 
-		//TODO 
-		//Put default texture in engine resources
-		//Load it from resource.h
-		
 		//Load default texture
 		bool				LoadDefaultTexture();
 		//Clear all resources
@@ -206,9 +203,6 @@ namespace S2DE::Core
 			return it != m_ResourceStorage.end();
 		}
 
-		//FIX ME
-		//I think it's wrong implementation
-
 		//Get count of resource in storage
 		//T is require class with IO_File base
 		template<typename T>
@@ -216,11 +210,9 @@ namespace S2DE::Core
 		{
 			std::int32_t count = 0;
 
-			for (auto& p : m_ResourceStorage)
-			{ 
+			for (auto& p : m_ResourceStorage) 
 				if (p.first.second == std::type_index(typeid(T)))
 					count++;
-			}
 			
 			return count;
 		}

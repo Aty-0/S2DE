@@ -15,9 +15,6 @@ namespace S2DE::Core
 
 	}
 
-	//TODO 
-	//Check file update and then load it 
-
 	void ResourceManager::ReloadShaders()
 	{
 		Logger::Log("[ResourceManager] Reload shaders...");

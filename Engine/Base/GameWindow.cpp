@@ -7,7 +7,7 @@
 #define S2DE_WINDOW_CLASS_NAME "S2DE_WND_CLASS_NAME"
 
 //Styles
-#define S2DE_DEFAULT_WINDOW_STYLE WS_TILEDWINDOW
+#define S2DE_DEFAULT_WINDOW_STYLE WS_TILEDWINDOW //WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX
 #define S2DE_FULLSCREEN_WINDOW_STYLE WS_EX_TOPMOST | WS_POPUP
 #define S2DE_CHILD_WINDOW_STYLE WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP
 
@@ -137,31 +137,29 @@ namespace S2DE::Core
 
 		str.append(" in Debug Mode");
 #endif
-		ZeroMemory(&m_WindowClass, sizeof(WNDCLASSEX));
+		m_WindowClass = { };
 
 		//Setup window class
 		m_WindowClass.cbSize = sizeof(WNDCLASSEXW);
-		m_WindowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+		m_WindowClass.style = CS_HREDRAW | CS_VREDRAW;
 		m_WindowClass.lpfnWndProc = InstanceWndProc;
 		m_WindowClass.hInstance = m_Instance;
-		m_WindowClass.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+		m_WindowClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 		m_WindowClass.hIconSm = m_WindowClass.hIcon;
 		m_WindowClass.hCursor = LoadCursor(0, IDC_ARROW);
 		m_WindowClass.hbrBackground = NULL;
 		m_WindowClass.lpszMenuName = NULL;
 		m_WindowClass.lpszClassName = S2DE_WINDOW_CLASS_NAME;
-
-		RECT r;
-
-		r.left = m_Left;
-		r.top = m_Top;
-		r.right = m_Width;
-		r.bottom = m_Height;
-
-		AdjustWindowRect(&r, WS_CAPTION, false);
+		m_WindowClass.cbClsExtra = 0;
+		m_WindowClass.cbWndExtra = 0;
 		RegisterClassEx(&m_WindowClass);
 
-		m_HWND = CreateWindowEx(NULL, S2DE_WINDOW_CLASS_NAME, str.c_str(), Fullscreen ? S2DE_FULLSCREEN_WINDOW_STYLE : S2DE_DEFAULT_WINDOW_STYLE, r.left, r.top, r.right, r.bottom, NULL, NULL, m_WindowClass.hInstance, NULL);
+
+		RECT rc = { 0, 0, (std::int32_t)m_Width, (std::int32_t)m_Height };
+		AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, false);
+
+		m_HWND = CreateWindowExA(NULL, S2DE_WINDOW_CLASS_NAME, str.c_str(), Fullscreen ? S2DE_FULLSCREEN_WINDOW_STYLE : S2DE_DEFAULT_WINDOW_STYLE,
+			m_Left, m_Top, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, m_WindowClass.hInstance, NULL);
 
 		if (m_HWND == NULL)
 		{
@@ -169,9 +167,13 @@ namespace S2DE::Core
 			return false;
 		}
 
-		ShowWindow(m_HWND, SW_SHOW);
 		ShowCursor(m_ShowCursor);
-		UpdateWindow(m_HWND);
+		SetForegroundWindow(m_HWND);
+		SetFocus(m_HWND);
+		ShowWindow(m_HWND, SW_SHOW);
+
+		RECT wnd_rect;
+		GetWindowRect(m_HWND, &wnd_rect);
 
 		return true;
 	}

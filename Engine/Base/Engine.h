@@ -11,10 +11,6 @@ namespace S2DE
 		class ResourceManager;
 		class GameWindow;
 		class InputManager;
-		namespace Debug
-		{
-			class VisualConsole;
-		}
 	}
 
 	namespace Render
@@ -39,9 +35,9 @@ namespace S2DE::Core
 		~Engine();
 
 		//Run engine in game mode
-		void							RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname = std::string(), std::string params = std::string());
+		void							RunEngineInGameMode(ApplicationHandle* app_handle, std::string pname = std::string());
 		//Run engine in editor mode
-		void							RunEngineInEditorMode(ApplicationHandle* app_handle, std::string params = std::string());
+		void							RunEngineInEditorMode(ApplicationHandle* app_handle);
 
 		//Destroy engine and all components
 		//Application will be closed when this function is called
@@ -53,7 +49,6 @@ namespace S2DE::Core
 		static inline GameTime			GetGameTime() { return m_time; }
 		static inline Render::Renderer*			GetRenderer() { return m_render; }
 		static inline InputManager*		GetInputManager() { return m_input_m; }
-		static inline Debug::VisualConsole*	GetConsole() { return m_console; }
 		static inline Scene::SceneManager*		GetSceneManager() { return m_scene_manager; }
 		static inline ResourceManager&	GetResourceManager() { return m_resource_manager; }
 		static inline bool				isEditor() { return m_isEditor; }
@@ -84,7 +79,6 @@ namespace S2DE::Core
 		static GameTime m_time;
 		static Render::Renderer* m_render;
 		static InputManager* m_input_m;
-		static Debug::VisualConsole* m_console;
 		static Scene::SceneManager* m_scene_manager;
 		static ResourceManager m_resource_manager;
 		static bool m_isEditor;
