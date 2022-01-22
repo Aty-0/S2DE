@@ -1,16 +1,17 @@
 #include "Shader.h"
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
-
 #include "Scene/SceneManager.h"
 #include "GameObjects/Camera.h"
 
+#include <d3dcompiler.h>
+
 #include <fstream>
-#include <D3DX11async.h>
 
 namespace S2DE::Render
 {
-	Shader::Shader() 
+	Shader::Shader() :
+		m_flags(0)
 	{
 		m_type = "Shader";
 		m_ex = { ".hlsl", ".shader", ".fx" };
@@ -43,30 +44,42 @@ namespace S2DE::Render
 		Core::Engine::GetRenderer()->GetContext()->PSSetShader(m_pixelShader, nullptr, 0);
 	}
 
+	void Shader::ShowErrorDetails(ID3D10Blob* error_blob)
+	{
+		std::string details;
+
+		if (error_blob != nullptr)
+		{
+			details = (char*)error_blob->GetBufferPointer();
+			Core::Release(error_blob);
+		}
+		else
+			details = "No error description available!";
+
+		Logger::Error("[Shader] Compilation failed!\nDetails:\n%s", details.c_str());
+	}
+
 	bool Shader::Compile()
 	{
 		ID3D10Blob* code_buffer;
 		ID3D10Blob* err_buffer;
 
+		m_flags |= D3D10_SHADER_ENABLE_STRICTNESS;
+
+#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+		m_flags |= D3D10_SHADER_DEBUG;
+		m_flags |= D3D10_SHADER_SKIP_OPTIMIZATION;
+#endif
+
 		Logger::Log("[Shader] [%s] Compile vertex shader...", m_name.c_str());
-		if (FAILED(D3DX11CompileFromFileA(m_path_vs.c_str(), nullptr, nullptr, "main", "vs_5_0",
-			D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &code_buffer, &err_buffer, NULL)))
+		
+		if (FAILED(D3DCompileFromFile(Core::Other::StringToWString(m_path_vs).c_str(), nullptr, nullptr, 
+			"main", "vs_5_0", m_flags, 0, &code_buffer, &err_buffer)))
 		{
-			std::string details;
-
-			if (err_buffer != nullptr)
-			{
-				details = (char*)err_buffer->GetBufferPointer();
-				Core::Release(err_buffer);
-			}
-			else
-				details = "No description available!";
-			
-
-			Logger::Error("[Shader] Failed\nError details:\n%s", details.c_str());
+			ShowErrorDetails(err_buffer);
 			return false;
 		}
-		
+
 		if (FAILED(Core::Engine::GetRenderer()->GetDevice()->CreateVertexShader(code_buffer->GetBufferPointer(),
 			code_buffer->GetBufferSize(), nullptr, &m_vertexShader)))
 		{
@@ -98,21 +111,11 @@ namespace S2DE::Render
 		Core::Release(code_buffer);
 
 		Logger::Log("[Shader] [%s] Compile pixel shader...", m_name.c_str());
-		if (FAILED(D3DX11CompileFromFileA(m_path_ps.c_str(), nullptr, nullptr, "main", "ps_5_0",
-			D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &code_buffer, &err_buffer, NULL)))
+
+		if (FAILED(D3DCompileFromFile(Core::Other::StringToWString(m_path_ps).c_str(), nullptr, nullptr,
+			"main", "ps_5_0", m_flags, 0, &code_buffer, &err_buffer)))
 		{
-			std::string details;
-
-			if (err_buffer != nullptr)
-			{
-				details = (char*)err_buffer->GetBufferPointer();
-				Core::Release(err_buffer);
-			}
-			else
-				details = "No description available!";
-
-
-			Logger::Error("[Shader] Failed\nError details:\n%s", details.c_str());
+			ShowErrorDetails(err_buffer);
 			return false;
 		}
 		
@@ -129,7 +132,7 @@ namespace S2DE::Render
 		m_const_buffer = new ConstantBuffer<ShaderMainConstantBuffer>();
 		S2DE_ASSERT(m_const_buffer->Create());
 
-		Logger::Log("[Shader] [%s] Ready!", m_name.c_str());
+		Logger::Log("[Shader] [%s] Done!", m_name.c_str());
 		return true;
 	}
 
@@ -141,22 +144,28 @@ namespace S2DE::Render
 		return Compile();
 	}
 
-	void Shader::UpdateMainConstBuffer(Math::XMatrix world)
+	void Shader::UpdateMainConstBuffer(Math::XMatrix world, bool ui)
 	{
 		m_const_buffer->Lock();
-		m_const_buffer->GetBufferData()->Delta = Core::Engine::GetGameTime().GetDeltaTime();
-		m_const_buffer->GetBufferData()->Time = Core::Engine::GetGameTime().GetTime();
-		m_const_buffer->GetBufferData()->Resoultion = Math::XFloat2((float)Core::Engine::GetGameWindow()->GetWidth(),
-			(float)Core::Engine::GetGameWindow()->GetHeight());
-
-		m_const_buffer->GetBufferData()->world = world;
+		m_const_buffer->GetData()->Delta = Core::Engine::GetGameTime().GetDeltaTime();
+		m_const_buffer->GetData()->Time = Core::Engine::GetGameTime().GetTime();
+		m_const_buffer->GetData()->Resoultion = Math::XFloat2((float)Core::Engine::GetGameWindow()->GetWidth(), (float)Core::Engine::GetGameWindow()->GetHeight());
+		m_const_buffer->GetData()->world = world;
 
 		GameObjects::Camera* cam = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
 
 		if (cam != nullptr)
 		{
-			m_const_buffer->GetBufferData()->projection = cam->GetProjectionMatrix();
-			m_const_buffer->GetBufferData()->view = cam->GetViewMatrix();
+			if (ui)
+			{
+				m_const_buffer->GetData()->projection = cam->GetOrthoMatrix();
+				m_const_buffer->GetData()->view = DirectX::XMMatrixTranspose(DirectX::XMMatrixIdentity());
+			}
+			else
+			{
+				m_const_buffer->GetData()->projection = cam->GetProjectionMatrix();
+				m_const_buffer->GetData()->view = cam->GetViewMatrix();
+			}
 		}
 
 		m_const_buffer->Unlock();

@@ -10,6 +10,21 @@ namespace S2DE::Render
 	class S2DE_API Shader : public IO::IO_File, public IO::IO_Disposible
 	{
 	public:
+		struct S2DE_API ShaderMainConstantBuffer
+		{
+			float Delta;
+			float Time;
+			Math::XFloat2 Resoultion;
+
+			//Game object
+			Math::XMatrix world;
+
+			//Camera stuff
+			Math::XMatrix view;
+			Math::XMatrix projection;
+		};
+
+	public:
 		Shader();
 		~Shader();
 
@@ -30,30 +45,17 @@ namespace S2DE::Render
 		inline ID3D11InputLayout*		GetLayout()		 const { return m_layout; }
 
 	private:
-		ID3D11VertexShader* m_vertexShader;
-		ID3D11PixelShader* m_pixelShader;
-		ID3D11InputLayout* m_layout;
-		std::string						  m_path_vs;
-		std::string						  m_path_ps;
+		ID3D11VertexShader*				m_vertexShader;
+		ID3D11PixelShader*				m_pixelShader;
+		ID3D11InputLayout*				m_layout;
+		std::string						m_path_vs;
+		std::string						m_path_ps;
+		DWORD							m_flags;
 
+		void							ShowErrorDetails(ID3D10Blob* error_blob);
 	public:
-		struct S2DE_API ShaderMainConstantBuffer
-		{
-			float Delta;
-			float Time;
-			Math::XFloat2 Resoultion;
-
-			//Game object
-			Math::XMatrix world;
-
-			//Camera stuff
-			Math::XMatrix view;
-			Math::XMatrix projection;
-		};
-
-		void UpdateMainConstBuffer(Math::XMatrix world);
-		inline ConstantBuffer<ShaderMainConstantBuffer>* 
-			GetConstBuffer() const { return m_const_buffer; }
+		void							UpdateMainConstBuffer(Math::XMatrix world, bool ui = false);
+		inline ConstantBuffer<ShaderMainConstantBuffer>*  GetConstBuffer() const { return m_const_buffer; }
 	private:
 		ConstantBuffer<ShaderMainConstantBuffer>* m_const_buffer;
 
