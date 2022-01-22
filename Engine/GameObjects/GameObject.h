@@ -3,6 +3,13 @@
 #include "GameObjects/Transform.h"
 #include "GameObjects/GameObjectIDGenerator.h"
 
+
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/assume_abstract.hpp>
+
+
 //TODO
 //Prefix
 
@@ -12,31 +19,30 @@
 #define S2DE_DEFAULT_GAMEOBJECT_PREFIX 0
 #define	S2DE_ENGINE_GAMEOBJECT_TYPE "_Engine"
 
+#define S2DE_SERIALIZE_WITH_GAMEOBJECT_BASE(AR, T) AR & boost::serialization::base_object<S2DE::GameObjects::GameObject>(*this) & T;
+
 namespace S2DE::GameObjects
 {
 	class S2DE_API GameObject : public Transform
 	{
+		friend class boost::serialization::access;
+
 	public:
 		GameObject();
 		virtual ~GameObject();
 
 		//Object initialization 
-		//Set name, type, prefix
-		//ID automatically genarated when object is created 
-		//but we can regenerate UUID or type custom uuid
-		//if id string is empty it's does nothing
-		//if we type REGENERATE we get new uuid
 		void						 Init(std::string name, std::string type, std::int32_t prefix, std::string id = std::string());
 
 		//Main gameobject render function
 		void						 Render();
+		void						 RenderImGUI();
 
 		//Main gameobject update function
 		void						 Update(float DeltaTime);
 
 		//Main gameobject input update function
 		void						 UpdateInput();
-		void						 RenderDebugGUI();
 
 		//Set new name for gameobject
 		void						 SetName(std::string name);
@@ -64,7 +70,6 @@ namespace S2DE::GameObjects
 		
 		virtual void				 Select() { m_isSelected = true; }
 		virtual void				 Unselect() { m_isSelected = false; }
-
 	protected:
 		virtual void				 OnPositionChanged()  override { }
 		virtual void				 OnRotationChanged()  override { }
@@ -74,7 +79,7 @@ namespace S2DE::GameObjects
 		virtual void				 OnRender() { }
 		virtual void				 OnUpdate(float DeltaTime) { }
 		virtual void				 OnUpdateInput() { }
-		virtual void				 OnDebugRenderGUI() { }
+		virtual void				 OnRenderImGUI() { }
 		virtual bool 				 CheckOnIntersection() { return false; }
 
 	private:
@@ -85,6 +90,20 @@ namespace S2DE::GameObjects
 		bool						 m_enabled;
 		bool						 m_visible;
 		bool						 m_isSelected;
+
+
+		template<class Archive>
+		void serialize(Archive& ar, const std::uint32_t version)
+		{
+			ar & m_name;
+			ar & m_prefix;
+			ar & m_id;
+			ar & m_type;
+			ar & m_enabled;
+			ar & m_visible;
+			ar & m_isSelected;
+		}
 	};
 
+	BOOST_SERIALIZATION_ASSUME_ABSTRACT(S2DE::GameObjects::GameObject)
 }

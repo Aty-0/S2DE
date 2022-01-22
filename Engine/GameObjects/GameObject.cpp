@@ -10,7 +10,7 @@ namespace S2DE::GameObjects
 		m_enabled(true),
 		m_id(new GameObjectIDGenerator()),
 		m_isSelected(false)
-	{
+	{								  
 
 	}
 
@@ -22,6 +22,8 @@ namespace S2DE::GameObjects
 		m_name.clear();
 		m_id = nullptr;
 		m_prefix = 0;
+
+		//ClearProperties();
 	}
 
 	void GameObject::Update(float DeltaTime)
@@ -38,10 +40,10 @@ namespace S2DE::GameObjects
 		CheckOnIntersection();
 	}
 
-	void GameObject::RenderDebugGUI()
+	void GameObject::RenderImGUI()
 	{
 		if (m_visible == true)
-			OnDebugRenderGUI();
+			OnRenderImGUI();
 	}
 
 	void GameObject::Render()
