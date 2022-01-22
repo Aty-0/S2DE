@@ -23,7 +23,7 @@ namespace S2DE::Scene
 		//Save current scene
 		bool		   SaveScene();
 					   
-		void		   RenderDebugGUI();
+		void		   RenderImGUI();
 		void		   RenderScene();
 		void		   UpdateInput();
 		void		   UpdateScene(float DeltaTime);
@@ -37,14 +37,14 @@ namespace S2DE::Scene
 
 
 		void		   ToggleGameObjectVisibility();
-		void		   ToggleDebugGUIVisibility();
+		void		   ToggleImGUIVisibility();
 		void		   ToggleGameObjectUpdate();
 	private:
 		Scene*		   m_scene;
 					   
 		bool		   m_update_enabled;
 		bool		   m_render_enabled;
-		bool		   m_render_dbg_gui_enabled;
+		bool		   m_render_imgui_enabled;
 	};
 
 	//Create simple game object in scene
@@ -57,6 +57,8 @@ namespace S2DE::Scene
 		Math::Vector3 rotation = Math::Vector3::Reset(),
 		Math::Vector3 scale = Math::Vector3(1.0f, 1.0f, 1.0f))
 	{
+		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
+
 		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
 		auto object = new T();
 
@@ -75,6 +77,8 @@ namespace S2DE::Scene
 	template<typename T = GameObjects::GameObject>
 	static inline T* CreateGameObjectNoInit()
 	{
+		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
+
 		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
 		auto object = new T();
 
@@ -87,6 +91,8 @@ namespace S2DE::Scene
 	template<typename T = GameObjects::GameObject>
 	static inline T* GetObjectByName(std::string name)
 	{
+		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
+
 		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
 		SceneObjectStorage::iterator it = std::find_if(
 			Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
@@ -103,6 +109,8 @@ namespace S2DE::Scene
 	template<typename T = GameObjects::GameObject>
 	static inline T* GetObjectByUUID(boost::uuids::uuid id)
 	{
+		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
+
 		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
 		SceneObjectStorage::iterator it = std::find_if(
 			Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
