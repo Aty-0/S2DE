@@ -8,7 +8,7 @@ namespace S2DE::GameObjects
 		m_Position(Math::Vector3::Reset()),
 		m_Rotation(Math::Vector3::Reset()),
 		m_Scale(Math::Vector3(1.0f, 1.0f, 1.0f)),
-		m_WorldMatrix()
+		m_WorldMatrix(DirectX::XMMatrixIdentity())
 	{
 
 	}
