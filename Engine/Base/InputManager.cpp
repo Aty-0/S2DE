@@ -43,14 +43,19 @@ namespace S2DE::Core
 	{
 		if (Engine::GetGameWindow()->isActive())
 		{
-			// Read the current state of the keyboard.
-			if (!ReadKeyboard())
-				return false;
+			//Read the current state of the keyboard.
+			if (m_lock_keyboard == false)
+			{
+				if (!ReadKeyboard())
+					return false;
+			}
 
-			// Read the current state of the mouse.
-			if (!ReadMouse())
-				return false;
-
+			//Read the current state of the mouse.
+			if (m_lock_mouse == false)
+			{
+				if (!ReadMouse())
+					return false;
+			}
 
 			m_MouseLastState = m_MouseCurrState;
 		}
@@ -146,5 +151,15 @@ namespace S2DE::Core
 
 
 		return true;
+	}
+
+	void InputManager::LockMouseControl(bool lock)
+	{
+		m_lock_mouse = lock;
+	}
+
+	void InputManager::LockKeyboardControl(bool lock)
+	{
+		m_lock_keyboard = lock;
 	}
 }

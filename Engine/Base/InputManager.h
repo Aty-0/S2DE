@@ -24,9 +24,13 @@ namespace S2DE::Core
 		bool					Initialize();
 		bool					Update();
 
+		void					LockMouseControl(bool lock);
+		void					LockKeyboardControl(bool lock);
+
 	private:
 		bool					ReadKeyboard();
 		bool					ReadMouse();
+
 		IDirectInput8*			m_DirectInput;
 		IDirectInputDevice8*	m_InputKeyboard;
 		IDirectInputDevice8*	m_InputMouse;
@@ -34,6 +38,9 @@ namespace S2DE::Core
 		std::uint8_t			m_KeyboardStateLast[256];
 		DIMOUSESTATE			m_MouseCurrState;
 		DIMOUSESTATE			m_MouseLastState;
+		bool					m_lock_mouse;
+		bool					m_lock_keyboard;
+
 
 	};
 }
