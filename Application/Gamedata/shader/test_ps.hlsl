@@ -3,9 +3,10 @@ SamplerState test_sampleType;
 
 struct PSINPUT
 {
-    float4 position : POSITION;
+    float4 position : SV_POSITION;
     float4 color : COLOR;
-    float2 uv : UV0;
+    float2 uv : UV;
+    float3 worldPos		: POSITION; 
 };
 
 float hashOld12(float2 p)
@@ -15,5 +16,7 @@ float hashOld12(float2 p)
 
 float4 main(PSINPUT input) : SV_TARGET
 {
-    return test_texture.Sample(test_sampleType, input.uv);
+
+    return  test_texture.Sample(test_sampleType, sin(hashOld12(input.uv)) / 10 + input.uv)
+    + (input.color * hashOld12(input.uv) / 10);
 }

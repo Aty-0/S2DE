@@ -1,4 +1,3 @@
-
 cbuffer MainConstBuffer  : register(b0)
 {
     float Delta;
@@ -24,18 +23,19 @@ struct PSINPUT
     float3 worldPos		: POSITION; 
 };
 
+float hashOld12(float2 p)
+{
+	return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
+}
 
 PSINPUT main(VSINPUT input)
 {
     PSINPUT output;
+    
     matrix worldViewProj = mul( mul( worldMatrix, viewMatrix ), projectionMatrix);
     output.position = mul(float4( input.position, 1.0f ), worldViewProj );
     output.worldPos = mul( float4( input.position, 1.0f ), worldMatrix).xyz;
-    output.uv = input.uv;
-    //output.uv += Time * 0.01f;
-    //output.position.w = 1;
-    float t = clamp(sin(Time), 0.5, 1);
-    output.color = float4(t + cos(Time * 3.14 / 360), t + sin(Time * 3.14 / 360), t, 255);
+    output.color = input.color;
     
     return output;
 }
