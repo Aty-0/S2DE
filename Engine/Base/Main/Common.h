@@ -7,21 +7,23 @@
 #include <utility>
 #include <vector>
 
+#include <windows.h>
+
 //Disable warning "needs to have dll-interface to be used by clients of class"
 #pragma warning(disable: 4251)
 
-//DLL stuff
-#include "S2DE_API.h"
+//S2DE
+#include "Base/Main/S2DE_API.h"
+#include "Base/Other/StringUtils.h"
 
-#include <windows.h>
 
-//Dx11
+//DX11
 #include <dxgi.h>
 #include <d3d11_1.h>
 #include <d3dcommon.h>
-#include <directxmath.h>
 
-#include "Base/Other/StringUtils.h"
+#include <DirectXMath.h>
+
 
 #include <comdef.h>
 
@@ -92,12 +94,6 @@ namespace S2DE::Math
 
 namespace S2DE::Render
 {
-	struct S2DE_API VideoCardDesc
-	{
-		std::int32_t Memory;
-		char Description[128];
-	};
-
 	struct S2DE_API Vertex
 	{
 		Math::XFloat3 position;
