@@ -35,21 +35,24 @@ namespace S2DE::GameObjects
 		switch (m_mode)
 		{
 		case S2DE::GameObjects::Camera::Perspective:
-			//TODO
-			m_projectionMatrix = DirectX::XMMatrixIdentity();
 			break;
 		case S2DE::GameObjects::Camera::Orthographics:
-		m_projectionMatrix = DirectX::XMMatrixOrthographicOffCenterLH(
-			-(float)Core::Engine::GetGameWindow()->GetWidth() * m_zoom,
-			(float)Core::Engine::GetGameWindow()->GetWidth() * m_zoom, 
-			-(float)Core::Engine::GetGameWindow()->GetHeight() * m_zoom,
-			(float)Core::Engine::GetGameWindow()->GetHeight() * m_zoom, 
-			m_zNear, 
-			m_zFar);
+			m_projectionMatrix = DirectX::XMMatrixOrthographicOffCenterLH(
+				-(float)Core::Engine::GetGameWindow()->GetWidth() * m_zoom,
+				(float)Core::Engine::GetGameWindow()->GetWidth() * m_zoom, 
+				-(float)Core::Engine::GetGameWindow()->GetHeight() * m_zoom,
+				(float)Core::Engine::GetGameWindow()->GetHeight() * m_zoom, 
+				m_zNear, 
+				m_zFar);
+
+
 			break;
 		}
+
 		m_ortho_Matrix = DirectX::XMMatrixOrthographicLH((float)Core::Engine::GetGameWindow()->GetWidth() * 
 			CAMERA_DEFAULT_ORTHO_ZOOM, (float)Core::Engine::GetGameWindow()->GetHeight() * CAMERA_DEFAULT_ORTHO_ZOOM, m_zNear, m_zFar);
+
+		m_projectionMatrix = DirectX::XMMatrixTranspose(m_projectionMatrix);
 	}
 
 	void Camera::OnRender()
