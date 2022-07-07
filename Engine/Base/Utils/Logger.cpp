@@ -139,8 +139,6 @@ namespace S2DE::Core::Utils
 		//Add line 
 		m_linecount++;
 
-		//FIX ME
-		//Bad
 		if (Core::Engine::GetRenderer() != nullptr)
 			if (Core::Engine::GetRenderer()->GetImGui_Window("EngineConsole") != nullptr)
 				reinterpret_cast<Debug::VisualConsole*>(Core::Engine::GetRenderer()->GetImGui_Window("EngineConsole"))->Scroll();

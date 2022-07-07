@@ -2,6 +2,7 @@
 #include "Base/Main/Common.h"
 #include "IO/IO_File.h"
 #include "IO/IO_Disposible.h"
+#include "Graphics/Renderer.h"
 
 namespace S2DE::Render
 {
@@ -13,7 +14,9 @@ namespace S2DE::Render
 		
 		virtual void					 Cleanup() override;
 		virtual bool					 Load(std::string path) override;
-		virtual bool					 CreateEmptyTexture();
+		virtual bool					 CreateEmptyTexture(Math::Color<std::uint32_t> color = Math::Color<std::uint32_t>(208, 0, 255, 255));
+		void							 Bind(std::uint32_t NumViews = 1);
+		void							 Unbind();
 
 
 		inline ID3D11ShaderResourceView* GetShaderViewResource() const { return m_resourceview; }
@@ -25,15 +28,13 @@ namespace S2DE::Render
 		inline DXGI_SAMPLE_DESC			 GetSampleDesc() const { return m_texture_desc.SampleDesc; }
 		inline D3D11_USAGE				 GetUsage() const { return m_texture_desc.Usage; }
 
-		void							 Bind(std::uint32_t NumViews = 1);
 	private:
+		void							 UpdateTextureDesc();
+
 		ID3D11ShaderResourceView*		 m_resourceview;
 		ID3D11Resource*					 m_resource;
-
 		ID3D11Texture2D*				 m_texture2d;
 		D3D11_TEXTURE2D_DESC			 m_texture_desc;
 		ID3D11SamplerState*				 m_texture_sampler_state;
-
-		void							 UpdateTextureDesc();
 	};
 }

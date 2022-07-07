@@ -4,13 +4,13 @@
 namespace S2DE::GameObjects
 {
 	Sprite::Sprite() :
-		ScaleFactor(Math::Vector3(1, 1, 1)),
 		m_texture(nullptr),
 		m_shader(nullptr),
 		m_index_buffer(nullptr),
 		m_vertex_buffer(nullptr),
-		m_tile_size(Math::Vector2(0, 0)),
-		m_tile_frame_pos(Math::IntVector2(0, 0))
+		ScaleFactor(DirectX::SimpleMath::Vector3(1, 1, 1)),
+		m_tile_size(DirectX::SimpleMath::Vector2::Zero),
+		m_tile_frame_pos(DirectX::SimpleMath::Rectangle(0, 0, 0, 0))
 	{
 		CreateVertexBuffer();
 		CreateIndexBuffer();
@@ -34,10 +34,10 @@ namespace S2DE::GameObjects
 
 	void Sprite::SetAtlasFramePosition(std::int32_t x, std::int32_t y)
 	{
-		m_tile_frame_pos = Math::IntVector2(x, y);
+		m_tile_frame_pos = DirectX::SimpleMath::Rectangle(x, y, 0, 0);
 	}
 
-	void Sprite::SetAtlasSize(Math::Vector2 size)
+	void Sprite::SetAtlasSize(DirectX::SimpleMath::Vector2 size)
 	{
 		m_tile_size = size;
 		CalcScaleFactor();
@@ -45,21 +45,18 @@ namespace S2DE::GameObjects
 
 	bool Sprite::LoadTexture(std::string name, bool unload_texture, bool auto_load_texture)
 	{
+		//Set unload state
 		m_unload_texture = unload_texture;
 
-		//If texture not be loaded before 
-		//and we get default texture when try to get it from resource manager then
-		//we try to load needed texture from gamedata
-		if (Core::Engine::GetResourceManager().Get<Render::Texture>(name) == Core::Engine::GetResourceManager().GetDefaultTexture()
+		//If texture not found in resource manager storage we try to load it 
+		if (!Core::Engine::GetResourceManager().IsExists<Render::Texture>(name)
 			&& auto_load_texture == true)
 		{
 			if (!Core::Engine::GetResourceManager().Load<Render::Texture>(name))
 				return false;
 		}
-
-		//Set texture 
+		//Set texture if texture is exist
 		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>(name));
-
 		//Texture can't be null 
 		S2DE_ASSERT(m_texture != nullptr);	
 
@@ -78,42 +75,50 @@ namespace S2DE::GameObjects
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
 		m_sprite_const_buf->Lock();
-		m_sprite_const_buf->GetData()->sprite_tile_frame = Math::XInt2(m_tile_frame_pos.x, m_tile_frame_pos.y);
-		m_sprite_const_buf->GetData()->sprite_tile_size = Math::XFloat2(m_tile_size.x, m_tile_size.y);
-		m_sprite_const_buf->GetData()->sprite_texture_res = Math::XFloat2((float)m_texture->GetWidth(), (float)m_texture->GetHeight());
+		m_sprite_const_buf->GetData()->sprite_tile_frame	= DirectX::XMINT2(m_tile_frame_pos.x, m_tile_frame_pos.y);
+		m_sprite_const_buf->GetData()->sprite_tile_size		= DirectX::SimpleMath::Vector2(m_tile_size.x, m_tile_size.y);
+		m_sprite_const_buf->GetData()->sprite_texture_res	= DirectX::SimpleMath::Vector2((float)m_texture->GetWidth(), (float)m_texture->GetHeight());
 		m_sprite_const_buf->Unlock();
 		m_sprite_const_buf->Bind(1);
 
-		//Bind shader
+		//Bind 
 		m_shader->Bind();
-
-
-		//Bind texture
 		m_texture->Bind();
 
 		//Draw sprite 
+		Core::Engine::GetRenderer()->GetContext()->RSSetState(Core::Engine::GetRenderer()->GetRasterStateCCW());
+		Core::Engine::GetRenderer()->GetContext()->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
+		Core::Engine::GetRenderer()->GetContext()->OMSetDepthStencilState(Core::Engine::GetRenderer()->GetDepthStencilState(), 0);
 		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_index_buffer->GetArray().size(), 0, 0);
 
-		//Unbind buffer
+		Core::Engine::GetRenderer()->GetContext()->RSSetState(Core::Engine::GetRenderer()->GetRasterStateCW());
+		Core::Engine::GetRenderer()->GetContext()->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
+		Core::Engine::GetRenderer()->GetContext()->OMSetDepthStencilState(Core::Engine::GetRenderer()->GetDepthStencilState(), 0);
+		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_index_buffer->GetArray().size(), 0, 0);
+
+		//Unbind 
 		m_shader->Unbind();
+		m_texture->Unbind();
+		m_vertex_buffer->Unbind();
+		m_index_buffer->Unbind();
+		m_sprite_const_buf->Unbind();
 	}
 
-	Math::XMatrix Sprite::UpdateTransformation()
+	DirectX::SimpleMath::Matrix Sprite::UpdateTransformation()
 	{
-		//Coppyed from transform class  
-		GetWorldMatrix() = DirectX::XMMatrixTransformation(
+		m_WorldMatrix = DirectX::XMMatrixTransformation(
 			//Scale
 			//Center | Rotation | Scaling
-
-			//Added scale factor
-			Math::XVector(), Math::XVector(), Math::To_XMVector3(GetScale() * ScaleFactor),
+			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, m_Scale * ScaleFactor,
 			//Rotation
 			//Center | Quatarnion
-			Math::XVector(), ToQuaternion(GetRotation()),
+			DirectX::SimpleMath::Vector3::Zero, ToQuaternion(m_Rotation),
 			//Translation
-			Math::To_XMVector3(GetPosition()));
+			m_Position);
 
-		return DirectX::XMMatrixTranspose(GetWorldMatrix());
+		m_WorldMatrix.Transpose(m_WorldMatrix);
+
+		return m_WorldMatrix;
 	}
 
 	void Sprite::CreateVertexBuffer()
@@ -121,10 +126,10 @@ namespace S2DE::GameObjects
 		m_vertex_buffer = new Render::VertexBuffer<Render::Vertex>();
 		m_vertex_buffer->GetArray() =
 		{
-			{ Math::XFloat3(-1.0f,   -1.0f,   0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 1.0f) }, // Bottom left.
-			{ Math::XFloat3(-1.0f,   1.0f,   0.0f),  Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) }, // Top left.
-			{ Math::XFloat3(1.0f,  1.0f,   0.0f),	 Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(1.0f, 0.0f)	 }, // top right.
-			{ Math::XFloat3(1.0f,  -1.0f,   0.0f),   Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(1.0f, 1.0f)	 }, // Bottom right.
+			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(0, 0, 0, 0),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, // Bottom left.
+			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(0, 0, 0, 0),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, // Top left.
+			{ DirectX::SimpleMath::Vector3(1.0f,  1.0f,   0.0f),	 DirectX::SimpleMath::Vector4(0, 0, 0, 0),  DirectX::SimpleMath::Vector2(1.0f, 0.0f)	 }, // top right.
+			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(0, 0, 0, 0),  DirectX::SimpleMath::Vector2(1.0f, 1.0f)	 }, // Bottom right.
 		};
 
 		S2DE_ASSERT(m_vertex_buffer->Create());
@@ -148,20 +153,20 @@ namespace S2DE::GameObjects
 	{
 		//Get texture name
 		std::string name = m_texture->GetName();
-
 		//Delete previous texture
 		Core::Delete(m_texture);
 
-		Render::Texture* upd_tx = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
+		//Try to get texture by name from resource manager
+		auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
 
-		if (upd_tx == nullptr)
+		//If texture not found
+		if (new_texture == Core::Engine::GetResourceManager().GetDefaultTexture())
 		{
 			Logger::Error("%s Can't update texture!", GetName().c_str());
 			return;
 		}
 
-		//Try to get texture by name from resource manager
-		m_texture = new Render::Texture(*upd_tx);
+		m_texture = new Render::Texture(*new_texture);
 
 		//Texture can't be nullptr
 		S2DE_ASSERT(m_texture != nullptr);
@@ -174,17 +179,15 @@ namespace S2DE::GameObjects
 		//Delete previous shader 
 		Core::Delete(m_shader);
 
-		Render::Shader* upd_sh = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
-
-		if (upd_sh == nullptr)
+		//Try to get shader by name from resource manager
+		auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
+		//If shader not found
+		if (new_shader == nullptr)
 		{
 			Logger::Error("%s Can't update shader!", GetName().c_str());
 			return;
 		}
-
-
-		//Try to get shader by name from resource manager
-		m_shader = new Render::Shader(*upd_sh);
+		m_shader = new Render::Shader(*new_shader);
 
 		//Shader can't be nullptr
 		S2DE_ASSERT(m_shader != nullptr);
@@ -201,7 +204,6 @@ namespace S2DE::GameObjects
 	void Sprite::SetDefaultShader()
 	{	 
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Sprite"));
-
 		m_sprite_const_buf = new Render::ConstantBuffer<SpriteConstBuffer>();
 		S2DE_ASSERT(m_sprite_const_buf->Create());
 	}	 
@@ -211,10 +213,10 @@ namespace S2DE::GameObjects
 		//TODO
 		//Better scale factor
 		//But for now it's ok
-		if(m_tile_size.Zero())
-			ScaleFactor = Math::Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f);
+		if(m_tile_size == DirectX::SimpleMath::Vector2::Zero)
+			ScaleFactor = DirectX::SimpleMath::Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f);
 		else
-			ScaleFactor = Math::Vector3(m_tile_size.x * 0.01f, m_tile_size.y * 0.01f, 1.0f);
+			ScaleFactor = DirectX::SimpleMath::Vector3(m_tile_size.x * 0.01f, m_tile_size.y * 0.01f, 1.0f);
 	}
 
 	void Sprite::SetDefaultTexture()

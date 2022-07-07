@@ -80,7 +80,7 @@ namespace S2DE::Core
 		}
 
 		//Delay for showing splash screen
-		Sleep(1000);
+		//Sleep(1000);
 
 		sp->SetLoadState("Create game window...");
 		m_window = new GameWindow();
@@ -162,11 +162,22 @@ namespace S2DE::Core
 		{
 			m_render->GetImGui_Window("DebugObjectInspectorWindow")->ToggleDraw();
 		}
-#endif
 
+#ifdef S2DE_DEBUG_RENDER_MODE
 		if (Engine::isEditor())
 		{
-			if (m_input_m->IsKeyPressed(KeyCode::KEY_F10))
+			if (m_input_m->IsKeyPressed(KeyCode::KEY_F9))
+			{
+				m_render->ToggleImGuiDemoWindowVisible();
+			}
+		}
+#endif
+
+
+#endif
+		if (Engine::isEditor())
+		{
+			if (m_input_m->IsKeyPressed(KeyCode::KEY_F1))
 			{
 				m_render->ToggleImGuiWindowsVisible();
 			}

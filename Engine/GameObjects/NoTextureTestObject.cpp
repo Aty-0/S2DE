@@ -13,24 +13,24 @@ namespace S2DE::GameObjects
 		m_texture(nullptr),
 		m_shader(nullptr)
 	{
-		if (!Core::Engine::GetResourceManager().IsExists<Render::Shader>("test"))
-			S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("test"));
+		if (!Core::Engine::GetResourceManager().IsExists<Render::Shader>("Sprite"))
+			S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("Sprite"));
 
-		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("test"));
+		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Sprite"));
 		S2DE_ASSERT(m_shader != nullptr);
 
 		m_texture = new Render::Texture();
-		m_texture->CreateEmptyTexture();
+		m_texture->CreateEmptyTexture(Math::Color<std::uint32_t>(Math::Random::RandomRange(255), Math::Random::RandomRange(255), Math::Random::RandomRange(255), 255));
 
 		S2DE_ASSERT(m_texture != nullptr);
 
 		m_vbuffer = new Render::VertexBuffer<Render::Vertex>();
 		m_vbuffer->GetArray() =
 		{
-			{ Math::XFloat3(-1.0f,   -1.0f,   0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 1.0f) }, // Bottom left.
-			{ Math::XFloat3(-1.0f,   1.0f,   0.0f),  Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) }, // Top left.
-			{ Math::XFloat3(1.0f,  1.0f,   0.0f),	 Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(1.0f, 0.0f)	 }, // top right.
-			{ Math::XFloat3(1.0f,  -1.0f,   0.0f),   Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(1.0f, 1.0f)	 }, // Bottom right.
+			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, 
+			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, 
+			{ DirectX::SimpleMath::Vector3(1.0f,  1.0f,   0.0f),	 DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(1.0f, 0.0f) }, 
+			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(1.0f, 1.0f) }, 
 		};
 
 		S2DE_ASSERT(m_vbuffer->Create());
@@ -71,6 +71,10 @@ namespace S2DE::GameObjects
 		m_shader->Bind();
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 		m_texture->Bind();
+
+		Core::Engine::GetRenderer()->GetContext()->RSSetState(Core::Engine::GetRenderer()->GetRasterStateCCW());
+		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0);
+		Core::Engine::GetRenderer()->GetContext()->RSSetState(Core::Engine::GetRenderer()->GetRasterStateCW());
 		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0);
 		m_shader->Unbind();
 	}

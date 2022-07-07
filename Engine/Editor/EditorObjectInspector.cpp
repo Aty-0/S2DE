@@ -4,8 +4,6 @@
 #include "Base/InputManager.h"
 #include "Scene/SceneManager.h"
 #include "Base/GameWindow.h"
-#include "Math/IntVector.h"
-#include "Math/Vector.h"
 
 namespace S2DE::Editor
 {
@@ -52,7 +50,9 @@ namespace S2DE::Editor
 			if (m_handle != nullptr)
 				ImGui::Text("Selected:%s", m_handle->GetName().c_str());
 
-			if (ImGui::ListBoxHeader("", ImVec2(0.0f, (ImGui::GetWindowSize().y / 2) + 50.0f)))
+			ImGui::Spacing();
+
+			if (ImGui::ListBoxHeader("", ImVec2(ImGui::GetWindowSize().x, (ImGui::GetWindowSize().y / 2) + 50.0f)))
 			{
 				for (Scene::SceneObjectStorage::iterator it = Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin();
 					it != Core::Engine::GetSceneManager()->GetScene()->GetStorage().end();

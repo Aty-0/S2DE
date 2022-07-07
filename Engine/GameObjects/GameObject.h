@@ -10,12 +10,11 @@
 #include <boost/serialization/assume_abstract.hpp>
 
 
-//TODO
-//Prefix
+//TODO: 1. Prefix 
+//		2. Objects serialization
 
-
-#define S2DE_DEFAULT_GAMEOBJECT_NAME "BasicGameObjectName"
-#define S2DE_DEFAULT_GAMEOBJECT_TYPE "BasicGameObjectType"
+#define S2DE_DEFAULT_GAMEOBJECT_NAME "EmptyGameObjectName"
+#define S2DE_DEFAULT_GAMEOBJECT_TYPE "EmptyGameObjectType"
 #define S2DE_DEFAULT_GAMEOBJECT_PREFIX 0
 #define	S2DE_ENGINE_GAMEOBJECT_TYPE "_Engine"
 
@@ -25,8 +24,6 @@ namespace S2DE::GameObjects
 {
 	class S2DE_API GameObject : public Transform
 	{
-		friend class boost::serialization::access;
-
 	public:
 		GameObject();
 		virtual ~GameObject();
@@ -90,20 +87,5 @@ namespace S2DE::GameObjects
 		bool						 m_enabled;
 		bool						 m_visible;
 		bool						 m_isSelected;
-
-
-		template<class Archive>
-		void serialize(Archive& ar, const std::uint32_t version)
-		{
-			ar & m_name;
-			ar & m_prefix;
-			ar & m_id;
-			ar & m_type;
-			ar & m_enabled;
-			ar & m_visible;
-			ar & m_isSelected;
-		}
 	};
-
-	BOOST_SERIALIZATION_ASSUME_ABSTRACT(S2DE::GameObjects::GameObject)
 }

@@ -16,16 +16,16 @@ namespace S2DE::GameObjects
 		~TestObject();
 
 		//Get new version of current shader from resource manager
-		virtual void	UpdateShader() override;
+		virtual void						 UpdateShader() override;
 
 		//Get new version of current texture from resource manager
-		virtual void	UpdateTexture() override;
+		virtual void						 UpdateTexture() override;
 
 	protected:
-		virtual void OnUpdate(float DeltaTime) override;
-		virtual void OnRender() override;
-		virtual Math::XMatrix UpdateTransformation() override;
-		virtual bool CheckOnIntersection() override;
+		virtual void						 OnUpdate(float DeltaTime) override;
+		virtual void						 OnRender() override;
+		virtual DirectX::SimpleMath::Matrix  UpdateTransformation() override;
+		virtual bool						 CheckOnIntersection() override;
 
 	private:
 		Render::Texture*	  m_texture;
@@ -33,6 +33,6 @@ namespace S2DE::GameObjects
 		Render::VertexBuffer<Render::Vertex>* m_vbuffer;
 		Render::IndexBuffer<std::int32_t>*  m_ibuffer;
 		float				  m_r;
-		Math::Vector3		  m_scale_factor;
+		DirectX::SimpleMath::Vector3 		  m_scale_factor;
 	};
 }

@@ -22,8 +22,6 @@ namespace S2DE::GameObjects
 		m_name.clear();
 		m_id = nullptr;
 		m_prefix = 0;
-
-		//ClearProperties();
 	}
 
 	void GameObject::Update(float DeltaTime)

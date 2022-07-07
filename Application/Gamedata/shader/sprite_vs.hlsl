@@ -51,6 +51,8 @@ PSINPUT main(VSINPUT input)
     output.position = mul(input.position, worldViewProj );
     output.worldPos = mul(input.position, worldMatrix).xyz;
     output.color = input.color;
+    output.color.w = 1.0f;
+    
     output.uv = (sprite_tile_size.x == 0 && sprite_tile_size.y == 0) ? input.uv : GetAtlasUV(input.uv);
     
     return output;

@@ -5,26 +5,26 @@
 namespace S2DE::GameObjects
 {
 	Transform::Transform() : 
-		m_Position(Math::Vector3::Reset()),
-		m_Rotation(Math::Vector3::Reset()),
-		m_Scale(Math::Vector3(1.0f, 1.0f, 1.0f)),
-		m_WorldMatrix(DirectX::XMMatrixIdentity())
+		m_Position(DirectX::SimpleMath::Vector3::Zero),
+		m_Rotation(DirectX::SimpleMath::Vector3::Zero),
+		m_Scale(DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f)),
+		m_WorldMatrix(DirectX::SimpleMath::Matrix::Identity)
 	{
 
 	}
 
 	Transform::~Transform()
 	{
-		m_Position = Math::Vector3::Reset();
-		m_Scale = Math::Vector3::Reset();
-		m_Rotation = Math::Vector3::Reset();
+		m_Position	= DirectX::SimpleMath::Vector3::Zero;
+		m_Scale		= DirectX::SimpleMath::Vector3::Zero;
+		m_Rotation	= DirectX::SimpleMath::Vector3::Zero;
 	}
 
 	void Transform::Reset()
 	{
-		m_Position = Math::Vector3::Reset();
-		m_Rotation = Math::Vector3::Reset();
-		m_Scale = Math::Vector3(1.0f, 1.0f, 1.0f);
+		m_Position	= DirectX::SimpleMath::Vector3::Zero;
+		m_Rotation	= DirectX::SimpleMath::Vector3::Zero;
+		m_Scale		= DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
 
 		OnPositionChanged();
 		OnRotationChanged();
@@ -33,25 +33,37 @@ namespace S2DE::GameObjects
 
 	void Transform::SetScale_Z(float z)
 	{
-		m_Scale = Math::Vector3(GetScale().x, GetScale().y, z);
+		m_Scale.z = z;
 		OnScaleChanged();
 	}
 
 	void Transform::SetScale_Y(float y)
 	{
-		m_Scale = Math::Vector2(GetScale().x, y);
+		m_Scale.y = y;
 		OnScaleChanged();
 	}
 
 	void Transform::SetScale_X(float x)
 	{
-		m_Scale = Math::Vector2(x, GetScale().y);
+		m_Scale.x = x;
 		OnScaleChanged();
 	}
 
 	void Transform::SetPosition_Y(float y)
 	{
-		m_Position = Math::Vector2(GetPosition().x, y);
+		m_Position.y = y;
+		OnPositionChanged();
+	}
+
+	void Transform::SetPosition_Z(float z)
+	{
+		m_Position.z = z;
+		OnPositionChanged();
+	}
+
+	void Transform::SetPosition_X(float x)
+	{
+		m_Position.x = x;
 		OnPositionChanged();
 	}
 
@@ -73,69 +85,61 @@ namespace S2DE::GameObjects
 		OnRotationChanged();
 	}
 
-	void Transform::SetRotation(Math::Vector3 r)
-	{
-		m_Rotation = r;
-		OnRotationChanged();
-	}
-
-	void Transform::SetPosition_Z(float z)
-	{
-		m_Position = Math::Vector3(GetPosition().x, GetPosition().y, z);
-		OnPositionChanged();
-	}
-
-	void Transform::SetPosition_X(float x)
-	{
-		m_Position = Math::Vector2(x, GetPosition().y);
-		OnPositionChanged();
-	}
-
-	void Transform::SetPosition(Math::Vector3 pos)
+	void Transform::SetPosition(DirectX::SimpleMath::Vector3 pos)
 	{
 		m_Position = pos;
 		OnPositionChanged();
 	}
 
-	void Transform::SetScale(Math::Vector3 scale)
+	void Transform::SetRotation(DirectX::SimpleMath::Vector3 rot)
+	{
+		m_Rotation = rot;
+		OnRotationChanged();
+	}
+
+	void Transform::SetScale(DirectX::SimpleMath::Vector3 scale)
 	{
 		m_Scale = scale;
 		OnScaleChanged();
 	}
 
-	inline Math::XVector Transform::ToQuaternion(Math::Vector3 rot)
+	inline DirectX::SimpleMath::Quaternion Transform::ToQuaternion(DirectX::SimpleMath::Vector3 rot)
 	{
-		return DirectX::XMQuaternionRotationRollPitchYawFromVector(To_XMVector3(rot));
+		return DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(rot.z, rot.y, rot.x);
 	}
 
-	Math::XMatrix Transform::UpdateTransformation2D()
+	DirectX::SimpleMath::Matrix Transform::UpdateTransformation2D()
 	{
 		m_WorldMatrix = DirectX::XMMatrixTransformation2D(
 			//Scale
 			//Scale center | scale rotation | scale vec
-			Math::XVector(), 0.0f, Math::To_XMVector2(Math::Vector2(m_Scale.x, m_Scale.y)),
+			DirectX::SimpleMath::Vector2::Zero, 0.0f, DirectX::SimpleMath::Vector2(m_Scale.x, m_Scale.y),
 			//Angle in radians
 			//Rotation center | Angle
-			Math::To_XMVector2(Math::Vector2(float(Core::Engine::GetGameWindow()->GetWidth() / 2),
-				float(Core::Engine::GetGameWindow()->GetHeight() / 2))), m_Rotation.x,
+			DirectX::SimpleMath::Vector2(float(Core::Engine::GetGameWindow()->GetWidth() / 2),
+				float(Core::Engine::GetGameWindow()->GetHeight() / 2)), m_Rotation.x,
 			//Position 
-			Math::To_XMVector2(Math::Vector2(m_Position.x, m_Position.y)));
+			DirectX::SimpleMath::Vector2(m_Position.x, m_Position.y));
 
-		return DirectX::XMMatrixTranspose(m_WorldMatrix);
+		m_WorldMatrix.Transpose(m_WorldMatrix);
+
+		return m_WorldMatrix;
 	}
 
-	Math::XMatrix Transform::UpdateTransformation()
+	DirectX::SimpleMath::Matrix Transform::UpdateTransformation()
 	{	
 		m_WorldMatrix = DirectX::XMMatrixTransformation(
 			//Scale
 			//Center | Rotation | Scaling
-			Math::XVector(), Math::XVector(), To_XMVector3(m_Scale),
+			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, m_Scale,
 			//Rotation
 			//Center | Quatarnion
-			Math::XVector(), ToQuaternion(m_Rotation),
+			DirectX::SimpleMath::Vector3::Zero, ToQuaternion(m_Rotation),
 			//Translation
-			To_XMVector3(m_Position));
+			m_Position);
 
-		return DirectX::XMMatrixTranspose(m_WorldMatrix);
+		m_WorldMatrix.Transpose(m_WorldMatrix);
+
+		return m_WorldMatrix;
 	}
 }

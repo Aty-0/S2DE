@@ -53,9 +53,9 @@ namespace S2DE::Scene
 		std::string name = std::string(),
 		std::string type = std::string(),
 		std::int32_t prefix = S2DE_DEFAULT_GAMEOBJECT_PREFIX,
-		Math::Vector3 position = Math::Vector3::Reset(),
-		Math::Vector3 rotation = Math::Vector3::Reset(),
-		Math::Vector3 scale = Math::Vector3(1.0f, 1.0f, 1.0f))
+		DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3::Zero,
+		DirectX::SimpleMath::Vector3 rotation = DirectX::SimpleMath::Vector3::Zero,
+		DirectX::SimpleMath::Vector3 scale =	DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f))
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 

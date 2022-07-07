@@ -65,6 +65,11 @@ namespace S2DE::Render
 			Core::Engine::GetRenderer()->GetContext()->IASetIndexBuffer(m_buffer, DXGI_FORMAT_R32_UINT, 0);
 		}
 
+		virtual void Unbind()  override
+		{
+			Core::Engine::GetRenderer()->GetContext()->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
+		}
+
 		inline std::vector<std::uint32_t>& GetArray() { return m_array; }
 
 	private:

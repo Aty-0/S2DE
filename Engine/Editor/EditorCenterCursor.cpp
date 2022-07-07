@@ -13,12 +13,12 @@ namespace S2DE::Editor
 		m_vertex_buffer = new Render::VertexBuffer<Render::Vertex>();
 		m_vertex_buffer->GetArray() =
 		{
-			{ Math::XFloat3(-1.0f,   -1.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) },
-			{ Math::XFloat3(0.0f,   0.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) },
-			{ Math::XFloat3(1.0f,   -1.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) },
-			{ Math::XFloat3(-1.0f,   1.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) },
-			{ Math::XFloat3(0.0f,   0.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) },
-			{ Math::XFloat3(1.0f,   1.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(1.0f,   -1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(1.0f,   1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
 		};
 
 		S2DE_ASSERT(m_vertex_buffer->Create());
@@ -28,7 +28,7 @@ namespace S2DE::Editor
 		S2DE_ASSERT(Core::Engine::GetResourceManager().IsExists<Render::Shader>("editor_cursor"));
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("editor_cursor"));
 
-		SetScale(Math::Vector2(1.8f, 1.8f));
+		SetScale(DirectX::SimpleMath::Vector3(1.8f, 1.8f, 1.0f));
 	}
 
 	EditorCenterCursor::~EditorCenterCursor()

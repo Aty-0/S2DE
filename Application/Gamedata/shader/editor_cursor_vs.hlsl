@@ -23,15 +23,18 @@ struct PSINPUT
     float3 worldPos		: POSITION; 
 };
 
-float hashOld12(float2 p)
+float random( float2 p )
 {
-	return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
+    float2 K1 = float2(
+        23.14069263277926, // e^pi (Gelfond's constant)
+         2.665144142690225 // 2^sqrt(2) (Gelfondâ€“Schneider constant)
+    );
+    return frac( cos( dot(p,K1) ) * 12345.6789 );
 }
 
 PSINPUT main(VSINPUT input)
 {
     PSINPUT output;
-    
     matrix worldViewProj = mul( mul( worldMatrix, viewMatrix ), projectionMatrix);
     output.position = mul(float4( input.position, 1.0f ), worldViewProj );
     output.worldPos = mul( float4( input.position, 1.0f ), worldMatrix).xyz;

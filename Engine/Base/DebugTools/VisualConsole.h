@@ -36,5 +36,13 @@ namespace S2DE::Core::Debug
 		bool					m_scroll_to_bottom;
 		bool					m_free;
 		VisualConsoleSizeMode	m_sizemode;
+
+		struct Line
+		{
+			float alpha;
+			std::string text;
+		};
+
+		Line m_linebuffer[8];
 	};
 }

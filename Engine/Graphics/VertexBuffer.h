@@ -57,6 +57,11 @@ namespace S2DE::Render
 			return true;
 		}
 
+		virtual void Unbind()  override
+		{
+			Core::Engine::GetRenderer()->GetContext()->IASetVertexBuffers(0, 0, nullptr, 0, 0);
+		}
+
 		virtual void Unlock() override
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)

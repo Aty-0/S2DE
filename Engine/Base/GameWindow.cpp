@@ -135,7 +135,7 @@ namespace S2DE::Core
 		if (!Core::Other::isStringEmpty(name))
 			str.append(std::string(" (") + name + ")");
 
-		str.append(" in Debug Mode");
+		str.append(" Debug");
 #endif
 		m_WindowClass = { };
 
@@ -156,7 +156,7 @@ namespace S2DE::Core
 
 
 		RECT rc = { 0, 0, (std::int32_t)m_Width, (std::int32_t)m_Height };
-		AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, false);
+		AdjustWindowRect(&rc, Fullscreen ? S2DE_FULLSCREEN_WINDOW_STYLE : S2DE_DEFAULT_WINDOW_STYLE, false);
 
 		m_HWND = CreateWindowExA(NULL, S2DE_WINDOW_CLASS_NAME, str.c_str(), Fullscreen ? S2DE_FULLSCREEN_WINDOW_STYLE : S2DE_DEFAULT_WINDOW_STYLE,
 			m_Left, m_Top, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, m_WindowClass.hInstance, NULL);

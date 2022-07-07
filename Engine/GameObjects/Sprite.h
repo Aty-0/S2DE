@@ -3,25 +3,24 @@
 #include "Base/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/Buffers.h"
-#include "Math/IntVector.h"
 
 namespace S2DE::GameObjects
 {
+	//TODO: 1. Colored texture
+	//		2. Set custom shaders, need to change ConstBuffer
+
+	struct S2DE_ALIGN(16) SpriteConstBuffer
+	{
+		DirectX::XMINT2					sprite_tile_frame;
+		DirectX::SimpleMath::Vector2	sprite_tile_size;
+		DirectX::SimpleMath::Vector2	sprite_texture_res;
+	};
+
 	class S2DE_API Sprite : public Drawable
 	{
 	public:
 		Sprite();
 		~Sprite();
-
-		//TODO 
-		//Colored texture
-
-
-		//TODO
-		//Load custom shader
-		//It's must be template function because we can set custom const buffer type
-		//By default it's must be SpriteConstBuffer type
-
 
 		//Basic load texture function for sprite
 		//This function get texture from resource manager and setting it to sprite
@@ -39,7 +38,7 @@ namespace S2DE::GameObjects
 		void			SetAtlasFramePosition(std::int32_t x, std::int32_t y);
 
 		//Set frame size 
-		void			SetAtlasSize(Math::Vector2 size);
+		void			SetAtlasSize(DirectX::SimpleMath::Vector2 size);
 
 	private:
 		Render::Texture*						m_texture;
@@ -47,32 +46,21 @@ namespace S2DE::GameObjects
 		Render::Shader*							m_shader;
 		Render::VertexBuffer<Render::Vertex>*	m_vertex_buffer;
 		Render::IndexBuffer<std::int32_t>*		m_index_buffer;
-		Math::Vector2							m_tile_size;
-		Math::IntVector2						m_tile_frame_pos;
+		DirectX::SimpleMath::Vector2			m_tile_size;
+		DirectX::SimpleMath::Rectangle			m_tile_frame_pos;
+		Render::ConstantBuffer<SpriteConstBuffer>* m_sprite_const_buf;
 
 	protected:
 		virtual void			OnUpdate(float DeltaTime) override { }
 		virtual void			OnRender() override;
-		virtual Math::XMatrix	UpdateTransformation() override;
 
 		virtual void			CreateVertexBuffer();
 		virtual void			CreateIndexBuffer();
 		virtual void			SetDefaultShader();
 		virtual void			SetDefaultTexture();
 		virtual void			CalcScaleFactor();
+		virtual DirectX::SimpleMath::Matrix	UpdateTransformation() override;
 
-
-		Math::Vector3			ScaleFactor;
-
-	public:
-		struct S2DE_ALIGN(16) SpriteConstBuffer
-		{
-			Math::XInt2				sprite_tile_frame;
-			Math::XFloat2			sprite_tile_size;
-			Math::XFloat2			sprite_texture_res;
-		};
-
-	private:
-		Render::ConstantBuffer<SpriteConstBuffer>* m_sprite_const_buf;
+		DirectX::SimpleMath::Vector3			ScaleFactor;
 	};
 }

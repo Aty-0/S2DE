@@ -25,6 +25,8 @@ namespace S2DE::Core
 		inline std::string             GetName() const { return m_Name; }
 		inline std::uint32_t           GetWidth()  const { return m_Width; }
 		inline std::uint32_t           GetHeight() const { return m_Height; }
+		inline std::uint32_t           GetWidthFixed()  const {  RECT rc; GetClientRect(m_HWND, &rc); return rc.right - rc.left; }
+		inline std::uint32_t           GetHeightFixed() const { RECT rc; GetClientRect(m_HWND, &rc); return  rc.bottom - rc.top; }
 		inline std::int32_t            GetLeft()   const { return m_Left; }
 		inline std::int32_t            GetTop()    const { return m_Top; }
 		inline HWND&                   GetHWND() { return m_HWND; }

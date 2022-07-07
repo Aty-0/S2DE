@@ -18,9 +18,6 @@ namespace S2DE::GameObjects
 		m_texture(nullptr),
 		m_shader(nullptr)
 	{
-		//TODO
-		//Need to replace it to random texture in atlas
-
 		if(!Core::Engine::GetResourceManager().IsExists<Render::Shader>("test"))
 			S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("test"));
 
@@ -49,10 +46,10 @@ namespace S2DE::GameObjects
 		m_vbuffer = new Render::VertexBuffer<Render::Vertex>();
 		m_vbuffer->GetArray() =
 		{
-			{ Math::XFloat3(-1.0f,   -1.0f,   0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 1.0f) }, // Bottom left.
-			{ Math::XFloat3(-1.0f,   1.0f,   0.0f),  Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) }, // Top left.
-			{ Math::XFloat3(1.0f,  1.0f,   0.0f),	 Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(1.0f, 0.0f)	 }, // top right.
-			{ Math::XFloat3(1.0f,  -1.0f,   0.0f),   Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(1.0f, 1.0f)	 }, // Bottom right.
+			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, // Bottom left.
+			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, // Top left.
+			{ DirectX::SimpleMath::Vector3(1.0f,  1.0f,   0.0f),	 DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(1.0f, 0.0f)	 }, // top right.
+			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(1.0f, 1.0f)	 }, // Bottom right.
 		};
 
 		S2DE_ASSERT(m_vbuffer->Create());
@@ -70,7 +67,7 @@ namespace S2DE::GameObjects
 
 
 		//m_scale_factor = Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f);
-		m_scale_factor = Math::Vector3(1.0f, 1.0f, 1.0f);
+		m_scale_factor = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
 
 	}
 
@@ -86,25 +83,39 @@ namespace S2DE::GameObjects
 		Logger::Log("[test object] Destroyed %s", GetName().c_str());
 	}
 
-	Math::XMatrix TestObject::UpdateTransformation()
+	DirectX::SimpleMath::Matrix TestObject::UpdateTransformation()
 	{
-		GetWorldMatrix() = DirectX::XMMatrixTransformation(
+		//m_WorldMatrix = DirectX::SimpleMath::Matrix::CreateWorld(
+		//	m_Position,
+		//	DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f),
+		//	DirectX::SimpleMath::Vector3::Up);
+		//
+		//m_WorldMatrix *= DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(m_Rotation.z, m_Rotation.x, m_Rotation.y);
+		//m_WorldMatrix *= DirectX::SimpleMath::Matrix::CreateScale(m_Scale * m_scale_factor);
+		//
+		//m_WorldMatrix.Transpose(m_WorldMatrix);
+		//
+		//return m_WorldMatrix;
+
+		m_WorldMatrix = DirectX::XMMatrixTransformation(
 			//Scale
 			//Center | Rotation | Scaling
-			Math::XVector(), Math::XVector(), Math::To_XMVector3(GetScale() * m_scale_factor),
+			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, m_Scale ,
 			//Rotation
 			//Center | Quatarnion
-			Math::XVector(), ToQuaternion(GetRotation()),
+			DirectX::SimpleMath::Vector3::Zero, ToQuaternion(m_Rotation),
 			//Translation
-			Math::To_XMVector3(GetPosition()));
+			m_Position);
 
-		return DirectX::XMMatrixTranspose(GetWorldMatrix());
+		m_WorldMatrix.Transpose(m_WorldMatrix);
+
+		return m_WorldMatrix;
 	}
 
 	void TestObject::OnUpdate(float DeltaTime)
 	{
-		m_r += S2DE_TEST_OBJECT_SPEED * DeltaTime;
-		SetRotation(Math::Vector3(0, 0, m_r));
+		//m_r += S2DE_TEST_OBJECT_SPEED * DeltaTime;
+		//SetRotation(DirectX::SimpleMath::Vector3(0, 0, m_r));
 	}
 
 	void TestObject::OnRender()

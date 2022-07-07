@@ -33,6 +33,7 @@
     <ClInclude Include="GameObjects\NoTextureTestObject.h" />
     <ClInclude Include="Graphics\Buffer.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
+    <ClInclude Include="Graphics\ImGuiS2DETheme.h" />
     <ClInclude Include="Graphics\ImGui_Window.h" />
     <ClInclude Include="Base\DebugTools\VisualConsole.h" />
     <ClInclude Include="Base\Engine.h" />
@@ -59,7 +60,6 @@
     <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Libs\utfcpp\utf8.h" />
-    <ClInclude Include="Math\IntVector.h" />
     <ClInclude Include="IO\IO_Disposible.h" />
     <ClInclude Include="IO\IO_File.h" />
     <ClInclude Include="Libs\imgui\imconfig.h" />
@@ -74,12 +74,10 @@
     <ClInclude Include="Math\Clamp.h" />
     <ClInclude Include="Math\Color.h" />
     <ClInclude Include="Math\MathConstants.h" />
-    <ClInclude Include="Math\Matrix.h" />
     <ClInclude Include="Math\Max.h" />
     <ClInclude Include="Math\Min.h" />
     <ClInclude Include="Math\Random.h" />
     <ClInclude Include="Math\Rect.h" />
-    <ClInclude Include="Math\Vector.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="GameObjects\TestObject.h" />
     <ClInclude Include="Scene\Scene.h" />
@@ -118,7 +116,6 @@
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
-    <ClCompile Include="Math\IntVector.cpp" />
     <ClCompile Include="IO\IO_File.cpp" />
     <ClCompile Include="Libs\imgui\imgui.cpp" />
     <ClCompile Include="Libs\imgui\imgui_demo.cpp" />
@@ -127,7 +124,6 @@
     <ClCompile Include="Libs\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Libs\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libs\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Math\Vector.cpp" />
     <ClCompile Include="GameObjects\TestObject.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp" />
@@ -206,11 +202,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;S2DE_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_XM_NO_INTRINSICS_;WIN32;_DEBUG;S2DE_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;#(SolutionDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;../Libs/DirectXMath/D3D/;#(SolutionDir)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

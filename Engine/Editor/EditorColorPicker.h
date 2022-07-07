@@ -12,13 +12,13 @@ namespace S2DE::Editor
 		EditorColorPicker();
 		~EditorColorPicker();
 
-		void		 GetColorRawFormat(const float* color);
-		void		 GetColor(Math::Color<float>& color);
+		void		 SetColorRawFormat(const float* color);
+		void		 SetColor(Math::Color<float>& color);
 
 		virtual void Render() override;
 
 	private:
-		Math::Color <float> m_color;
-		float				m_raw_color[4];
+		Math::Color <float>	 m_color;
+		float				 m_raw_color[4];
 	};
 }

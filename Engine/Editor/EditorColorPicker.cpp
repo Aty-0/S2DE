@@ -3,7 +3,7 @@
 
 namespace S2DE::Editor
 {
-	EditorColorPicker::EditorColorPicker()
+	EditorColorPicker::EditorColorPicker() 
 	{		 
 		m_raw_color[0] = 0.0f;
 		m_raw_color[1] = 0.0f;
@@ -16,12 +16,12 @@ namespace S2DE::Editor
 
 	}
 
-	void EditorColorPicker::GetColorRawFormat(const float* color)
+	void EditorColorPicker::SetColorRawFormat(const float* color)
 	{
 		color = m_raw_color;
 	}
 
-	void EditorColorPicker::GetColor(Math::Color<float>& color)
+	void EditorColorPicker::SetColor(Math::Color<float>& color)
 	{
 		color = m_color;
 	}

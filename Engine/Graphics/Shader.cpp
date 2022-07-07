@@ -61,14 +61,14 @@ namespace S2DE::Render
 
 	bool Shader::Compile()
 	{
-		ID3D10Blob* code_buffer;
-		ID3D10Blob* err_buffer;
+		ID3D10Blob* code_buffer = nullptr;
+		ID3D10Blob* err_buffer = nullptr;
 
-		m_flags |= D3D10_SHADER_ENABLE_STRICTNESS;
+		m_flags |= D3DCOMPILE_ENABLE_STRICTNESS;
 
 #if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
-		m_flags |= D3D10_SHADER_DEBUG;
-		m_flags |= D3D10_SHADER_SKIP_OPTIMIZATION;
+		m_flags |= D3DCOMPILE_DEBUG;
+		m_flags |= D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
 		Logger::Log("[Shader] [%s] Compile vertex shader...", m_name.c_str());
@@ -92,7 +92,7 @@ namespace S2DE::Render
 				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,
 				0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 
-				{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT,
+				{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
 				0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 
 				{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT,
@@ -144,12 +144,16 @@ namespace S2DE::Render
 		return Compile();
 	}
 
-	void Shader::UpdateMainConstBuffer(Math::XMatrix world, bool ui)
+	void Shader::UpdateMainConstBuffer(DirectX::SimpleMath::Matrix world, bool ui)
 	{
 		m_const_buffer->Lock();
-		m_const_buffer->GetData()->Delta = Core::Engine::GetGameTime().GetDeltaTime();
-		m_const_buffer->GetData()->Time = Core::Engine::GetGameTime().GetTime();
-		m_const_buffer->GetData()->Resoultion = Math::XFloat2((float)Core::Engine::GetGameWindow()->GetWidth(), (float)Core::Engine::GetGameWindow()->GetHeight());
+
+		m_const_buffer->GetData()->deltatime = Core::Engine::GetGameTime().GetDeltaTime();
+		m_const_buffer->GetData()->time = Core::Engine::GetGameTime().GetTime();
+		m_const_buffer->GetData()->resoultion = DirectX::SimpleMath::Vector2(
+			(float)Core::Engine::GetGameWindow()->GetWidth(), 
+			(float)Core::Engine::GetGameWindow()->GetHeight());
+
 		m_const_buffer->GetData()->world = world;
 
 		GameObjects::Camera* cam = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
@@ -159,7 +163,7 @@ namespace S2DE::Render
 			if (ui)
 			{
 				m_const_buffer->GetData()->projection = cam->GetOrthoMatrix();
-				m_const_buffer->GetData()->view = DirectX::XMMatrixTranspose(DirectX::XMMatrixIdentity());
+				m_const_buffer->GetData()->view = DirectX::SimpleMath::Matrix::Identity;
 			}
 			else
 			{
@@ -170,5 +174,6 @@ namespace S2DE::Render
 
 		m_const_buffer->Unlock();
 		m_const_buffer->Bind();
+		m_const_buffer->Unbind();
 	}
 }

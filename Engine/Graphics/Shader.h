@@ -7,23 +7,18 @@
 
 namespace S2DE::Render
 {
+	struct S2DE_API ShaderMainConstantBuffer
+	{
+		float						 deltatime;
+		float						 time;
+		DirectX::SimpleMath::Vector2 resoultion;
+		DirectX::SimpleMath::Matrix  world;
+		DirectX::SimpleMath::Matrix  view;
+		DirectX::SimpleMath::Matrix  projection;
+	};
+
 	class S2DE_API Shader : public IO::IO_File, public IO::IO_Disposible
 	{
-	public:
-		struct S2DE_API ShaderMainConstantBuffer
-		{
-			float Delta;
-			float Time;
-			Math::XFloat2 Resoultion;
-
-			//Game object
-			Math::XMatrix world;
-
-			//Camera stuff
-			Math::XMatrix view;
-			Math::XMatrix projection;
-		};
-
 	public:
 		Shader();
 		~Shader();
@@ -39,25 +34,22 @@ namespace S2DE::Render
 		//Release all resource
 		virtual void					Cleanup() final;
 
+		void							UpdateMainConstBuffer(DirectX::SimpleMath::Matrix world, bool ui = false);
 
 		inline ID3D11VertexShader*		GetVertexShader() const { return m_vertexShader; }
 		inline ID3D11PixelShader*		GetPixelShader()	 const { return m_pixelShader; }
 		inline ID3D11InputLayout*		GetLayout()		 const { return m_layout; }
+		inline ConstantBuffer<ShaderMainConstantBuffer>*  GetConstBuffer() const { return m_const_buffer; }
 
 	private:
+		void							ShowErrorDetails(ID3D10Blob* error_blob);
+
 		ID3D11VertexShader*				m_vertexShader;
 		ID3D11PixelShader*				m_pixelShader;
 		ID3D11InputLayout*				m_layout;
 		std::string						m_path_vs;
 		std::string						m_path_ps;
 		DWORD							m_flags;
-
-		void							ShowErrorDetails(ID3D10Blob* error_blob);
-	public:
-		void							UpdateMainConstBuffer(Math::XMatrix world, bool ui = false);
-		inline ConstantBuffer<ShaderMainConstantBuffer>*  GetConstBuffer() const { return m_const_buffer; }
-	private:
 		ConstantBuffer<ShaderMainConstantBuffer>* m_const_buffer;
-
 	};
 }

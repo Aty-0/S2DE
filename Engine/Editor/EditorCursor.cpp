@@ -7,8 +7,8 @@
 #include "Scene/SceneManager.h"
 
 #define CURSOR_CIRCLE_RINGS_COUNT 16
-#define CURSOR_DEFAULT_SPEED 0.05f
-#define CURSOR_DEFAULT_SIZE 1.6f
+#define CURSOR_DEFAULT_SPEED 0.03f
+#define CURSOR_DEFAULT_SIZE 1.1f
 
 namespace S2DE::Editor
 {
@@ -19,12 +19,12 @@ namespace S2DE::Editor
 		m_cross_vertex_buffer = new Render::VertexBuffer<Render::Vertex>();
 		m_cross_vertex_buffer->GetArray() =
 		{
-			{ Math::XFloat3(-1.0f,   -1.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) }, 
-			{ Math::XFloat3(0.0f,   0.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) }, 
-			{ Math::XFloat3(1.0f,   -1.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) }, 
-			{ Math::XFloat3(-1.0f,   1.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) },
-			{ Math::XFloat3(0.0f,   0.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) },
-			{ Math::XFloat3(1.0f,   1.0f,	0.0f), Math::XFloat4(255, 255, 255, 255),  Math::XFloat2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, 
+			{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, 
+			{ DirectX::SimpleMath::Vector3(1.0f,   -1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, 
+			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(1.0f,   1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
 		};
 
 		S2DE_ASSERT(m_cross_vertex_buffer->Create());
@@ -36,9 +36,9 @@ namespace S2DE::Editor
 		{
 			Render::Vertex v = 
 			{ 
-				Math::XFloat3((float)cos( 2 * i * 3.14 / CURSOR_CIRCLE_RINGS_COUNT), (float)sin(2 * i * 3.14 / CURSOR_CIRCLE_RINGS_COUNT), 0.0f),
-				Math::XFloat4(255, 255, 255, 255), 
-				Math::XFloat2(0.0f, 0.0f) 
+				DirectX::SimpleMath::Vector3((float)cos( 2 * i * 3.14 / CURSOR_CIRCLE_RINGS_COUNT), (float)sin(2 * i * 3.14 / CURSOR_CIRCLE_RINGS_COUNT), 0.0f),
+				DirectX::SimpleMath::Vector4(255, 255, 255, 255),
+				DirectX::SimpleMath::Vector2(0.0f, 0.0f)
 			};
 
 			m_circle_vertex_buffer->GetArray().push_back(v);
@@ -50,7 +50,7 @@ namespace S2DE::Editor
 		S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("editor_cursor"));
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("editor_cursor"));
 
-		SetScale(Math::Vector2(CURSOR_DEFAULT_SIZE, CURSOR_DEFAULT_SIZE));
+		SetScale(DirectX::SimpleMath::Vector3(CURSOR_DEFAULT_SIZE, CURSOR_DEFAULT_SIZE, 1.0f));
 	}
 
 	EditorCursor::~EditorCursor()
@@ -64,19 +64,20 @@ namespace S2DE::Editor
 	{
 		//Rotate everything
 		//* Core::Engine::GetGameTime().GetDeltaTime()
-		SetRotation_Z(GetRotation().z + CURSOR_DEFAULT_SPEED);
+		SetRotation_X(GetRotation().x + CURSOR_DEFAULT_SPEED);
 
 		//Calculate cursor world position 
 		POINT point{};
 		GetCursorPos(&point);
 		ScreenToClient(Core::Engine::GetGameWindow()->GetHWND(), &point);
-		SetPosition(Math::Vector2( (((2 * point.x) / (float)Core::Engine::GetGameWindow()->GetWidth()) - 1.0f) * -1.0f,
-			((2 * point.y ) / (float)Core::Engine::GetGameWindow()->GetHeight()) - 1.0f) * -1.0f);
+		SetPosition(DirectX::SimpleMath::Vector3(
+			((2 * point.x) / (float)Core::Engine::GetGameWindow()->GetWidthFixed() - 1.0f) * -1.0f,
+			((2 * point.y) / (float)Core::Engine::GetGameWindow()->GetHeightFixed() - 1.0f) * -1.0f,
+			0.0f));
 
 		//Adjust the points using the projection matrix to account for the aspect ratio of the viewport
-		Math::XMatrix4x4 proj{};
-		DirectX::XMStoreFloat4x4(&proj, Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME)->GetOrthoMatrix());
-		SetPosition(Math::Vector2(GetPosition().x / proj._11, GetPosition().y / proj._22));
+		DirectX::SimpleMath::Matrix proj = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME)->GetOrthoMatrix();
+		SetPosition(DirectX::SimpleMath::Vector3(-GetPosition().x / proj._11, GetPosition().y / proj._22, 0.0f));
 
 		//Render the cross
 		m_cross_vertex_buffer->Bind();

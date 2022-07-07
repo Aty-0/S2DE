@@ -7,6 +7,7 @@
 namespace S2DE::Core::Debug
 {
 	std::vector<std::string> VisualConsole::ConsoleBuffer;
+	static std::uint32_t line_count = 0;
 
 	VisualConsole::VisualConsole() : 
 		m_scroll_to_bottom(false), 
@@ -29,6 +30,16 @@ namespace S2DE::Core::Debug
 	void VisualConsole::Scroll()
 	{
 		m_scroll_to_bottom = true;
+		line_count++;
+
+		if (line_count >= 6)
+			line_count = 0;
+
+		Line line = Line();
+		line.alpha = 1.0f;
+		line.text = ConsoleBuffer[(std::int32_t)ConsoleBuffer.size() - 1];
+
+		m_linebuffer[line_count] = line;
 	}
 
 	void VisualConsole::UpdateSizeMode()
@@ -49,6 +60,47 @@ namespace S2DE::Core::Debug
 
 	void VisualConsole::Render()
 	{
+#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+		if (ImGui::Begin("ConsoleMessageUI", nullptr,
+			ImGuiWindowFlags_::ImGuiWindowFlags_NoInputs |
+			ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground |
+			ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration))
+		{
+			ImGui::SetWindowPos(ImVec2(0.0f, 10.0f));
+			ImGui::SetWindowSize(ImVec2(Engine::GetGameWindow()->GetWidth(), 500.0f));
+			for (std::int32_t i = 0; i <= (std::int32_t)line_count; i++)
+			{
+				Line& line = m_linebuffer[i];
+
+				ImVec4 col = ImVec4(1.0f, 1.0f, 1.0f, line.alpha);
+
+				if (strstr(line.text.c_str(), "[Error]"))
+					col = ImColor(1.0f, 0.4f, 0.4f, line.alpha);
+				else if (strstr(line.text.c_str(), "[Fatal]"))
+					col = ImColor(1.0f, 0.0f, 0.0f, line.alpha);
+				else if (strstr(line.text.c_str(), "[Warning]"))
+					col = ImColor(0.8f, 0.8f, 0.0f, line.alpha);
+
+				ImGui::PushStyleColor(ImGuiCol_Text, col);
+				ImGui::TextUnformatted(line.text.c_str());
+				ImGui::SameLine();
+				ImGui::Text("| %d %d", i, line_count);
+				ImGui::PopStyleColor();
+
+				if (line.alpha > 0.0f)
+					line.alpha -= 0.005f;
+				else if (i == (std::int32_t)line_count && line.alpha <= 0.0f)
+					line_count = 0;
+				else if (line.alpha <= 0.0f && line_count > -1)
+					line_count--;
+			}
+		}
+
+		ImGui::End();
+#endif
+
 		if (!m_draw)
 			return;
 
@@ -118,7 +170,7 @@ namespace S2DE::Core::Debug
 
 			std::int32_t max_lines = 175 + Engine::GetGameWindow()->GetWidth() / 50;
 
-			if (item.length() >= max_lines)
+			if (item.length() >= (std::uint32_t)max_lines)
 			{
 				for (std::int32_t i = 1; i <= std::int32_t(item.length() / max_lines); i++)
 					item.insert(max_lines * i, "\n");

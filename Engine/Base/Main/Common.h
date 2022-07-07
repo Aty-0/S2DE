@@ -19,11 +19,12 @@
 
 //DX11
 #include <dxgi.h>
-#include <d3d11_1.h>
+//#include <d3d11_1.h>
+#include <d3d11.h>
 #include <d3dcommon.h>
 
 #include <DirectXMath.h>
-
+#include "SimpleMath.h"
 
 #include <comdef.h>
 
@@ -36,10 +37,6 @@ namespace S2DE::Core
 	{
 		if (t)
 		{
-			//Debug stuff
-#if 0
-			OutputDebugString(std::string("\nDeleted " + std::string(typeid(t).name()) + "\n").c_str());
-#endif 
 
 			delete t;
 			t = NULL;
@@ -51,10 +48,6 @@ namespace S2DE::Core
 	{
 		if (t)
 		{
-			//Debug stuff
-#if 0
-			OutputDebugString(std::string("\nReleased " + std::string(typeid(t).name()) + "\n").c_str());
-#endif 
 			t->Release();
 			t = nullptr;
 		}
@@ -73,32 +66,13 @@ namespace S2DE::Core
 	}
 }
 
-namespace S2DE::Math
-{
-	//DirectX Math library defines
-	typedef S2DE_API DirectX::XMVECTOR XVector;
-	typedef S2DE_API DirectX::XMMATRIX XMatrix;
-
-	typedef S2DE_API DirectX::XMINT2 XInt2;
-	typedef S2DE_API DirectX::XMINT3 XInt3;
-	typedef S2DE_API DirectX::XMINT4 XInt4;
-
-	typedef S2DE_API DirectX::XMFLOAT2 XFloat2;
-	typedef S2DE_API DirectX::XMFLOAT3 XFloat3;
-	typedef S2DE_API DirectX::XMFLOAT4 XFloat4;
-
-	typedef S2DE_API DirectX::XMFLOAT4X4 XMatrix4x4;
-	typedef S2DE_API DirectX::XMFLOAT4X3 XMatrix4x3;
-	typedef S2DE_API DirectX::XMFLOAT3X3 XMatrix3x3;
-}
-
 namespace S2DE::Render
 {
 	struct S2DE_API Vertex
 	{
-		Math::XFloat3 position;
-		Math::XFloat4 color;
-		Math::XFloat2 uv;
+		DirectX::SimpleMath::Vector3 position;
+		DirectX::SimpleMath::Vector4 color;
+		DirectX::SimpleMath::Vector2 uv;
 	};
 }
 

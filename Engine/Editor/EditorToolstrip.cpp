@@ -4,6 +4,7 @@
 #include "Scene/SceneManager.h"
 #include "Graphics/Renderer.h"
 
+#include "GameObjects/Camera.h"
 #include "GameObjects/Sprite.h"
 #include "GameObjects/TestObject.h"
 #include "GameObjects/NoTextureTestObject.h"
@@ -97,16 +98,24 @@ namespace S2DE::Editor
 
 			if (ImGui::BeginMenu("Tools"))
 			{
+				auto maincamera = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
+				DirectX::SimpleMath::Vector3 spawn_vec = DirectX::SimpleMath::Vector3::Zero;
+
+				if (maincamera != nullptr)
+					spawn_vec = maincamera->GetPosition();
+
+
 				if (ImGui::BeginMenu("Create"))
 				{
 					if (ImGui::MenuItem("GameObject"))
 					{
-						Scene::CreateGameObject<GameObjects::GameObject>("GameObject", "GameObject", 1);
+						Scene::CreateGameObject<GameObjects::GameObject>("GameObject", "GameObject", 1, spawn_vec);
 					}
 					if (ImGui::MenuItem("Sprite"))
 					{
-						Scene::CreateGameObject<GameObjects::Sprite>("Sprite", "GameObject", 1);
+						Scene::CreateGameObject<GameObjects::Sprite>("Sprite", "GameObject", 1, spawn_vec);
 					}
+
 					if (ImGui::MenuItem("Camera"))
 					{
 
@@ -116,12 +125,12 @@ namespace S2DE::Editor
 					{
 						if (ImGui::MenuItem("Basic Test object"))
 						{
-							Scene::CreateGameObject<GameObjects::TestObject>("TestObject", "GameObject", 1);
+							Scene::CreateGameObject<GameObjects::TestObject>("TestObject", "GameObject", 1, spawn_vec);
 						}
 
 						if (ImGui::MenuItem("No texture test object"))
 						{
-							Scene::CreateGameObject<GameObjects::NoTextureTestObject>("NoTextureTestObject", "GameObject", 1);
+							Scene::CreateGameObject<GameObjects::NoTextureTestObject>("NoTextureTestObject", "GameObject", 1, spawn_vec);
 						}
 						ImGui::EndMenu();
 					}
@@ -161,9 +170,14 @@ namespace S2DE::Editor
 					if (ImGui::MenuItem("Toggle gizmos visible"))
 					{
 
+					}		
+
+					if (ImGui::MenuItem("Toggle editor windows"))
+					{
+						Core::Engine::GetRenderer()->ToggleImGuiWindowsVisible();
 					}
 
-					if (ImGui::MenuItem("Toggle imgui visible"))
+					if (ImGui::MenuItem("Toggle debug windows"))
 					{
 						Core::Engine::GetSceneManager()->ToggleImGUIVisibility();
 					}
