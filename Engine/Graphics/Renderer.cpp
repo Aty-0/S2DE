@@ -285,22 +285,23 @@ namespace S2DE::Render
 
 		S2DE_CHECK(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer), "Render Error: Cannot create depth buffer");
 
-		D3D11_DEPTH_STENCIL_DESC depthStencilDesc = { };
 		//Set up the description of the stencil state.
+		D3D11_DEPTH_STENCIL_DESC depthStencilDesc = { };
 		depthStencilDesc.DepthEnable = true;
 		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-		
-		depthStencilDesc.StencilEnable = true;
+
+		//FIX ME: Stencil temporarily is disabled
+		depthStencilDesc.StencilEnable = false;
 		depthStencilDesc.StencilReadMask = 0xFF;
 		depthStencilDesc.StencilWriteMask = 0xFF;
-		
+
 		//Stencil operations if pixel is front-facing.
 		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
 		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-		
+
 		//Stencil operations if pixel is back-facing.
 		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
@@ -308,8 +309,6 @@ namespace S2DE::Render
 		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 		
 		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState), "Render Error: Cannot create depth stencil state");
-		
-		m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
 
 		//Set up the depth stencil view description.
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = { };
@@ -434,8 +433,9 @@ namespace S2DE::Render
 	{
 		float color_array[4] = { m_clearColor.r, m_clearColor.g, m_clearColor.b , 1 };
 
+		m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
+		m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 		m_deviceContext->ClearRenderTargetView(m_renderTargetView, color_array);
-		m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 
 	void Renderer::End()
