@@ -106,6 +106,44 @@ namespace S2DE::Render
 		return true;
 	}
 
+	void Renderer::CreateDebugLayer()
+	{
+		if (SUCCEEDED(m_device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&m_d3ddebug))))
+		{
+			HMODULE hDll = LoadLibraryA("dxgidebug.dll");
+
+			if (hDll == 0)
+			{
+				Logger::Warning("Can't create debug layer because could not load library dxgidebug.dll... ");
+				return;
+			}
+
+			typedef HRESULT(__stdcall* fPtr)(const IID&, void**);
+			fPtr DXGIGetDebugInterface = (fPtr)GetProcAddress(hDll, "DXGIGetDebugInterface");
+
+			IDXGIDebug* debugDev;
+			DXGIGetDebugInterface(__uuidof(IDXGIDebug), (void**)&debugDev);
+			debugDev->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+
+			if (SUCCEEDED(m_device->QueryInterface(__uuidof(ID3D11InfoQueue), reinterpret_cast<void**>(&m_d3dinfoqueue))))
+			{
+				m_d3dinfoqueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
+				D3D11_MESSAGE_ID hide[] =
+				{
+					D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
+				};
+
+				D3D11_INFO_QUEUE_FILTER filter = {};
+				filter.DenyList.NumIDs = _countof(hide);
+				filter.DenyList.pIDList = hide;
+
+				m_d3dinfoqueue->AddStorageFilterEntries(&filter);
+			}
+
+			CaptureMessages();
+		}
+	}
+
 	bool Renderer::ConfigureBackBuffer()
 	{
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&m_backBuffer);
@@ -116,8 +154,6 @@ namespace S2DE::Render
 
 	bool Renderer::CreateDeviceAndSwapChain()
 	{
-		Logger::Log("[Renderer] Create device and swap chain...");
-
 		D3D_FEATURE_LEVEL FeatureLevels[] = 
 		{
 			D3D_FEATURE_LEVEL_11_1,
@@ -137,10 +173,8 @@ namespace S2DE::Render
 			D3D_DRIVER_TYPE_UNKNOWN,
 		};
 
-		//If defined S2DE_DEBUG_RENDER_MODE macro and if it's debug build 
-		//We are add D3D11_CREATE_DEVICE_DEBUG to device
+		//If defined S2DE_DEBUG_RENDER_MODE macro and if it's debug build, we are add D3D11_CREATE_DEVICE_DEBUG flag to device
 #if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
-		Logger::Warning("[Renderer] Render in debug mode!");
 		m_device_flag |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
@@ -183,41 +217,6 @@ namespace S2DE::Render
 		//If device not created we are get fatal error 
 		if (m_device == nullptr)
 			S2DE_FATAL_ERROR("Render Error: Can't create device and swap chain!");
-
-
-		//Debug layer creation 
-#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
-		Logger::Log("[Renderer] Create debug layer...");
-		if (SUCCEEDED(m_device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&m_d3ddebug))))
-		{			
-			typedef HRESULT(__stdcall* fPtr)(const IID&, void**);
-			HMODULE hDll = LoadLibraryA("dxgidebug.dll");
-			fPtr DXGIGetDebugInterface = (fPtr)GetProcAddress(hDll, "DXGIGetDebugInterface");
-
-			IDXGIDebug* debugDev;
-			DXGIGetDebugInterface(__uuidof(IDXGIDebug), (void**)&debugDev);
-			debugDev->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
-		
-			if (SUCCEEDED(m_device->QueryInterface(__uuidof(ID3D11InfoQueue), reinterpret_cast<void**>(&m_d3dinfoqueue))))
-			{
-				m_d3dinfoqueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
-				D3D11_MESSAGE_ID hide[] =
-				{
-					D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
-				};
-
-				D3D11_INFO_QUEUE_FILTER filter = {};
-				filter.DenyList.NumIDs = _countof(hide);
-				filter.DenyList.pIDList = hide;
-
-				m_d3dinfoqueue->AddStorageFilterEntries(&filter);
-			}
-
-			CaptureMessages();
-		}
-
-#endif 
-
 
 		return true;
 	}
@@ -351,6 +350,10 @@ namespace S2DE::Render
 		Logger::Log("[Renderer] [Create Render] Create device and swapchain...");
 		if (!CreateDeviceAndSwapChain())
 			return false;
+
+#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+		CreateDebugLayer();
+#endif
 
 		if (!ConfigureBackBuffer())
 			return false;
