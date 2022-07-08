@@ -82,6 +82,7 @@ namespace S2DE::Render
 		bool								CreateBlendState();
 		bool								CreateFramebufferTexture(ID3D11Texture2D* sw_buff);
 		void								UpdateFramebufferShaderResource();
+		void								CreateDebugLayer();
 
 		IDXGISwapChain*				m_swapChain;
 		ID3D11Device*				m_device;
