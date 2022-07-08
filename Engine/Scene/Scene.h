@@ -78,7 +78,7 @@ namespace S2DE::Scene
 
 		//Clone game object (by name)
 		template<typename T>
-		void							Clone(std::string object_name, std::string new_name = std::string())
+		T* Clone(std::string object_name, std::string new_name = std::string())
 		{
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
@@ -92,13 +92,13 @@ namespace S2DE::Scene
 			if (it == m_storage.end())
 			{
 				Logger::Error("[Scene] [%s] Can't clone object!", m_name.c_str());
-				return;
+				return nullptr;
 			}
 			
 			if (dynamic_cast<T*>(it->second.get()) != it->second.get())
 			{
 				Logger::Error("[Scene] [%s] Wrong type! Can't clone object", m_name.c_str());
-				return;
+				return nullptr;
 			}
 
 			auto new_obj = new T(*dynamic_cast<T*>(it->second.get()));
@@ -106,12 +106,12 @@ namespace S2DE::Scene
 			std::string name = Core::Other::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
 			new_obj->Init(name, new_obj->GetType(), new_obj->GetPrefix(), "REGENERATE");
 
-			Add<T>(new_obj);
+			return Add<T>(new_obj);
 		}
 
 		//Clone game object (by id)
 		template<typename T>
-		void							Clone(boost::uuids::uuid object_id, std::string new_name = std::string())
+		T* Clone(boost::uuids::uuid object_id, std::string new_name = std::string())
 		{
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
@@ -125,13 +125,13 @@ namespace S2DE::Scene
 			if (it == m_storage.end())
 			{
 				Logger::Error("[Scene] [%s] Can't clone object!", m_name.c_str());
-				return;
+				return nullptr;
 			}
 
 			if (dynamic_cast<T*>(it->second.get()) != it->second.get())
 			{
 				Logger::Error("[Scene] [%s] Wrong type! Can't clone object", m_name.c_str());
-				return;
+				return nullptr;
 			}
 
 			auto new_obj = new T(*dynamic_cast<T*>(it->second));
@@ -139,7 +139,7 @@ namespace S2DE::Scene
 			std::string name = Core::Other::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
 			new_obj->Init(name, new_obj->GetType(), new_obj->GetPrefix(), "REGENERATE");
 
-			Add<T>(new_obj);
+			return Add<T>(new_obj);
 		}
 
 	private:
