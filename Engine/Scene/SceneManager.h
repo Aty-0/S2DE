@@ -47,45 +47,7 @@ namespace S2DE::Scene
 		bool		   m_render_imgui_enabled;
 	};
 
-	//Create simple game object in scene
-	template<typename T = GameObjects::GameObject>
-	static inline T* CreateGameObject(
-		std::string name = std::string(),
-		std::string type = std::string(),
-		std::int32_t prefix = S2DE_DEFAULT_GAMEOBJECT_PREFIX,
-		DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3::Zero,
-		DirectX::SimpleMath::Vector3 rotation = DirectX::SimpleMath::Vector3::Zero,
-		DirectX::SimpleMath::Vector3 scale =	DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f))
-	{
-		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
-
-		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
-		auto object = new T();
-
-		object->SetPosition(position);
-		object->SetRotation(rotation);
-		object->SetScale(scale);
-
-		object->Init(name, type, prefix, std::string());
-
-		Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
-
-		return object;
-	}
-
-	//Create game object without initialize object
-	template<typename T = GameObjects::GameObject>
-	static inline T* CreateGameObjectNoInit()
-	{
-		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
-
-		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
-		auto object = new T();
-
-		Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
-
-		return object;
-	}
+	//FIX ME: Need to replace this functions 
 
 	//Get game object from scene by name
 	template<typename T = GameObjects::GameObject>
@@ -121,5 +83,36 @@ namespace S2DE::Scene
 			});
 
 		return dynamic_cast<T*>(it->second.get());
+	}
+
+	//Create game object in scene
+	template<typename T = GameObjects::GameObject>
+	static inline T* CreateGameObject(
+		std::string name = std::string(),
+		std::string type = std::string(),
+		std::int32_t prefix = S2DE_DEFAULT_GAMEOBJECT_PREFIX,
+		DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3::Zero,
+		DirectX::SimpleMath::Vector3 rotation = DirectX::SimpleMath::Vector3::Zero,
+		DirectX::SimpleMath::Vector3 scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f))
+	{
+		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
+		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
+		auto object = new T();
+		object->SetPosition(position);
+		object->SetRotation(rotation);
+		object->SetScale(scale);
+		object->Init(name, type, prefix, std::string());
+
+		return Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
+	}
+
+	//Create game object function without initialization 
+	template<typename T = GameObjects::GameObject>
+	static inline T* CreateGameObjectNoInit()
+	{
+		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
+		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
+		auto object = new T();
+		return Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
 	}
 }

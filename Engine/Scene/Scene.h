@@ -45,7 +45,7 @@ namespace S2DE::Scene
 
 		//Add game object to scene
 		template<typename T>
-		void							Add(T* g)
+		T*							Add(T* g)
 		{
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
@@ -53,23 +53,26 @@ namespace S2DE::Scene
 			if (g == nullptr)
 			{
 				Logger::Error("[Scene] [%s] Can't add this game object because it is nullptr!", m_name.c_str());
-				return;
+				return nullptr;
 			}
 			else if (Core::Other::isStringEmpty(g->GetName()) || Core::Other::isStringEmpty(g->GetUUIDString()))
 			{
 				Logger::Error("[Scene] [%s] Can't add this game object because it is not initialized!", m_name.c_str());
-				return;
+				return nullptr;
 			}
 
 			std::string name = g->GetName();
-
+			//Check objects in scene on same name 
 			CheckNameOnExist(name);
-			g->SetName(name);
+			g->SetName(name); //It will be renamed if we are found same name
 
 			Logger::Log("[Scene] [%s] Added [%s] Name: %s UUID: %s", m_name.c_str(), Core::Other::GetClassNameInString(g).c_str(), name.c_str(), g->GetUUIDString().c_str());
 
 			//Add object to storage
-			m_storage.push_back(std::move(std::make_pair(std::make_pair(name, g->GetUUID()), std::make_shared<T>(*g))));
+			std::shared_ptr<T> objectShared = std::make_shared<T>(*g);
+			m_storage.push_back(std::move(std::make_pair(std::make_pair(name, g->GetUUID()), objectShared)));
+
+			return objectShared.get();
 		}
 
 
