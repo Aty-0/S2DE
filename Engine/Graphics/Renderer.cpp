@@ -185,20 +185,18 @@ namespace S2DE::Render
 		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidthFixed();
 		sd.BufferDesc.Height = Core::Engine::GetGameWindow()->GetHeightFixed();
 		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		sd.BufferDesc.RefreshRate.Numerator = 0;
+		sd.BufferDesc.RefreshRate.Denominator = 1;
+		sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		sd.BufferCount = 1;
 		sd.SampleDesc.Count = 1;
 		sd.SampleDesc.Quality = 0;
 		sd.Windowed = !Engine::GetGameWindow()->isFullscreen();
 		sd.OutputWindow = Engine::GetGameWindow()->GetHWND();
 		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-		sd.BufferDesc.RefreshRate.Numerator = 0;
-		sd.BufferDesc.RefreshRate.Denominator = 1;
-
 
 		//Try to create device with correct driver type 
 		for (std::uint32_t driverTypeIndex = 0; driverTypeIndex < driver_types_size; driverTypeIndex++)
