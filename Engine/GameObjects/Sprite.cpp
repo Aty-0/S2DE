@@ -66,11 +66,6 @@ namespace S2DE::GameObjects
 
 	void Sprite::OnRender()
 	{
-		//Bind buffers
-		m_vertex_buffer->Bind();
-		m_index_buffer->Bind();
-		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 		//Bind and update variables in const buffer
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
@@ -81,19 +76,16 @@ namespace S2DE::GameObjects
 		m_sprite_const_buf->Unlock();
 		m_sprite_const_buf->Bind(1);
 
-		//Bind 
+		//Bind shader and texture 
 		m_shader->Bind();
 		m_texture->Bind();
 
-		//Draw sprite 
-		Core::Engine::GetRenderer()->GetContext()->RSSetState(Core::Engine::GetRenderer()->GetRasterStateCCW());
-		Core::Engine::GetRenderer()->GetContext()->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
-		Core::Engine::GetRenderer()->GetContext()->OMSetDepthStencilState(Core::Engine::GetRenderer()->GetDepthStencilState(), 0);
-		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_index_buffer->GetArray().size(), 0, 0);
+		//Bind buffers
+		m_vertex_buffer->Bind();
+		m_index_buffer->Bind();
 
-		Core::Engine::GetRenderer()->GetContext()->RSSetState(Core::Engine::GetRenderer()->GetRasterStateCW());
-		Core::Engine::GetRenderer()->GetContext()->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
-		Core::Engine::GetRenderer()->GetContext()->OMSetDepthStencilState(Core::Engine::GetRenderer()->GetDepthStencilState(), 0);
+		//Draw poly 
+		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_index_buffer->GetArray().size(), 0, 0);
 
 		//Unbind 
@@ -126,10 +118,10 @@ namespace S2DE::GameObjects
 		m_vertex_buffer = new Render::VertexBuffer<Render::Vertex>();
 		m_vertex_buffer->GetArray() =
 		{
-			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(0, 0, 0, 0),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, // Bottom left.
-			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(0, 0, 0, 0),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, // Top left.
-			{ DirectX::SimpleMath::Vector3(1.0f,  1.0f,   0.0f),	 DirectX::SimpleMath::Vector4(0, 0, 0, 0),  DirectX::SimpleMath::Vector2(1.0f, 0.0f)	 }, // top right.
-			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(0, 0, 0, 0),  DirectX::SimpleMath::Vector2(1.0f, 1.0f)	 }, // Bottom right.
+			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(1, 1, 1, 1),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, // Bottom left.
+			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(1, 1, 1, 1),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, // Top left.
+			{ DirectX::SimpleMath::Vector3(1.0f,  1.0f,   0.0f),	 DirectX::SimpleMath::Vector4(1, 1, 1, 1),  DirectX::SimpleMath::Vector2(1.0f, 0.0f)	 }, // top right.
+			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(1, 1, 1, 1),  DirectX::SimpleMath::Vector2(1.0f, 1.0f)	 }, // Bottom right.
 		};
 
 		S2DE_ASSERT(m_vertex_buffer->Create());

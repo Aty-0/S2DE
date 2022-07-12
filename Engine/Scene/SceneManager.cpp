@@ -2,6 +2,10 @@
 #include "GameObjects/Camera.h"
 #include "GameObjects/Drawable.h"
 
+#include "Graphics/Renderer.h"
+
+#include <boost/range/adaptor/reversed.hpp>
+
 namespace S2DE::Scene
 {
 	SceneManager::SceneManager() : 
@@ -68,9 +72,23 @@ namespace S2DE::Scene
 	void SceneManager::RenderScene()
 	{
 		if (m_render_enabled && m_scene)
+		{
 			for (const auto& object : m_scene->GetStorage())
-				object.second.get()->Render();
-
+			{
+				auto GameObject = object.second.get();
+				if (!GameObject->Alpha)
+					GameObject->Render();
+			}
+		
+			Core::Engine::GetRenderer()->TurnOnAlphaBlending();
+			for (const auto& object : boost::adaptors::reverse(m_scene->GetStorage()))
+			{
+				auto GameObject = object.second.get();
+				if (GameObject->Alpha)				
+					GameObject->Render();
+			}
+			Core::Engine::GetRenderer()->TurnOffAlphaBlending();
+		}
 	}
 
 	void SceneManager::UpdateScene(float DeltaTime)

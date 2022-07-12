@@ -47,6 +47,8 @@ namespace S2DE::Render
 		void								SetBackColor(Math::Color<float> color);
 		void								TurnZBufferOff();
 		void								TurnZBufferOn();
+		void								TurnOnAlphaBlending();
+		void								TurnOffAlphaBlending();
 		void								ToggleImGuiWindowsVisible();
 		void								ToggleImGuiDemoWindowVisible();
 
@@ -76,7 +78,7 @@ namespace S2DE::Render
 		void								DestroyImGui();
 		bool								CreateDeviceAndSwapChain();
 		bool								CreateDepthStencil();
-		bool								ConfigureBackBuffer();
+		bool								CreateRenderTarget();
 		void								UpdateViewport();
 		void								Clear();
 		void								End();
@@ -91,7 +93,6 @@ namespace S2DE::Render
 		ID3D11Device*				m_device;
 		ID3D11DeviceContext*		m_deviceContext;
 		ID3D11RenderTargetView*		m_renderTargetView;
-		ID3D11BlendState*			m_blendState;
 		ID3D11RasterizerState*		m_rasterStateCW;
 		ID3D11RasterizerState*		m_rasterStateCCW;		
 		ID3D11Texture2D*			m_backBuffer;
@@ -115,6 +116,9 @@ namespace S2DE::Render
 		class Editor::EditorCenterCursor*		m_editor_center_cursor;
 		class ImGui_Window*						m_editor_toolstrip;
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windows_storage;
+
+		ID3D11BlendState*			m_blendStateOn; //TODO: Many modes, and use not like this
+		ID3D11BlendState*			m_blendStateOff; 
 
 		bool						m_show_imgui_windows;
 		bool						m_show_imgui_demo_wnd;

@@ -12,16 +12,22 @@
 
 //TODO: 1. Prefix 
 //		2. Objects serialization
+//#define S2DE_SERIALIZE_WITH_GAMEOBJECT_BASE(AR, T) AR & boost::serialization::base_object<S2DE::GameObjects::GameObject>(*this) & T;
+//		3. Components
+//			struct AlphaComponent
+//			{
+//				bool useAlpha = false;
+//			};
 
 #define S2DE_DEFAULT_GAMEOBJECT_NAME "EmptyGameObjectName"
 #define S2DE_DEFAULT_GAMEOBJECT_TYPE "EmptyGameObjectType"
 #define S2DE_DEFAULT_GAMEOBJECT_PREFIX 0
 #define	S2DE_ENGINE_GAMEOBJECT_TYPE "_Engine"
 
-#define S2DE_SERIALIZE_WITH_GAMEOBJECT_BASE(AR, T) AR & boost::serialization::base_object<S2DE::GameObjects::GameObject>(*this) & T;
 
 namespace S2DE::GameObjects
 {
+
 	class S2DE_API GameObject : public Transform
 	{
 	public:
@@ -67,6 +73,10 @@ namespace S2DE::GameObjects
 		
 		virtual void				 Select() { m_isSelected = true; }
 		virtual void				 Unselect() { m_isSelected = false; }
+
+		//FIX ME: Remove
+		bool						 Alpha = false;
+
 	protected:
 		virtual void				 OnPositionChanged()  override { }
 		virtual void				 OnRotationChanged()  override { }

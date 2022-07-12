@@ -44,7 +44,8 @@ namespace S2DE::Render
 							m_depthStencilBuffer(nullptr),
 							m_depthStencilState(nullptr),
 							m_depthStencilView(nullptr),
-							m_blendState(nullptr),
+							m_blendStateOn(nullptr),
+							m_blendStateOff(nullptr),
 							m_vsync(true),
 							m_show_imgui_windows(true),
 							m_show_imgui_demo_wnd(false),
@@ -71,7 +72,7 @@ namespace S2DE::Render
 		m_deviceContext->Flush();
 		S2DE_CHECK(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Can't resize buffers");
 
-		ConfigureBackBuffer();
+		CreateRenderTarget();
 		CreateDepthStencil();
 		UpdateViewport();
 
@@ -140,11 +141,13 @@ namespace S2DE::Render
 				m_d3dinfoqueue->AddStorageFilterEntries(&filter);
 			}
 
+			m_d3ddebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
+
 			CaptureMessages();
 		}
 	}
 
-	bool Renderer::ConfigureBackBuffer()
+	bool Renderer::CreateRenderTarget()
 	{
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&m_backBuffer);
 		S2DE_CHECK(m_device->CreateRenderTargetView(m_backBuffer, NULL, &m_renderTargetView), "Render Error: Cannot create render target view");
@@ -229,8 +232,36 @@ namespace S2DE::Render
 
 	bool Renderer::CreateBlendState()
 	{
-		S2DE_NO_IMPL();
+		D3D11_BLEND_DESC bd = { };
+
+		//Alpha
+		bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_MAX; // D3D11_BLEND_OP_ADD;
+		bd.RenderTarget[0].BlendEnable = true;
+		bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+		bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA; //D3D11_BLEND_ONE;
+
+		S2DE_CHECK(m_device->CreateBlendState(&bd, &m_blendStateOn), "Render Error: Can't create blend state on");
+
+		bd.RenderTarget[0].BlendEnable = false;
+		S2DE_CHECK(m_device->CreateBlendState(&bd, &m_blendStateOff), "Render Error: Can't create blend state off");
+
 		return true;
+	}
+
+	void Renderer::TurnOffAlphaBlending()
+	{
+		float factor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		m_deviceContext->OMSetBlendState(m_blendStateOff, factor, 0xffffffff);
+	}
+
+	void Renderer::TurnOnAlphaBlending()
+	{
+		float factor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		m_deviceContext->OMSetBlendState(m_blendStateOn, factor, 0xffffffff);
 	}
 
 	bool Renderer::CreateRasterizerState()
@@ -245,7 +276,7 @@ namespace S2DE::Render
 
 		D3D11_RASTERIZER_DESC rasterDesc = { };
 
-		rasterDesc.AntialiasedLineEnable = false;
+		rasterDesc.AntialiasedLineEnable = true;
 		rasterDesc.CullMode = D3D11_CULL_BACK;
 		rasterDesc.DepthBias = 0;
 		rasterDesc.DepthBiasClamp = 0.0f;
@@ -266,6 +297,9 @@ namespace S2DE::Render
 
 	bool Renderer::CreateDepthStencil()
 	{
+		if (!CreateRenderTarget())
+			return false;
+
 		std::uint32_t w = Core::Engine::GetGameWindow()->GetWidthFixed();
 		std::uint32_t h = Core::Engine::GetGameWindow()->GetHeightFixed();
 
@@ -275,7 +309,7 @@ namespace S2DE::Render
 		depthBufferDesc.Height = h;
 		depthBufferDesc.MipLevels = 1;
 		depthBufferDesc.ArraySize = 1;
-		depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;//DXGI_FORMAT_D24_UNORM_S8_UINT;
 		depthBufferDesc.SampleDesc.Count = 1;
 		depthBufferDesc.SampleDesc.Quality = 0;
 		depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -292,21 +326,21 @@ namespace S2DE::Render
 		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
 		//FIX ME: Stencil temporarily is disabled
-		depthStencilDesc.StencilEnable = false;
-		depthStencilDesc.StencilReadMask = 0xFF;
-		depthStencilDesc.StencilWriteMask = 0xFF;
+		//depthStencilDesc.StencilEnable = false;
+		//depthStencilDesc.StencilReadMask = 0xFF;
+		//depthStencilDesc.StencilWriteMask = 0xFF;
 
 		//Stencil operations if pixel is front-facing.
-		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		//depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		//depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		//depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		//depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 		//Stencil operations if pixel is back-facing.
-		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		//depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		//depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		//depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		//depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 		
 		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState), "Render Error: Cannot create depth stencil state");
 
@@ -318,8 +352,8 @@ namespace S2DE::Render
 
 		//Create the depth stencil view.
 		S2DE_CHECK(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView), "Render Error: Cannot create depth stencil view");
-		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 
+		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 		return true;	
 	}
 
@@ -352,19 +386,16 @@ namespace S2DE::Render
 		CreateDebugLayer();
 #endif
 
-		if (!ConfigureBackBuffer())
-			return false;
-
-		Logger::Log("[Renderer] [Create Render] Create depth stencil...");
-		if (!CreateDepthStencil())
-			return false;
-
 		UpdateViewport();
 
 		Logger::Log("[Renderer] [Create Render] Create rasterizer state...");
 		if (!CreateRasterizerState())
 			return false;
-		
+	
+		Logger::Log("[Renderer] [Create Render] Create depth stencil and render target...");
+		if (!CreateDepthStencil())
+			return false;
+
 		Logger::Log("[Renderer] [Create Render] Create blend state...");
 		if (!CreateBlendState())
 			return false;
@@ -385,7 +416,7 @@ namespace S2DE::Render
 
 			//AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow(), true);
 			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), false);
-			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), true);
+			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), false);
 			
 			m_editor_cursor = new Editor::EditorCursor();
 			m_editor_center_cursor = new Editor::EditorCenterCursor();
@@ -416,10 +447,8 @@ namespace S2DE::Render
 		Release(m_device);
 		Release(m_deviceContext);
 		Release(m_renderTargetView);
-
 		Release(m_rasterStateCW);
 		Release(m_rasterStateCCW);
-
 		Release(m_depthStencilBuffer);
 		Release(m_depthStencilState);
 		Release(m_depthStencilView);
@@ -433,9 +462,10 @@ namespace S2DE::Render
 	{
 		float color_array[4] = { m_clearColor.r, m_clearColor.g, m_clearColor.b , 1 };
 
-		m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
-		m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		TurnOffAlphaBlending();
+		m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
 		m_deviceContext->ClearRenderTargetView(m_renderTargetView, color_array);
+		m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
 	void Renderer::End()
@@ -520,29 +550,30 @@ namespace S2DE::Render
 #endif
 
 		Clear();
-
-		Engine::GetApplicationHandle()->OnRender();
-		Engine::GetSceneManager()->RenderScene();
-		
-		UpdateFramebufferShaderResource();
-
-
-		if (Engine::isEditor())
-			m_editor_center_cursor->Render();
-
-		RenderImGui();
-
-		if (Engine::isEditor())
 		{
-			EditorColorPicker* colorPicker = reinterpret_cast<EditorColorPicker*>(GetImGui_Window("EditorBgColorPicker"));
+			Engine::GetApplicationHandle()->OnRender();
+			Engine::GetSceneManager()->RenderScene();
 
-			if(colorPicker != nullptr)
-				colorPicker->SetColor(m_clearColor);
+			UpdateFramebufferShaderResource();
 
-			if (m_framebuffer_shaderResourceView != nullptr && GetImGui_Window("EditorRenderWindow") != nullptr)
-				reinterpret_cast<EditorRenderWindow*>(GetImGui_Window("EditorRenderWindow"))->PushRenderTexture((void*)m_framebuffer_shaderResourceView);			
 
-			m_editor_cursor->Render();
+			if (Engine::isEditor())
+				m_editor_center_cursor->Render();
+
+			RenderImGui();
+
+			if (Engine::isEditor())
+			{
+				EditorColorPicker* colorPicker = reinterpret_cast<EditorColorPicker*>(GetImGui_Window("EditorBgColorPicker"));
+
+				if (colorPicker != nullptr)
+					colorPicker->SetColor(m_clearColor);
+
+				if (m_framebuffer_shaderResourceView != nullptr && GetImGui_Window("EditorRenderWindow") != nullptr)
+					reinterpret_cast<EditorRenderWindow*>(GetImGui_Window("EditorRenderWindow"))->PushRenderTexture((void*)m_framebuffer_shaderResourceView);
+
+				m_editor_cursor->Render();
+			}
 		}
 
 		End();
@@ -603,8 +634,11 @@ namespace S2DE::Render
 
 	void Renderer::UpdateFramebufferShaderResource()
 	{
-		ID3D11Texture2D* pBuffer;
+		ID3D11Texture2D* pBuffer = nullptr;
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
+		if (pBuffer == nullptr)
+			return;
+		
 		m_deviceContext->CopyResource(m_framebuffer_data, pBuffer);
 		Release(pBuffer);
 
@@ -631,7 +665,9 @@ namespace S2DE::Render
 		{
 			SIZE_T message_size = 0;
 			m_d3dinfoqueue->GetMessage(i, nullptr, &message_size); 
-			D3D11_MESSAGE* message = (D3D11_MESSAGE*)malloc(message_size); 
+			D3D11_MESSAGE* message = (D3D11_MESSAGE*)malloc(message_size);
+			if (message == nullptr) //If malloc failed
+				return false;
 			S2DE_CHECK_SAFE(m_d3dinfoqueue->GetMessageA(i, message, &message_size), "Debug layer message get error!");
 
 			switch (message->Severity)

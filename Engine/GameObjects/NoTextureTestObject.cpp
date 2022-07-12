@@ -20,17 +20,17 @@ namespace S2DE::GameObjects
 		S2DE_ASSERT(m_shader != nullptr);
 
 		m_texture = new Render::Texture();
-		m_texture->CreateEmptyTexture(Math::Color<std::uint32_t>(Math::Random::RandomRange(255), Math::Random::RandomRange(255), Math::Random::RandomRange(255), 255));
+		m_texture->CreateEmptyTexture(Math::Color<std::uint32_t>(Math::Random::RandomRange(255), Math::Random::RandomRange(255), Math::Random::RandomRange(255), 100));
 
 		S2DE_ASSERT(m_texture != nullptr);
 
 		m_vbuffer = new Render::VertexBuffer<Render::Vertex>();
 		m_vbuffer->GetArray() =
 		{
-			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, 
-			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, 
-			{ DirectX::SimpleMath::Vector3(1.0f,  1.0f,   0.0f),	 DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(1.0f, 0.0f) }, 
-			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(1.0f, 1.0f) }, 
+			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(1, 1, 1, 0.5),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, 
+			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(1, 1, 1, 0.5),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, 
+			{ DirectX::SimpleMath::Vector3(1.0f,  1.0f,   0.0f),	 DirectX::SimpleMath::Vector4(1, 1, 1, 0.5),  DirectX::SimpleMath::Vector2(1.0f, 0.0f) }, 
+			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(1, 1, 1, 0.5),  DirectX::SimpleMath::Vector2(1.0f, 1.0f) }, 
 		};
 
 		S2DE_ASSERT(m_vbuffer->Create());
@@ -45,6 +45,8 @@ namespace S2DE::GameObjects
 
 		S2DE_ASSERT(m_ibuffer->Create());
 		m_ibuffer->Update();
+
+		Alpha = true;
 	}
 
 	NoTextureTestObject::~NoTextureTestObject()
@@ -63,19 +65,17 @@ namespace S2DE::GameObjects
 	}
 
 	void NoTextureTestObject::OnRender()
-	{
+	{		
 		m_vbuffer->Bind();
 		m_ibuffer->Bind();
-		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		m_shader->Bind();
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 		m_texture->Bind();
 
-		Core::Engine::GetRenderer()->GetContext()->RSSetState(Core::Engine::GetRenderer()->GetRasterStateCCW());
+		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0);
-		Core::Engine::GetRenderer()->GetContext()->RSSetState(Core::Engine::GetRenderer()->GetRasterStateCW());
-		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0);
+
 		m_shader->Unbind();
 	}
 
