@@ -33,6 +33,7 @@ namespace S2DE::Core::Debug
 		void					UpdateSizeMode();
 
 	private:
+		bool					m_showMessages = false;
 		bool					m_scroll_to_bottom;
 		bool					m_free;
 		VisualConsoleSizeMode	m_sizemode;

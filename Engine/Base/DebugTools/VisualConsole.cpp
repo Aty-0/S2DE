@@ -61,44 +61,46 @@ namespace S2DE::Core::Debug
 	void VisualConsole::Render()
 	{
 #if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
-		if (ImGui::Begin("ConsoleMessageUI", nullptr,
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoInputs |
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground |
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration))
+		if (m_showMessages)
 		{
-			ImGui::SetWindowPos(ImVec2(0.0f, 10.0f));
-			ImGui::SetWindowSize(ImVec2(Engine::GetGameWindow()->GetWidth(), 500.0f));
-			for (std::int32_t i = 0; i <= (std::int32_t)line_count; i++)
+			if (ImGui::Begin("ConsoleMessageUI", nullptr,
+				ImGuiWindowFlags_::ImGuiWindowFlags_NoInputs |
+				ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground |
+				ImGuiWindowFlags_::ImGuiWindowFlags_NoSavedSettings |
+				ImGuiWindowFlags_::ImGuiWindowFlags_NoMove |
+				ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration))
 			{
-				Line& line = m_linebuffer[i];
+				ImGui::SetWindowPos(ImVec2(0.0f, 10.0f));
+				ImGui::SetWindowSize(ImVec2(Engine::GetGameWindow()->GetWidth(), 500.0f));
+				for (std::int32_t i = 0; i <= (std::int32_t)line_count; i++)
+				{
+					Line& line = m_linebuffer[i];
 
-				ImVec4 col = ImVec4(1.0f, 1.0f, 1.0f, line.alpha);
+					ImVec4 col = ImVec4(1.0f, 1.0f, 1.0f, line.alpha);
 
-				if (strstr(line.text.c_str(), "[Error]"))
-					col = ImColor(1.0f, 0.4f, 0.4f, line.alpha);
-				else if (strstr(line.text.c_str(), "[Fatal]"))
-					col = ImColor(1.0f, 0.0f, 0.0f, line.alpha);
-				else if (strstr(line.text.c_str(), "[Warning]"))
-					col = ImColor(0.8f, 0.8f, 0.0f, line.alpha);
+					if (strstr(line.text.c_str(), "[Error]"))
+						col = ImColor(1.0f, 0.4f, 0.4f, line.alpha);
+					else if (strstr(line.text.c_str(), "[Fatal]"))
+						col = ImColor(1.0f, 0.0f, 0.0f, line.alpha);
+					else if (strstr(line.text.c_str(), "[Warning]"))
+						col = ImColor(0.8f, 0.8f, 0.0f, line.alpha);
 
-				ImGui::PushStyleColor(ImGuiCol_Text, col);
-				ImGui::TextUnformatted(line.text.c_str());
-				ImGui::SameLine();
-				ImGui::Text("| %d %d", i, line_count);
-				ImGui::PopStyleColor();
+					ImGui::PushStyleColor(ImGuiCol_Text, col);
+					ImGui::TextUnformatted(line.text.c_str());
+					ImGui::SameLine();
+					ImGui::Text("| %d %d", i, line_count);
+					ImGui::PopStyleColor();
 
-				if (line.alpha > 0.0f)
-					line.alpha -= 0.005f;
-				else if (i == (std::int32_t)line_count && line.alpha <= 0.0f)
-					line_count = 0;
-				else if (line.alpha <= 0.0f && line_count > -1)
-					line_count--;
+					if (line.alpha > 0.0f)
+						line.alpha -= 0.005f;
+					else if (i == (std::int32_t)line_count && line.alpha <= 0.0f)
+						line_count = 0;
+					else if (line.alpha <= 0.0f && line_count > -1)
+						line_count--;
+				}
 			}
+			ImGui::End();
 		}
-
-		ImGui::End();
 #endif
 
 		if (!m_draw)
