@@ -6,11 +6,11 @@ namespace S2DE::GameObjects
 	Sprite::Sprite() :
 		m_texture(nullptr),
 		m_shader(nullptr),
-		m_index_buffer(nullptr),
-		m_vertex_buffer(nullptr),
-		ScaleFactor(DirectX::SimpleMath::Vector3(1, 1, 1)),
+		m_index_buffer(new Render::IndexBuffer<std::int32_t>()),
+		m_vertex_buffer(new Render::VertexBuffer<Render::Vertex>()),
 		m_tile_size(DirectX::SimpleMath::Vector2::Zero),
-		m_tile_frame_pos(DirectX::SimpleMath::Rectangle(0, 0, 0, 0))
+		m_tile_frame_pos(DirectX::SimpleMath::Rectangle(0, 0, 0, 0)),
+		m_color(Math::Color<float>(1.0f, 1.0f, 1.0f, 1.0f))
 	{
 		CreateVertexBuffer();
 		CreateIndexBuffer();
@@ -20,16 +20,22 @@ namespace S2DE::GameObjects
 
 	Sprite::~Sprite()
 	{
+		//TODO: Need to check count of using
 		if (m_unload_texture == true)
 			Core::Engine::GetResourceManager().Erase<Render::Texture>(m_texture->GetName());
 
 		Core::Delete(m_vertex_buffer);
 		Core::Delete(m_index_buffer);
-		//m_shader->Cleanup();
 		Core::Delete(m_shader);
 		Core::Delete(m_sprite_const_buf);
-		//m_texture->Cleanup();
 		Core::Delete(m_texture);
+	}
+
+	void Sprite::SetColor(Math::Color<float> color)
+	{	
+		m_color = color;
+		//Update vertex buffer
+		CreateVertexBuffer();
 	}
 
 	void Sprite::SetAtlasFramePosition(std::int32_t x, std::int32_t y)
@@ -40,7 +46,6 @@ namespace S2DE::GameObjects
 	void Sprite::SetAtlasSize(DirectX::SimpleMath::Vector2 size)
 	{
 		m_tile_size = size;
-		CalcScaleFactor();
 	}
 
 	bool Sprite::LoadTexture(std::string name, bool unload_texture, bool auto_load_texture)
@@ -57,10 +62,7 @@ namespace S2DE::GameObjects
 		}
 		//Set texture if texture is exist
 		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>(name));
-		//Texture can't be null 
 		S2DE_ASSERT(m_texture != nullptr);	
-
-		CalcScaleFactor();
 		return true;
 	}
 
@@ -101,7 +103,7 @@ namespace S2DE::GameObjects
 		m_WorldMatrix = DirectX::XMMatrixTransformation(
 			//Scale
 			//Center | Rotation | Scaling
-			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, m_Scale * ScaleFactor,
+			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, m_Scale * CalcScaleFactor(),
 			//Rotation
 			//Center | Quatarnion
 			DirectX::SimpleMath::Vector3::Zero, ToQuaternion(m_Rotation),
@@ -115,13 +117,12 @@ namespace S2DE::GameObjects
 
 	void Sprite::CreateVertexBuffer()
 	{	 
-		m_vertex_buffer = new Render::VertexBuffer<Render::Vertex>();
 		m_vertex_buffer->GetArray() =
 		{
-			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(1, 1, 1, 1),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, // Bottom left.
-			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(1, 1, 1, 1),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, // Top left.
-			{ DirectX::SimpleMath::Vector3(1.0f,  1.0f,   0.0f),	 DirectX::SimpleMath::Vector4(1, 1, 1, 1),  DirectX::SimpleMath::Vector2(1.0f, 0.0f)	 }, // top right.
-			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(1, 1, 1, 1),  DirectX::SimpleMath::Vector2(1.0f, 1.0f)	 }, // Bottom right.
+			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, m_color.a),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, // Bottom left.
+			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, m_color.a),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, // Top left.
+			{ DirectX::SimpleMath::Vector3(1.0f,  1.0f,   0.0f),	 DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, m_color.a),  DirectX::SimpleMath::Vector2(1.0f, 0.0f) }, // top right.
+			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, m_color.a),  DirectX::SimpleMath::Vector2(1.0f, 1.0f) }, // Bottom right.
 		};
 
 		S2DE_ASSERT(m_vertex_buffer->Create());
@@ -130,7 +131,6 @@ namespace S2DE::GameObjects
 		 
 	void Sprite::CreateIndexBuffer()
 	{	 
-		m_index_buffer = new Render::IndexBuffer<std::int32_t>();
 		m_index_buffer->GetArray() =
 		{
 				0, 1, 2,
@@ -159,8 +159,6 @@ namespace S2DE::GameObjects
 		}
 
 		m_texture = new Render::Texture(*new_texture);
-
-		//Texture can't be nullptr
 		S2DE_ASSERT(m_texture != nullptr);
 	}
 	 
@@ -173,21 +171,17 @@ namespace S2DE::GameObjects
 
 		//Try to get shader by name from resource manager
 		auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
+
 		//If shader not found
 		if (new_shader == nullptr)
 		{
 			Logger::Error("%s Can't update shader!", GetName().c_str());
 			return;
 		}
+
 		m_shader = new Render::Shader(*new_shader);
-
-		//Shader can't be nullptr
 		S2DE_ASSERT(m_shader != nullptr);
-
-		//TODO 
-		//We need to use custom type 
-		//if we used custom shader with custom const buffer type
-
+		
 		//Create constant buffer with sprite const buffer type
 		m_sprite_const_buf = new Render::ConstantBuffer<SpriteConstBuffer>();
 		S2DE_ASSERT(m_sprite_const_buf->Create());
@@ -200,20 +194,14 @@ namespace S2DE::GameObjects
 		S2DE_ASSERT(m_sprite_const_buf->Create());
 	}	 
 		 
-	void Sprite::CalcScaleFactor()
+	inline DirectX::SimpleMath::Vector3 Sprite::CalcScaleFactor()
 	{
-		//TODO
-		//Better scale factor
-		//But for now it's ok
-		if(m_tile_size == DirectX::SimpleMath::Vector2::Zero)
-			ScaleFactor = DirectX::SimpleMath::Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f);
-		else
-			ScaleFactor = DirectX::SimpleMath::Vector3(m_tile_size.x * 0.01f, m_tile_size.y * 0.01f, 1.0f);
+		return m_tile_size == DirectX::SimpleMath::Vector2::Zero ? DirectX::SimpleMath::Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f) :
+			DirectX::SimpleMath::Vector3(m_tile_size.x * 0.01f, m_tile_size.y * 0.01f, 1.0f);
 	}
 
 	void Sprite::SetDefaultTexture()
 	{
 		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().GetDefaultTexture());
-		CalcScaleFactor();
 	}
 }
