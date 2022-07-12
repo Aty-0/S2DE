@@ -8,6 +8,7 @@
 #include "Scene/SceneManager.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/ImGui_Window.h"
+#include "Editor/EditorCursor.h"
 
 using namespace S2DE::Scene;
 using namespace S2DE::Math;
@@ -200,6 +201,9 @@ namespace S2DE::Core
 	{
 		m_scene_manager->UpdateScene(DeltaTime);
 		m_app_handle->OnUpdate(DeltaTime);
+
+		if (isEditor())
+			m_render->GetEditorCursor()->Update(DeltaTime);
 	}
 
 	void Engine::OnLoop()

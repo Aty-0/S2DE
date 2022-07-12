@@ -15,6 +15,7 @@ namespace S2DE::Editor
 
 	protected:
 		virtual void OnRenderIn2D() override;
+		virtual void OnUpdate(float DeltaTime) override;
 
 	private:
 		Render::VertexBuffer<Render::Vertex>* m_cross_vertex_buffer;

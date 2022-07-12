@@ -7,7 +7,7 @@
 #include "Scene/SceneManager.h"
 
 #define CURSOR_CIRCLE_RINGS_COUNT 16
-#define CURSOR_DEFAULT_SPEED 0.03f
+#define CURSOR_DEFAULT_SPEED 30.0f
 #define CURSOR_DEFAULT_SIZE 1.1f
 
 namespace S2DE::Editor
@@ -19,9 +19,9 @@ namespace S2DE::Editor
 		m_cross_vertex_buffer = new Render::VertexBuffer<Render::Vertex>();
 		m_cross_vertex_buffer->GetArray() =
 		{
-			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, 
-			{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, 
-			{ DirectX::SimpleMath::Vector3(1.0f,   -1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, 
+			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			{ DirectX::SimpleMath::Vector3(1.0f,   -1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
 			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
 			{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
 			{ DirectX::SimpleMath::Vector3(1.0f,   1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
@@ -34,9 +34,9 @@ namespace S2DE::Editor
 
 		for (std::int32_t i = 0; i <= CURSOR_CIRCLE_RINGS_COUNT; i++)
 		{
-			Render::Vertex v = 
-			{ 
-				DirectX::SimpleMath::Vector3((float)cos( 2 * i * 3.14 / CURSOR_CIRCLE_RINGS_COUNT), (float)sin(2 * i * 3.14 / CURSOR_CIRCLE_RINGS_COUNT), 0.0f),
+			Render::Vertex v =
+			{
+				DirectX::SimpleMath::Vector3((float)cos(2 * i * 3.14 / CURSOR_CIRCLE_RINGS_COUNT), (float)sin(2 * i * 3.14 / CURSOR_CIRCLE_RINGS_COUNT), 0.0f),
 				DirectX::SimpleMath::Vector4(255, 255, 255, 255),
 				DirectX::SimpleMath::Vector2(0.0f, 0.0f)
 			};
@@ -59,15 +59,18 @@ namespace S2DE::Editor
 		Core::Delete(m_circle_vertex_buffer);
 		Core::Delete(m_shader);
 	}
+	void EditorCursor::OnUpdate(float DeltaTime)
+	{
+		//FIX ME: Weird DeltaTime working
+
+		//Rotate everything
+		SetRotation_X(GetRotation().x + CURSOR_DEFAULT_SPEED * 0.01f);
+	}
 
 	void EditorCursor::OnRenderIn2D()
 	{
-		//Rotate everything
-		//* Core::Engine::GetGameTime().GetDeltaTime()
-		SetRotation_X(GetRotation().x + CURSOR_DEFAULT_SPEED);
-
 		//Calculate cursor world position 
-		POINT point{};
+		POINT point = { };
 		GetCursorPos(&point);
 		ScreenToClient(Core::Engine::GetGameWindow()->GetHWND(), &point);
 		SetPosition(DirectX::SimpleMath::Vector3(

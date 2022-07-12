@@ -65,6 +65,9 @@ namespace S2DE::Render
 		inline ID3D11RasterizerState*		GetRasterStateCW() const { return m_rasterStateCW; }
 		inline ID3D11RasterizerState*		GetRasterStateCCW() const { return m_rasterStateCCW; }
 
+		inline class Editor::EditorCursor* GetEditorCursor() { return m_editor_cursor; }
+		inline class Editor::EditorCenterCursor* GetEditorCenterCursor() { return m_editor_center_cursor; }
+
 	private:					 
 		bool								InitImGui();
 		void								UpdateImGuiWindows();
