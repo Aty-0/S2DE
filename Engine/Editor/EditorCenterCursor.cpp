@@ -25,7 +25,7 @@ namespace S2DE::Editor
 		m_vertex_buffer->Update();
 
 
-		S2DE_ASSERT(Core::Engine::GetResourceManager().IsExists<Render::Shader>("editor_cursor"));
+		S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("editor_cursor"));
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("editor_cursor"));
 
 		SetScale(DirectX::SimpleMath::Vector3(1.8f, 1.8f, 1.0f));
