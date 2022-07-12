@@ -10,7 +10,18 @@ namespace S2DE::Render
 	Texture::Texture() 
 	{
 		m_type = "Texture";
-		m_ex = { ".dds", ".png", ".tga", ".jpg" };
+		m_ex = 
+		{ 
+			// DDS loader supports
+			".dds", 
+			// WIC loader supports 
+			".bmp", 
+			".tiff", 
+			".gif",  
+			".png", 
+			".tga", 
+			".jpg" 
+		};
 	}
 
 	Texture::~Texture()
@@ -33,43 +44,8 @@ namespace S2DE::Render
 		m_texture2d->GetDesc(&m_texture_desc);
 	}
 
-	bool Texture::Load(std::string path)
+	bool Texture::CreateSamplerState()
 	{
-		//If path is empty
-		if (Core::Other::isStringEmpty(path))
-		{
-			Logger::Error("No path setted for texture!");
-			CreateEmptyTexture();
-			return false;
-		}
-
-		HRESULT hr = S_OK;
-
-		//Create texture
-		//If file extension is a "dds" we are use CreateDDSTextureFromFile function
-		//If not, we are use CreateWICTextureFromFile
-		if (Core::Other::GetFileExtension(path) == ".dds")
-		{
-			hr = DirectX::CreateDDSTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceview);
-			if (FAILED(hr))
-			{
-				Logger::Error("Can't create dds texture from file %s %s", path.c_str(), Core::Utils::GetHRCodeDetails(hr));
-				CreateEmptyTexture();
-				return false;
-			}
-		}
-		else
-		{
-			hr = DirectX::CreateWICTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceview);
-			if (FAILED(hr))
-			{
-				Logger::Error("Can't create texture from file %s %s", path.c_str(), Core::Utils::GetHRCodeDetails(hr));
-				CreateEmptyTexture();
-				return false;
-			}
-		}
-		
-		//Create sampler state for texture
 		D3D11_SAMPLER_DESC sampler_desc = { };
 		sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -80,8 +56,49 @@ namespace S2DE::Render
 		sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
 		sampler_desc.MipLODBias = 0.0f;
 		sampler_desc.MaxAnisotropy = 1;
+		sampler_desc.BorderColor[0] = 0;
+		sampler_desc.BorderColor[1] = 0;
+		sampler_desc.BorderColor[2] = 0;
+		sampler_desc.BorderColor[3] = 0;
 
 		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_texture_sampler_state), "Can't create sampler state");
+		return true;
+	}
+
+	bool Texture::Load(std::string path)
+	{
+		//If path is empty 
+		if (Core::Other::isStringEmpty(path))
+		{
+			Logger::Error("Path string is empty, can't load texture!");
+			return false;
+		}
+
+		HRESULT hr = S_OK;
+
+		//Get file extension because for dds format we need to use special function
+		std::string fileExtension = Core::Other::GetFileExtension(path);
+		if (fileExtension == ".dds")
+		{
+			hr = DirectX::CreateDDSTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceview);
+			if (FAILED(hr))
+			{
+				Logger::Error("Can't create dds texture from file Path:%s Details:%s Extension:%s", path.c_str(), Core::Utils::GetHRCodeDetails(hr).c_str(), fileExtension.c_str());
+				return false;
+			}
+		}
+		else
+		{
+			hr = DirectX::CreateWICTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceview);
+			if (FAILED(hr))
+			{
+				Logger::Error("Can't create texture from file Path:%s Details:%s Extension:%s", path.c_str(), Core::Utils::GetHRCodeDetails(hr).c_str(), fileExtension.c_str());
+				return false;
+			}
+		}
+		
+		//Create sampler state for current texture
+		CreateSamplerState();
 
 		//Get and save texture description
 		UpdateTextureDesc();
@@ -113,6 +130,7 @@ namespace S2DE::Render
 		shader_desc.Texture2D.MipLevels = 1;
 
 		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceview), "Can't create shader resource for empty texture");
+
 		UpdateTextureDesc();
 		return true;
 	}
