@@ -6,6 +6,8 @@
 #include "Libs/imgui/imgui_impl_win32.h"
 #include "Libs/imgui/imgui_impl_dx11.h"
 
+#include "atlbase.h"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 //This macro enable debug layer, disable shader optimization and enable shader debug mode
@@ -28,6 +30,20 @@ namespace S2DE::Render
 	{
 		Solid = D3D11_FILL_MODE::D3D11_FILL_SOLID,
 		Wireframe = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME,
+	};
+
+	const D3D11_RASTERIZER_DESC defaultRasterDesc =
+	{
+		/* FillMode 				*/	static_cast<D3D11_FILL_MODE>(RenderFillMode::Solid),
+		/* CullMode 				*/	D3D11_CULL_NONE,
+		/* FrontCounterClockwise  */	false,
+		/* DepthBias 				*/	0,
+		/* DepthBiasClamp 		*/		0.0f,
+		/* SlopeScaledDepthBias 	*/	0.0f,
+		/* DepthClipEnable 		*/	true,
+		/* ScissorEnable 			*/	false,
+		/* MultisampleEnable 		*/	false,
+		/* AntialiasedLineEnable	*/	true,
 	};
 
 	class S2DE_API Renderer
@@ -60,6 +76,12 @@ namespace S2DE::Render
 		void								ToggleImGuiWindowsVisible();
 		// Toggle ImGui Demo window
 		void								ToggleImGuiDemoWindowVisible();
+		// Set rasterize state by name
+		void								SetRasterizerState(std::string name);
+		// Set rasterize state by rasterizer state pointer
+		void								SetRasterizerState(ID3D11RasterizerState* raster);
+		// Get rasterize state by name from rasterizerVariants storage
+		inline ID3D11RasterizerState*		GetRasterizerState(std::string name);
 
 		inline ID3D11Device*				GetDevice() { return m_device; }
 		inline ID3D11DeviceContext*			GetContext() { return m_context; }
@@ -71,9 +93,7 @@ namespace S2DE::Render
 		inline ID3D11DepthStencilView*		GetDepthStencilView() { return    m_depthStencilView; }
 		inline ID3D11ShaderResourceView*	GetFramebufferShaderResource() const { return m_frameBufferShaderResourceView; }
 		inline ID3D11Texture2D*				GetFramebufferTextureData() const { return m_frameBufferData; }
-		inline ID3D11RasterizerState*		GetRasterStateCullDisabled() const { return m_rasterStateCullDisabled; }
-		inline ID3D11RasterizerState*		GetRasterStateCullEnabled() const { return m_rasterStateCullEnabled; }
-
+		
 	private:
 		// Initialize ImGui Library
 		bool								InitImGui();
@@ -98,7 +118,7 @@ namespace S2DE::Render
 		// Presents a rendered image to the user.
 		void								End();
 		// Create rasterizer
-		bool								CreateRasterizerState();
+		bool								CreateRasterizerState(D3D11_RASTERIZER_DESC desc = defaultRasterDesc, std::string name = "default");
 		// Create blend state
 		bool								CreateBlendState();
 		// Create framebuffer texture by back buffer
@@ -116,8 +136,6 @@ namespace S2DE::Render
 		ID3D11Device*				m_device;
 		ID3D11DeviceContext*		m_context;
 		ID3D11RenderTargetView*		m_targetView;
-		ID3D11RasterizerState*		m_rasterStateCullDisabled;
-		ID3D11RasterizerState*		m_rasterStateCullEnabled;		
 		ID3D11Texture2D*			m_backBuffer;
 		ID3D11Texture2D*			m_depthStencilBuffer;
 		ID3D11DepthStencilView*		m_depthStencilView;
@@ -134,7 +152,8 @@ namespace S2DE::Render
 		
 		ID3D11Debug*				m_d3dDebug;
 		ID3D11InfoQueue*			m_d3dInfoQueue;
-
+	
+		std::vector<std::pair<std::string, CComPtr<ID3D11RasterizerState>>> m_rasterizerVariants;
 
 		ID3D11BlendState*			m_blendStateOn; //TODO: Many modes, and use not like this
 		ID3D11BlendState*			m_blendStateOff; 
@@ -145,7 +164,6 @@ namespace S2DE::Render
 		class Editor::EditorCenterCursor*				m_editorCenterCursor;
 		class ImGui_Window*								m_editorToolStrip;
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windowsStorage;
-
 	public:  
 		inline class ImGui_Window*	GetImGui_Window(std::string name) const;
 		ImGui_Window*				AddImGuiWindow(std::string name, ImGui_Window* wnd, bool visible = false);

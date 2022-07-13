@@ -25,7 +25,6 @@
 								ImGui_ImplWin32_NewFrame(); \
 								ImGui::NewFrame(); \
 
-
 using namespace S2DE::Core;
 using namespace S2DE::Core::Other;
 using namespace S2DE::Core::Debug;
@@ -38,8 +37,6 @@ namespace S2DE::Render
 							m_device(nullptr),
 							m_context(nullptr),
 							m_targetView(nullptr),
-							m_rasterStateCullEnabled(nullptr),
-							m_rasterStateCullDisabled(nullptr),
 							m_depthStencilBuffer(nullptr),
 							m_depthStateEnabled(nullptr),
 							m_depthStateDisabled(nullptr),
@@ -81,8 +78,14 @@ namespace S2DE::Render
 
 		UpdateViewport();
 
-		Logger::Log("[Renderer] [Create Render] Create rasterizer state...");
+		Logger::Log("[Renderer] [Create Render] Create default rasterizer state...");
 		if (!CreateRasterizerState())
+			return false;
+
+		//FIX ME: Fillmode is must be independent
+		D3D11_RASTERIZER_DESC wireframeDesc = defaultRasterDesc;
+		wireframeDesc.FillMode = static_cast<D3D11_FILL_MODE>(RenderFillMode::Wireframe);
+		if (!CreateRasterizerState(wireframeDesc, "wireframe"))
 			return false;
 
 		Logger::Log("[Renderer] [Create Render] Create depth stencil and render target...");
@@ -110,8 +113,8 @@ namespace S2DE::Render
 		if (Engine::isEditor())
 		{
 			//AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow(), true);
-			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), false);
-			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), false);
+			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), true);
+			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), true);
 
 			m_editorCenterCursor = new Editor::EditorCenterCursor();
 
@@ -198,8 +201,6 @@ namespace S2DE::Render
 				m_d3dInfoQueue->AddStorageFilterEntries(&filter);
 			}
 
-			m_d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
-
 			CaptureMessages();
 		}
 	}
@@ -284,7 +285,15 @@ namespace S2DE::Render
 		Logger::Log("[Renderer] Switch fill mode to %s", mode == RenderFillMode::Solid ? "Solid" : "Wireframe");
 
 		m_fillMode = mode;
-		CreateRasterizerState();
+		switch (m_fillMode)
+		{
+		case S2DE::Render::RenderFillMode::Solid:
+			SetRasterizerState("default");
+			break;
+		case S2DE::Render::RenderFillMode::Wireframe:
+			SetRasterizerState("wireframe");
+			break;
+		}
 	}
 
 	bool Renderer::CreateBlendState()
@@ -319,23 +328,20 @@ namespace S2DE::Render
 		m_context->OMSetBlendState(m_blendStateOn, factor, 0xffffffff);
 	}
 
-	bool Renderer::CreateRasterizerState()
+	bool Renderer::CreateRasterizerState(D3D11_RASTERIZER_DESC desc, std::string name)
 	{
-		D3D11_RASTERIZER_DESC rasterDesc = { };
+		//We cannot rewrite default rasterizer variant
+		if (GetRasterizerState("default") != nullptr && name == "default")
+			return false;
 
-		rasterDesc.AntialiasedLineEnable = true;
-		rasterDesc.CullMode = D3D11_CULL_BACK;
-		rasterDesc.DepthBias = 0;
-		rasterDesc.DepthBiasClamp = 0.0f;
-		rasterDesc.DepthClipEnable = true;
-		rasterDesc.FillMode = static_cast<D3D11_FILL_MODE>(m_fillMode);
-		rasterDesc.MultisampleEnable = false;
-		rasterDesc.ScissorEnable = false;
-		rasterDesc.SlopeScaledDepthBias = 0.0f;
-		rasterDesc.FrontCounterClockwise = false;
+		ID3D11RasterizerState* newRasterizer = nullptr;
 
 		// Create the rasterizer state from the description we just filled out.		
-		S2DE_CHECK(m_device->CreateRasterizerState(&rasterDesc, &m_rasterStateCullDisabled), "Render Error: Cannot create rasterizer state");
+		S2DE_CHECK_SAFE(m_device->CreateRasterizerState(&desc, &newRasterizer), "Render Error: Cannot create rasterizer state");
+
+		// Push new rasterizer variant to storage
+		m_rasterizerVariants.push_back(std::make_pair(name, newRasterizer));
+
 		return true;
 	}
 
@@ -436,16 +442,19 @@ namespace S2DE::Render
 		Release(m_device);
 		Release(m_context);
 		Release(m_targetView);
-		Release(m_rasterStateCullEnabled);
-		Release(m_rasterStateCullDisabled);
 		Release(m_depthStencilBuffer);
 		Release(m_depthStateEnabled);
 		Release(m_depthStateDisabled);
 		Release(m_depthStencilView);
 		Release(m_frameBufferData);
 		Release(m_frameBufferShaderResourceView);
+
+#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+		m_d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
 		Release(m_d3dInfoQueue);
 		Release(m_d3dDebug);
+#endif
+
 	}
 
 	void Renderer::Clear()
@@ -527,6 +536,32 @@ namespace S2DE::Render
 		#endif
 		
 		ImGui::Render();
+	}
+
+	inline ID3D11RasterizerState* Renderer::GetRasterizerState(std::string name)
+	{
+		std::vector<std::pair<std::string, CComPtr<ID3D11RasterizerState>>>::const_iterator it = std::find_if(m_rasterizerVariants.begin(),
+			m_rasterizerVariants.end(), [&name](std::pair<std::string, CComPtr<ID3D11RasterizerState>> const& elem) { return elem.first == name; });
+
+		if (it != m_rasterizerVariants.end())
+			return it->second;
+
+		return nullptr;
+	}
+
+	void Renderer::SetRasterizerState(ID3D11RasterizerState* raster)
+	{
+		if(raster != nullptr)
+			m_context->RSSetState(raster);
+	}
+
+	void Renderer::SetRasterizerState(std::string name)
+	{
+		std::vector<std::pair<std::string, CComPtr<ID3D11RasterizerState>>>::const_iterator it = std::find_if(m_rasterizerVariants.begin(),
+			m_rasterizerVariants.end(), [&name](std::pair<std::string, CComPtr<ID3D11RasterizerState>> const& elem) { return elem.first == name; });
+
+		if (it != m_rasterizerVariants.end())
+			m_context->RSSetState(it->second);
 	}
 
 	void Renderer::Render()
