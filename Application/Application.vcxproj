@@ -88,15 +88,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Engine/;$(DXSDK_DIR)Include;$(IncludePath);../Libs/boost_1_76_0/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Libs/DirectXTK/Inc/;../Engine/;$(IncludePath);../Libs/boost_1_76_0/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Debug/;../Libs/boost_1_76_0/stage/x86/lib;../Libs/tinyxml2/libs;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>S2DE.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;dinput8.lib;D3DCompiler.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Libs/DirectXTK/lib/debug/;../Debug/;../Libs/boost_1_76_0/stage/x86/lib;../Libs/tinyxml2/libs;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>S2DE.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;d3d11.lib;dxguid.lib;d3dx11.lib;d3dx10.lib;dinput8.lib;D3DCompiler.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
