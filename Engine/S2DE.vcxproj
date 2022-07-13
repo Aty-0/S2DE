@@ -25,7 +25,6 @@
     <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h" />
     <ClInclude Include="Editor\EditorCenterCursor.h" />
     <ClInclude Include="Editor\EditorColorPicker.h" />
-    <ClInclude Include="Editor\EditorCursor.h" />
     <ClInclude Include="GameObjects\Drawable.h" />
     <ClInclude Include="Editor\EditorRenderWindow.h" />
     <ClInclude Include="Editor\EditorObjectInspector.h" />
@@ -93,7 +92,6 @@
     <ClCompile Include="Base\DebugTools\Debug_ObjectInspector.cpp" />
     <ClCompile Include="Editor\EditorCenterCursor.cpp" />
     <ClCompile Include="Editor\EditorColorPicker.cpp" />
-    <ClCompile Include="Editor\EditorCursor.cpp" />
     <ClCompile Include="GameObjects\Drawable.cpp" />
     <ClCompile Include="Editor\EditorRenderWindow.cpp" />
     <ClCompile Include="Editor\EditorObjectInspector.cpp" />

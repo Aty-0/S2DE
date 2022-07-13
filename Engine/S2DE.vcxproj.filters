@@ -195,9 +195,6 @@
     <ClInclude Include="GameObjects\NoTextureTestObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\EditorCursor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameObjects\UI\UI_Drawable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -320,9 +317,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameObjects\NoTextureTestObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\EditorCursor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameObjects\UI\UI_Drawable.cpp">

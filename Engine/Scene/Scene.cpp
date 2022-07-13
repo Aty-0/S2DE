@@ -14,8 +14,7 @@ namespace S2DE::Scene
 
 	}
 
-	//FIX ME 
-	//Reduces perfomance
+	//FIX ME: Reducing perfomance
 	void Scene::CheckNameOnExist(std::string& name)
 	{
 		std::uint32_t count = 0;

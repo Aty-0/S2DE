@@ -11,5 +11,5 @@ struct PSINPUT
 
 float4 main(PSINPUT input) : SV_TARGET
 {
-    return sprite_texture.Sample(sprite_sample_type, input.uv);
+    return sprite_texture.Sample(sprite_sample_type, input.uv) * input.color;
 }

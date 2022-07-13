@@ -16,6 +16,8 @@ public:
 	virtual void InputEvents() final;
 	virtual void OnLostDevice() final;
 	virtual void OnResetDevice() final;
+
+	void SomeTest();
 };
 
 
