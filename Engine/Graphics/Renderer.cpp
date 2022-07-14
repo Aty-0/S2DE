@@ -42,7 +42,7 @@ namespace S2DE::Render
 							m_depthStateDisabled(nullptr),
 							m_depthStencilView(nullptr),
 							m_blendStateOn(nullptr),
-							m_blendStateOff(nullptr),
+							m_blendStateOff(nullptr),	
 							m_vsync(true),
 							m_showImguiWindows(true),
 							m_showImguiDemoWindow(false),
@@ -87,6 +87,18 @@ namespace S2DE::Render
 		wireframeDesc.FillMode = static_cast<D3D11_FILL_MODE>(RenderFillMode::Wireframe);
 		if (!CreateRasterizerState(wireframeDesc, "wireframe"))
 			return false;
+
+		D3D11_RASTERIZER_DESC fccDesc = defaultRasterDesc;
+		fccDesc.FrontCounterClockwise = true;
+		if (!CreateRasterizerState(fccDesc, "fcc"))
+			return false;
+
+		D3D11_RASTERIZER_DESC nocullDesc = defaultRasterDesc;
+		nocullDesc.CullMode = D3D11_CULL_NONE;
+		if (!CreateRasterizerState(nocullDesc, "nocull"))
+			return false;
+
+		SetRasterizerState();
 
 		Logger::Log("[Renderer] [Create Render] Create depth stencil and render target...");
 		if (!CreateDepthStencil())
