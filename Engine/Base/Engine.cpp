@@ -96,15 +96,15 @@ namespace S2DE::Core
 		if (!m_render->Create())
 			return;
 		
-		sp->SetLoadState("Initialize scene...");
-		m_scene_manager = new SceneManager();
-		m_scene_manager->CreateNewScene();
-
 		//Load engine resources, read main config, etc
 		sp->SetLoadState("Load engine resources...");
 		
 		if (!LoadEngineResources())
 			return;
+
+		sp->SetLoadState("Initialize scene...");
+		m_scene_manager = new SceneManager();
+		m_scene_manager->CreateNewScene();
 
 		sp->SetLoadState("Load game resources...");
 		if (!m_app_handle->LoadResources())
