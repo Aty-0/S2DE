@@ -19,7 +19,7 @@ namespace S2DE::Render
 
 		~ConstantBuffer()
 		{
-
+			Core::Release(m_buffer);
 		}
 
 		virtual bool Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DEFAULT) override

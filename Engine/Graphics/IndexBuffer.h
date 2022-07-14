@@ -16,6 +16,7 @@ namespace S2DE::Render
 
 		virtual ~IndexBuffer() override
 		{
+			Core::Release(m_buffer);
 			m_array.clear();
 			m_array.shrink_to_fit();
 		}
