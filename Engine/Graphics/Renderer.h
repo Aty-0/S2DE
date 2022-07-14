@@ -35,7 +35,7 @@ namespace S2DE::Render
 	const D3D11_RASTERIZER_DESC defaultRasterDesc =
 	{
 		/* FillMode 				*/	static_cast<D3D11_FILL_MODE>(RenderFillMode::Solid),
-		/* CullMode 				*/	D3D11_CULL_NONE,
+		/* CullMode 				*/	D3D11_CULL_BACK,
 		/* FrontCounterClockwise  */	false,
 		/* DepthBias 				*/	0,
 		/* DepthBiasClamp 		*/		0.0f,
@@ -43,7 +43,7 @@ namespace S2DE::Render
 		/* DepthClipEnable 		*/	true,
 		/* ScissorEnable 			*/	false,
 		/* MultisampleEnable 		*/	false,
-		/* AntialiasedLineEnable	*/	true,
+		/* AntialiasedLineEnable	*/	false,
 	};
 
 	class S2DE_API Renderer
@@ -77,7 +77,7 @@ namespace S2DE::Render
 		// Toggle ImGui Demo window
 		void								ToggleImGuiDemoWindowVisible();
 		// Set rasterize state by name
-		void								SetRasterizerState(std::string name);
+		void								SetRasterizerState(std::string name = "default");
 		// Set rasterize state by rasterizer state pointer
 		void								SetRasterizerState(ID3D11RasterizerState* raster);
 		// Get rasterize state by name from rasterizerVariants storage
