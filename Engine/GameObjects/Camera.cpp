@@ -4,11 +4,13 @@
 #include "Base/GameWindow.h"
 #include "Base/InputManager.h"
 
+#define CAMERA_DEFAULT_FOV 90.0f
 #define CAMERA_DEFAULT_ZOOM 0.009f
 #define CAMERA_DEFAULT_SPEED 20.0f
 #define CAMERA_DEFAULT_ZNEAR 0.01f
 #define CAMERA_DEFAULT_ZFAR 1000.0f
 #define CAMERA_DEFAULT_ORTHO_ZOOM 0.15f
+#define CAMERA_DEFAULT_SENSITIVITY 0.3f //0.005f
 
 namespace S2DE::GameObjects
 {
@@ -20,6 +22,8 @@ namespace S2DE::GameObjects
 		m_zoom(CAMERA_DEFAULT_ZOOM),
 		m_zNear(CAMERA_DEFAULT_ZNEAR),
 		m_zFar(CAMERA_DEFAULT_ZFAR),
+		m_fov(CAMERA_DEFAULT_FOV),
+		m_sensitivity(CAMERA_DEFAULT_SENSITIVITY),
 		m_mode(CameraProjectionMode::Orthographics)
 	{
 
@@ -45,7 +49,7 @@ namespace S2DE::GameObjects
 			m_viewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(m_Position, m_target, DirectX::SimpleMath::Vector3::UnitY);
 			break;
 		case S2DE::GameObjects::Camera::Perspective:
-			m_projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView((90.0f / 360.0f) * DirectX::XM_2PI,
+			m_projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView((m_fov / 360.0f) * DirectX::XM_2PI,
 				(float)Core::Engine::GetGameWindow()->GetWidth() / (float)Core::Engine::GetGameWindow()->GetHeight(),
 				m_zNear,
 				m_zFar);
@@ -106,17 +110,19 @@ namespace S2DE::GameObjects
 					m_Position -= m_speed * Core::Engine::GetGameTime().GetDeltaTime() * m_right;
 				}
 
-				if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_LSHIFT))
+				if (Core::Engine::isEditor())
 				{
-					m_speed = CAMERA_DEFAULT_SPEED + 30.0f;
+					if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_LSHIFT))
+					{
+						m_Rotation.z += (float)Core::Engine::GetInputManager()->GetMouseLastState().lX * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
+						m_Rotation.y += (float)Core::Engine::GetInputManager()->GetMouseLastState().lY * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
+					}
 				}
 				else
 				{
-					m_speed = CAMERA_DEFAULT_SPEED;
+					m_Rotation.z += (float)Core::Engine::GetInputManager()->GetMouseLastState().lX * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
+					m_Rotation.y += (float)Core::Engine::GetInputManager()->GetMouseLastState().lY * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
 				}
-
-				m_Rotation.z += (float)Core::Engine::GetInputManager()->GetMouseLastState().lX * 0.005f;
-				m_Rotation.y += (float)Core::Engine::GetInputManager()->GetMouseLastState().lY * 0.005f;
 
 				break;
 			case S2DE::GameObjects::Camera::Orthographics:
@@ -183,8 +189,10 @@ namespace S2DE::GameObjects
 		ImGui::Text("Speed %f", m_speed);
 		ImGui::Separator();
 
+		ImGui::SliderFloat("FOV", &m_fov, 0.0f, 180.0f, "", 1.0f);
 		ImGui::SliderFloat("Zoom", &m_zoom, 0.0001f, 0.13f, "", 1.0f);
 		ImGui::SliderFloat("Speed", &m_speed, 0.1f, 45.0f, "", 1.0f);
+		ImGui::SliderFloat("Sensitivity", &m_sensitivity, 0.01f, 2.0f, "", 1.0f);
 		ImGui::Separator();
 
 		if (ImGui::Button("Reset"))
@@ -193,7 +201,8 @@ namespace S2DE::GameObjects
 			m_speed = CAMERA_DEFAULT_SPEED;
 			m_zNear = CAMERA_DEFAULT_ZNEAR;
 			m_zFar = CAMERA_DEFAULT_ZFAR;
-			
+			m_fov = CAMERA_DEFAULT_FOV;
+
 			Reset();
 			SetPosition_Z(1.0f);
 		}

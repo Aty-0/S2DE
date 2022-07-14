@@ -42,10 +42,12 @@ namespace S2DE::GameObjects
 		DirectX::SimpleMath::Matrix				m_viewMatrix;
 		DirectX::SimpleMath::Matrix				m_projectionMatrix;
 
+		float									m_fov;
 		float									m_speed;
 		float									m_zoom;
 		float									m_zNear;
 		float									m_zFar;
+		float									m_sensitivity;
 		CameraProjectionMode					m_mode;
 		DirectX::SimpleMath::Matrix				m_rotationMatrix;
 		DirectX::SimpleMath::Vector3			m_target;
