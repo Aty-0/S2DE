@@ -14,7 +14,8 @@ namespace S2DE::Render
 		
 		virtual void					 Cleanup() override;
 		virtual bool					 Load(std::string path) override;
-		virtual bool					 CreateEmptyTexture(Math::Color<std::uint32_t> color = Math::Color<std::uint32_t>(208, 0, 255, 255));
+		bool							 CreateCubeMapTexture(std::string path);
+		bool							 CreateEmptyTexture(Math::Color<std::uint32_t> color = Math::Color<std::uint32_t>(208, 0, 255, 255));
 		bool							 CreateSamplerState();
 		void							 Bind(std::uint32_t NumViews = 1);
 		void							 Unbind();
