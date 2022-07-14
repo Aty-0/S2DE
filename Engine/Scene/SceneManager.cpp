@@ -4,6 +4,7 @@
 
 #include "Graphics/Renderer.h"
 
+#include "GameObjects/Skybox.h"
 #include "Editor/EditorGrid.h"
 
 #include <boost/range/adaptor/reversed.hpp>
@@ -28,6 +29,7 @@ namespace S2DE::Scene
 	{	 
 		m_scene = new Scene();
 		CreateGameObject<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+		CreateGameObject<GameObjects::Skybox>("Skybox", "");
 		if (Core::Engine::isEditor())
 		{
 			CreateGameObject<Editor::EditorGrid>("_EditorGrid", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, DirectX::SimpleMath::Vector3(GRID_CELLS / 2, -1, GRID_CELLS / 2));
