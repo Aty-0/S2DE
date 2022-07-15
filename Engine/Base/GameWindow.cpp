@@ -178,10 +178,15 @@ namespace S2DE::Core
 		return true;
 	}
 
-	void GameWindow::SetMouseVisible(bool s)
+	void GameWindow::SetMouseVisible(bool visible)
 	{
-		m_ShowCursor = s;
-		ShowCursor(m_ShowCursor);
+		if (m_ShowCursor != visible) // Don't call any function if we are have same parameter state 
+		{
+			m_ShowCursor = visible;
+			SetCursorPos(m_Width / 2, m_Height / 2);
+			ShowCursor(m_ShowCursor);
+			SetFocus(m_HWND);
+		}
 	}
 
 	void GameWindow::SetWidht(std::uint32_t w)
