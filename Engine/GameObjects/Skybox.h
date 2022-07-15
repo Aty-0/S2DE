@@ -6,7 +6,7 @@
 
 namespace S2DE::GameObjects
 {
-	class Skybox : public Drawable
+	class S2DE_API Skybox : public Drawable
 	{
 	public:
 		Skybox();

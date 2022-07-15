@@ -6,7 +6,7 @@
 
 namespace S2DE::Editor
 {
-	class EditorColorPicker : public Render::ImGui_Window
+	class S2DE_API EditorColorPicker : public Render::ImGui_Window
 	{
 	public:
 		EditorColorPicker();

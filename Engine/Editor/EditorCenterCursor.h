@@ -7,7 +7,7 @@
 
 namespace S2DE::Editor
 {
-	class EditorCenterCursor : public GameObjects::UI::UI_Drawable
+	class S2DE_API EditorCenterCursor : public GameObjects::UI::UI_Drawable
 	{
 	public:
 		EditorCenterCursor();

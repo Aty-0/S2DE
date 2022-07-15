@@ -8,7 +8,7 @@
 
 namespace S2DE::Editor
 {
-	class EditorGrid : public GameObjects::Drawable
+	class S2DE_API EditorGrid : public GameObjects::Drawable
 	{
 	public:
 		EditorGrid();
