@@ -84,6 +84,7 @@
     <ClInclude Include="Scene\SceneManager.h" />
     <ClInclude Include="GameObjects\Sprite.h" />
     <ClInclude Include="GameObjects\UI\UI_Drawable.h" />
+    <ClInclude Include="GameObjects\Skybox.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc" />
@@ -99,7 +100,6 @@
     <ClCompile Include="Editor\EditorObjectInspector.cpp" />
     <ClCompile Include="Editor\EditorToolstrip.cpp" />
     <ClCompile Include="GameObjects\NoTextureTestObject.cpp" />
-    <ClCompile Include="GameObjects\UI\UI_Drawable.cpp" />
     <ClCompile Include="Graphics\ImGui_Window.cpp" />
     <ClCompile Include="Base\DebugTools\VisualConsole.cpp" />
     <ClCompile Include="Base\Engine.cpp" />
@@ -128,6 +128,7 @@
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp" />
     <ClCompile Include="GameObjects\Sprite.cpp" />
+    <ClCompile Include="GameObjects\Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\splash.bmp" />
