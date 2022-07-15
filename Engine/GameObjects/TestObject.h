@@ -13,7 +13,7 @@ namespace S2DE::GameObjects
 	{
 	public:
 		TestObject();
-		~TestObject();
+		virtual ~TestObject();
 
 		//Get new version of current shader from resource manager
 		virtual void						 UpdateShader() override;
@@ -25,7 +25,6 @@ namespace S2DE::GameObjects
 		virtual void						 OnUpdate(float DeltaTime) override;
 		virtual void						 OnRender() override;
 		virtual DirectX::SimpleMath::Matrix  UpdateTransformation() override;
-		virtual bool						 CheckOnIntersection() override;
 
 	private:
 		Render::Texture*	  m_texture;

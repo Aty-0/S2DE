@@ -131,15 +131,6 @@ namespace S2DE::GameObjects
 		m_shader->Unbind();
 	}
 
-	bool TestObject::CheckOnIntersection()
-	{
-		if (Core::Engine::GetInputManager()->IsKeyPressed(Core::Other::KeyCode::KEY_L))
-		{
-
-		}
-		return false;
-	}
-
 	void TestObject::UpdateTexture()
 	{
 		//Get texture name

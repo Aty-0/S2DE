@@ -17,7 +17,7 @@ namespace S2DE::GameObjects
 	{
 	public:
 		Sprite();
-		~Sprite();
+		virtual ~Sprite();
 
 		//Basic load texture function for sprite
 		//This function get texture from resource manager and setting it to sprite
@@ -48,7 +48,7 @@ namespace S2DE::GameObjects
 		virtual void			SetDefaultShader();
 		virtual void			SetDefaultTexture();
 		virtual inline DirectX::SimpleMath::Vector3 CalcScaleFactor();
-		virtual DirectX::SimpleMath::Matrix	UpdateTransformation() override;
+		virtual inline DirectX::SimpleMath::Matrix	UpdateTransformation() override;
 
 	private:
 		Render::Texture*							m_texture;

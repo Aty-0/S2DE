@@ -88,6 +88,9 @@ namespace S2DE::GameObjects
 
 		//Draw poly 
 		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_index_buffer->GetArray().size(), 0, 0);
+		Core::Engine::GetRenderer()->SetRasterizerState();
 		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_index_buffer->GetArray().size(), 0, 0);
 
 		//Unbind 
@@ -98,7 +101,7 @@ namespace S2DE::GameObjects
 		m_sprite_const_buf->Unbind();
 	}
 
-	DirectX::SimpleMath::Matrix Sprite::UpdateTransformation()
+	inline DirectX::SimpleMath::Matrix Sprite::UpdateTransformation()
 	{
 		m_WorldMatrix = DirectX::XMMatrixTransformation(
 			//Scale

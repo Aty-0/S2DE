@@ -87,7 +87,6 @@ namespace S2DE::GameObjects
 		virtual void				 OnUpdate(float DeltaTime) { }
 		virtual void				 OnUpdateInput() { }
 		virtual void				 OnRenderImGUI() { }
-		virtual bool 				 CheckOnIntersection() { return false; }
 
 	private:
 		std::string					 m_name; 

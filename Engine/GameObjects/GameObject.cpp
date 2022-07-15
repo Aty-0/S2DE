@@ -34,8 +34,6 @@ namespace S2DE::GameObjects
 	{
 		if (m_enabled == true)
 			OnUpdateInput();
-
-		CheckOnIntersection();
 	}
 
 	void GameObject::RenderImGUI()
