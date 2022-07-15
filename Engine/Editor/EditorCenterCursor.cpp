@@ -28,7 +28,6 @@ namespace S2DE::Editor
 		S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("editor_cursor"));
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("editor_cursor"));
 
-		SetScale(DirectX::SimpleMath::Vector3(1.8f, 1.8f, 1.0f));
 	}
 
 	EditorCenterCursor::~EditorCenterCursor()
@@ -37,13 +36,19 @@ namespace S2DE::Editor
 		Core::Delete(m_shader);
 	}
 
-	void EditorCenterCursor::OnRenderIn2D()
+	void EditorCenterCursor::OnCreate()
 	{
-		m_vertex_buffer->Bind();
-		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+		SetScale(DirectX::SimpleMath::Vector3(1.8f, 1.8f, 1.0f));
+	}
+
+	void EditorCenterCursor::OnRender()
+	{
 		m_shader->UpdateMainConstBuffer(UpdateTransformation(), true);
+		m_vertex_buffer->Bind();
 		m_shader->Bind();
+		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 		Core::Engine::GetRenderer()->GetContext()->Draw(m_vertex_buffer->GetArray().size(), 0);
 		m_shader->Unbind();
+		m_vertex_buffer->Unbind();
 	}
 }

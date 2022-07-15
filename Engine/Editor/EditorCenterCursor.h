@@ -11,10 +11,11 @@ namespace S2DE::Editor
 	{
 	public:
 		EditorCenterCursor();
-		~EditorCenterCursor();
+		virtual ~EditorCenterCursor();
 
 	protected:
-		virtual void OnRenderIn2D() override;
+		virtual void OnRender() override;
+		virtual void OnCreate() override;
 
 	private:
 		Render::VertexBuffer<Render::Vertex>* m_vertex_buffer;
