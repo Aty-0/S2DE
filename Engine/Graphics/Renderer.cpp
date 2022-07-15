@@ -17,7 +17,6 @@
 #include "Editor/EditorObjectInspector.h"
 #include "Editor/EditorRenderWindow.h"
 #include "Editor/EditorColorPicker.h"
-#include "Editor/EditorCenterCursor.h"
 
 #include <dxgidebug.h>
 
@@ -128,7 +127,6 @@ namespace S2DE::Render
 			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), true);
 			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), true);
 
-			m_editorCenterCursor = new Editor::EditorCenterCursor();
 
 			m_editorToolStrip = new EditorToolStrip();
 			m_editorToolStrip->SetDrawState(true);
@@ -440,8 +438,6 @@ namespace S2DE::Render
 		Logger::Log("[Renderer] Destroy...");
 
 		if (Core::Engine::isEditor())
-		{
-			Delete(m_editorCenterCursor);
 			Delete(m_editorToolStrip);
 		}
 
@@ -592,8 +588,6 @@ namespace S2DE::Render
 			UpdateFramebufferShaderResource();
 
 
-			if (Engine::isEditor())
-				m_editorCenterCursor->Render();
 
 			RenderImGui();
 
