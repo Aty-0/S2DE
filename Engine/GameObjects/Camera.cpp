@@ -90,6 +90,23 @@ namespace S2DE::GameObjects
 		switch (m_mode)
 		{
 			case S2DE::GameObjects::Camera::Perspective:
+				if (Core::Engine::isEditor())
+				{
+					if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_LSHIFT))
+					{
+						m_Rotation.z += (float)Core::Engine::GetInputManager()->GetMouseLastState().lX * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
+						m_Rotation.y += (float)Core::Engine::GetInputManager()->GetMouseLastState().lY * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
+						Core::Engine::GetGameWindow()->SetMouseVisible(false);
+					}
+					else
+						Core::Engine::GetGameWindow()->SetMouseVisible(true);
+				}
+				else
+				{
+					m_Rotation.z += (float)Core::Engine::GetInputManager()->GetMouseLastState().lX * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
+					m_Rotation.y += (float)Core::Engine::GetInputManager()->GetMouseLastState().lY * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
+
+				}
 				if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
 				{
 					m_Position += m_speed * Core::Engine::GetGameTime().GetDeltaTime() * m_forward;
@@ -109,21 +126,6 @@ namespace S2DE::GameObjects
 				{
 					m_Position -= m_speed * Core::Engine::GetGameTime().GetDeltaTime() * m_right;
 				}
-
-				if (Core::Engine::isEditor())
-				{
-					if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_LSHIFT))
-					{
-						m_Rotation.z += (float)Core::Engine::GetInputManager()->GetMouseLastState().lX * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
-						m_Rotation.y += (float)Core::Engine::GetInputManager()->GetMouseLastState().lY * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
-					}
-				}
-				else
-				{
-					m_Rotation.z += (float)Core::Engine::GetInputManager()->GetMouseLastState().lX * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
-					m_Rotation.y += (float)Core::Engine::GetInputManager()->GetMouseLastState().lY * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
-				}
-
 				break;
 			case S2DE::GameObjects::Camera::Orthographics:
 				if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
@@ -167,7 +169,7 @@ namespace S2DE::GameObjects
 
 	void Camera::OnCreate()
 	{
-		SetPosition_Z(1.0f);
+
 	}
 
 	void Camera::OnRenderImGUI()
