@@ -48,7 +48,12 @@ namespace S2DE::GameObjects
 		m_tile_size = size;
 	}
 
-	bool Sprite::LoadTexture(std::string name, bool unload_texture, bool auto_load_texture)
+	bool Sprite::LoadTexture(std::string name)
+	{
+		return LoadTextureA(name);
+	}
+
+	bool Sprite::LoadTextureA(std::string name, bool unload_texture, bool auto_load_texture)
 	{
 		//Set unload state
 		m_unload_texture = unload_texture;

@@ -23,7 +23,8 @@ namespace S2DE::GameObjects
 		//This function get texture from resource manager and setting it to sprite
 		//If texture not found in resource manager and if auto_load_texture == true we try to load it
 		//If unload_texture == true we unload the corrent texture when sprite destroying 
-		virtual bool			LoadTexture(std::string name, bool unload_texture = false, bool auto_load_texture = true) override;
+		virtual bool			LoadTexture(std::string name);
+		virtual bool			LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = true) override;
 
 		//Get new version of current shader from resource manager
 		virtual void			UpdateShader() override;
