@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GameObjects/Drawable.h"
 #include "Base/ResourceManager.h"
 #include "Graphics/Renderer.h"
@@ -13,6 +12,9 @@ namespace S2DE::GameObjects
 		Skybox();
 		virtual ~Skybox();
 
+		virtual bool			LoadTexture(std::string name) override;
+		virtual bool			LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = false) override;
+
 	protected:
 		virtual void			OnRender() override;
 		virtual void			CreateVertexBuffer();
@@ -20,6 +22,7 @@ namespace S2DE::GameObjects
 		virtual void			SetDefaultShader();
 		virtual void			SetDefaultTexture();
 		virtual DirectX::SimpleMath::Matrix	UpdateTransformation() override;
+
 	private:
 		Render::Texture* m_texture;
 		Render::Shader* m_shader;

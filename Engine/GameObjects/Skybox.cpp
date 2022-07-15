@@ -24,6 +24,18 @@ namespace S2DE::GameObjects
 		Core::Delete(m_texture);
 	}
 
+	bool Skybox::LoadTextureA(std::string name, bool unload_texture, bool auto_load_texture)
+	{
+		Logger::Warning("LoadTextureA method is not usable for Skybox!");
+		return LoadTexture(name);
+	}
+
+	bool Skybox::LoadTexture(std::string name)
+	{
+		std::string path = Core::Engine::GetResourceManager().GetFilePath(name, m_texture);
+		return m_texture->CreateCubeMapTexture(path);
+	}
+
 	void Skybox::OnRender()
 	{	 
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
@@ -113,8 +125,7 @@ namespace S2DE::GameObjects
 	void Skybox::SetDefaultTexture()
 	{
 		m_texture = new Render::Texture();
-		std::string path = Core::Engine::GetResourceManager().GetFilePath("sky", m_texture);
-		m_texture->CreateCubeMapTexture(path);
+		LoadTexture("sky");
 	}
 
 	inline DirectX::SimpleMath::Matrix Skybox::UpdateTransformation()
