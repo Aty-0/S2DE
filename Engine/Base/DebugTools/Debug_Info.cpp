@@ -77,7 +77,7 @@ namespace S2DE::Core::Debug
 
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text("Resource Manager:");
-			ImGui::Text("Data name:%s", Engine::GetResourceManager().GetNameOfData().c_str());
+			ImGui::Text("Data name:%s", Engine::GetResourceManager().GetNameOfDataFolder().c_str());
 			ImGui::Text("Loaded Texture's:%d\nLoaded Shader's:%d", 
 				Engine::GetResourceManager().GetResourceCount<Render::Texture>(),
 				Engine::GetResourceManager().GetResourceCount<Render::Shader>());

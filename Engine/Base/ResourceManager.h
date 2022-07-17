@@ -5,8 +5,10 @@
 ///////////////////////////////////
 ///Resources headers
 ///////////////////////////////////
+#include "IO/IO_File.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
+#include "Graphics/FontTT.h"
 
 
 #define S2DE_DEFAULT_RESOURCE_DATA_NAME "Gamedata/"
@@ -15,43 +17,38 @@ using namespace S2DE::IO;
 
 namespace S2DE::Core
 {
-	class S2DE_API ResourceManager_ResourceBase
+	class S2DE_API RMResourceBase
 	{
 	public:
-		virtual ~ResourceManager_ResourceBase() { }
+		virtual ~RMResourceBase() { }
 		virtual bool Load(std::string name) const = 0;
-		virtual bool Save(std::string name, void* output) const = 0;
 		virtual void Clear() = 0;
 		virtual void CreateResource() = 0;
 	};
 
 	template<class T>
-	class S2DE_API ResourceManager_Resource : public ResourceManager_ResourceBase
+	class S2DE_API RMResource : public RMResourceBase
 	{
 	public:
-		ResourceManager_Resource() :
+		RMResource() :
 			m_resource(nullptr)
 		{
-
+			static_assert(!std::is_base_of<T, IO_Disposible>::value, "It's not IO_Disposible based class");
 		}
 
-		virtual ~ResourceManager_Resource() override
+		virtual ~RMResource() override
 		{
 	
 		}
 
 		virtual void Clear() override
 		{
-			static_assert(!std::is_base_of<T, IO_Disposible>::value, "It's not IO_Disposible based class");
-
 			m_resource->Cleanup();
 			Delete(m_resource);
 		}
 
 		virtual bool Load(std::string name) const override
-		{
-			static_assert(!std::is_base_of<T, IO_File>::value, "It's not IO_File based class");
-
+		{		
 			m_resource = new T();
 			m_resource->SetFileName(name);
 
@@ -78,13 +75,6 @@ namespace S2DE::Core
 			return true;
 		}
 
-		virtual bool Save(std::string name, void* output) const override
-		{
-			static_assert(!std::is_base_of<T, IO_File>::value, "It's not IO_File based class");
-
-			return true;
-		}
-
 		virtual void CreateResource() override
 		{
 			m_resource = new T();
@@ -98,6 +88,10 @@ namespace S2DE::Core
 
 	class S2DE_API ResourceManager
 	{
+	private:
+		std::map<std::pair<std::string, std::type_index>, std::unique_ptr<RMResourceBase>>	m_ResourceStorage;
+		std::unique_ptr <Render::Texture>			m_defaultTexture;
+		std::string									m_dataFolderName;
 	public:
 		ResourceManager();
 		~ResourceManager();
@@ -106,49 +100,34 @@ namespace S2DE::Core
 		bool				LoadDefaultTexture();
 		//Clear all resources
 		void				ClearAll();
-
 		//Get default texture
-		inline Render::Texture*		GetDefaultTexture() const { return m_default_texture.get(); }
+		inline Render::Texture*		GetDefaultTexture() const { return m_defaultTexture.get(); }
 		//Get data folder name
-		inline std::string  GetNameOfData() const { return m_resource_data_name; }
+		inline std::string  GetNameOfDataFolder() const { return m_dataFolderName; }
 
-		//Get file path (std::string)
 		std::string			GetFilePath(std::string filename, IO_File* file);		
-		//Get file path (bool)
 		bool				GetFilePath(std::string filename, IO_File* file, std::string& resultpath);
-		//Get file path without IO_File class
-		//Array extension 
 		bool				GetFilePath(std::string filename, std::string type, std::string ex[], std::string& resultpath);
-		//Get file path without IO_File class 
 		bool				GetFilePath(std::string filename, std::string type, std::string ex, std::string& resultpath);
 
-		//Reload shaders in storage, this function not reload shader in objects
+		//Reload shaders in storage, this function not reload shaders in objects
 		void				ReloadShaders();
 
-		//Reload texture in storage, this function not reload texture in objects
+		//Reload texture in storage, this function not reload textures in objects
 		void				ReloadTextures();
-	private:
 
-	    std::map<std::pair<std::string, std::type_index>,
-			std::unique_ptr<ResourceManager_ResourceBase>>	m_ResourceStorage;
-
-		std::unique_ptr <Render::Texture>			m_default_texture;
-		std::string						    m_resource_data_name;
 	private:
-		//Find funtion
-		//Create path and check file by created path
-		bool TryToFind(std::string filename, std::string type, std::string ex, std::string& resultpath);
+		bool				ConstructPath(std::string filename, std::string type, std::string ex, std::string& resultpath);
 
 	public:
-		//Load resource in Data
-		//T is require class with IO_File base
+		//Load resource from data folder
 		template <typename T>
 		bool Load(std::string filename, std::string name = std::string())
 		{
 			if (Other::isStringEmpty(filename))
 				return false;
 
-			ResourceManager_Resource<T>* r = new ResourceManager_Resource<T>();
+			RMResource<T>* r = new RMResource<T>();
 
 			if (!r->Load(filename))
 			{
@@ -157,13 +136,12 @@ namespace S2DE::Core
 			}
 
 			auto key = std::make_pair(Other::isStringEmpty(name) ? filename : name, std::type_index(typeid(T)));
-			m_ResourceStorage[key] = std::make_unique<ResourceManager_Resource<T>>(*r);
+			m_ResourceStorage[key] = std::make_unique<RMResource<T>>(*r);
 
 			return true;
 		}
 
-		//Erase resource in storage
-		//T is require class with IO_File base
+		//Erase resource from storage
 		template <typename T>
 		void Erase(std::string name)
 		{
@@ -179,7 +157,6 @@ namespace S2DE::Core
 		}
 
 		//Get resource from storage
-		//T is require class with IO_File base
 		template <typename T>
 		T* Get(std::string name)
 		{
@@ -189,11 +166,10 @@ namespace S2DE::Core
 			if (it == m_ResourceStorage.end())
 				return std::is_same<T, Render::Texture>::value ? reinterpret_cast<T*>(Engine::GetResourceManager().GetDefaultTexture()) : nullptr;
 	
-			return reinterpret_cast<ResourceManager_Resource<T>*>(it->second.get())->Get();
+			return reinterpret_cast<RMResource<T>*>(it->second.get())->Get();
 		}
 
 		//Check resource on exist
-		//T is require class with IO_File base
 		template <typename T>
 		bool IsExists(std::string name) const
 		{
@@ -204,7 +180,6 @@ namespace S2DE::Core
 		}
 
 		//Get count of resource in storage
-		//T is require class with IO_File base
 		template<typename T>
 		std::int32_t GetResourceCount() const
 		{
