@@ -4,11 +4,11 @@
 #include <ctime>
 #include <fstream>
 
-#define S2DE_FATAL_ERROR(message) Logger::Fatal("%s\nTechnical information:\nLine:%d\nFile:%s\nin Function: %s" ,message , __LINE__, __FILE__ , __func__); 
-#define S2DE_NO_IMPL() Logger::Warning("No function implementation %s", __func__);
-#define S2DE_ASSERT(a) if(!(a)) { Logger::Fatal("Assertion failed %s\n File:%s\n Line:%d", #a,  __FILE__, __LINE__); }
+#define S2DE_FATAL_ERROR(message) S2DE::Core::Utils::Logger::Fatal("%s\nTechnical information:\nLine:%d\nFile:%s\nin Function: %s" ,message , __LINE__, __FILE__ , __func__); 
+#define S2DE_NO_IMPL() S2DE::Core::Utils::Logger::Warning("No function implementation %s", __func__);
+#define S2DE_ASSERT(a) if(!(a)) { S2DE::Core::Utils::Logger::Fatal("Assertion failed %s\n File:%s\n Line:%d", #a,  __FILE__, __LINE__); }
 #define S2DE_CHECK(f, r) if (!CheckHR(f, true)) { S2DE_FATAL_ERROR(r); return false; }  
-#define S2DE_CHECK_SAFE(f, r) if (!CheckHR(f, true)) { Logger::Error("%s %s %d %s", #f,  __FILE__, __LINE__, r); return false; }  
+#define S2DE_CHECK_SAFE(f, r) if (!CheckHR(f, true)) { S2DE::Core::Utils::Logger::Error("%s %s %d %s", #f,  __FILE__, __LINE__, r); return false; }  
 
 namespace S2DE::Core::Utils
 {
