@@ -7,7 +7,11 @@
 
 namespace S2DE::Render
 {
-	Texture::Texture() 
+	Texture::Texture() :
+			m_resourceView(nullptr),
+			m_resource(nullptr),
+			m_textureHandle(nullptr),
+			m_textureSamplerState(nullptr)
 	{
 		m_type = "Texture";
 		m_ex = 
@@ -26,22 +30,22 @@ namespace S2DE::Render
 
 	Texture::~Texture()
 	{
-
+		
 	}
 
 	void Texture::Cleanup()
 	{
 		Core::Release(m_resource);
-		Core::Release(m_resourceview);
-		Core::Release(m_texture2d);
-		Core::Release(m_texture_sampler_state);
+		Core::Release(m_resourceView);
+		Core::Release(m_textureHandle);
+		Core::Release(m_textureSamplerState);
 	}
 
 	void Texture::UpdateTextureDesc()
 	{
-		m_resourceview->GetResource(&m_resource);
-		m_resource->QueryInterface<ID3D11Texture2D>(&m_texture2d);
-		m_texture2d->GetDesc(&m_texture_desc);
+		m_resourceView->GetResource(&m_resource);
+		m_resource->QueryInterface<ID3D11Texture2D>(&m_textureHandle);
+		m_textureHandle->GetDesc(&m_textureDesc);
 	}
 
 	bool Texture::CreateSamplerState()
@@ -61,7 +65,7 @@ namespace S2DE::Render
 		sampler_desc.BorderColor[2] = 0;
 		sampler_desc.BorderColor[3] = 0;
 
-		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_texture_sampler_state), "Can't create sampler state");
+		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
 		return true;
 	}
 
@@ -80,7 +84,7 @@ namespace S2DE::Render
 		std::int32_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
-			hr = DirectX::CreateDDSTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceview);
+			hr = DirectX::CreateDDSTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceView);
 			if (FAILED(hr))
 			{
 				Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Core::Utils::GetHRCodeDetails(hr).c_str());
@@ -89,7 +93,7 @@ namespace S2DE::Render
 		}
 		else
 		{
-			hr = DirectX::CreateWICTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceview);
+			hr = DirectX::CreateWICTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceView);
 			if (FAILED(hr))
 			{
 				Logger::Error("Can't create texture from file Path:%s Details:%s", path.c_str(), Core::Utils::GetHRCodeDetails(hr).c_str());
@@ -123,7 +127,7 @@ namespace S2DE::Render
 		{
 			hr = DirectX::CreateDDSTextureFromFileEx(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(),
 				0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE,
-				false, &m_resource, &m_resourceview);
+				false, &m_resource, &m_resourceView);
 
 			if (FAILED(hr))
 			{
@@ -165,7 +169,7 @@ namespace S2DE::Render
 		shader_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		shader_desc.Texture2D.MipLevels = 1;
 
-		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceview), "Can't create shader resource for empty texture");
+		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for empty texture");
 
 		UpdateTextureDesc();
 		return true;
@@ -179,9 +183,9 @@ namespace S2DE::Render
 
 	void Texture::Bind(std::uint32_t NumViews)
 	{
-		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, NumViews, &m_resourceview);
+		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, NumViews, &m_resourceView);
 		//Check on sampler exist 
-		if(m_texture_sampler_state != nullptr)
-			Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(0, 1, &m_texture_sampler_state);
+		if(m_textureSamplerState != nullptr)
+			Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(0, 1, &m_textureSamplerState);
 	}
 }
