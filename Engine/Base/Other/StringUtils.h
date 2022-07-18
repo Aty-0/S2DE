@@ -18,16 +18,22 @@ namespace S2DE::Core::Other
 	template<typename T>
 	inline std::string GetClassNameInString(T obj)
 	{
+		//Get class name by typeid function
 		std::string class_name = typeid(obj).name();
-		std::uint32_t pos = 0;
 
+		//Remove all namespaces
+		std::uint64_t pos = 0;
 		while (pos != std::string::npos)
 		{
-			pos = class_name.find("::");
-			class_name = class_name.substr(pos + 1);
+			class_name = class_name.substr(pos + 2);
+			pos = class_name.find(":", pos);
 		}
 
-		class_name.erase(std::remove(class_name.begin(), class_name.end(), ':'), class_name.end());
+		//Remove other garbage 
+		pos = 0;
+		pos = class_name.find(" ", pos);
+		class_name.erase(pos, class_name.length() - 1);
+
 		return class_name;
 	}
 
