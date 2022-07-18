@@ -80,6 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>TestGame</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -97,7 +98,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Debug/;../Libs/boost_1_76_0/stage/x86/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Debug/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/x32/;$(LibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>S2DE.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;d3d11.lib;dxguid.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -124,13 +125,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\S2DE_DX11\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Engine/;$(IncludePath);../Libs/boost_1_76_0/;../Libs/DirectXTK/Inc/;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\x64\Debug\;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>S2DE_DX11.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../x64/Debug/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>S2DE.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;d3d11.lib;dxguid.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
