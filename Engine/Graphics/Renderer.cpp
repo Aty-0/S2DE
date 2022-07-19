@@ -439,7 +439,7 @@ namespace S2DE::Render
 
 		if (Core::Engine::isEditor())
 			Delete(m_editorToolStrip);
-		}
+		
 
 		m_windowsStorage.clear();
 		m_windowsStorage.shrink_to_fit();
