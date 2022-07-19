@@ -39,14 +39,12 @@ namespace S2DE::Core::Utils
 		m_log_file.close();
 	}
 
-	std::string Logger::GetTime(bool min_sec)
+	std::string Logger::GetTime(bool printMinAndSec)
 	{
 		m_time = time(0);
 		m_localtime = localtime(&m_time);
-
-		std::string min_sec_Str = min_sec == true ? std::to_string(m_localtime->tm_sec) + std::to_string(m_localtime->tm_min) : std::string();
-
-		return   min_sec_Str + std::to_string(m_localtime->tm_mday) + std::to_string(1 + m_localtime->tm_mon) + std::to_string(1900 + m_localtime->tm_year);
+		std::string minSec = printMinAndSec == true ? "." + std::to_string(m_localtime->tm_sec) + "." + std::to_string(m_localtime->tm_min) : std::string();
+		return std::to_string(1900 + m_localtime->tm_year) + "." + std::to_string(1 + m_localtime->tm_mon) + "." + std::to_string(m_localtime->tm_mday) + minSec;
 	}
 
 	std::string Logger::GetCorrentTime()
@@ -96,14 +94,9 @@ namespace S2DE::Core::Utils
 
 	void Logger::CreateLogFile()
 	{
-		//TODO
-		//Add log date in file name
-		m_log_file_name = "S2DE.log";
-
+		std::string date = GetTime(true);
+		m_log_file_name = "S2DE-Log-" + date + ".log";
 		m_log_file = std::ofstream(m_log_file_name, std::ios_base::out);
-
-		//Main text 
-
 		m_log_file << 
 			"------------------------------------------------\n" <<
 			"- S2DE Log file\n" << 
@@ -111,7 +104,6 @@ namespace S2DE::Core::Utils
 			"- Build: " << S2DE_BUILD_DATE << "\n" <<
 			"------------------------------------------------" <<
 			"\n\n";
-
 		m_log_file.close();
 	}
 
