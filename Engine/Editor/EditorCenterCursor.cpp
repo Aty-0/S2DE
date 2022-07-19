@@ -46,8 +46,7 @@ namespace S2DE::Editor
 		m_shader->UpdateMainConstBuffer(UpdateTransformation(), true);
 		m_vertex_buffer->Bind();
 		m_shader->Bind();
-		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-		Core::Engine::GetRenderer()->GetContext()->Draw(m_vertex_buffer->GetArray().size(), 0);
+		Core::Engine::GetRenderer()->Draw(m_vertex_buffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 		m_shader->Unbind();
 		m_vertex_buffer->Unbind();
 	}

@@ -66,17 +66,23 @@ namespace S2DE::GameObjects
 
 	void NoTextureTestObject::OnRender()
 	{		
+		m_shader->UpdateMainConstBuffer(UpdateTransformation());
+
+		m_shader->Bind();
+		m_texture->Bind();
+
 		m_vbuffer->Bind();
 		m_ibuffer->Bind();
 
-		m_shader->Bind();
-		m_shader->UpdateMainConstBuffer(UpdateTransformation());
-		m_texture->Bind();
-
-		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0);
+		Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+		Core::Engine::GetRenderer()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Core::Engine::GetRenderer()->SetRasterizerState();
+		Core::Engine::GetRenderer()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		m_shader->Unbind();
+		m_texture->Unbind();
+		m_vbuffer->Unbind();
+		m_ibuffer->Unbind();
 	}
 
 	void NoTextureTestObject::UpdateShader()

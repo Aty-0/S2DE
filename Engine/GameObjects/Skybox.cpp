@@ -49,10 +49,9 @@ namespace S2DE::GameObjects
 		m_indexBuffer->Bind();
 
 		//Draw poly 
-		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Core::Engine::GetRenderer()->TurnZBufferOff();
 		Core::Engine::GetRenderer()->SetRasterizerState("nocull");
-		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0);
+		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Core::Engine::GetRenderer()->SetRasterizerState();
 		Core::Engine::GetRenderer()->TurnZBufferOn();
 		//Unbind 

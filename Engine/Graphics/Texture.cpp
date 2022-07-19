@@ -81,7 +81,7 @@ namespace S2DE::Render
 		HRESULT hr = S_OK;
 
 		//Get file extension because for dds format we need to use special function
-		std::int32_t pos = path.find(".dds");
+		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
 			hr = DirectX::CreateDDSTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceView);
@@ -122,7 +122,7 @@ namespace S2DE::Render
 		HRESULT hr = S_OK;
 
 		//Get file extension because for dds format we need to use special function
-		std::int32_t pos = path.find(".dds");
+		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
 			hr = DirectX::CreateDDSTextureFromFileEx(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(),

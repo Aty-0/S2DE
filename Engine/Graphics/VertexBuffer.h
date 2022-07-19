@@ -28,7 +28,7 @@ namespace S2DE::Render
 
 			D3D11_BUFFER_DESC bufferDesc{};
 
-			bufferDesc.ByteWidth = sizeof(Vertex) * m_array.size();
+			bufferDesc.ByteWidth = static_cast<std::uint32_t>(sizeof(Vertex) * m_array.size());
 			bufferDesc.Usage = buffer_usage;
 			bufferDesc.CPUAccessFlags = buffer_usage == D3D11_USAGE_DYNAMIC ? D3D11_CPU_ACCESS_WRITE : 0;
 			bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;

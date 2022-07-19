@@ -28,7 +28,7 @@ namespace S2DE::Render
 
 			D3D11_BUFFER_DESC bufferDesc{};
 
-			bufferDesc.ByteWidth = sizeof(std::uint32_t) * m_array.size();
+			bufferDesc.ByteWidth = (std::uint32_t)(sizeof(std::uint32_t) * m_array.size());
 			bufferDesc.Usage = buffer_usage;
 			bufferDesc.CPUAccessFlags = buffer_usage == D3D11_USAGE_DYNAMIC ? D3D11_CPU_ACCESS_WRITE : 0;
 			bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;

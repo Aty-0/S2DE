@@ -120,15 +120,20 @@ namespace S2DE::GameObjects
 
 	void TestObject::OnRender()
 	{
-		m_vbuffer->Bind();
-		m_ibuffer->Bind();
-		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
 		m_shader->Bind();
-		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 		m_texture->Bind();
-		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0);
+
+		m_vbuffer->Bind();
+		m_ibuffer->Bind();
+
+		Core::Engine::GetRenderer()->DrawIndexed(m_ibuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 		m_shader->Unbind();
+		m_texture->Unbind();
+		m_vbuffer->Unbind();
+		m_ibuffer->Unbind();
 	}
 
 	void TestObject::UpdateTexture()

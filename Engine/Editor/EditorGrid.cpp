@@ -32,8 +32,7 @@ namespace S2DE::Editor
 		m_indexBuffer->Bind();
 
 		//Draw poly 
-		Core::Engine::GetRenderer()->GetContext()->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
-		Core::Engine::GetRenderer()->GetContext()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0);
+		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 		//Unbind 
 		m_shader->Unbind();
@@ -48,7 +47,7 @@ namespace S2DE::Editor
 			for (std::int32_t x = 0; x < GRID_CELLS; x++)
 			{
 				Render::Vertex vertex = Render::Vertex();
-				vertex.position = DirectX::SimpleMath::Vector3(-x, 0.0f, -z);
+				vertex.position = DirectX::SimpleMath::Vector3(float(-x), 0.0f, float(-z));
 				vertex.color = DirectX::SimpleMath::Vector4(1, 1, 1, 1);
 				m_vertexBuffer->GetArray().push_back(vertex);
 			}

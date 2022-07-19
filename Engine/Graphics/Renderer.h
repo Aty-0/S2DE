@@ -94,6 +94,8 @@ namespace S2DE::Render
 		inline ID3D11ShaderResourceView*	GetFramebufferShaderResource() const { return m_frameBufferShaderResourceView; }
 		inline ID3D11Texture2D*				GetFramebufferTextureData() const { return m_frameBufferData; }
 		
+		void								DrawIndexed(std::uint64_t indexCount, std::uint32_t startIndexLocation = 0, std::uint32_t baseVertexLocation = 0, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		void								Draw(std::uint64_t vertexCount, std::uint32_t startVertexLocation = 0, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	private:
 		// Initialize ImGui Library
 		bool								InitImGui();

@@ -446,6 +446,9 @@ namespace S2DE::Render
 
 		DestroyImGui();
 
+		m_rasterizerVariants.clear();
+		m_rasterizerVariants.shrink_to_fit();
+
 		Release(m_swapChain);
 		Release(m_device);
 		Release(m_context);
@@ -740,5 +743,17 @@ namespace S2DE::Render
 	void Renderer::TurnZBufferOff()
 	{
 		m_context->OMSetDepthStencilState(m_depthStateDisabled, 1);
+	}
+
+	void Renderer::DrawIndexed(std::uint64_t indexCount, std::uint32_t startIndexLocation, std::uint32_t baseVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)
+	{
+		m_context->IASetPrimitiveTopology(topology);
+		m_context->DrawIndexed((std::uint32_t)indexCount, startIndexLocation, baseVertexLocation);
+	}
+
+	void Renderer::Draw(std::uint64_t vertexCount, std::uint32_t startVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)
+	{
+		m_context->IASetPrimitiveTopology(topology);
+		m_context->Draw((std::uint32_t)vertexCount, startVertexLocation);
 	}
 }
