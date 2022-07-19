@@ -8,7 +8,6 @@
 #include "IO/IO_File.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
-#include "Graphics/FontTT.h"
 
 
 #define S2DE_DEFAULT_RESOURCE_DATA_NAME "Gamedata/"
