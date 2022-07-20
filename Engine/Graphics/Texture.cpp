@@ -87,7 +87,7 @@ namespace S2DE::Render
 			hr = DirectX::CreateDDSTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceView);
 			if (FAILED(hr))
 			{
-				Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Core::Utils::GetHRCodeDetails(hr).c_str());
+				Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
 				return false;
 			}
 		}
@@ -96,7 +96,7 @@ namespace S2DE::Render
 			hr = DirectX::CreateWICTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceView);
 			if (FAILED(hr))
 			{
-				Logger::Error("Can't create texture from file Path:%s Details:%s", path.c_str(), Core::Utils::GetHRCodeDetails(hr).c_str());
+				Logger::Error("Can't create texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
 				return false;
 			}
 		}
@@ -131,7 +131,7 @@ namespace S2DE::Render
 
 			if (FAILED(hr))
 			{
-				Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Core::Utils::GetHRCodeDetails(hr).c_str());
+				Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
 				return false;
 			}
 		}

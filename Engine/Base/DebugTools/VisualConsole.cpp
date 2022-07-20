@@ -14,7 +14,7 @@ namespace S2DE::Core::Debug
 		m_free(Engine::isEditor()),
 		m_sizemode(S2DE_CONSOLE_DEFAULT_MODE)
 	{ 
-
+		Logger::onPrintCallbacks.push_back(std::bind(&VisualConsole::Scroll, this));
 	}
 
 	VisualConsole::~VisualConsole()
