@@ -249,7 +249,7 @@ namespace S2DE::Render
 		m_deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-		std::int32_t driver_types_size = ARRAYSIZE(driverTypes);
+		std::uint32_t driver_types_size = ARRAYSIZE(driverTypes);
 		HRESULT device_hr = S_OK;
 
 		DXGI_SWAP_CHAIN_DESC sd = { };
