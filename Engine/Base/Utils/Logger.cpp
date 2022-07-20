@@ -18,43 +18,42 @@
 
 namespace S2DE::Core::Utils
 {
-	std::uint32_t		Logger::m_linecount;
+	std::uint32_t		Logger::m_lineCount;
 	time_t				Logger::m_time;
-	tm*					Logger::m_localtime;
-	std::ofstream		Logger::m_log_file;
-	std::string			Logger::m_log_file_name;
+	tm*					Logger::m_localTime;
+	std::ofstream		Logger::m_logFile;
+	std::string			Logger::m_logFileName;
+	std::vector<std::function<void()>> Logger::onPrintCallbacks;
 
 	Logger::Logger()
 	{
 	
 	}
 
-
 	Logger::~Logger()
 	{
-		m_linecount = NULL;
-		m_time = NULL;
-	
-		Delete(m_localtime);
-		m_log_file.close();
+		Delete(m_localTime);
+		m_time = NULL;	
+		m_logFile.close();
+		m_lineCount = 0;
 	}
 
 	std::string Logger::GetTime(bool printMinAndSec)
 	{
 		m_time = time(0);
-		m_localtime = localtime(&m_time);
-		std::string minSec = printMinAndSec == true ? "." + std::to_string(m_localtime->tm_sec) + "." + std::to_string(m_localtime->tm_min) : std::string();
-		return std::to_string(1900 + m_localtime->tm_year) + "." + std::to_string(1 + m_localtime->tm_mon) + "." + std::to_string(m_localtime->tm_mday) + minSec;
+		m_localTime = localtime(&m_time);
+		std::string minSec = printMinAndSec == true ? "." + std::to_string(m_localTime->tm_sec) + "." + std::to_string(m_localTime->tm_min) : std::string();
+		return std::to_string(1900 + m_localTime->tm_year) + "." + std::to_string(1 + m_localTime->tm_mon) + "." + std::to_string(m_localTime->tm_mday) + minSec;
 	}
 
 	std::string Logger::GetCorrentTime()
 	{
 		m_time = time(0);
-		m_localtime = localtime(&m_time);
+		m_localTime = localtime(&m_time);
 
-		return std::to_string(1900 + m_localtime->tm_year) + "." + std::to_string(1 + m_localtime->tm_mon) + "." +
-			std::to_string(m_localtime->tm_mday) + " " + std::to_string(m_localtime->tm_hour) +
-			":" + std::to_string(m_localtime->tm_min) + ":" + std::to_string(m_localtime->tm_sec);
+		return std::to_string(1900 + m_localTime->tm_year) + "." + std::to_string(1 + m_localTime->tm_mon) + "." +
+			std::to_string(m_localTime->tm_mday) + " " + std::to_string(m_localTime->tm_hour) +
+			":" + std::to_string(m_localTime->tm_min) + ":" + std::to_string(m_localTime->tm_sec);
 	}
 
 	void Logger::Fatal(const char* text, ...)
@@ -62,8 +61,6 @@ namespace S2DE::Core::Utils
 		char buffer[1024];
 		VA_LIST_OUTPUT(buffer);
 		Print("Fatal", std::string(buffer).c_str());
-
-
 		throw std::runtime_error(std::string(buffer));
 		memset(buffer, 0, sizeof(buffer));
 	}
@@ -95,23 +92,23 @@ namespace S2DE::Core::Utils
 	void Logger::CreateLogFile()
 	{
 		std::string date = GetTime(true);
-		m_log_file_name = "S2DE-Log-" + date + ".log";
-		m_log_file = std::ofstream(m_log_file_name, std::ios_base::out);
-		m_log_file << 
+		m_logFileName = "S2DE-Log-" + date + ".log";
+		m_logFile = std::ofstream(m_logFileName, std::ios_base::out);
+		m_logFile << 
 			"------------------------------------------------\n" <<
 			"- S2DE Log file\n" << 
 			"------------------------------------------------\n" <<
 			"- Build: " << S2DE_BUILD_DATE << "\n" <<
 			"------------------------------------------------" <<
 			"\n\n";
-		m_log_file.close();
+		m_logFile.close();
 	}
 
 	void Logger::Print(const char* type, const char* text)
 	{
-		std::string line;
+		std::string line = std::string();
 
-		line.append("[" + std::to_string(m_linecount) + "] ");
+		line.append("[" + std::to_string(m_lineCount) + "] ");
 
 		//Add to line corrent time
 		line.append(GetCorrentTime());
@@ -122,19 +119,35 @@ namespace S2DE::Core::Utils
 		OutputDebugString(line.c_str());
 
 		//Add text to log file
-		m_log_file.open(m_log_file_name, std::ios::app | std::ios_base::out);
-		m_log_file << line;
-		m_log_file.close();
+		m_logFile.open(m_logFileName, std::ios::app | std::ios_base::out);
+		m_logFile << line;
+		m_logFile.close();
 
 		Debug::VisualConsole::ConsoleBuffer.push_back(line);
 
 		//Add line 
-		m_linecount++;
+		m_lineCount++;
 
-		if (Core::Engine::GetRenderer() != nullptr)
-			if (Core::Engine::GetRenderer()->GetImGui_Window("EngineConsole") != nullptr)
-				reinterpret_cast<Debug::VisualConsole*>(Core::Engine::GetRenderer()->GetImGui_Window("EngineConsole"))->Scroll();
-
+		for (const auto& func : onPrintCallbacks)
+			func();
+	
 		line.clear();
+	}
+
+	std::string Logger::GetHRCodeDetails(HRESULT hr)
+	{
+		_com_error err(hr);
+		return std::string(err.ErrorMessage());
+	}
+
+	bool Logger::CheckHR(HRESULT hr, bool printCode)
+	{
+		if (FAILED(hr))
+		{
+			if (printCode == true)
+				Logger::Error("Error Code: 0x%08X Details: %s ", hr, GetHRCodeDetails(hr).c_str());
+			return false;
+		}
+		return true;
 	}
 }
