@@ -3,7 +3,7 @@
 #include "Libs/utfcpp/utf8.h"
 #include <boost/algorithm/string/find.hpp>
 
-namespace S2DE::Core::Other
+namespace S2DE::Core::Utils
 {
 	inline static bool isStringEmpty(std::string str)
 	{

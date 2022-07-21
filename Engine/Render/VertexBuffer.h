@@ -1,6 +1,6 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "Graphics/Buffer.h"
+#include "Render/Buffer.h"
 #include "Base/Engine.h"
 
 namespace S2DE::Render

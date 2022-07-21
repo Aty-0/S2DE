@@ -1,8 +1,8 @@
 #pragma once
 #include "Base/Main/Common.h"
 #include "Base/Utils/Logger.h"
-#include "Graphics/Renderer.h"
-#include "Graphics/ImGui_Window.h"
+#include "Render/Renderer.h"
+#include "Render/ImGui_Window.h"
 
 namespace S2DE::Core::Debug
 {

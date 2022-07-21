@@ -36,7 +36,7 @@
     <ClInclude Include="Base\Other\SplashScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Base\Other\StringUtils.h">
+    <ClInclude Include="Base\Utils\StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Base\Utils\AppUsage.h">
@@ -72,16 +72,16 @@
     <ClInclude Include="GameObjects\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Buffers.h">
+    <ClInclude Include="Render\Buffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Renderer.h">
+    <ClInclude Include="Render\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Shader.h">
+    <ClInclude Include="Render\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Texture.h">
+    <ClInclude Include="Render\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IO\IO_Disposible.h">
@@ -159,7 +159,7 @@
     <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ImGui_Window.h">
+    <ClInclude Include="Render\ImGui_Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorToolstrip.h">
@@ -180,16 +180,16 @@
     <ClInclude Include="Libs\utfcpp\utf8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\VertexBuffer.h">
+    <ClInclude Include="Render\VertexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\IndexBuffer.h">
+    <ClInclude Include="Render\IndexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ConstantBuffer.h">
+    <ClInclude Include="Render\ConstantBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Buffer.h">
+    <ClInclude Include="Render\Buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObjects\NoTextureTestObject.h">
@@ -204,7 +204,7 @@
     <ClInclude Include="Editor\EditorCenterCursor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ImGuiS2DETheme.h">
+    <ClInclude Include="Render\ImGuiS2DETheme.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorGrid.h">
@@ -250,13 +250,13 @@
     <ClCompile Include="GameObjects\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Renderer.cpp">
+    <ClCompile Include="Render\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Shader.cpp">
+    <ClCompile Include="Render\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Texture.cpp">
+    <ClCompile Include="Render\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IO\IO_File.cpp">
@@ -304,7 +304,7 @@
     <ClCompile Include="Base\DebugTools\Debug_ObjectInspector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ImGui_Window.cpp">
+    <ClCompile Include="Render\ImGui_Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\EditorToolstrip.cpp">

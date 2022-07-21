@@ -4,8 +4,6 @@
 #include "Base/Main/BuildDate.h"
 #include "Base/DebugTools/VisualConsole.h"
 
-#include "Graphics/Renderer.h"
-
 #pragma warning(disable:4996)
 
 #include <cstdarg> 

@@ -6,8 +6,8 @@
 ///Resources headers
 ///////////////////////////////////
 #include "IO/IO_File.h"
-#include "Graphics/Shader.h"
-#include "Graphics/Texture.h"
+#include "Render/Shader.h"
+#include "Render/Texture.h"
 
 
 #define S2DE_DEFAULT_RESOURCE_DATA_NAME "Gamedata/"
@@ -123,7 +123,7 @@ namespace S2DE::Core
 		template <typename T>
 		bool Load(std::string filename, std::string name = std::string())
 		{
-			if (Other::isStringEmpty(filename))
+			if (Core::Utils::isStringEmpty(filename))
 				return false;
 
 			RMResource<T>* r = new RMResource<T>();
@@ -134,7 +134,7 @@ namespace S2DE::Core
 				return false;
 			}
 
-			auto key = std::make_pair(Other::isStringEmpty(name) ? filename : name, std::type_index(typeid(T)));
+			auto key = std::make_pair(Core::Utils::isStringEmpty(name) ? filename : name, std::type_index(typeid(T)));
 			m_ResourceStorage[key] = std::make_unique<RMResource<T>>(*r);
 
 			return true;

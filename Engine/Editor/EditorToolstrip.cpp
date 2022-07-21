@@ -2,7 +2,7 @@
 #include "Base/Engine.h"
 #include "Base/ResourceManager.h"
 #include "Scene/SceneManager.h"
-#include "Graphics/Renderer.h"
+#include "Render/Renderer.h"
 
 #include "GameObjects/Camera.h"
 #include "GameObjects/Sprite.h"

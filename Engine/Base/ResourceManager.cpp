@@ -57,15 +57,17 @@ namespace S2DE::Core
 		//Construct path
 		std::string res = m_dataFolderName + type + "/" + filename + ex;
 		//Open file by constructed path
-		std::ifstream f = std::ifstream(res.c_str(), std::ifstream::ate | std::ios::binary);		
+		std::ifstream file = std::ifstream(res.c_str(), std::ifstream::in);		
 		//Check on exist file by final path
-		if (f.is_open())
+		if (file.is_open())
 		{
 			Logger::Log("[ResourceManager] %s found | %s", type.c_str(), res.c_str());
      		resultpath = res;
+			file.close();
 			return true;
 		}
 
+		file.close();
 		return false;
 	}
 

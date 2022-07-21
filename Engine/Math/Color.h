@@ -1,7 +1,5 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "Graphics/Renderer.h"
-
 
 namespace S2DE::Math
 {

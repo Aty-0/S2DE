@@ -55,7 +55,7 @@ namespace S2DE::Scene
 				Logger::Error("[Scene] [%s] Can't add this game object because it is nullptr!", m_name.c_str());
 				return nullptr;
 			}
-			else if (Core::Other::isStringEmpty(g->GetName()) || Core::Other::isStringEmpty(g->GetUUIDString()))
+			else if (Core::Utils::isStringEmpty(g->GetName()) || Core::Utils::isStringEmpty(g->GetUUIDString()))
 			{
 				Logger::Error("[Scene] [%s] Can't add this game object because it is not initialized!", m_name.c_str());
 				return nullptr;
@@ -66,7 +66,7 @@ namespace S2DE::Scene
 			CheckNameOnExist(name);
 			g->SetName(name); //It will be renamed if we are found same name
 
-			Logger::Log("[Scene] [%s] Added [%s] Name: %s UUID: %s", m_name.c_str(), Core::Other::GetClassNameInString(g).c_str(), name.c_str(), g->GetUUIDString().c_str());
+			Logger::Log("[Scene] [%s] Added [%s] Name: %s UUID: %s", m_name.c_str(), Core::Utils::GetClassNameInString(g).c_str(), name.c_str(), g->GetUUIDString().c_str());
 
 			//Add object to storage
 			std::shared_ptr<T> objectShared = std::make_shared<T>(*g);
@@ -83,7 +83,7 @@ namespace S2DE::Scene
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
 			Logger::Log("[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), object_name.c_str(),
-				Core::Other::isStringEmpty(new_name) ? "No" : new_name.c_str());
+				Core::Utils::isStringEmpty(new_name) ? "No" : new_name.c_str());
 
 			SceneObjectStorage::iterator it = std::find_if(m_storage.begin(), m_storage.end(),
 				[&object_name](std::pair<std::pair<std::string, boost::uuids::uuid>, std::shared_ptr<GameObjects::GameObject>> const& elem)
@@ -103,7 +103,7 @@ namespace S2DE::Scene
 
 			auto new_obj = new T(*dynamic_cast<T*>(it->second.get()));
 
-			std::string name = Core::Other::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
+			std::string name = Core::Utils::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
 			new_obj->Init(name, new_obj->GetType(), new_obj->GetPrefix(), "REGENERATE");
 
 			return Add<T>(new_obj);
@@ -116,7 +116,7 @@ namespace S2DE::Scene
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
 			Logger::Log("[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), GameObjects::GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str(),
-				Core::Other::isStringEmpty(new_name) ? "No" : new_name.c_str());
+				Core::Utils::isStringEmpty(new_name) ? "No" : new_name.c_str());
 
 			SceneObjectStorage::iterator it = std::find_if(m_storage.begin(), m_storage.end(),
 				[&object_id](std::pair<std::pair<std::string, boost::uuids::uuid>, std::shared_ptr<GameObjects::GameObject>> const& elem)
@@ -136,7 +136,7 @@ namespace S2DE::Scene
 
 			auto new_obj = new T(*dynamic_cast<T*>(it->second));
 
-			std::string name = Core::Other::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
+			std::string name = Core::Utils::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
 			new_obj->Init(name, new_obj->GetType(), new_obj->GetPrefix(), "REGENERATE");
 
 			return Add<T>(new_obj);

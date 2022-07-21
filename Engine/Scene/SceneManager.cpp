@@ -2,7 +2,7 @@
 #include "GameObjects/Camera.h"
 #include "GameObjects/Drawable.h"
 
-#include "Graphics/Renderer.h"
+#include "Render/Renderer.h"
 
 #include "GameObjects/Skybox.h"
 #include "GameObjects/UI/UI_Drawable.h"

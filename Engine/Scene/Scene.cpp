@@ -73,7 +73,7 @@ namespace S2DE::Scene
 		
 		Logger::Log("[Scene] [%s] Delete [%s] Name: %s UUID: %s", 
 			m_name.c_str(), 
-			Core::Other::GetClassNameInString(it->second.get()).c_str(), 
+			Core::Utils::GetClassNameInString(it->second.get()).c_str(),
 			it->second.get()->GetName().c_str(), 
 			it->second.get()->GetUUIDString().c_str());
 		
@@ -100,7 +100,7 @@ namespace S2DE::Scene
 
 		Logger::Log("[Scene] [%s] Delete [%s] Name: %s UUID: %s", 
 			m_name.c_str(), 
-			Core::Other::GetClassNameInString(it->second.get()).c_str(), 
+			Core::Utils::GetClassNameInString(it->second.get()).c_str(),
 			it->second.get()->GetName().c_str(),
 			it->second.get()->GetUUIDString().c_str());
 
@@ -127,7 +127,7 @@ namespace S2DE::Scene
 			{
 				Logger::Log("[Scene] [%s] Delete [%s] Name: %s UUID: %s", 
 					m_name.c_str(), 
-					Core::Other::GetClassNameInString(it->second.get()).c_str(),
+					Core::Utils::GetClassNameInString(it->second.get()).c_str(),
 					it->second.get()->GetName().c_str(),
 					it->second.get()->GetUUIDString().c_str());
 

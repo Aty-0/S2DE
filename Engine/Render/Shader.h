@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "Graphics/Renderer.h"
-#include "Graphics/Buffers.h"
+#include "Render/Renderer.h"
+#include "Render/Buffers.h"
 #include "IO/IO_File.h"
 #include "IO/IO_Disposible.h"
 

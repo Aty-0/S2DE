@@ -7,8 +7,8 @@
 
 #include "Scene/SceneManager.h"
 
-#include "Graphics/ImGui_Window.h"
-#include "Graphics/ImGuiS2DETheme.h"
+#include "Render/ImGui_Window.h"
+#include "Render/ImGuiS2DETheme.h"
 
 #include "Base/DebugTools/Debug_Info.h"
 #include "Base/DebugTools/Debug_ObjectInspector.h"
@@ -25,7 +25,7 @@
 								ImGui::NewFrame(); \
 
 using namespace S2DE::Core;
-using namespace S2DE::Core::Other;
+using namespace S2DE::Core::Utils;
 using namespace S2DE::Core::Debug;
 using namespace S2DE::Math;
 using namespace S2DE::Editor;

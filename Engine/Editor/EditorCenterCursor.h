@@ -1,8 +1,8 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "Graphics/Renderer.h"
-#include "Graphics/Shader.h"
-#include "Graphics/Buffers.h"
+#include "Render/Renderer.h"
+#include "Render/Shader.h"
+#include "Render/Buffers.h"
 #include "GameObjects/UI/UI_Drawable.h"
 
 namespace S2DE::Editor

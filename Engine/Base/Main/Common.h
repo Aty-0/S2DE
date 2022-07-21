@@ -14,12 +14,11 @@
 
 //S2DE
 #include "Base/Main/S2DE_API.h"
-#include "Base/Other/StringUtils.h"
+#include "Base/Utils/StringUtils.h"
 
 
 //DX11
 #include <dxgi.h>
-//#include <d3d11_1.h>
 #include <d3d11.h>
 #include <d3dcommon.h>
 
@@ -33,7 +32,7 @@
 namespace S2DE::Core
 {
 	template<typename T>
-	static void  Delete(T t)
+	static void Delete(T t)
 	{
 		if (t)
 		{

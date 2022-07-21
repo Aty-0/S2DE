@@ -6,8 +6,8 @@
 #include "Base/InputManager.h"
 #include "Base/ResourceManager.h"
 #include "Scene/SceneManager.h"
-#include "Graphics/Renderer.h"
-#include "Graphics/ImGui_Window.h"
+#include "Render/Renderer.h"
+#include "Render/ImGui_Window.h"
 
 using namespace S2DE::Scene;
 using namespace S2DE::Math;

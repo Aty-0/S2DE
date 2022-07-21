@@ -1,6 +1,6 @@
 #include "Texture.h"
 #include "Base/Engine.h"
-#include "Graphics/Renderer.h"
+#include "Render/Renderer.h"
 
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
@@ -72,7 +72,7 @@ namespace S2DE::Render
 	bool Texture::Load(std::string path)
 	{
 		//If path is empty 
-		if (Core::Other::isStringEmpty(path))
+		if (Core::Utils::isStringEmpty(path))
 		{
 			Logger::Error("Path string is empty, can't load texture!");
 			return false;
@@ -84,7 +84,7 @@ namespace S2DE::Render
 		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
-			hr = DirectX::CreateDDSTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceView);
+			hr = DirectX::CreateDDSTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Utils::StringToWString(path).c_str(), &m_resource, &m_resourceView);
 			if (FAILED(hr))
 			{
 				Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
@@ -93,7 +93,7 @@ namespace S2DE::Render
 		}
 		else
 		{
-			hr = DirectX::CreateWICTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(), &m_resource, &m_resourceView);
+			hr = DirectX::CreateWICTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Utils::StringToWString(path).c_str(), &m_resource, &m_resourceView);
 			if (FAILED(hr))
 			{
 				Logger::Error("Can't create texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
@@ -112,7 +112,7 @@ namespace S2DE::Render
 	bool Texture::CreateCubeMapTexture(std::string path)
 	{
 		//If path is empty 
-		if (Core::Other::isStringEmpty(path))
+		if (Core::Utils::isStringEmpty(path))
 		{
 			Logger::Error("Path string is empty, can't load texture!");
 			CreateEmptyTexture(Math::Color<std::uint32_t>(255, 0, 0, 255));
@@ -125,7 +125,7 @@ namespace S2DE::Render
 		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
-			hr = DirectX::CreateDDSTextureFromFileEx(Core::Engine::GetRenderer()->GetDevice(), Core::Other::StringToWString(path).c_str(),
+			hr = DirectX::CreateDDSTextureFromFileEx(Core::Engine::GetRenderer()->GetDevice(), Core::Utils::StringToWString(path).c_str(),
 				0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE,
 				false, &m_resource, &m_resourceView);
 

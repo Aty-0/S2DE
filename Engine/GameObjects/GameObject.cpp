@@ -50,12 +50,12 @@ namespace S2DE::GameObjects
 
 	void GameObject::SetName(std::string name)
 	{
-		Core::Other::isStringEmpty(name) ? m_name = S2DE_DEFAULT_GAMEOBJECT_NAME : m_name = name;
+		Core::Utils::isStringEmpty(name) ? m_name = S2DE_DEFAULT_GAMEOBJECT_NAME : m_name = name;
 	}
 
 	void GameObject::SetType(std::string type)
 	{
-		Core::Other::isStringEmpty(type) ? m_type = S2DE_DEFAULT_GAMEOBJECT_TYPE : m_type = type;
+		Core::Utils::isStringEmpty(type) ? m_type = S2DE_DEFAULT_GAMEOBJECT_TYPE : m_type = type;
 	}
 
 	void GameObject::SetVisible(bool visible)
@@ -80,11 +80,10 @@ namespace S2DE::GameObjects
 		SetType(type);
 		SetPrefix(prefix);
 
-		//TODO
-		//Need check special id on invalid
+		//TODO: Need check special id on invalid
 		if(id == "REGENERATE")
 			m_id->RegenerateUUID();
-		else if (!Core::Other::isStringEmpty(id))
+		else if (!Core::Utils::isStringEmpty(id))
 			m_id->SetUUID(id);
 
 		OnCreate();

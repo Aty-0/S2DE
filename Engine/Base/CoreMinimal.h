@@ -5,10 +5,10 @@
 #include "Base/InputManager.h"
 
 //////////////////////////////////////////
-#include "Graphics/Renderer.h"
-#include "Graphics/Buffers.h"
-#include "Graphics/Texture.h"
-#include "Graphics/Shader.h"
+#include "Render/Renderer.h"
+#include "Render/Buffers.h"
+#include "Render/Texture.h"
+#include "Render/Shader.h"
 
 //////////////////////////////////////////
 #include "GameObjects/GameObject.h"

@@ -73,7 +73,7 @@ namespace S2DE::Render
 
 		Logger::Log("[Shader] [%s] Compile vertex shader...", m_name.c_str());
 		
-		if (FAILED(D3DCompileFromFile(Core::Other::StringToWString(m_path_vs).c_str(), nullptr, nullptr, 
+		if (FAILED(D3DCompileFromFile(Core::Utils::StringToWString(m_path_vs).c_str(), nullptr, nullptr,
 			"main", "vs_5_0", m_flags, 0, &code_buffer, &err_buffer)))
 		{
 			ShowErrorDetails(err_buffer);
@@ -112,7 +112,7 @@ namespace S2DE::Render
 
 		Logger::Log("[Shader] [%s] Compile pixel shader...", m_name.c_str());
 
-		if (FAILED(D3DCompileFromFile(Core::Other::StringToWString(m_path_ps).c_str(), nullptr, nullptr,
+		if (FAILED(D3DCompileFromFile(Core::Utils::StringToWString(m_path_ps).c_str(), nullptr, nullptr,
 			"main", "ps_5_0", m_flags, 0, &code_buffer, &err_buffer)))
 		{
 			ShowErrorDetails(err_buffer);
@@ -138,7 +138,7 @@ namespace S2DE::Render
 
 	bool Shader::SetPaths(std::string vs, std::string ps)
 	{
-		if((Core::Other::isStringEmpty(m_path_vs = vs) || Core::Other::isStringEmpty(m_path_ps = ps)))
+		if((Core::Utils::isStringEmpty(m_path_vs = vs) || Core::Utils::isStringEmpty(m_path_ps = ps)))
 			return false;
 
 		return Compile();

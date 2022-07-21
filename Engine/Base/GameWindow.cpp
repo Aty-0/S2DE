@@ -2,7 +2,7 @@
 #include "Base/Engine.h"
 #include "Base/ApplicationHandle.h"
 #include "Base/Main/BuildDate.h"
-#include "Graphics/Renderer.h"
+#include "Render/Renderer.h"
 
 #define S2DE_WINDOW_CLASS_NAME "S2DE_WND_CLASS_NAME"
 
@@ -121,18 +121,18 @@ namespace S2DE::Core
 		std::string str;
 
 #ifdef NDEBUG
-		str = isStringEmpty(name) ? "S2DE Build: " + std::string(S2DE_BUILD_DATE) : name;
+		str = Core::Utils::isStringEmpty(name) ? "S2DE " + std::string(S2DE_BUILD_DATE) : name;
 		
 		if (Engine::isEditor())
 			str.append(L" Editor");
 
 #else
-		str = "S2DE Build: " + std::string(S2DE_BUILD_DATE);
+		str = "S2DE " + std::string(S2DE_BUILD_DATE);
 
 		if (Engine::isEditor())
 			str.append(" Editor");
 
-		if (!Core::Other::isStringEmpty(name))
+		if (!Core::Utils::isStringEmpty(name))
 			str.append(std::string(" (") + name + ")");
 
 		str.append(" Debug");

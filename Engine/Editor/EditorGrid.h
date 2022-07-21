@@ -1,8 +1,8 @@
 #pragma once
 #include "GameObjects/Drawable.h"
 #include "Base/ResourceManager.h"
-#include "Graphics/Renderer.h"
-#include "Graphics/Buffers.h"
+#include "Render/Renderer.h"
+#include "Render/Buffers.h"
 
 #define GRID_CELLS 128
 

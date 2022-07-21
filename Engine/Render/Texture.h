@@ -2,7 +2,7 @@
 #include "Base/Main/Common.h"
 #include "IO/IO_File.h"
 #include "IO/IO_Disposible.h"
-#include "Graphics/Renderer.h"
+#include "Render/Renderer.h"
 
 namespace S2DE::Render
 {
