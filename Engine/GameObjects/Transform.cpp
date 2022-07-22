@@ -105,7 +105,9 @@ namespace S2DE::GameObjects
 
 	inline DirectX::SimpleMath::Quaternion Transform::ToQuaternion(DirectX::SimpleMath::Vector3 rot)
 	{
-		return DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(rot.z, rot.y, rot.x);
+		return DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.z), 
+			DirectX::XMConvertToRadians(rot.y), 
+			DirectX::XMConvertToRadians(rot.x));
 	}
 
 	DirectX::SimpleMath::Matrix Transform::UpdateTransformation2D()
