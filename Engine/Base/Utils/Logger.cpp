@@ -123,7 +123,7 @@ namespace S2DE::Core::Utils
 		OutputDebugString(line.c_str());
 
 		//Add text to log file
-		m_logFile.open(m_logFileName, std::ios::app | std::ios_base::out);
+		m_logFile.open("Logs/" + m_logFileName, std::ios::app | std::ios_base::out);
 		m_logFile << line;
 		m_logFile.close();
 
