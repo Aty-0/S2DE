@@ -32,6 +32,7 @@ namespace S2DE::Core
 		RMResource() :
 			m_resource(nullptr)
 		{
+			static_assert(!std::is_base_of<T, IO_File>::value, "It's not IO_File based class");
 			static_assert(!std::is_base_of<T, IO_Disposible>::value, "It's not IO_Disposible based class");
 		}
 
