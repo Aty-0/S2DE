@@ -4,6 +4,8 @@
 #include "Base/Main/BuildDate.h"
 #include "Base/DebugTools/VisualConsole.h"
 
+#include <filesystem>
+
 #pragma warning(disable:4996)
 
 #include <cstdarg> 
@@ -89,9 +91,13 @@ namespace S2DE::Core::Utils
 
 	void Logger::CreateLogFile()
 	{
-		std::string date = GetTime(true);
-		m_logFileName = "S2DE-Log-" + date + ".log";
-		m_logFile = std::ofstream(m_logFileName, std::ios_base::out);
+		// Create folder "Logs" if it's not exist
+		if (!std::filesystem::is_directory("Logs") || !std::filesystem::exists("Logs"))
+			std::filesystem::create_directory("Logs");
+		// Set log name
+		m_logFileName = "S2DE-Log-" + GetTime(true) + ".log";
+		// Create log file 
+		m_logFile = std::ofstream("Logs/" + m_logFileName, std::ios_base::out);
 		m_logFile << 
 			"------------------------------------------------\n" <<
 			"- S2DE Log file\n" << 
