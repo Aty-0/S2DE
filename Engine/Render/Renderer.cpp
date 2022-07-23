@@ -9,6 +9,7 @@
 
 #include "Render/ImGui_Window.h"
 #include "Render/ImGuiS2DETheme.h"
+#include "Render/FBX_Importer.h"
 
 #include "Base/DebugTools/Debug_Info.h"
 #include "Base/DebugTools/Debug_ObjectInspector.h"
@@ -110,6 +111,9 @@ namespace S2DE::Render
 		Logger::Log("[Renderer] [Create Render] Initialize ImGui...");
 		if (!InitImGui())
 			return false;
+
+		Logger::Log("[Renderer] Initialize fbx sdk...");
+		FBX_Importer::Init();
 
 		CreateEngineWindowsAndEditorUI();
 
@@ -436,6 +440,8 @@ namespace S2DE::Render
 	void Renderer::Destroy()
 	{
 		Logger::Log("[Renderer] Destroy...");
+
+		FBX_Importer::Destroy();
 
 		if (Core::Engine::isEditor())
 			Delete(m_editorToolStrip);

@@ -228,6 +228,7 @@ namespace S2DE::Core
 		S2DE_ASSERT(m_resource_manager.LoadDefaultTexture());
 		S2DE_ASSERT(m_resource_manager.Load<Shader>("Sprite"));
 		S2DE_ASSERT(m_resource_manager.Load<Shader>("Line"));
+		S2DE_ASSERT(m_resource_manager.Load<Shader>("Mesh"));
 
 		return true;
 	}

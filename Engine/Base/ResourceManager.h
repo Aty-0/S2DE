@@ -8,6 +8,7 @@
 #include "IO/IO_File.h"
 #include "Render/Shader.h"
 #include "Render/Texture.h"
+#include "Render/Mesh.h"
 
 
 #define S2DE_DEFAULT_RESOURCE_DATA_NAME "Gamedata/"
