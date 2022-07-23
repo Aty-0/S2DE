@@ -124,7 +124,7 @@ namespace S2DE::Core
 		str = Core::Utils::isStringEmpty(name) ? "S2DE " + std::string(S2DE_BUILD_DATE) : name;
 		
 		if (Engine::isEditor())
-			str.append(L" Editor");
+			str.append(" Editor");
 
 #else
 		str = "S2DE " + std::string(S2DE_BUILD_DATE);
