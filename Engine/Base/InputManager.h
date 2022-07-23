@@ -14,6 +14,8 @@ namespace S2DE::Core
 		InputManager();
 		~InputManager();
 
+		inline bool				IsMouseWheelUseForward() const;
+		inline bool				IsMouseWheelUseBackward() const;
 		inline bool				IsKeyPressed(Other::KeyCode keycode) const;
 		inline bool				IsKeyUp(Other::KeyCode keycode)      const;
 		inline bool				IsKeyDown(Other::KeyCode keycode)    const;

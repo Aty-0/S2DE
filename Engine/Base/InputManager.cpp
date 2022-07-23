@@ -24,6 +24,16 @@ namespace S2DE::Core
 		Release(m_DirectInput);
 	}
 
+	bool InputManager::IsMouseWheelUseForward() const
+	{
+		return m_MouseLastState.lZ > 0;
+	}
+
+	bool InputManager::IsMouseWheelUseBackward() const
+	{
+		return m_MouseLastState.lZ < 0;
+	}
+
 	bool InputManager::IsKeyPressed(Other::KeyCode keycode) const
 	{
 		return ((m_KeyboardState[(std::uint32_t)keycode] & 0x80) && (~m_KeyboardStateLast[(std::uint32_t)keycode] & 0x80)) ? true : false;
