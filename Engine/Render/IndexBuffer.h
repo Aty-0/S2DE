@@ -28,7 +28,7 @@ namespace S2DE::Render
 
 			D3D11_BUFFER_DESC bufferDesc{};
 
-			bufferDesc.ByteWidth = (std::uint32_t)(sizeof(std::uint32_t) * m_array.size());
+			bufferDesc.ByteWidth = (T)(sizeof(T) * m_array.size());
 			bufferDesc.Usage = buffer_usage;
 			bufferDesc.CPUAccessFlags = buffer_usage == D3D11_USAGE_DYNAMIC ? D3D11_CPU_ACCESS_WRITE : 0;
 			bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -71,10 +71,10 @@ namespace S2DE::Render
 			Core::Engine::GetRenderer()->GetContext()->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
 		}
 
-		inline std::vector<std::uint32_t>& GetArray() { return m_array; }
+		inline std::vector<T>& GetArray() { return m_array; }
 
 	private:
-		std::vector<std::uint32_t> m_array;
+		std::vector<T> m_array;
 
 	};
 }
