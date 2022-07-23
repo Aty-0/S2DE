@@ -122,8 +122,8 @@ namespace S2DE::Render
 		if (Engine::isEditor())
 		{
 			//AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow(), true);
-			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), true);
-			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), true);
+			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), false);
+			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), false);
 
 
 			m_editorToolStrip = new EditorToolStrip();
@@ -594,7 +594,7 @@ namespace S2DE::Render
 			Engine::GetApplicationHandle()->OnRender();
 			Engine::GetSceneManager()->RenderScene();
 
-			UpdateFramebufferShaderResource();
+			//UpdateFramebufferShaderResource();
 
 
 
