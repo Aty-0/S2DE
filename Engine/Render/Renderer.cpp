@@ -82,12 +82,6 @@ namespace S2DE::Render
 		if (!CreateRasterizerState())
 			return false;
 
-		//FIX ME: Fillmode is must be independent
-		D3D11_RASTERIZER_DESC wireframeDesc = defaultRasterDesc;
-		wireframeDesc.FillMode = static_cast<D3D11_FILL_MODE>(RenderFillMode::Wireframe);
-		if (!CreateRasterizerState(wireframeDesc, "wireframe"))
-			return false;
-
 		D3D11_RASTERIZER_DESC fccDesc = defaultRasterDesc;
 		fccDesc.FrontCounterClockwise = true;
 		if (!CreateRasterizerState(fccDesc, "fcc"))
@@ -297,16 +291,17 @@ namespace S2DE::Render
 	void Renderer::SwitchFillMode(RenderFillMode mode)
 	{
 		Logger::Log("[Renderer] Switch fill mode to %s", mode == RenderFillMode::Solid ? "Solid" : "Wireframe");
-
 		m_fillMode = mode;
-		switch (m_fillMode)
+
+		for (const auto& r : m_rasterizerVariants)
 		{
-		case S2DE::Render::RenderFillMode::Solid:
-			SetRasterizerState("default");
-			break;
-		case S2DE::Render::RenderFillMode::Wireframe:
-			SetRasterizerState("wireframe");
-			break;
+			if (r.second != nullptr)
+			{
+				D3D11_RASTERIZER_DESC desc = {  };
+				r.second->GetDesc(&desc);
+				desc.FillMode = static_cast<D3D11_FILL_MODE>(m_fillMode);
+				CreateRasterizerState(desc, r.first);
+			}
 		}
 	}
 
@@ -344,9 +339,13 @@ namespace S2DE::Render
 
 	bool Renderer::CreateRasterizerState(D3D11_RASTERIZER_DESC desc, std::string name)
 	{
-		//We cannot rewrite default rasterizer variant
-		if (GetRasterizerState("default") != nullptr && name == "default")
-			return false;
+		std::vector<std::pair<std::string, CComPtr<ID3D11RasterizerState>>>::const_iterator it = std::find_if(m_rasterizerVariants.begin(),
+			m_rasterizerVariants.end(), [&name](std::pair<std::string, CComPtr<ID3D11RasterizerState>> const& elem) { return elem.first == name; });
+
+		if (it != m_rasterizerVariants.end())
+		{
+			m_rasterizerVariants.erase(it);
+		}
 
 		ID3D11RasterizerState* newRasterizer = nullptr;
 
@@ -355,6 +354,7 @@ namespace S2DE::Render
 
 		// Push new rasterizer variant to storage
 		m_rasterizerVariants.push_back(std::make_pair(name, newRasterizer));
+		m_rasterizerVariants.shrink_to_fit();
 
 		return true;
 	}
