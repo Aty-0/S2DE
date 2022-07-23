@@ -118,10 +118,11 @@ namespace S2DE::Core
 		m_app_handle->OnStart();
 
 
-		//Close and destroy splash screen
+		//Destroy splash screen and show game window
 		sp->Close();
 		Delete(sp);
-		   
+		m_window->Restore();
+
 		//Run main game loop
 		RunLoop();
 

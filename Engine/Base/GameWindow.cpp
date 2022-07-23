@@ -169,13 +169,17 @@ namespace S2DE::Core
 
 		ShowCursor(m_ShowCursor);
 		SetForegroundWindow(m_HWND);
-		SetFocus(m_HWND);
-		ShowWindow(m_HWND, SW_SHOW);
+		ShowWindow(m_HWND, SW_HIDE);
 
 		RECT wnd_rect;
 		GetWindowRect(m_HWND, &wnd_rect);
 
 		return true;
+	}
+
+	void GameWindow::Restore()
+	{
+		ShowWindow(m_HWND, SW_SHOW);
 	}
 
 	void GameWindow::SetMouseVisible(bool visible)
@@ -248,7 +252,7 @@ namespace S2DE::Core
 
 			MoveWindow(m_HWND, m_Top, m_Left, m_Width, m_Height, TRUE);
 			SetWindowPlacement(m_HWND, &m_WindowPlacement);
-			ShowWindow(m_HWND, SW_SHOWDEFAULT);
+			ShowWindow(m_HWND, SW_SHOW);
 		}
 
 

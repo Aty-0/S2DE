@@ -48,7 +48,9 @@ namespace S2DE::Core
 
 		//Set width and height by client resoulution
 		void						   SetClientScreenRes();
-									   
+		
+		void						   Restore();
+
 		bool						   ProcessMessage();
 		LRESULT CALLBACK			   WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
