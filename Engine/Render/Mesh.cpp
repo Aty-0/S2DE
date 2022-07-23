@@ -55,19 +55,10 @@ namespace S2DE::Render
 					if (node->GetNodeAttribute() == nullptr)
 						continue;
 
-					
-
+				
 					FbxNodeAttribute::EType attributeType = node->GetNodeAttribute()->GetAttributeType();
 
-					//const char* nodeName = node->GetName();
-					//FbxDouble3 translation = node->LclTranslation.Get();
-					//FbxDouble3 rotation = node->LclRotation.Get();
-					//FbxDouble3 scaling = node->LclScaling.Get();					
-					//Core::Utils::Logger::Warning("node name='%s' translation='(%f, %f, %f)' rotation='(%f, %f, %f)' scaling='(%f, %f, %f)'",
-					//	nodeName,
-					//	translation[0], translation[1], translation[2],
-					//	rotation[0], rotation[1], rotation[2],
-					//	scaling[0], scaling[1], scaling[2]);
+					FBX_Importer::PrintNodeInfo(node);
 
 					if (attributeType == FbxNodeAttribute::EType::eMesh)
 					{
@@ -78,10 +69,8 @@ namespace S2DE::Render
 						if (vertices == nullptr)
 							continue;
 
-
 						for (std::uint32_t poly = 0; poly < polyCount; poly++)
 						{
-							//TODO: Read normals
 							std::int32_t polySize = mesh->GetPolygonSize(poly);
 							S2DE_ASSERT(polySize == 3);
 							for (std::int32_t polyVert = 0; polyVert < polySize; polyVert++)
@@ -94,8 +83,10 @@ namespace S2DE::Render
 						
 								Vertex vertex = Vertex();
 								vertex.position = DirectX::SimpleMath::Vector3(vec.mData[0], vec.mData[1], vec.mData[2]);
-								FBX_Importer::ProcessUV(mesh, index, mesh->GetTextureUVIndex(poly, polyVert), 0, vertex.uv);
-															
+
+								FBX_Importer::GetUV(mesh, index, mesh->GetTextureUVIndex(poly, polyVert), 0, vertex.uv);
+								FBX_Importer::GetNormal(mesh, index, vertexCount, vertex.normal);
+
 								FbxSurfaceMaterial* surfaceMaterial = node->GetMaterial(i);
 								bool isHasDiffColor = false;
 

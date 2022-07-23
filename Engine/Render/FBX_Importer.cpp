@@ -25,7 +25,66 @@ namespace S2DE::Render
 		m_manager->SetIOSettings(ios);
 	}
 
-    void FBX_Importer::ProcessUV(FbxMesh* mesh, std::int32_t vertexIndex, std::int32_t uvChannel, std::int32_t uvLayer, DirectX::SimpleMath::Vector2& uv)
+    void FBX_Importer::GetNormal(FbxMesh* mesh, std::int32_t vertexIndex, std::int32_t vertexCount, DirectX::SimpleMath::Vector3& normal)
+    {
+        FbxLayerElementNormal* normals = mesh->GetElementNormal();
+
+        switch (normals->GetMappingMode())
+        {
+        case FbxGeometryElement::eByControlPoint:
+            switch (normals->GetReferenceMode())
+            {
+                case FbxGeometryElement::eDirect:
+                    normal.x = static_cast<float>(normals->GetDirectArray().GetAt(vertexIndex)[0]);
+                    normal.y = static_cast<float>(normals->GetDirectArray().GetAt(vertexIndex)[1]);
+                    normal.z = static_cast<float>(normals->GetDirectArray().GetAt(vertexIndex)[2]);
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                {
+                    std::int32_t id = normals->GetIndexArray().GetAt(vertexIndex);
+                    normal.x = static_cast<float>(normals->GetDirectArray().GetAt(id)[0]);
+                    normal.y = static_cast<float>(normals->GetDirectArray().GetAt(id)[1]);
+                    normal.z = static_cast<float>(normals->GetDirectArray().GetAt(id)[2]);
+                }
+                break;
+
+                default:
+                    Core::Utils::Logger::Error("Invalid reference");
+                    break;
+            }
+            break;
+        case FbxGeometryElement::eByPolygonVertex:
+            switch (normals->GetReferenceMode())
+            {
+                case FbxGeometryElement::eDirect:
+                    normal.x = static_cast<float>(normals->GetDirectArray().GetAt(vertexCount)[0]);
+                    normal.y = static_cast<float>(normals->GetDirectArray().GetAt(vertexCount)[1]);
+                    normal.z = static_cast<float>(normals->GetDirectArray().GetAt(vertexCount)[2]);
+                    break;
+                case FbxGeometryElement::eIndexToDirect:
+                {
+                    std::int32_t id = normals->GetIndexArray().GetAt(vertexCount);
+                    normal.x = static_cast<float>(normals->GetDirectArray().GetAt(id)[0]);
+                    normal.y = static_cast<float>(normals->GetDirectArray().GetAt(id)[1]);
+                    normal.z = static_cast<float>(normals->GetDirectArray().GetAt(id)[2]);
+                }
+                break;
+
+                default:
+                    Core::Utils::Logger::Error("Invalid reference");
+                    break;
+            }
+            break;
+        case FbxGeometryElement::eNone:
+        case FbxGeometryElement::eByPolygon:
+        case FbxGeometryElement::eByEdge:
+        case FbxGeometryElement::eAllSame:
+            Core::Utils::Logger::Error("Unhandled mapping mode for texture coordinate");
+            break;
+        }
+    }
+
+    void FBX_Importer::GetUV(FbxMesh* mesh, std::int32_t vertexIndex, std::int32_t uvChannel, std::int32_t uvLayer, DirectX::SimpleMath::Vector2& uv)
     {
         if (mesh->GetElementUVCount() == 0)        
             return;
@@ -40,41 +99,41 @@ namespace S2DE::Render
         case FbxGeometryElement::eByControlPoint:
             switch (vertexUV->GetReferenceMode())
             {
-            case FbxGeometryElement::eDirect:
-            {
-                uv.x = static_cast<float>(vertexUV->GetDirectArray().GetAt(vertexIndex).mData[0]);
-                uv.y = 1 - static_cast<float>(vertexUV->GetDirectArray().GetAt(vertexIndex).mData[1]);
-            }
-            break;
+                case FbxGeometryElement::eDirect:
+                {
+                    uv.x = static_cast<float>(vertexUV->GetDirectArray().GetAt(vertexIndex).mData[0]);
+                    uv.y = 1 - static_cast<float>(vertexUV->GetDirectArray().GetAt(vertexIndex).mData[1]);
+                }
+                break;
 
-            case FbxGeometryElement::eIndexToDirect:
-            {
-                std::int32_t index = vertexUV->GetIndexArray().GetAt(vertexIndex);
-                uv.x = static_cast<float>(vertexUV->GetDirectArray().GetAt(index).mData[0]);
-                uv.y = 1 - static_cast<float>(vertexUV->GetDirectArray().GetAt(index).mData[1]);
-            }
-            break;
+                case FbxGeometryElement::eIndexToDirect:
+                {
+                    std::int32_t index = vertexUV->GetIndexArray().GetAt(vertexIndex);
+                    uv.x = static_cast<float>(vertexUV->GetDirectArray().GetAt(index).mData[0]);
+                    uv.y = 1 - static_cast<float>(vertexUV->GetDirectArray().GetAt(index).mData[1]);
+                }
+                break;
 
-            default:
-                Core::Utils::Logger::Error("Invalid reference");
-                return;
+                default:
+                    Core::Utils::Logger::Error("Invalid reference");
+                    break;
             }
             break;
 
         case FbxGeometryElement::eByPolygonVertex:
             switch (vertexUV->GetReferenceMode())
             {
-            case FbxGeometryElement::eDirect:
-            case FbxGeometryElement::eIndexToDirect:
-            {
-                uv.x = static_cast<float>(vertexUV->GetDirectArray().GetAt(uvChannel).mData[0]);
-                uv.y = 1 - static_cast<float>(vertexUV->GetDirectArray().GetAt(uvChannel).mData[1]);
-            }
-            break;
+                case FbxGeometryElement::eDirect:
+                case FbxGeometryElement::eIndexToDirect:
+                {
+                    uv.x = static_cast<float>(vertexUV->GetDirectArray().GetAt(uvChannel).mData[0]);
+                    uv.y = 1 - static_cast<float>(vertexUV->GetDirectArray().GetAt(uvChannel).mData[1]);
+                }
+                break;
 
-            default:
-                Core::Utils::Logger::Error("Invalid reference");
-                return;
+                default:
+                    Core::Utils::Logger::Error("Invalid reference");
+                    break;
             }
             break;
 
@@ -87,6 +146,18 @@ namespace S2DE::Render
         }
     }
 
+    void FBX_Importer::PrintNodeInfo(FbxNode* node)
+    {
+        const char* nodeName = node->GetName();
+        FbxDouble3 translation = node->LclTranslation.Get();
+        FbxDouble3 rotation = node->LclRotation.Get();
+        FbxDouble3 scaling = node->LclScaling.Get();					
+        Core::Utils::Logger::Log("[Node] Name: %s Translation: (%f, %f, %f) Rotation: (%f, %f, %f) Scale: (%f, %f, %f)",
+        	nodeName,
+        	translation[0], translation[1], translation[2],
+        	rotation[0], rotation[1], rotation[2],
+        	scaling[0], scaling[1], scaling[2]);
+    }
 
     void FBX_Importer::Destroy()
     {
