@@ -2,7 +2,7 @@
 #include <Base\CoreMinimal.h>
 #include <GameObjects\NoTextureTestObject.h>
 #include <GameObjects\TestObject.h>
-
+#include <GameObjects\StaticMesh.h>
 
 using namespace S2DE;
 using namespace S2DE::GameObjects;
@@ -33,24 +33,25 @@ void Application::OnStart()
 {
 	Engine::GetGameWindow()->SetMouseVisible(true);
 
-	Sprite* sprite_test_f = CreateGameObject<Sprite>("block1", "GameObject", 1, Vector3(0, 5, 1));
-	sprite_test_f->SetScale(Vector3(3,3,3));
-	
-	Sprite* sprite_test_s = CreateGameObject<Sprite>("block2", "GameObject", 1, Vector3(0, 5, -10));
-	sprite_test_s->SetScale(Vector3(3,3,3));
-	sprite_test_s->SetColor(Math::Color<float>(1.0f, 0.0f, 0.0f, 1.0f));
+	//Sprite* sprite_test_f = CreateGameObject<Sprite>("block1", "GameObject", 1, Vector3(0, 5, 1));
+	//sprite_test_f->SetScale(Vector3(3,3,3));
+	//
+	//Sprite* sprite_test_s = CreateGameObject<Sprite>("block2", "GameObject", 1, Vector3(0, 5, -10));
+	//sprite_test_s->SetScale(Vector3(3,3,3));
+	//sprite_test_s->SetColor(Math::Color<float>(1.0f, 0.0f, 0.0f, 1.0f));
+	//
+	//Sprite* sprite_alpha_test2 = CreateGameObject<Sprite>("leaf", "GameObject", 1, Vector3(0, 5, -6));
+	//sprite_alpha_test2->LoadTexture("leaf001");
+	//sprite_alpha_test2->Alpha = true;
+	//
+	//Sprite* sprite_alpha_test = CreateGameObject<Sprite>("alpha", "GameObject", 1, Vector3(0, 5, -5));
+	//sprite_alpha_test->LoadTexture("Player");
+	//sprite_alpha_test->SetAtlasSize(Vector2(36, 65));
+	//sprite_alpha_test->SetAtlasFramePosition(0, 0);
+	//
+	//CreateGameObject<NoTextureTestObject>("rnd_color", "GameObject", 1, Vector3(Vector3(0, 3.5, -7.5)));
 
-	Sprite* sprite_alpha_test2 = CreateGameObject<Sprite>("leaf", "GameObject", 1, Vector3(0, 5, -6));
-	sprite_alpha_test2->LoadTexture("leaf001");
-	sprite_alpha_test2->Alpha = true;
 	
-	Sprite* sprite_alpha_test = CreateGameObject<Sprite>("alpha", "GameObject", 1, Vector3(0, 5, -5));
-	sprite_alpha_test->LoadTexture("Player");
-	sprite_alpha_test->SetAtlasSize(Vector2(36, 65));
-	sprite_alpha_test->SetAtlasFramePosition(0, 0);
-	
-	CreateGameObject<NoTextureTestObject>("rnd_color", "GameObject", 1, Vector3(Vector3(0, 3.5, -7.5)));
-
 	//Create 5 test objects
 	//for(std::int32_t i = 0; i <= 5; i++)
 	//	CreateGameObject<Sprite>("testobject", "GameObject", 1, Vector3(i * 2, 0, i));
@@ -123,7 +124,9 @@ void Application::InputEvents()
 
 	if (Engine::GetInputManager()->IsKeyDown(KeyCode::KEY_O))
 	{
-		CreateGameObject<NoTextureTestObject>("rnd_color", "GameObject", 1, Vector3(pos.x, pos.y, pos.z));
+		StaticMesh* mesh = CreateGameObject<StaticMesh>("Sponza", "GameObject", 1, Vector3(Vector3(0, 3, -10)));
+		mesh->LoadMesh("Sponza");
+		mesh->SetScale(DirectX::SimpleMath::Vector3(0.15f, 0.15f, 0.15f));
 	}
 }
 
