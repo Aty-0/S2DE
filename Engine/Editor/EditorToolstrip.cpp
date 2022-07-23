@@ -33,6 +33,8 @@ namespace S2DE::Editor
 
 		if (ImGui::BeginMainMenuBar()) 
 		{
+			auto maincamera = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
+			
 			if (ImGui::BeginMenu("File")) 
 			{
 				if (ImGui::MenuItem("Open"))
@@ -53,6 +55,37 @@ namespace S2DE::Editor
 				if (ImGui::MenuItem("Object inspector"))
 				{
 					m_inspector->ToggleDraw();
+				}
+
+				if (ImGui::MenuItem("Toggle objects visible"))
+				{
+					Core::Engine::GetSceneManager()->ToggleGameObjectVisibility();
+				}
+
+				if (ImGui::MenuItem("Toggle editor windows"))
+				{
+					Core::Engine::GetRenderer()->ToggleImGuiWindowsVisible();
+				}
+
+				if (ImGui::MenuItem("Toggle debug (in objects) windows"))
+				{
+					Core::Engine::GetSceneManager()->ToggleImGUIVisibility();
+				}
+
+
+				if (ImGui::BeginMenu("Fill mode"))
+				{
+					if (ImGui::MenuItem("Wireframe"))
+					{
+						Core::Engine::GetRenderer()->SwitchFillMode(Render::RenderFillMode::Wireframe);
+					}
+
+					if (ImGui::MenuItem("Solid"))
+					{
+						Core::Engine::GetRenderer()->SwitchFillMode(Render::RenderFillMode::Solid);
+					}
+
+					ImGui::EndMenu();
 				}
 
 				ImGui::EndMenu();
@@ -98,15 +131,13 @@ namespace S2DE::Editor
 
 			if (ImGui::BeginMenu("Tools"))
 			{
-				auto maincamera = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
-				DirectX::SimpleMath::Vector3 spawn_vec = DirectX::SimpleMath::Vector3::Zero;
-
-				if (maincamera != nullptr)
-					spawn_vec = maincamera->GetPosition();
-
-
 				if (ImGui::BeginMenu("Create"))
 				{
+					DirectX::SimpleMath::Vector3 spawn_vec = DirectX::SimpleMath::Vector3::Zero;
+
+					if (maincamera != nullptr)
+						spawn_vec = maincamera->GetPosition();
+
 					if (ImGui::MenuItem("GameObject"))
 					{
 						Scene::CreateGameObject<GameObjects::GameObject>("GameObject", "GameObject", 1, spawn_vec);
@@ -162,41 +193,6 @@ namespace S2DE::Editor
 
 				if (ImGui::BeginMenu("Render"))
 				{
-					if (ImGui::MenuItem("Toggle objects visible"))
-					{
-						Core::Engine::GetSceneManager()->ToggleGameObjectVisibility();
-					}
-
-					if (ImGui::MenuItem("Toggle gizmos visible"))
-					{
-
-					}		
-
-					if (ImGui::MenuItem("Toggle editor windows"))
-					{
-						Core::Engine::GetRenderer()->ToggleImGuiWindowsVisible();
-					}
-
-					if (ImGui::MenuItem("Toggle debug windows"))
-					{
-						Core::Engine::GetSceneManager()->ToggleImGUIVisibility();
-					}
-
-					if (ImGui::BeginMenu("Fill mode"))
-					{
-						if (ImGui::MenuItem("Wireframe"))
-						{
-							Core::Engine::GetRenderer()->SwitchFillMode(Render::RenderFillMode::Wireframe);
-						}
-
-						if (ImGui::MenuItem("Solid"))
-						{
-							Core::Engine::GetRenderer()->SwitchFillMode(Render::RenderFillMode::Solid);
-						}
-
-						ImGui::EndMenu();
-					}
-
 					if (ImGui::MenuItem("Change background color"))
 					{
 						Core::Engine::GetRenderer()->GetImGui_Window("EditorBgColorPicker")->ToggleDraw();
@@ -204,9 +200,41 @@ namespace S2DE::Editor
 
 					ImGui::EndMenu();
 				}
-
-
 				ImGui::EndMenu();
+			}
+			if (maincamera != nullptr)
+			{
+				if (ImGui::Button("Orthographics"))
+				{
+					maincamera->SetProjectionMode(GameObjects::Camera::CameraProjectionMode::Orthographics);
+				}
+
+				if (ImGui::Button("Perspective"))
+				{
+					maincamera->SetProjectionMode(GameObjects::Camera::CameraProjectionMode::Perspective);
+				}
+
+				if (maincamera->GetProjectionMode() == GameObjects::Camera::CameraProjectionMode::Perspective)
+				{
+					static float fov = maincamera->GetFov();
+					ImGui::PushItemWidth(100);
+					if (ImGui::SliderFloat("FOV", &fov, 0.0f, 110.0f))
+					{
+						maincamera->SetFov(fov);
+					}
+
+					ImGui::Text("Speed boost %.3f x", maincamera->GetSpeedBoost());
+				}
+				else
+				{
+					static float zoom = maincamera->GetZoom();
+					ImGui::PushItemWidth(100);
+					if (ImGui::SliderFloat("Zoom", &zoom, 0.0001f, 0.13f))
+					{
+						maincamera->SetZoom(zoom);
+					}
+				}
+
 			}
 			ImGui::EndMainMenuBar();
 		}
