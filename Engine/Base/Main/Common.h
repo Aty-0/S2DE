@@ -72,7 +72,8 @@ namespace S2DE::Render
 		DirectX::SimpleMath::Vector3 position;
 		DirectX::SimpleMath::Vector4 color;
 		DirectX::SimpleMath::Vector2 uv;
-	};
+		DirectX::SimpleMath::Vector3 normal;
+	};	
 }
 
 
