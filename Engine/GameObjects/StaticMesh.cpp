@@ -83,12 +83,44 @@ namespace S2DE::GameObjects
 		 
 	void StaticMesh::UpdateShader()
 	{	 
-		S2DE_NO_IMPL();
+		//Get shader name
+		std::string name = m_shader->GetName();
+		//Delete previous shader 
+		Core::Delete(m_shader);
+
+		//Try to get shader by name from resource manager
+		auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
+
+		//If shader not found
+		if (new_shader == nullptr)
+		{
+			Logger::Error("%s Can't update shader!", GetName().c_str());
+			return;
+		}
+
+		m_shader = new Render::Shader(*new_shader);
+		S2DE_ASSERT(m_shader != nullptr);
 	}	 
 		 
 	void StaticMesh::UpdateTexture()
 	{	 	 
-		S2DE_NO_IMPL();
+		//Get texture name
+		std::string name = m_texture->GetName();
+		//Delete previous texture
+		Core::Delete(m_texture);
+
+		//Try to get texture by name from resource manager
+		auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
+
+		//If texture not found
+		if (new_texture == Core::Engine::GetResourceManager().GetDefaultTexture())
+		{
+			Logger::Error("%s Can't update texture!", GetName().c_str());
+			return;
+		}
+
+		m_texture = new Render::Texture(*new_texture);
+		S2DE_ASSERT(m_texture != nullptr);
 	}	 
 
 	void StaticMesh::SetColor(Math::Color<float> color)
