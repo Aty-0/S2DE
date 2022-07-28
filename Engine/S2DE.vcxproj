@@ -26,6 +26,8 @@
     <ClInclude Include="Editor\EditorGrid.h" />
     <ClInclude Include="Editor\EditorCenterCursor.h" />
     <ClInclude Include="Editor\EditorColorPicker.h" />
+    <ClInclude Include="Libs\imgui\imgui_impl_sdl.h" />
+    <ClInclude Include="Math\Normalize.h" />
     <ClInclude Include="Render\FBX_Importer.h" />
     <ClInclude Include="GameObjects\Drawable.h" />
     <ClInclude Include="Editor\EditorRenderWindow.h" />
@@ -67,7 +69,6 @@
     <ClInclude Include="Libs\imgui\imconfig.h" />
     <ClInclude Include="Libs\imgui\imgui.h" />
     <ClInclude Include="Libs\imgui\imgui_impl_dx11.h" />
-    <ClInclude Include="Libs\imgui\imgui_impl_win32.h" />
     <ClInclude Include="Libs\imgui\imgui_internal.h" />
     <ClInclude Include="Libs\imgui\imstb_rectpack.h" />
     <ClInclude Include="Libs\imgui\imstb_textedit.h" />
@@ -98,6 +99,7 @@
     <ClCompile Include="Editor\EditorGrid.cpp" />
     <ClCompile Include="Editor\EditorCenterCursor.cpp" />
     <ClCompile Include="Editor\EditorColorPicker.cpp" />
+    <ClCompile Include="Libs\imgui\imgui_impl_sdl.cpp" />
     <ClCompile Include="Render\FBX_Importer.cpp" />
     <ClCompile Include="GameObjects\Drawable.cpp" />
     <ClCompile Include="Editor\EditorRenderWindow.cpp" />
@@ -126,7 +128,6 @@
     <ClCompile Include="Libs\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libs\imgui\imgui_draw.cpp" />
     <ClCompile Include="Libs\imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="Libs\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Libs\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="GameObjects\TestObject.cpp" />
@@ -255,14 +256,14 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>../Libs/FBX SDK/2020.2.1/include/;$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;../Libs/DirectXMath/D3D/;#(SolutionDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Libs/SDL/include/;../Libs/FBX SDK/2020.2.1/include/;$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;../Libs/DirectXMath/D3D/;#(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/debug/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;libfbxsdk-md.lib;wininet.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;dxguid.lib;d3d11.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Libs/SDL/lib/x64/Debug/;../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/debug/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2maind.lib;SDL2d.lib;libfbxsdk.lib;libfbxsdk-md.lib;wininet.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;dxguid.lib;d3d11.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBMCT</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
@@ -277,7 +278,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>../Libs/FBX SDK/2020.2.1/include/;$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;../Libs/DirectXMath/D3D/;#(SolutionDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Libs/SDL/include/;../Libs/FBX SDK/2020.2.1/include/;$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;../Libs/DirectXMath/D3D/;#(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -285,8 +286,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/release/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/release/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;wininet.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2.lib;dxgi.lib;dxguid.lib;d3d11.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Libs/SDL/lib/x64/Release/;../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/release/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/release/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;libfbxsdk.lib;wininet.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2.lib;dxgi.lib;dxguid.lib;d3d11.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
