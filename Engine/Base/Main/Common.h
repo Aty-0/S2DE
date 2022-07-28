@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#define NOMINMAX
 #include <windows.h>
 
 //Disable warning "needs to have dll-interface to be used by clients of class"

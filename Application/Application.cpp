@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <Base\CoreMinimal.h>
+#include <Math\Normalize.h>
 #include <GameObjects\NoTextureTestObject.h>
 #include <GameObjects\TestObject.h>
 #include <GameObjects\StaticMesh.h>
@@ -31,6 +32,7 @@ Application::~Application()
 
 void Application::OnStart()
 {
+	Logger::Log("%f", Normalize(2.0f));
 	Engine::GetGameWindow()->SetMouseVisible(true);
 }
 
