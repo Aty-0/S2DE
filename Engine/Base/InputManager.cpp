@@ -137,7 +137,7 @@ namespace S2DE::Core
 		}
 
 		m_InputKeyboard->SetDataFormat(&c_dfDIKeyboard);
-		if (FAILED(m_InputKeyboard->SetCooperativeLevel(Engine::GetGameWindow()->isChild() == false ? Engine::GetGameWindow()->GetHWND() : NULL, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE)))
+		if (FAILED(m_InputKeyboard->SetCooperativeLevel(Engine::GetGameWindow()->GetHWND(), DISCL_BACKGROUND | DISCL_NONEXCLUSIVE)))
 		{
 			Logger::Error("Failed to set cooperative level for keyboard device");
 			return false;
@@ -152,7 +152,7 @@ namespace S2DE::Core
 		}
 
 		m_InputMouse->SetDataFormat(&c_dfDIMouse);
-		if (FAILED(m_InputMouse->SetCooperativeLevel(Engine::GetGameWindow()->isChild() == false ? Engine::GetGameWindow()->GetHWND() : NULL, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE)))
+		if (FAILED(m_InputMouse->SetCooperativeLevel(Engine::GetGameWindow()->GetHWND(), DISCL_BACKGROUND | DISCL_NONEXCLUSIVE)))
 		{
 			Logger::Error("Failed to set cooperative level for mouse device");
 			return false;

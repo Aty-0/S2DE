@@ -3,7 +3,7 @@
 #include "Math/Color.h"
 
 #include "Libs/imgui/imgui.h"
-#include "Libs/imgui/imgui_impl_win32.h"
+#include "Libs/imgui/imgui_impl_sdl.h"
 #include "Libs/imgui/imgui_impl_dx11.h"
 
 #include "atlbase.h"

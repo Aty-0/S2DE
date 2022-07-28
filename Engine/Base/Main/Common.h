@@ -16,6 +16,9 @@
 #include "Base/Main/S2DE_API.h"
 #include "Base/Utils/StringUtils.h"
 
+//SDL
+#include "SDL.h"
+#include "SDL_syswm.h"
 
 //DX11
 #include <dxgi.h>

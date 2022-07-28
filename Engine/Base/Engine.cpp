@@ -84,7 +84,8 @@ namespace S2DE::Core
 
 		sp->SetLoadState("Create game window...");
 		m_window = new GameWindow();
-		m_window->Create(GetModuleHandle(NULL), pname.c_str());
+		m_window->Create(pname.c_str());
+		m_window->Hide();
 
 		sp->SetLoadState("Initialize input manager...");
 		m_input_m = new InputManager();
@@ -130,7 +131,7 @@ namespace S2DE::Core
 
 	void Engine::RunLoop()
 	{
-		while (m_window->ProcessMessage() == true && m_window->isClosing() == false)
+		while (m_window->PoolEvents())
 		{
 			OnLoop();
 		}

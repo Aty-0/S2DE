@@ -22,7 +22,7 @@
 #include <dxgidebug.h>
 
 #define S2DE_IMGUI_NEW_FRAME()  ImGui_ImplDX11_NewFrame(); \
-								ImGui_ImplWin32_NewFrame(); \
+								ImGui_ImplSDL2_NewFrame(); \
 								ImGui::NewFrame(); \
 
 using namespace S2DE::Core;
@@ -169,7 +169,7 @@ namespace S2DE::Render
 		LoadCustomImguiTheme();
 
 		//Setup Platform/Renderer backends
-		ImGui_ImplWin32_Init(Engine::GetGameWindow()->GetHWND());
+		ImGui_ImplSDL2_InitForD3D(Core::Engine::GetGameWindow()->GetSDLWindow());
 		ImGui_ImplDX11_Init(m_device, m_context);
 
 		return true;
@@ -251,8 +251,8 @@ namespace S2DE::Render
 		HRESULT device_hr = S_OK;
 
 		DXGI_SWAP_CHAIN_DESC sd = { };
-		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidthFixed();
-		sd.BufferDesc.Height = Core::Engine::GetGameWindow()->GetHeightFixed();
+		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidth();
+		sd.BufferDesc.Height = Core::Engine::GetGameWindow()->GetHeight();
 		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -364,8 +364,8 @@ namespace S2DE::Render
 		if (!CreateRenderTarget())
 			return false;
 
-		std::uint32_t w = Core::Engine::GetGameWindow()->GetWidthFixed();
-		std::uint32_t h = Core::Engine::GetGameWindow()->GetHeightFixed();
+		std::uint32_t w = Core::Engine::GetGameWindow()->GetWidth();
+		std::uint32_t h = Core::Engine::GetGameWindow()->GetHeight();
 
 		//Set up the description of the depth buffer.
 		D3D11_TEXTURE2D_DESC depthBufferDesc = { };
@@ -427,8 +427,8 @@ namespace S2DE::Render
 	void Renderer::UpdateViewport()
 	{
 		//TODO: I need get it from swap chain or from window ?
-		m_viewport.Width	= (float)Core::Engine::GetGameWindow()->GetWidthFixed();
-		m_viewport.Height	= (float)Core::Engine::GetGameWindow()->GetHeightFixed();
+		m_viewport.Width	= (float)Core::Engine::GetGameWindow()->GetWidth();
+		m_viewport.Height	= (float)Core::Engine::GetGameWindow()->GetHeight();
 		m_viewport.MinDepth = 0.0f;
 		m_viewport.MaxDepth = 1.0f;
 		m_viewport.TopLeftX = 0.0f;
@@ -490,7 +490,7 @@ namespace S2DE::Render
 	void Renderer::DestroyImGui()
 	{
 		ImGui_ImplDX11_Shutdown();
-		ImGui_ImplWin32_Shutdown();
+		ImGui_ImplSDL2_Shutdown();
 		ImGui::DestroyContext();
 	}
 
