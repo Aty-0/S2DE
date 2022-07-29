@@ -144,7 +144,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Libs/FBX SDK/2020.2.1/include/;../Engine/;$(IncludePath);../Libs/boost_1_76_0/;../Libs/DirectXTK/Inc/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Libs/SDL/include/;../Libs/FBX SDK/2020.2.1/include/;../Engine/;$(IncludePath);../Libs/boost_1_76_0/;../Libs/DirectXTK/Inc/;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -152,8 +152,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/release/;../x64/Release/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/release/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>S2DE.lib;libfbxsdk-md.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2.lib;dxgi.lib;d3d11.lib;dxguid.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Libs/SDL/lib/x64/Release/;../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/release/;../x64/Release/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/release/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;S2DE.lib;libfbxsdk-md.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2.lib;dxgi.lib;d3d11.lib;dxguid.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
