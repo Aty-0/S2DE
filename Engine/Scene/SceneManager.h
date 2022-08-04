@@ -25,7 +25,6 @@ namespace S2DE::Scene
 					   
 		void		   RenderImGUI();
 		void		   RenderScene();
-		void		   UpdateInput();
 		void		   UpdateScene(float DeltaTime);
 					   
 		void		   UpdateShaders();

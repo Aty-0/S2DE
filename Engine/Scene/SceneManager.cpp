@@ -66,13 +66,6 @@ namespace S2DE::Scene
 			if (object.second.get() == dynamic_cast<GameObjects::Drawable*>(object.second.get()))
 				reinterpret_cast<GameObjects::Drawable*>(object.second.get())->UpdateTexture();	
 	}
-
-	void SceneManager::UpdateInput()
-	{
-		if (m_update_enabled && m_scene)
-			for (const auto& object : m_scene->GetStorage())
-				object.second.get()->UpdateInput();
-	}
 		 	 
 	void SceneManager::RenderImGUI()
 	{
