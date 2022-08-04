@@ -12,6 +12,8 @@
 namespace S2DE::Core::Other
 {
 	SplashScreen* SplashScreen::m_instanceWindow;
+	std::string	SplashScreen::m_loadState;
+	std::string	SplashScreen::m_projectName;
 
 	SplashScreen::SplashScreen()
 	{
@@ -36,8 +38,8 @@ namespace S2DE::Core::Other
 		DeleteObject(m_hfont_Name_Ed);
 		FreeLibrary(m_res_hInst);
 		m_text_build_str.clear();
-		m_text_load_state_str.clear();
-		m_text_project_name_str.clear();
+		m_loadState.clear();
+		m_projectName.clear();
 		m_text_ed_str.clear();
 	}
 
@@ -56,15 +58,17 @@ namespace S2DE::Core::Other
 	void SplashScreen::SetProjectName(std::string name)
 	{
 #ifdef S2DE_DRAW_EDITOR_PROJECT_NAME_LABEL
-		isStringEmpty(name) ? m_text_project_name_str = "No name" : m_text_project_name_str = name;
-		RedrawWindowElements();
+		isStringEmpty(name) ? m_projectName = "No name" : m_projectName = name;
 #endif
 	}
 
-	void SplashScreen::SetLoadState(std::string state)
+	void SplashScreen::SetLoadState(std::string state, SplashScreen* splashScreen)
 	{
-		m_text_load_state_str = state;
-		RedrawWindowElements();
+		if (splashScreen)
+		{
+			m_loadState = state;
+			splashScreen->RedrawWindowElements();
+		}
 	}
 
 	void SplashScreen::Close()
@@ -167,10 +171,10 @@ namespace S2DE::Core::Other
 			SetBkMode(phdc, TRANSPARENT);
 
 			if (Engine::isEditor())
-			{
+			{				
 #ifdef S2DE_DRAW_EDITOR_PROJECT_NAME_LABEL	
 				SelectObject(phdc, m_hfont_Ed);
-				TextOut(phdc, 5, 0, m_text_project_name_str.c_str(), (std::int32_t)m_text_project_name_str.length());
+				TextOut(phdc, 5, 0, m_projectName.c_str(), (std::int32_t)m_projectName.length());
 #endif
 
 #ifdef S2DE_DRAW_EDITOR_MODE_LABEL
@@ -184,7 +188,7 @@ namespace S2DE::Core::Other
 			TextOut(phdc, 13, m_bitmap.bmHeight - 25, m_text_build_str.c_str(), (std::int32_t)m_text_build_str.length());
 
 			SelectObject(phdc, m_hfont_LoadState);
-			TextOut(phdc, m_bitmap.bmWidth / 2 - 50, m_bitmap.bmHeight - 25, m_text_load_state_str.c_str(), (std::int32_t)m_text_load_state_str.length());
+			TextOut(phdc, m_bitmap.bmWidth / 2 - 50, m_bitmap.bmHeight - 25, m_loadState.c_str(), (std::int32_t)m_loadState.length());
 	
 
 			EndPaint(hWnd, &ps);
