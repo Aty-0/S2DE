@@ -1,6 +1,7 @@
 #include "GameWindow.h"
 #include "Base/Engine.h"
 #include "Base/ApplicationHandle.h"
+#include "Base/InputManager.h"
 #include "Base/Main/BuildDate.h"
 #include "Render/Renderer.h"
 
@@ -59,29 +60,58 @@ namespace S2DE::Core
 		return true;
 	}
 
+	void GameWindow::ParseWindowEvents(SDL_Event event)
+	{
+		//TODO: Handle more events
+		if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+			Core::Engine::GetRenderer()->Reset();
+	}
+
 	bool GameWindow::PoolEvents()
 	{
-		SDL_Event e;
-		if (SDL_PollEvent(&e) != 0)
+		Core::Engine::GetInputManager()->Update();
+
+		while (SDL_PollEvent(&m_event) != 0)
 		{
-			ImGui_ImplSDL2_ProcessEvent(&e);
-			switch (e.type)
-			{
+			ImGui_ImplSDL2_ProcessEvent(&m_event);
+
+
+			switch (m_event.type)
+			{		
+				// Parse window events
 				case SDL_EventType::SDL_WINDOWEVENT:
-				{
-					//TODO: Handle more events
-					if (e.window.event == SDL_WINDOWEVENT_RESIZED)
-						Core::Engine::GetRenderer()->Reset();
-
+					ParseWindowEvents(m_event);
 					break;
-				}
+				// TODO: It's not all control events 
+				// Call event update when we are get the control type event
+				case SDL_EventType::SDL_MOUSEWHEEL:
+					Core::Engine::GetInputManager()->_MWheelUpdate(m_event);
+					break;
+				case SDL_EventType::SDL_MOUSEMOTION:
+					Core::Engine::GetInputManager()->_MMotionUpdate(m_event);
+					break;
+				case SDL_EventType::SDL_MOUSEBUTTONDOWN:
+					// Process the all keys on mouseDown array
+					Core::Engine::GetInputManager()->_MKeyDownArrayStateUpdate(m_event);
+					break;
+				case SDL_EventType::SDL_MOUSEBUTTONUP:
+					// Process the all keys on mouseUp array
+					Core::Engine::GetInputManager()->_MKeyUpArrayStateUpdate(m_event);
+					break;					
+				case SDL_EventType::SDL_KEYDOWN:
+					// Process the all keys on keyDown array
+					Core::Engine::GetInputManager()->_KKeyDownArrayStateUpdate(m_event);
+					break;
+				case SDL_EventType::SDL_KEYUP:
+					// Process the all keys on keyUp array
+					Core::Engine::GetInputManager()->_KKeyUpArrayStateUpdate(m_event);
+					break;
 
+				// Application close
 				case SDL_EventType::SDL_QUIT:
 					return false;
-
 			}
 		}
-
 		return true;
 	}
 
@@ -134,8 +164,11 @@ namespace S2DE::Core
 		if (m_cursorVisible != visible) // Don't call any function if we are have same parameter state 
 		{
 			m_cursorVisible = visible;
-			SDL_ShowCursor(visible);
-			SDL_WarpMouseInWindow(m_window, GetWidth() / 2, GetHeight() / 2);
+			SDL_ShowCursor(m_cursorVisible);
+			SDL_WarpMouseInWindow(m_window, GetWidth() / 2, GetHeight() / 2);			
+
+			if(m_cursorVisible)
+				SDL_SetRelativeMouseMode(SDL_FALSE);
 		}
 	}
 
@@ -213,5 +246,10 @@ namespace S2DE::Core
 	SDL_Window* GameWindow::GetSDLWindow() 
 	{ 
 		return m_window; 
+	}
+	
+	SDL_Event GameWindow::GetEvent()
+	{
+		return m_event;
 	}
 }

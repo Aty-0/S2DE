@@ -43,10 +43,9 @@ namespace S2DE::GameObjects
 	protected:
 		virtual void							OnRender() override;
 		virtual void							OnUpdate(float DeltaTime) override;
-		virtual void							OnUpdateInput() override;
 		virtual void							OnRenderImGUI() override;
 		virtual void							OnCreate() override;
-
+		virtual void							UpdateCameraControls();
 	private:
 		DirectX::SimpleMath::Matrix				m_viewMatrix;
 		DirectX::SimpleMath::Matrix				m_projectionMatrix;

@@ -87,10 +87,7 @@ namespace S2DE::Core
 		m_window->Create(pname.c_str());
 		m_window->Hide();
 
-		sp->SetLoadState("Initialize input manager...");
 		m_input_m = new InputManager();
-		if (!m_input_m->Initialize())
-			return;
 
 		sp->SetLoadState("Initialize render...");
 		m_render = new Renderer();
@@ -132,9 +129,7 @@ namespace S2DE::Core
 	void Engine::RunLoop()
 	{
 		while (m_window->PoolEvents())
-		{
-			OnLoop();
-		}
+			OnLoop();	
 	}
 
 	void Engine::UpdateEngineInputKeys()
@@ -189,13 +184,8 @@ namespace S2DE::Core
 
 	void Engine::UpdateInput()
 	{
-		//Update input manager
-		if (m_input_m->Update())
-		{
-			UpdateEngineInputKeys();
-			m_app_handle->InputEvents();
-			m_scene_manager->UpdateInput();
-		}
+		m_app_handle->InputEvents();
+		UpdateEngineInputKeys();
 	}
 
 	void Engine::OnGlobalUpdate(float DeltaTime)

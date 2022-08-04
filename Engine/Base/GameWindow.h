@@ -38,10 +38,13 @@ namespace S2DE::Core
 		inline HINSTANCE						GetInstance();
 		inline HWND&							GetHWND();
 		inline SDL_Window*						GetSDLWindow();
+		inline SDL_Event						GetEvent();
 
 	private:
+		SDL_Event   m_event;
 		SDL_Window* m_window;
 		bool		m_cursorVisible;
 
+		void									ParseWindowEvents(SDL_Event event);
 	};
 }

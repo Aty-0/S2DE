@@ -27,7 +27,6 @@ namespace S2DE::GameObjects
 		virtual void				 OnRender()  override { }
 		virtual void				 OnRenderImGUI() override { }
 		virtual void				 OnUpdate(float DeltaTime) override { }
-		virtual void				 OnUpdateInput() override { }
 
 		virtual void				 CreateVertexBuffer() { }
 		virtual void				 CreateIndexBuffer() { }

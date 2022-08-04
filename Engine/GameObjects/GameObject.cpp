@@ -30,12 +30,6 @@ namespace S2DE::GameObjects
 			OnUpdate(DeltaTime);
 	}
 
-	void GameObject::UpdateInput()
-	{
-		if (m_enabled == true)
-			OnUpdateInput();
-	}
-
 	void GameObject::RenderImGUI()
 	{
 		if (m_visible == true)

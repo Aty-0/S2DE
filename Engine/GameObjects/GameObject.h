@@ -44,9 +44,6 @@ namespace S2DE::GameObjects
 		//Main gameobject update function
 		void						 Update(float DeltaTime);
 
-		//Main gameobject input update function
-		void						 UpdateInput();
-
 		//Set new name for gameobject
 		void						 SetName(std::string name);
 
@@ -85,7 +82,6 @@ namespace S2DE::GameObjects
 		virtual void				 OnDestroy() { }
 		virtual void				 OnRender() { }
 		virtual void				 OnUpdate(float DeltaTime) { }
-		virtual void				 OnUpdateInput() { }
 		virtual void				 OnRenderImGUI() { }
 
 	private:
