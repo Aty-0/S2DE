@@ -33,6 +33,14 @@ namespace S2DE::Core
 
 		// Second:
 		//m_mRMouseState = DirectX::SimpleMath::Vector2(event.motion.xrel, event.motion.yrel);
+
+		// Get global mouse position
+		std::int32_t x = 0, y = 0;
+		SDL_GetGlobalMouseState(&x, &y);
+		m_mGlobalPosition = DirectX::SimpleMath::Vector2(static_cast<float>(x), static_cast<float>(y));
+
+		// Get mouse position relative to window
+		m_mPosition = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.x), static_cast<float>(event.motion.y));
 	}
 
 	void InputManager::Update()
@@ -89,18 +97,12 @@ namespace S2DE::Core
 
 	DirectX::SimpleMath::Vector2 InputManager::GetMousePositionGlobal() const
 	{
-		std::int32_t x = 0, y = 0;
-		SDL_GetGlobalMouseState(&x, &y);
-
-		return DirectX::SimpleMath::Vector2(static_cast<float>(x), static_cast<float>(y));
+		return m_mGlobalPosition;
 	}
 
 	DirectX::SimpleMath::Vector2 InputManager::GetMousePosition() const
 	{
-		std::int32_t x = 0, y = 0;
-		SDL_GetMouseState(&x, &y);
-		
-		return DirectX::SimpleMath::Vector2(static_cast<float>(x), static_cast<float>(y));
+		return m_mPosition;
 	}
 
 	DirectX::SimpleMath::Vector2 InputManager::GetMouseWheelPosition() const
@@ -146,6 +148,16 @@ namespace S2DE::Core
 			return true;
 	
 		return false;
+	}
+
+	bool InputManager::IsMouseLocked() const
+	{	 
+		return m_lock_mouse;
+	}	 
+		 
+	bool InputManager::IsKeyboardLocked() const
+	{
+		return m_lock_keyboard;
 	}
 
 	void InputManager::LockMouseControl(bool lock)

@@ -18,6 +18,8 @@ namespace S2DE::Core
 		// Lock keyboard control			
 		void								LockKeyboardControl(bool lock);
 
+		inline bool							IsMouseLocked() const;
+		inline bool							IsKeyboardLocked() const;
 		inline bool							IsMouseWheelTurnsForward()			 const;
 		inline bool							IsMouseWheelTurnsBackward()			 const;
 
@@ -31,7 +33,6 @@ namespace S2DE::Core
 		inline DirectX::SimpleMath::Vector2 GetMousePositionGlobal() const;
 		inline DirectX::SimpleMath::Vector2 GetMousePosition()		 const;
 		inline DirectX::SimpleMath::Vector2 GetMouseWheelPosition()	 const;
-
 		void								_MWheelUpdate(SDL_Event event);
 		void								_MMotionUpdate(SDL_Event event);
 		void								_KKeyDownArrayStateUpdate(SDL_Event event);
@@ -55,6 +56,8 @@ namespace S2DE::Core
 		DirectX::SimpleMath::Vector2		m_mRPMouseState;
 		DirectX::SimpleMath::Vector2		m_mRCMouseState;
 		DirectX::SimpleMath::Vector2		m_mRMouseState;
+		DirectX::SimpleMath::Vector2		m_mPosition;
+		DirectX::SimpleMath::Vector2		m_mGlobalPosition;
 		DirectX::SimpleMath::Vector2		m_mWheel;
 	};
 }
