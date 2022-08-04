@@ -60,17 +60,21 @@ namespace S2DE::Core
 
 		//Get params
 		m_params = GetCommandLineA();
+		bool splash = !CheckAppParam("-nsplash");
+		SplashScreen* sp = nullptr;
+		SplashScreen::SetProjectName(pname);
 
-		SplashScreen* sp = new SplashScreen();
-		S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
+		if (splash)
+		{
+			sp = new SplashScreen();
+			S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
+		}
 
-		//Set project name
-		sp->SetProjectName(pname);
 		//Create log file 
 		Logger::CreateLogFile();
 
 		Logger::Log("Starting engine...");
-		sp->SetLoadState("Starting engine...");
+		SplashScreen::SetLoadState("Starting engine...", sp);
 
 		//Check application handle
 		if ((m_app_handle = app_handle) == nullptr)
@@ -79,32 +83,31 @@ namespace S2DE::Core
 			return;
 		}
 
-		//Delay for showing splash screen
-		//Sleep(1000);
+		SplashScreen::SetLoadState("Create game window...", sp);
 
-		sp->SetLoadState("Create game window...");
 		m_window = new GameWindow();
 		m_window->Create(pname.c_str());
-		m_window->Hide();
+		if (splash)
+			m_window->Hide();
 
 		m_input_m = new InputManager();
+		SplashScreen::SetLoadState("Initialize render...", sp);
 
-		sp->SetLoadState("Initialize render...");
 		m_render = new Renderer();
 		if (!m_render->Create())
 			return;
 		
 		//Load engine resources, read main config, etc
-		sp->SetLoadState("Load engine resources...");
+		SplashScreen::SetLoadState("Load engine resources...", sp);
 		
 		if (!LoadEngineResources())
 			return;
 
-		sp->SetLoadState("Initialize scene...");
+		SplashScreen::SetLoadState("Initialize scene...", sp);
 		m_scene_manager = new SceneManager();
 		m_scene_manager->CreateNewScene();
 
-		sp->SetLoadState("Load game resources...");
+		SplashScreen::SetLoadState("Load game resources...", sp);
 		if (!m_app_handle->LoadResources())
 		{
 			S2DE_FATAL_ERROR("Failed to load application resources");
@@ -117,8 +120,11 @@ namespace S2DE::Core
 
 
 		//Destroy splash screen and show game window
-		sp->Close();
-		Delete(sp);
+		if (splash)
+		{
+			sp->Close();
+			Delete(sp);
+		}
 		m_window->Restore();
 
 		//Run main game loop
@@ -148,13 +154,12 @@ namespace S2DE::Core
 		{
 			m_window->SetFullscreen(!m_window->isFullscreen());
 		}
-
-#ifdef _DEBUG
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_0))
 		{
 			m_render->GetImGui_Window("DebugInfoWindow")->ToggleDraw();
 		}
 
+#ifdef _DEBUG
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_9))
 		{
 			m_render->GetImGui_Window("DebugObjectInspectorWindow")->ToggleDraw();
