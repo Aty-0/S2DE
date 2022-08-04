@@ -32,7 +32,6 @@ Application::~Application()
 
 void Application::OnStart()
 {
-	Logger::Log("%f", Normalize(2.0f));
 	Engine::GetGameWindow()->SetMouseVisible(true);
 }
 
