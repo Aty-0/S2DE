@@ -105,7 +105,6 @@ namespace S2DE::Core::Utils
 			"- Build: " << S2DE_BUILD_DATE << "\n" <<
 			"------------------------------------------------" <<
 			"\n\n";
-		m_logFile.close();
 	}
 
 	void Logger::Print(const char* type, const char* text)
@@ -123,10 +122,7 @@ namespace S2DE::Core::Utils
 		OutputDebugString(line.c_str());
 
 		//Add text to log file
-		m_logFile.open("Logs/" + m_logFileName, std::ios::app | std::ios_base::out);
 		m_logFile << line;
-		m_logFile.close();
-
 		Debug::VisualConsole::ConsoleBuffer.push_back(line);
 
 		//Add line 
