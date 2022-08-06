@@ -178,14 +178,14 @@ namespace S2DE::Render
 		io.ConfigFlags = Engine::isEditor() ? ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange 
 			: ImGuiConfigFlags_NoMouseCursorChange;
 
-		//Search custom font
+		// Search custom font
 		std::string path = std::string();
 		if (Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
 			io.Fonts->AddFontFromFileTTF(path.c_str(), 16);
 		
 		LoadCustomImguiTheme();
 
-		//Setup Platform/Renderer backends
+		// Setup Platform/Renderer backends
 		ImGui_ImplSDL2_InitForD3D(Core::Engine::GetGameWindow()->GetSDLWindow());
 		ImGui_ImplDX11_Init(m_device, m_context);
 
@@ -207,7 +207,7 @@ namespace S2DE::Render
 			typedef HRESULT(__stdcall* fPtr)(const IID&, void**);
 			fPtr DXGIGetDebugInterface = (fPtr)GetProcAddress(hDll, "DXGIGetDebugInterface");
 
-			IDXGIDebug* debugDev;
+			IDXGIDebug* debugDev = nullptr;
 			DXGIGetDebugInterface(__uuidof(IDXGIDebug), (void**)&debugDev);
 			debugDev->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
 
@@ -245,10 +245,7 @@ namespace S2DE::Render
 			D3D_FEATURE_LEVEL_11_1,
 			D3D_FEATURE_LEVEL_11_0,
 			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0,
-			D3D_FEATURE_LEVEL_9_3,
-			D3D_FEATURE_LEVEL_9_2,
-			D3D_FEATURE_LEVEL_9_1
+			D3D_FEATURE_LEVEL_10_0
 		};
 
 		D3D_DRIVER_TYPE driverTypes[] =
@@ -381,16 +378,13 @@ namespace S2DE::Render
 		if (!CreateRenderTarget())
 			return false;
 
-		std::uint32_t w = Core::Engine::GetGameWindow()->GetWidth();
-		std::uint32_t h = Core::Engine::GetGameWindow()->GetHeight();
-
-		//Set up the description of the depth buffer.
+		// Set up the description of the depth buffer.
 		D3D11_TEXTURE2D_DESC depthBufferDesc = { };
-		depthBufferDesc.Width = w;
-		depthBufferDesc.Height = h;
+		depthBufferDesc.Width = Core::Engine::GetGameWindow()->GetWidth();
+		depthBufferDesc.Height = Core::Engine::GetGameWindow()->GetHeight();
 		depthBufferDesc.MipLevels = 1;
 		depthBufferDesc.ArraySize = 1;
-		depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;//DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		depthBufferDesc.SampleDesc.Count = 1;
 		depthBufferDesc.SampleDesc.Quality = 0;
 		depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -400,43 +394,44 @@ namespace S2DE::Render
 
 		S2DE_CHECK(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer), "Render Error: Cannot create depth buffer");
 
-		//Set up the description of the stencil state.
+		// Set up the description of the stencil state.
 		D3D11_DEPTH_STENCIL_DESC depthStencilDesc = { };
+
 		depthStencilDesc.DepthEnable = true;
 		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
-		//FIX ME: Stencil temporarily is disabled
-		//depthStencilDesc.StencilEnable = false;
-		//depthStencilDesc.StencilReadMask = 0xFF;
-		//depthStencilDesc.StencilWriteMask = 0xFF;
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
 
-		//Stencil operations if pixel is front-facing.
-		//depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		//depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-		//depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		//depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		// Stencil operations if pixel is front-facing.
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-		//Stencil operations if pixel is back-facing.
-		//depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		//depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-		//depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		//depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		// Stencil operations if pixel is back-facing.
+		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 		
 		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateEnabled), "Render Error: Cannot create enabled depth stencil state");
 
 		depthStencilDesc.DepthEnable = false;
 		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateDisabled), "Render Error: Cannot create disabled depth stencil state");
 
-		//Set up the depth stencil view description.
+		// Set up the depth stencil view description.
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = { };
 		depthStencilViewDesc.Format = depthBufferDesc.Format;
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-		//Create the depth stencil view.
+		// Create the depth stencil view.
 		S2DE_CHECK(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView), "Render Error: Cannot create depth stencil view");
 
+		// Set render target
 		m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
 		return true;	
 	}
@@ -494,6 +489,7 @@ namespace S2DE::Render
 	void Renderer::Clear()
 	{
 		float color_array[4] = { m_clearColor.r, m_clearColor.g, m_clearColor.b , 1 };
+
 		m_context->OMSetDepthStencilState(m_depthStateEnabled, 0);
 		m_context->ClearRenderTargetView(m_targetView, color_array);
 		m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -613,36 +609,19 @@ namespace S2DE::Render
 
 			//UpdateFramebufferShaderResource();
 
-
-
 			RenderImGui();
 
 			if (Engine::isEditor())
 			{
-				EditorColorPicker* colorPicker = reinterpret_cast<EditorColorPicker*>(GetImGui_Window("EditorBgColorPicker"));
+				EditorColorPicker* colorPicker = GetImGui_Window<EditorColorPicker*>("EditorBgColorPicker");
 
 				if (colorPicker != nullptr)
 					colorPicker->SetColor(m_clearColor);
-
-				//if (m_FramebufferShaderResourceView != nullptr && GetImGui_Window("EditorRenderWindow") != nullptr)
-				//	reinterpret_cast<EditorRenderWindow*>(GetImGui_Window("EditorRenderWindow"))->PushRenderTexture((void*)m_framebuffer_shaderResourceView);
 			}
 		}
 
 		End();
-	}
 
-	ImGui_Window* Renderer::GetImGui_Window(std::string name) const
-	{
-		std::vector<std::pair<std::string, ImGui_Window*>>::const_iterator it = std::find_if(m_windowsStorage.begin(),
-			m_windowsStorage.end(), [&name](std::pair<std::string, ImGui_Window*> const& elem) { 
-				return elem.first == name;
-			});
-
-		if(it != m_windowsStorage.end())
-			return it->second;
-
-		return nullptr;
 	}
 
 	ImGui_Window* Renderer::AddImGuiWindow(std::string name, ImGui_Window* wnd, bool visible)

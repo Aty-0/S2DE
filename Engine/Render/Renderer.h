@@ -40,7 +40,7 @@ namespace S2DE::Render
 		/* DepthBias 				*/	0,
 		/* DepthBiasClamp 		*/		0.0f,
 		/* SlopeScaledDepthBias 	*/	0.0f,
-		/* DepthClipEnable 		*/	true,
+		/* DepthClipEnable 			*/	true,
 		/* ScissorEnable 			*/	false,
 		/* MultisampleEnable 		*/	false,
 		/* AntialiasedLineEnable	*/	false,
@@ -167,7 +167,20 @@ namespace S2DE::Render
 		class ImGui_Window*								m_editorToolStrip;
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windowsStorage;
 	public:  
-		inline class ImGui_Window*	GetImGui_Window(std::string name) const;
+		template<typename T>
+		inline T GetImGui_Window(std::string name) const
+		{
+			std::vector<std::pair<std::string, ImGui_Window*>>::const_iterator it = std::find_if(m_windowsStorage.begin(),
+				m_windowsStorage.end(), [&name](std::pair<std::string, ImGui_Window*> const& elem) {
+					return elem.first == name;
+				});
+			
+			if (it != m_windowsStorage.end())
+				return reinterpret_cast<T>(it->second);
+
+			return nullptr;
+		}
+
 		ImGui_Window*				AddImGuiWindow(std::string name, ImGui_Window* wnd, bool visible = false);
 		void						DeleteImGuiWindow(std::string name);
 	};
