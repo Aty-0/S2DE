@@ -147,6 +147,17 @@ namespace S2DE::GameObjects
 			{
 				m_Position -= m_speed * m_speedBoost * Core::Engine::GetGameTime().GetDeltaTime() * m_right;
 			}
+
+			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_SPACE))
+			{
+				Fly(1.0f);
+			}
+
+			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_C))
+			{
+				Fly(-1.0f);
+			}
+
 			break;
 		case S2DE::GameObjects::Camera::Orthographics:
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
