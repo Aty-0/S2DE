@@ -1,5 +1,6 @@
 #include "EditorToolstrip.h"
 #include "Base/Engine.h"
+#include "Base/GameWindow.h"
 #include "Base/ResourceManager.h"
 #include "Scene/SceneManager.h"
 #include "Render/Renderer.h"
@@ -28,7 +29,7 @@ namespace S2DE::Editor
 		if (!m_draw)
 			return;
 
-		m_inspector = reinterpret_cast<EditorObjectInspector*>(Core::Engine::GetRenderer()->GetImGui_Window("EditorObjectInspector"));
+		m_inspector = Core::Engine::GetRenderer()->GetImGui_Window<Editor::EditorObjectInspector*>("EditorObjectInspector");
 		S2DE_ASSERT(m_inspector);
 
 		if (ImGui::BeginMainMenuBar()) 
@@ -195,7 +196,7 @@ namespace S2DE::Editor
 				{
 					if (ImGui::MenuItem("Change background color"))
 					{
-						Core::Engine::GetRenderer()->GetImGui_Window("EditorBgColorPicker")->ToggleDraw();
+						Core::Engine::GetRenderer()->GetImGui_Window<Render::ImGui_Window*>("EditorBgColorPicker")->ToggleDraw();
 					}
 
 					ImGui::EndMenu();
@@ -204,12 +205,13 @@ namespace S2DE::Editor
 			}
 			if (maincamera != nullptr)
 			{
-				if (ImGui::Button("Orthographics"))
+				ImGui::SetCursorPos(ImVec2((Core::Engine::GetGameWindow()->GetWidth() / 2) - 100,0));
+				if (ImGui::Button("2D"))
 				{
 					maincamera->SetProjectionMode(GameObjects::Camera::CameraProjectionMode::Orthographics);
 				}
 
-				if (ImGui::Button("Perspective"))
+				if (ImGui::Button("3D"))
 				{
 					maincamera->SetProjectionMode(GameObjects::Camera::CameraProjectionMode::Perspective);
 				}
