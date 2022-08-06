@@ -133,14 +133,31 @@ namespace S2DE::Render
 
 	bool Renderer::Reset()
 	{
+		m_context->OMSetRenderTargets(0, nullptr, nullptr);
 		Release(m_targetView);
-		Release(m_backBuffer);
-		Release(m_depthStencilBuffer);
-		Release(m_depthStencilView);
-		m_context->Flush();
-		S2DE_CHECK(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Can't resize buffers");
 
-		CreateRenderTarget();
+		Release(m_backBuffer);			
+		Release(m_depthStencilView);			
+		Release(m_depthStateEnabled);
+		Release(m_depthStencilBuffer);
+		Release(m_depthStateDisabled);
+
+		m_context->Flush();
+		
+		HRESULT hr = m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+		
+		if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+		{
+			//TODO: What's we need to do with device in this case ?
+			S2DE_FATAL_ERROR("hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET");
+			return false;
+		}	
+		else if(!Logger::CheckHR(hr, true))
+		{
+			S2DE_FATAL_ERROR("Can't resize buffers");
+			return false;
+		}
+
 		CreateDepthStencil();
 		UpdateViewport();
 
