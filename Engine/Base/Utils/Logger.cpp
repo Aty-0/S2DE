@@ -93,9 +93,12 @@ namespace S2DE::Core::Utils
 	{
 		// Create folder "Logs" if it's not exist
 		if (!std::filesystem::is_directory("Logs") || !std::filesystem::exists("Logs"))
-			std::filesystem::create_directory("Logs");
+			if(!std::filesystem::create_directory("Logs"))
+				throw std::runtime_error("Can't create directory");
+
 		// Set log name
 		m_logFileName = "S2DE-Log-" + GetTime(true) + ".log";
+
 		// Create log file 
 		m_logFile = std::ofstream("Logs/" + m_logFileName, std::ios_base::out);
 		m_logFile << 
