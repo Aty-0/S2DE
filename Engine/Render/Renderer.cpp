@@ -234,7 +234,7 @@ namespace S2DE::Render
 	{
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&m_backBuffer);
 		S2DE_CHECK(m_device->CreateRenderTargetView(m_backBuffer, NULL, &m_targetView), "Render Error: Cannot create render target view");
-		CreateFramebufferTexture(m_backBuffer);
+		//CreateFramebufferTexture(m_backBuffer);
 		return true;
 	}
 
