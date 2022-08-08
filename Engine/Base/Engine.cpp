@@ -147,22 +147,17 @@ namespace S2DE::Core
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_GRAVE))
 		{
-			m_render->GetImGui_Window("EngineConsole")->ToggleDraw();
+			m_render->GetImGui_Window<Render::ImGui_Window*>("EngineConsole")->ToggleDraw();
 		}
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_F11))
 		{
 			m_window->SetFullscreen(!m_window->isFullscreen());
 		}
+
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_0))
 		{
-			m_render->GetImGui_Window("DebugInfoWindow")->ToggleDraw();
-		}
-
-#ifdef _DEBUG
-		if (m_input_m->IsKeyPressed(KeyCode::KEY_9))
-		{
-			m_render->GetImGui_Window("DebugObjectInspectorWindow")->ToggleDraw();
+			m_render->GetImGui_Window<Render::ImGui_Window*>("DebugInfoWindow")->ToggleDraw();
 		}
 
 #ifdef S2DE_DEBUG_RENDER_MODE
@@ -175,8 +170,6 @@ namespace S2DE::Core
 		}
 #endif
 
-
-#endif
 		if (Engine::isEditor())
 		{
 			if (m_input_m->IsKeyPressed(KeyCode::KEY_F1))
