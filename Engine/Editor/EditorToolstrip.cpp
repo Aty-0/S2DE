@@ -29,9 +29,6 @@ namespace S2DE::Editor
 		if (!m_draw)
 			return;
 
-		m_inspector = Core::Engine::GetRenderer()->GetImGui_Window<Editor::EditorObjectInspector*>("EditorObjectInspector");
-		S2DE_ASSERT(m_inspector);
-
 		if (ImGui::BeginMainMenuBar()) 
 		{
 			auto maincamera = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
@@ -40,12 +37,12 @@ namespace S2DE::Editor
 			{
 				if (ImGui::MenuItem("Open"))
 				{
-
+					Logger::Log("Not implemented");
 				}
 
 				if (ImGui::MenuItem("Save"))
 				{
-
+					Logger::Log("Not implemented");
 				}
 
 				ImGui::EndMenu();
@@ -55,6 +52,8 @@ namespace S2DE::Editor
 			{
 				if (ImGui::MenuItem("Object inspector"))
 				{
+					m_inspector = Core::Engine::GetRenderer()->GetImGui_Window<Editor::EditorObjectInspector*>("EditorObjectInspector");
+
 					m_inspector->ToggleDraw();
 				}
 
@@ -96,16 +95,18 @@ namespace S2DE::Editor
 			{
 				if (ImGui::MenuItem("Undo"))
 				{
-
+					Logger::Log("Not implemented");
 				}
 
 				if (ImGui::MenuItem("Redo"))
 				{
-
+					Logger::Log("Not implemented");
 				}
 
 				if (ImGui::MenuItem("Delete"))
 				{
+					m_inspector = Core::Engine::GetRenderer()->GetImGui_Window<Editor::EditorObjectInspector*>("EditorObjectInspector");
+
 					if (m_inspector->GetHandle() != nullptr)
 					{
 						//Get object name from handle
@@ -119,12 +120,12 @@ namespace S2DE::Editor
 
 				if (ImGui::MenuItem("Clone"))
 				{
-				
+					Logger::Log("Not implemented");				
 				}
 
 				if (ImGui::MenuItem("Rename"))
 				{
-
+					Logger::Log("Not implemented");				
 				}
 			
 				ImGui::EndMenu();
@@ -146,11 +147,6 @@ namespace S2DE::Editor
 					if (ImGui::MenuItem("Sprite"))
 					{
 						Scene::CreateGameObject<GameObjects::Sprite>("Sprite", "GameObject", 1, spawn_vec);
-					}
-
-					if (ImGui::MenuItem("Camera"))
-					{
-
 					}
 
 					if (ImGui::BeginMenu("Test's"))
@@ -183,6 +179,8 @@ namespace S2DE::Editor
 
 				if (ImGui::MenuItem("Clear scene"))
 				{
+					m_inspector = Core::Engine::GetRenderer()->GetImGui_Window<Editor::EditorObjectInspector*>("EditorObjectInspector");
+
 					m_inspector->Reset();
 					Core::Engine::GetSceneManager()->GetScene()->Clear();
 				}
@@ -194,6 +192,11 @@ namespace S2DE::Editor
 
 				if (ImGui::BeginMenu("Render"))
 				{
+					if (ImGui::MenuItem("Toggle Vsync"))
+					{
+						Core::Engine::GetRenderer()->SetVsync(!Core::Engine::GetRenderer()->GetVsync());
+					}
+
 					if (ImGui::MenuItem("Change background color"))
 					{
 						Core::Engine::GetRenderer()->GetImGui_Window<Render::ImGui_Window*>("EditorBgColorPicker")->ToggleDraw();
@@ -220,7 +223,7 @@ namespace S2DE::Editor
 				{
 					static float fov = maincamera->GetFov();
 					ImGui::PushItemWidth(100);
-					if (ImGui::SliderFloat("FOV", &fov, 0.0f, 110.0f))
+					if (ImGui::SliderFloat("FOV", &fov, 10.0f, 110.0f))
 					{
 						maincamera->SetFov(fov);
 					}

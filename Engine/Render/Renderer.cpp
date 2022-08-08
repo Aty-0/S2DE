@@ -690,6 +690,11 @@ namespace S2DE::Render
 		m_device->CreateShaderResourceView(m_frameBufferData, &shaderResourceViewDesc, &m_frameBufferShaderResourceView);
 	}
 
+	void Renderer::SetVsync(bool vsync)
+	{
+		m_vsync = vsync;
+	}
+
 	bool Renderer::CaptureMessages()
 	{
 		std::int64_t message_count = m_d3dInfoQueue->GetNumStoredMessages();

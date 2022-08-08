@@ -76,6 +76,8 @@ namespace S2DE::Render
 		void								ToggleImGuiWindowsVisible();
 		// Toggle ImGui Demo window
 		void								ToggleImGuiDemoWindowVisible();
+
+		void								SetVsync(bool vsync);
 		// Set rasterize state by name
 		void								SetRasterizerState(std::string name = "default");
 		// Set rasterize state by rasterizer state pointer
