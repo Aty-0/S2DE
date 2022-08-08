@@ -31,9 +31,9 @@ namespace S2DE::Core::Debug
 
 		//Set window size by VisualConsoleSizeMode
 		void					UpdateSizeMode();
-
+		virtual void			ToggleDraw() override;
 	private:
-		bool					m_showMessages = false;
+		bool					m_showMessages = true;
 		bool					m_scroll_to_bottom;
 		bool					m_free;
 		VisualConsoleSizeMode	m_sizemode;
