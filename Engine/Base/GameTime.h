@@ -7,6 +7,12 @@
 
 namespace S2DE::Core
 {
+	typedef std::chrono::seconds		se;
+	typedef std::chrono::milliseconds	ms;
+	typedef std::chrono::microseconds	us;
+	typedef std::chrono::nanoseconds	ns;
+	typedef std::chrono::steady_clock::time_point timePoint;
+
 	class S2DE_API GameTime
 	{
 	public:
@@ -21,13 +27,16 @@ namespace S2DE::Core
 		inline std::int32_t	GetFPS()		const;
 
 	private:
-		float m_timer;
-		std::chrono::duration<float> m_timer_duration;
-		std::int32_t	m_fps;
-		std::int32_t m_frame_count;
-		float m_deltaTime;
-		std::chrono::steady_clock::time_point m_time_lastUpdate;
-		std::chrono::steady_clock::time_point m_time;
-		std::chrono::steady_clock::time_point m_time_begin;
+		float						  m_timer;
+		std::chrono::duration<double> m_timerDuration;
+		float						  m_deltaTime;
+		std::int32_t				  m_fps;
+		std::int32_t				  m_frameCount;
+		// On start tick
+		timePoint					  m_start;
+		// Saved previous tick
+		timePoint					  m_then;
+
+		timePoint					  m_tickEnd;
 	};
 }
