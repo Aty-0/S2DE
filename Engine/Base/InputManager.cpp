@@ -90,8 +90,8 @@ namespace S2DE::Core
 	DirectX::SimpleMath::Vector2 InputManager::GetMousePositionRelative() const
 	{	
 		SDL_CaptureMouse(SDL_TRUE);
-		SDL_WarpMouseInWindow(Engine::GetGameWindow()->GetSDLWindow(), Engine::GetGameWindow()->GetWidth() / 2, Engine::GetGameWindow()->GetHeight() / 2);
 		SDL_SetRelativeMouseMode(SDL_TRUE);
+		SDL_WarpMouseInWindow(Engine::GetGameWindow()->GetSDLWindow(), Engine::GetGameWindow()->GetWidth() / 2, Engine::GetGameWindow()->GetHeight() / 2);
 		return m_mRMouseState;
 	}
 
@@ -112,12 +112,42 @@ namespace S2DE::Core
 
 	bool InputManager::IsMouseWheelTurnsForward() const
 	{
-		return m_isWheelTurnsForward; 
+		return m_isWheelTurnsForward && !m_lock_wheel;
 	}
 
 	bool InputManager::IsMouseWheelTurnsBackward() const
 	{
-		return m_isWheelTurnsBackward; 
+		return m_isWheelTurnsBackward && !m_lock_wheel;
+	}
+
+	bool InputManager::IsMouseKeyPressed(Other::MouseKeyCode keycode) const
+	{
+		if (m_mouseKeyDown == nullptr || m_lock_mouse)
+			return false;
+
+		std::uint8_t i = static_cast<std::int8_t>(keycode);
+		return m_mouseKeyDown[i];
+	}
+
+	bool InputManager::IsMouseKeyUp(Other::MouseKeyCode keycode)      const
+	{
+		if (m_mouseKeyUp == nullptr || m_lock_mouse)
+			return false;
+
+		std::uint8_t i = static_cast<std::uint8_t>(keycode);
+		return m_mouseKeyUp[i];
+	}
+
+	bool InputManager::IsMouseKeyDown(Other::MouseKeyCode keycode)    const
+	{
+		if (m_lock_mouse)
+			return false;
+
+		std::uint8_t i = static_cast<std::uint8_t>(keycode);
+		if (m_mouse & SDL_BUTTON(i))
+			return true;
+
+		return false;
 	}
 
 	bool InputManager::IsKeyPressed(Other::KeyCode keycode) const
@@ -168,5 +198,15 @@ namespace S2DE::Core
 	void InputManager::LockKeyboardControl(bool lock)
 	{
 		m_lock_keyboard = lock;
+	}
+
+	void InputManager::LockWheel(bool lock)
+	{
+		m_lock_wheel = lock;
+	}
+
+	bool InputManager::IsWheelLocked() const
+	{
+		return m_lock_wheel;
 	}
 }

@@ -10,14 +10,14 @@ namespace S2DE::Core
 		InputManager();
 		~InputManager();
 
-		// Update current sdl event
-		void								Update();
-
 		// Lock mouse control
 		void								LockMouseControl(bool lock);
 		// Lock keyboard control			
 		void								LockKeyboardControl(bool lock);
 
+		void								LockWheel(bool lock);
+
+		inline bool							IsWheelLocked() const;
 		inline bool							IsMouseLocked() const;
 		inline bool							IsKeyboardLocked() const;
 		inline bool							IsMouseWheelTurnsForward()			 const;
@@ -26,19 +26,24 @@ namespace S2DE::Core
 		inline bool							IsKeyPressed(Other::KeyCode keycode) const;
 		inline bool							IsKeyUp(Other::KeyCode keycode)      const;
 		inline bool							IsKeyDown(Other::KeyCode keycode)    const;
-
-		//TODO: Mouse keys up, down, pressed
+		inline bool							IsMouseKeyPressed(Other::MouseKeyCode keycode) const;
+		inline bool							IsMouseKeyUp(Other::MouseKeyCode keycode)      const;
+		inline bool							IsMouseKeyDown(Other::MouseKeyCode keycode)    const;
 
 		inline DirectX::SimpleMath::Vector2 GetMousePositionRelative() const;
 		inline DirectX::SimpleMath::Vector2 GetMousePositionGlobal() const;
 		inline DirectX::SimpleMath::Vector2 GetMousePosition()		 const;
 		inline DirectX::SimpleMath::Vector2 GetMouseWheelPosition()	 const;
+
+		void								Update();
+
 		void								_MWheelUpdate(SDL_Event event);
 		void								_MMotionUpdate(SDL_Event event);
 		void								_KKeyDownArrayStateUpdate(SDL_Event event);
 		void								_KKeyUpArrayStateUpdate(SDL_Event event);
 		void								_MKeyUpArrayStateUpdate(SDL_Event event);
 		void								_MKeyDownArrayStateUpdate(SDL_Event event);
+
 	private:
 		std::uint32_t						m_mouse;
 		const std::uint8_t*					m_keyboard;
@@ -47,6 +52,7 @@ namespace S2DE::Core
 		bool								m_mouseKeyUp[Other::MouseSize];
 		bool								m_mouseKeyDown[Other::MouseSize];
 
+		bool								m_lock_wheel;
 		bool								m_lock_mouse;
 		bool								m_lock_keyboard;
 
