@@ -28,6 +28,10 @@ namespace S2DE::Core
 			return false;
 		}
 
+		SDL_version ver = { };
+		SDL_GetVersion(&ver);
+		Logger::Log("[SDL] SDL Version %d.%d.%d", ver.major, ver.minor, ver.patch);
+
 		std::string str = std::string();
 
 #ifdef NDEBUG
@@ -62,9 +66,15 @@ namespace S2DE::Core
 
 	void GameWindow::ParseWindowEvents(SDL_Event event)
 	{
-		//TODO: Handle more events
-		if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-			Core::Engine::GetRenderer()->Reset();
+		switch (event.window.event)
+		{		
+			case SDL_WindowEventID::SDL_WINDOWEVENT_DISPLAY_CHANGED: // It's needed ?
+			case SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED:
+			case SDL_WindowEventID::SDL_WINDOWEVENT_SIZE_CHANGED:
+			case SDL_WindowEventID::SDL_WINDOWEVENT_MAXIMIZED:
+				Core::Engine::GetRenderer()->Reset();
+				break;			
+		}
 	}
 
 	bool GameWindow::PoolEvents()
@@ -75,7 +85,6 @@ namespace S2DE::Core
 		{
 			ImGui_ImplSDL2_ProcessEvent(&m_event);
 
-
 			switch (m_event.type)
 			{		
 				// Parse window events
@@ -83,7 +92,10 @@ namespace S2DE::Core
 					ParseWindowEvents(m_event);
 					break;
 				// TODO: It's not all control events 
+				// TODO: joystick support
 				// Call event update when we are get the control type event
+				case SDL_EventType::SDL_TEXTINPUT:
+					break;
 				case SDL_EventType::SDL_MOUSEWHEEL:
 					Core::Engine::GetInputManager()->_MWheelUpdate(m_event);
 					break;
