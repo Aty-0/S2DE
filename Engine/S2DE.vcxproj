@@ -28,6 +28,7 @@
     <ClInclude Include="Editor\EditorColorPicker.h" />
     <ClInclude Include="Libs\imgui\imgui_impl_sdl.h" />
     <ClInclude Include="Math\Normalize.h" />
+    <ClInclude Include="Render\CB.h" />
     <ClInclude Include="Render\FBX_Importer.h" />
     <ClInclude Include="GameObjects\Drawable.h" />
     <ClInclude Include="Editor\EditorRenderWindow.h" />
