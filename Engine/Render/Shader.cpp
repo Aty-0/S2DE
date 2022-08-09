@@ -132,7 +132,7 @@ namespace S2DE::Render
 		Core::Release(code_buffer);
 
 		//Create basic constant buffer
-		m_const_buffer = new ConstantBuffer<ShaderMainConstantBuffer>();
+		m_const_buffer = new ConstantBuffer<CB::CB_Main>();
 		S2DE_ASSERT(m_const_buffer->Create());
 
 		Logger::Log("[Shader] [%s] Done!", m_name.c_str());

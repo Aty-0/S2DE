@@ -1,5 +1,5 @@
-Texture2D sprite_texture;
-SamplerState sprite_sample_type;
+Texture2D _texture;
+SamplerState sampleType;
 
 struct PSINPUT
 {
@@ -11,5 +11,5 @@ struct PSINPUT
 
 float4 main(PSINPUT input) : SV_TARGET
 {
-    return sprite_texture.Sample(sprite_sample_type, input.uv) * input.color;
+    return _texture.Sample(sampleType, input.uv) * input.color;
 }

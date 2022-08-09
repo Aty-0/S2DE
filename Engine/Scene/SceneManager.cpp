@@ -33,11 +33,11 @@ namespace S2DE::Scene
 		m_scene = new Scene();
 		CreateGameObject<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
 		CreateGameObject<GameObjects::Skybox>("Skybox", "");
-
+		
 		if (Core::Engine::isEditor())
 		{
 			CreateGameObject<Editor::EditorGrid>("_EditorGrid", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, DirectX::SimpleMath::Vector3(GRID_CELLS / 2, -1, GRID_CELLS / 2));
-			CreateGameObject<Editor::EditorCenterCursor>("_UIEditorCenterCursor", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+			CreateGameObject<Editor::EditorCenterCursor>("_EditorCenterCursor", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
 		}
 	}	 
 		 

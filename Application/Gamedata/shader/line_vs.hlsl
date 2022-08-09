@@ -1,4 +1,4 @@
-cbuffer MainConstBuffer  : register(b0)
+cbuffer CB_Main : register(b0)
 {
     float Delta;
 	float Time;

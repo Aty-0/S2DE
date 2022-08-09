@@ -678,10 +678,10 @@ namespace S2DE::Render
 		if (m_frameBufferData == nullptr)
 			return;
 
-		D3D11_TEXTURE2D_DESC textureDesc{};
+		D3D11_TEXTURE2D_DESC textureDesc = { };
 		m_frameBufferData->GetDesc(&textureDesc);
 		
-		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc {};
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = { };
 		shaderResourceViewDesc.Format = textureDesc.Format;
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
@@ -755,7 +755,6 @@ namespace S2DE::Render
 	void Renderer::DrawIndexed(std::uint64_t indexCount, std::uint32_t startIndexLocation, std::uint32_t baseVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)
 	{
 		m_context->IASetPrimitiveTopology(topology);
-		m_context->DrawIndexed((std::uint32_t)indexCount, startIndexLocation, baseVertexLocation);
 	}
 
 	void Renderer::Draw(std::uint64_t vertexCount, std::uint32_t startVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)

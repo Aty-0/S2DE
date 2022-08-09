@@ -238,6 +238,8 @@ namespace S2DE::Editor
 					{
 						maincamera->SetZoom(zoom);
 					}
+
+					ImGui::Text("Speed boost %.3f x", maincamera->GetSpeedBoost());
 				}
 
 			}

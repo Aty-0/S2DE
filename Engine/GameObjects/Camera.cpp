@@ -10,7 +10,7 @@
 #define CAMERA_DEFAULT_ZNEAR 0.01f
 #define CAMERA_DEFAULT_ZFAR 1000.0f
 #define CAMERA_DEFAULT_ORTHO_ZOOM 0.15f
-#define CAMERA_DEFAULT_SENSITIVITY 0.7f 
+#define CAMERA_DEFAULT_SENSITIVITY 2.7f 
 #define CAMERA_MAX_SPEED_BOOST 10.0f 
 #define CAMERA_MIN_SPEED_BOOST 0.001f
 
@@ -126,8 +126,8 @@ namespace S2DE::GameObjects
 			{
 				m_Rotation.z += (float)Core::Engine::GetInputManager()->GetMousePositionRelative().x * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
 				m_Rotation.y += (float)Core::Engine::GetInputManager()->GetMousePositionRelative().y * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
-
 			}
+
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
 			{
 				m_Position += m_speed * m_speedBoost * Core::Engine::GetGameTime().GetDeltaTime() * m_forward;
@@ -160,6 +160,27 @@ namespace S2DE::GameObjects
 
 			break;
 		case S2DE::GameObjects::Camera::Orthographics:
+			if (Core::Engine::isEditor())
+			{
+				if (Core::Engine::GetInputManager()->IsMouseWheelTurnsForward())
+				{
+					if (m_speedBoost < CAMERA_MAX_SPEED_BOOST)
+						if (m_speedBoost <= 0.1f)
+							m_speedBoost += 0.001f;
+						else
+							m_speedBoost += 0.1f;
+				}
+
+				if (Core::Engine::GetInputManager()->IsMouseWheelTurnsBackward())
+				{
+					if (m_speedBoost > CAMERA_MIN_SPEED_BOOST)
+						if (m_speedBoost <= 0.1f)
+							m_speedBoost -= 0.001f;
+						else
+							m_speedBoost -= 0.1f;
+				}
+			}
+
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
 			{
 				Fly(1.0f);
@@ -186,17 +207,17 @@ namespace S2DE::GameObjects
 
 	void Camera::Strafe(float side)
 	{
-		SetPosition_X(GetPosition().x + side * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
+		SetPosition_X(GetPosition().x + side * m_speedBoost * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
 	}
 
 	void Camera::Fly(float side)
 	{
-		SetPosition_Y(GetPosition().y + side * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
+		SetPosition_Y(GetPosition().y + side * m_speedBoost * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
 	}
 
 	void Camera::Walk(float side)
 	{
-		SetPosition_Z(GetPosition().z + side * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
+		SetPosition_Z(GetPosition().z + side * m_speedBoost * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
 	}
 
 	void Camera::OnCreate()

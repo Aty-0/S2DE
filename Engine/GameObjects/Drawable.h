@@ -11,8 +11,8 @@ namespace S2DE::GameObjects
 		Drawable() = default;
 		virtual ~Drawable() { }
 
-		virtual void				 UpdateShader() { }
 		virtual void				 UpdateTexture() { }
+		virtual void				 UpdateShader() { }
 		virtual bool				 LoadTexture(std::string name) { return false; }
 		virtual bool				 LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = true) { return false; }
 		virtual bool				 LoadShader(std::string name) { return false; }

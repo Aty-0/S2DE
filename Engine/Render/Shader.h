@@ -4,19 +4,10 @@
 #include "Render/Buffers.h"
 #include "IO/IO_File.h"
 #include "IO/IO_Disposible.h"
+#include "CB.h"
 
 namespace S2DE::Render
 {
-	struct S2DE_API ShaderMainConstantBuffer
-	{
-		float						 deltatime;
-		float						 time;
-		DirectX::SimpleMath::Vector2 resoultion;
-		DirectX::SimpleMath::Matrix  world;
-		DirectX::SimpleMath::Matrix  view;
-		DirectX::SimpleMath::Matrix  projection;
-	};
-
 	class S2DE_API Shader : public IO::IO_File, public IO::IO_Disposible
 	{
 	public:
@@ -39,7 +30,7 @@ namespace S2DE::Render
 		inline ID3D11VertexShader*		GetVertexShader() const { return m_vertexShader; }
 		inline ID3D11PixelShader*		GetPixelShader()	 const { return m_pixelShader; }
 		inline ID3D11InputLayout*		GetLayout()		 const { return m_layout; }
-		inline ConstantBuffer<ShaderMainConstantBuffer>*  GetConstBuffer() const { return m_const_buffer; }
+		inline ConstantBuffer<CB::CB_Main>*  GetConstBuffer() const { return m_const_buffer; }
 
 	private:
 		void							ShowErrorDetails(ID3D10Blob* error_blob);
@@ -50,6 +41,6 @@ namespace S2DE::Render
 		std::string						m_path_vs;
 		std::string						m_path_ps;
 		DWORD							m_flags;
-		ConstantBuffer<ShaderMainConstantBuffer>* m_const_buffer;
+		ConstantBuffer<CB::CB_Main>*	m_const_buffer;
 	};
 }
