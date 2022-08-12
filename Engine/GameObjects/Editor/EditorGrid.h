@@ -1,12 +1,12 @@
 #pragma once
-#include "GameObjects/Drawable.h"
+#include "GameObjects/Base/Drawable.h"
 #include "Base/ResourceManager.h"
 #include "Render/Renderer.h"
 #include "Render/Buffers.h"
 
 #define GRID_CELLS 128
 
-namespace S2DE::Editor
+namespace S2DE::GameObjects::Editor
 {
 	class S2DE_API EditorGrid : public GameObjects::Drawable
 	{

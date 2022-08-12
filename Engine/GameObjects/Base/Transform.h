@@ -1,6 +1,5 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "Render/Renderer.h"
 
 namespace S2DE::GameObjects
 {

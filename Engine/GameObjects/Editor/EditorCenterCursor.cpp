@@ -6,7 +6,7 @@
 #include "GameObjects/Camera.h"
 #include "Scene/SceneManager.h"
 
-namespace S2DE::Editor
+namespace S2DE::GameObjects::Editor
 {
 	EditorCenterCursor::EditorCenterCursor()
 	{

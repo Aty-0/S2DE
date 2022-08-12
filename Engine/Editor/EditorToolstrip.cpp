@@ -7,8 +7,8 @@
 
 #include "GameObjects/Camera.h"
 #include "GameObjects/Sprite.h"
-#include "GameObjects/TestObject.h"
-#include "GameObjects/NoTextureTestObject.h"
+#include "GameObjects/Test/TestObject.h"
+#include "GameObjects/Test/NoTextureTestObject.h"
 
 #include "Editor/EditorColorPicker.h"
 

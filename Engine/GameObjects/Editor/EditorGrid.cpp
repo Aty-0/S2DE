@@ -1,6 +1,6 @@
 #include "EditorGrid.h"
 
-namespace S2DE::Editor
+namespace S2DE::GameObjects::Editor
 {
 	EditorGrid::EditorGrid() :
 		m_shader(nullptr),

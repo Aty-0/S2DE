@@ -1,5 +1,5 @@
 #include "Base/Main/Common.h"
-#include "GameObjects/GameObject.h"
+#include "GameObjects/Base/GameObject.h"
 
 //If we need to get main camera in scene 
 #define S2DE_MAIN_CAMERA_NAME "_MainCamera"

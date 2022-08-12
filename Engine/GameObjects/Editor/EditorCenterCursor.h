@@ -5,7 +5,7 @@
 #include "Render/Buffers.h"
 #include "GameObjects/UI/UI_Drawable.h"
 
-namespace S2DE::Editor
+namespace S2DE::GameObjects::Editor
 {
 	class S2DE_API EditorCenterCursor : public GameObjects::UI::UI_Drawable
 	{

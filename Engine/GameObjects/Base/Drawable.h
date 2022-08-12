@@ -1,5 +1,5 @@
 #pragma once
-#include "GameObjects/GameObject.h"
+#include "GameObjects/Base/GameObject.h"
 
 namespace S2DE::GameObjects
 {

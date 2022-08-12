@@ -1,5 +1,5 @@
 #pragma once
-#include "GameObjects/Drawable.h"
+#include "GameObjects/Base/Drawable.h"
 #include "Base/ResourceManager.h"
 #include "Render/Renderer.h"
 #include "Render/Buffers.h"

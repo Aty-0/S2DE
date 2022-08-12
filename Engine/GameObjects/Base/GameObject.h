@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "GameObjects/Transform.h"
-#include "GameObjects/GameObjectIDGenerator.h"
+#include "GameObjects/Base/Transform.h"
+#include "GameObjects/Base/GameObjectIDGenerator.h"
 
 
 #include <boost/serialization/base_object.hpp>

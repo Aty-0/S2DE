@@ -1,5 +1,5 @@
 #pragma once
-#include "GameObjects/Drawable.h"
+#include "GameObjects/Base/Drawable.h"
 
 namespace S2DE::GameObjects::UI
 {
