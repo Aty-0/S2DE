@@ -20,7 +20,7 @@ namespace S2DE::Core
 		for (const auto& p : m_ResourceStorage)
 		{
 			if (p.first.second == std::type_index(typeid(Render::Shader)))
-				reinterpret_cast<RMResource<Render::Shader>*>(p.second.get())->Get()->Compile();
+				reinterpret_cast<RMResource<Render::Shader>*>(p.second.get())->Get()->Reload();
 		}
 	}
 	
