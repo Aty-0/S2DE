@@ -15,7 +15,7 @@ namespace S2DE::Render::CB
 
 	struct S2DE_API S2DE_ALIGN(16) CB_Sprite
 	{
-		DirectX::XMINT2					tileFrame;
+		DirectX::SimpleMath::Vector2	tileFrame;
 		DirectX::SimpleMath::Vector2	tileSize;
 		DirectX::SimpleMath::Vector2	textureRes;
 	};

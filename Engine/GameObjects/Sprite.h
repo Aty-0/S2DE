@@ -22,7 +22,7 @@ namespace S2DE::GameObjects
 		virtual void									UpdateTexture() override;
 
 		//Set frame position 
-		void											SetAtlasFramePosition(std::int32_t x, std::int32_t y);
+		void											SetAtlasFramePosition(DirectX::SimpleMath::Vector2 position);
 
 		//Set frame size								 
 		void											SetAtlasSize(DirectX::SimpleMath::Vector2 size);
@@ -46,7 +46,7 @@ namespace S2DE::GameObjects
 		Render::Shader*									m_shader;
 		Render::VertexBuffer<Render::Vertex>*			m_vertexBuffer;
 		Render::IndexBuffer<std::int32_t>*				m_indexBuffer;
-		DirectX::SimpleMath::Rectangle					m_tileFrame;
+		DirectX::SimpleMath::Vector4					m_tileFrame;
 		Math::Color<float>								m_color;
 		Render::ConstantBuffer<Render::CB::CB_Sprite>*	m_spriteCB;
 	};

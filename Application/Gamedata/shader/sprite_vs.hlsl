@@ -12,7 +12,7 @@ cbuffer CB_Main  : register(b0)
 //Sprite buffer 
 cbuffer CB_Sprite  : register(b1)
 {
-    int2    tileFrame;
+    float2  tileFrame;
     float2  tileSize;
     float2  textureRes;
 }

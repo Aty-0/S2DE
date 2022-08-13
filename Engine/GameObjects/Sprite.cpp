@@ -8,7 +8,7 @@ namespace S2DE::GameObjects
 		m_shader(nullptr),
 		m_indexBuffer(new Render::IndexBuffer<std::int32_t>()),
 		m_vertexBuffer(new Render::VertexBuffer<Render::Vertex>()),
-		m_tileFrame(DirectX::SimpleMath::Rectangle(0, 0, 0, 0)),
+		m_tileFrame(DirectX::SimpleMath::Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
 		m_color(Math::Color<float>(1.0f, 1.0f, 1.0f, 1.0f))
 	{
 		CreateVertexBuffer();
@@ -37,16 +37,16 @@ namespace S2DE::GameObjects
 		CreateVertexBuffer();
 	}
 
-	void Sprite::SetAtlasFramePosition(std::int32_t x, std::int32_t y)
+	void Sprite::SetAtlasFramePosition(DirectX::SimpleMath::Vector2 position)
 	{
-		m_tileFrame.x = x;
-		m_tileFrame.y = y;
+		m_tileFrame.x = position.x;
+		m_tileFrame.y = position.y;
 	}
 
 	void Sprite::SetAtlasSize(DirectX::SimpleMath::Vector2 size)
 	{
-		m_tileFrame.width = size.x;
-		m_tileFrame.height = size.y;
+		m_tileFrame.z = size.x;
+		m_tileFrame.w = size.y;
 	}
 
 	bool Sprite::LoadTexture(std::string name)
@@ -78,8 +78,8 @@ namespace S2DE::GameObjects
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
 		m_spriteCB->Lock();
-		m_spriteCB->GetData()->tileFrame	= DirectX::XMINT2(m_tileFrame.x, m_tileFrame.y);
-		m_spriteCB->GetData()->tileSize		= DirectX::SimpleMath::Vector2(m_tileFrame.width, m_tileFrame.height);
+		m_spriteCB->GetData()->tileFrame	= DirectX::SimpleMath::Vector2(m_tileFrame.x, m_tileFrame.y);
+		m_spriteCB->GetData()->tileSize		= DirectX::SimpleMath::Vector2(m_tileFrame.z, m_tileFrame.w);
 		m_spriteCB->GetData()->textureRes	= DirectX::SimpleMath::Vector2((float)m_texture->GetWidth(), (float)m_texture->GetHeight());
 		m_spriteCB->Unlock();
 		m_spriteCB->Bind(1);
@@ -204,8 +204,8 @@ namespace S2DE::GameObjects
 		 
 	inline DirectX::SimpleMath::Vector3 Sprite::CalcScaleFactor()
 	{
-		return m_tileFrame.width == 0 && m_tileFrame.height == 0 ? DirectX::SimpleMath::Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f) :
-			DirectX::SimpleMath::Vector3(m_tileFrame.width * 0.01f, m_tileFrame.height * 0.01f, 1.0f);
+		return m_tileFrame.z == 0.0f && m_tileFrame.w == 0.0f ? DirectX::SimpleMath::Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f) :
+			DirectX::SimpleMath::Vector3(m_tileFrame.z * 0.01f, m_tileFrame.w * 0.01f, 1.0f);
 	}
 
 	void Sprite::SetDefaultTexture()
