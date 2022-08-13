@@ -6,10 +6,9 @@ namespace S2DE::GameObjects
 	Sprite::Sprite() :
 		m_texture(nullptr),
 		m_shader(nullptr),
-		m_index_buffer(new Render::IndexBuffer<std::int32_t>()),
-		m_vertex_buffer(new Render::VertexBuffer<Render::Vertex>()),
-		m_tile_size(DirectX::SimpleMath::Vector2::Zero),
-		m_tile_frame_pos(DirectX::SimpleMath::Rectangle(0, 0, 0, 0)),
+		m_indexBuffer(new Render::IndexBuffer<std::int32_t>()),
+		m_vertexBuffer(new Render::VertexBuffer<Render::Vertex>()),
+		m_tileFrame(DirectX::SimpleMath::Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
 		m_color(Math::Color<float>(1.0f, 1.0f, 1.0f, 1.0f))
 	{
 		CreateVertexBuffer();
@@ -21,13 +20,13 @@ namespace S2DE::GameObjects
 	Sprite::~Sprite()
 	{
 		//TODO: Need to check count of using
-		if (m_unload_texture == true)
+		if (m_unloadTexture == true)
 			Core::Engine::GetResourceManager().Erase<Render::Texture>(m_texture->GetName());
 
-		Core::Delete(m_vertex_buffer);
-		Core::Delete(m_index_buffer);
+		Core::Delete(m_vertexBuffer);
+		Core::Delete(m_indexBuffer);
 		Core::Delete(m_shader);
-		Core::Delete(m_sprite_const_buf);
+		Core::Delete(m_spriteCB);
 		Core::Delete(m_texture);
 	}
 
@@ -38,14 +37,16 @@ namespace S2DE::GameObjects
 		CreateVertexBuffer();
 	}
 
-	void Sprite::SetAtlasFramePosition(std::int32_t x, std::int32_t y)
+	void Sprite::SetAtlasFramePosition(DirectX::SimpleMath::Vector2 position)
 	{
-		m_tile_frame_pos = DirectX::SimpleMath::Rectangle(x, y, 0, 0);
+		m_tileFrame.x = position.x;
+		m_tileFrame.y = position.y;
 	}
 
 	void Sprite::SetAtlasSize(DirectX::SimpleMath::Vector2 size)
 	{
-		m_tile_size = size;
+		m_tileFrame.z = size.x;
+		m_tileFrame.w = size.y;
 	}
 
 	bool Sprite::LoadTexture(std::string name)
@@ -56,7 +57,7 @@ namespace S2DE::GameObjects
 	bool Sprite::LoadTextureA(std::string name, bool unload_texture, bool auto_load_texture)
 	{
 		//Set unload state
-		m_unload_texture = unload_texture;
+		m_unloadTexture = unload_texture;
 
 		//If texture not found in resource manager storage we try to load it 
 		if (!Core::Engine::GetResourceManager().IsExists<Render::Texture>(name)
@@ -76,33 +77,33 @@ namespace S2DE::GameObjects
 		//Bind and update variables in const buffer
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
-		m_sprite_const_buf->Lock();
-		m_sprite_const_buf->GetData()->sprite_tile_frame	= DirectX::XMINT2(m_tile_frame_pos.x, m_tile_frame_pos.y);
-		m_sprite_const_buf->GetData()->sprite_tile_size		= DirectX::SimpleMath::Vector2(m_tile_size.x, m_tile_size.y);
-		m_sprite_const_buf->GetData()->sprite_texture_res	= DirectX::SimpleMath::Vector2((float)m_texture->GetWidth(), (float)m_texture->GetHeight());
-		m_sprite_const_buf->Unlock();
-		m_sprite_const_buf->Bind(1);
+		m_spriteCB->Lock();
+		m_spriteCB->GetData()->tileFrame	= DirectX::SimpleMath::Vector2(m_tileFrame.x, m_tileFrame.y);
+		m_spriteCB->GetData()->tileSize		= DirectX::SimpleMath::Vector2(m_tileFrame.z, m_tileFrame.w);
+		m_spriteCB->GetData()->textureRes	= DirectX::SimpleMath::Vector2((float)m_texture->GetWidth(), (float)m_texture->GetHeight());
+		m_spriteCB->Unlock();
+		m_spriteCB->Bind(1);
 
 		//Bind shader and texture 
 		m_shader->Bind();
 		m_texture->Bind();
 
 		//Bind buffers
-		m_vertex_buffer->Bind();
-		m_index_buffer->Bind();
+		m_vertexBuffer->Bind();
+		m_indexBuffer->Bind();
 
 		//Draw poly 
 		Core::Engine::GetRenderer()->SetRasterizerState("fcc");
-		Core::Engine::GetRenderer()->DrawIndexed(m_index_buffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Core::Engine::GetRenderer()->SetRasterizerState();
-		Core::Engine::GetRenderer()->DrawIndexed(m_index_buffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		
 		//Unbind 
 		m_shader->Unbind();
 		m_texture->Unbind();
-		m_vertex_buffer->Unbind();
-		m_index_buffer->Unbind();
-		m_sprite_const_buf->Unbind();
+		m_vertexBuffer->Unbind();
+		m_indexBuffer->Unbind();
+		m_spriteCB->Unbind();
 	}
 
 	inline DirectX::SimpleMath::Matrix Sprite::UpdateTransformation()
@@ -124,7 +125,7 @@ namespace S2DE::GameObjects
 
 	void Sprite::CreateVertexBuffer()
 	{	 
-		m_vertex_buffer->GetArray() =
+		m_vertexBuffer->GetArray() =
 		{
 			{ DirectX::SimpleMath::Vector3(-1.0f,   -1.0f,   0.0f),  DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, m_color.a),  DirectX::SimpleMath::Vector2(0.0f, 1.0f) }, // Bottom left.
 			{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,   0.0f),   DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, m_color.a),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) }, // Top left.
@@ -132,20 +133,20 @@ namespace S2DE::GameObjects
 			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, m_color.a),  DirectX::SimpleMath::Vector2(1.0f, 1.0f) }, // Bottom right.
 		};
 
-		S2DE_ASSERT(m_vertex_buffer->Create());
-		m_vertex_buffer->Update();
+		S2DE_ASSERT(m_vertexBuffer->Create());
+		m_vertexBuffer->Update();
 	}	 
 		 
 	void Sprite::CreateIndexBuffer()
 	{	 
-		m_index_buffer->GetArray() =
+		m_indexBuffer->GetArray() =
 		{
 				0, 1, 2,
 				0, 2, 3,
 		};
 
-		S2DE_ASSERT(m_index_buffer->Create());
-		m_index_buffer->Update();
+		S2DE_ASSERT(m_indexBuffer->Create());
+		m_indexBuffer->Update();
 	}	 
 		 
 	void Sprite::UpdateTexture()
@@ -190,21 +191,21 @@ namespace S2DE::GameObjects
 		S2DE_ASSERT(m_shader != nullptr);
 		
 		//Create constant buffer with sprite const buffer type
-		m_sprite_const_buf = new Render::ConstantBuffer<SpriteConstBuffer>();
-		S2DE_ASSERT(m_sprite_const_buf->Create());
+		m_spriteCB = new Render::ConstantBuffer<Render::CB::CB_Sprite>();
+		S2DE_ASSERT(m_spriteCB->Create());
 	}
 
 	void Sprite::SetDefaultShader()
 	{	 
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Sprite"));
-		m_sprite_const_buf = new Render::ConstantBuffer<SpriteConstBuffer>();
-		S2DE_ASSERT(m_sprite_const_buf->Create());
+		m_spriteCB = new Render::ConstantBuffer<Render::CB::CB_Sprite>();
+		S2DE_ASSERT(m_spriteCB->Create());
 	}	 
 		 
 	inline DirectX::SimpleMath::Vector3 Sprite::CalcScaleFactor()
 	{
-		return m_tile_size == DirectX::SimpleMath::Vector2::Zero ? DirectX::SimpleMath::Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f) :
-			DirectX::SimpleMath::Vector3(m_tile_size.x * 0.01f, m_tile_size.y * 0.01f, 1.0f);
+		return m_tileFrame.z == 0.0f && m_tileFrame.w == 0.0f ? DirectX::SimpleMath::Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f) :
+			DirectX::SimpleMath::Vector3(m_tileFrame.z * 0.01f, m_tileFrame.w * 0.01f, 1.0f);
 	}
 
 	void Sprite::SetDefaultTexture()

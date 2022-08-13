@@ -1,5 +1,5 @@
 //Global buffer 
-cbuffer MainConstBuffer  : register(b0)
+cbuffer CB_Main  : register(b0)
 {
     float Delta;
 	float Time;
@@ -10,12 +10,11 @@ cbuffer MainConstBuffer  : register(b0)
 }
 
 //Sprite buffer 
-cbuffer SpriteConstBuffer  : register(b1)
+cbuffer CB_Sprite  : register(b1)
 {
-    int   sprite_tile_frame_x;
-    int   sprite_tile_frame_y;
-    float2 sprite_tile_size;
-    float2 sprite_texture_res;
+    float2  tileFrame;
+    float2  tileSize;
+    float2  textureRes;
 }
 
 struct VSINPUT
@@ -35,12 +34,10 @@ struct PSINPUT
 
 float2 GetAtlasUV(float2 uv)
 {
-    float2 size = float2(1.0f  / (length(sprite_texture_res) / sprite_tile_size.x), 
-    1.0f / (length(sprite_texture_res) / sprite_tile_size.y));
-
-    float2 offset = float2(size.x * sprite_tile_frame_x, size.y * sprite_tile_frame_y);   
-    float2 tileuv = uv  * size + offset;
-    return tileuv;
+    float2 size = float2(1.0f  / (length(textureRes) / tileSize.x), 1.0f / (length(textureRes) / tileSize.y));
+    float2 offset = float2(size.x * tileFrame.x, size.y * tileFrame.y);   
+    float2 tileUV = uv  * size + offset;
+    return tileUV;
 }
 
 PSINPUT main(VSINPUT input)
@@ -52,7 +49,7 @@ PSINPUT main(VSINPUT input)
     output.position = mul(input.position, worldViewProj );
     output.worldPos = mul(input.position, worldMatrix).xyz;
     output.color = input.color;    
-    output.uv = (sprite_tile_size.x == 0 && sprite_tile_size.y == 0) ? input.uv : GetAtlasUV(input.uv);
+    output.uv = (tileSize.x == 0 && tileSize.y == 0) ? input.uv : GetAtlasUV(input.uv);
     
     return output;
 }

@@ -1,5 +1,5 @@
 #include "Base/Main/Common.h"
-#include "GameObjects/GameObject.h"
+#include "GameObjects/Base/GameObject.h"
 
 //If we need to get main camera in scene 
 #define S2DE_MAIN_CAMERA_NAME "_MainCamera"
@@ -43,10 +43,9 @@ namespace S2DE::GameObjects
 	protected:
 		virtual void							OnRender() override;
 		virtual void							OnUpdate(float DeltaTime) override;
-		virtual void							OnUpdateInput() override;
 		virtual void							OnRenderImGUI() override;
 		virtual void							OnCreate() override;
-
+		virtual void							UpdateCameraControls();
 	private:
 		DirectX::SimpleMath::Matrix				m_viewMatrix;
 		DirectX::SimpleMath::Matrix				m_projectionMatrix;

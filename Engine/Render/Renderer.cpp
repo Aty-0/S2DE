@@ -22,7 +22,7 @@
 #include <dxgidebug.h>
 
 #define S2DE_IMGUI_NEW_FRAME()  ImGui_ImplDX11_NewFrame(); \
-								ImGui_ImplWin32_NewFrame(); \
+								ImGui_ImplSDL2_NewFrame(); \
 								ImGui::NewFrame(); \
 
 using namespace S2DE::Core;
@@ -133,14 +133,31 @@ namespace S2DE::Render
 
 	bool Renderer::Reset()
 	{
+		m_context->OMSetRenderTargets(0, nullptr, nullptr);
 		Release(m_targetView);
-		Release(m_backBuffer);
-		Release(m_depthStencilBuffer);
-		Release(m_depthStencilView);
-		m_context->Flush();
-		S2DE_CHECK(m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Can't resize buffers");
 
-		CreateRenderTarget();
+		Release(m_backBuffer);			
+		Release(m_depthStencilView);			
+		Release(m_depthStateEnabled);
+		Release(m_depthStencilBuffer);
+		Release(m_depthStateDisabled);
+
+		m_context->Flush();
+		
+		HRESULT hr = m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+		
+		if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+		{
+			//TODO: What's we need to do with device in this case ?
+			S2DE_FATAL_ERROR("hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET");
+			return false;
+		}	
+		else if(!Logger::CheckHR(hr, true))
+		{
+			S2DE_FATAL_ERROR("Can't resize buffers");
+			return false;
+		}
+
 		CreateDepthStencil();
 		UpdateViewport();
 
@@ -161,15 +178,15 @@ namespace S2DE::Render
 		io.ConfigFlags = Engine::isEditor() ? ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange 
 			: ImGuiConfigFlags_NoMouseCursorChange;
 
-		//Search custom font
+		// Search custom font
 		std::string path = std::string();
 		if (Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
 			io.Fonts->AddFontFromFileTTF(path.c_str(), 16);
 		
 		LoadCustomImguiTheme();
 
-		//Setup Platform/Renderer backends
-		ImGui_ImplWin32_Init(Engine::GetGameWindow()->GetHWND());
+		// Setup Platform/Renderer backends
+		ImGui_ImplSDL2_InitForD3D(Core::Engine::GetGameWindow()->GetSDLWindow());
 		ImGui_ImplDX11_Init(m_device, m_context);
 
 		return true;
@@ -190,7 +207,7 @@ namespace S2DE::Render
 			typedef HRESULT(__stdcall* fPtr)(const IID&, void**);
 			fPtr DXGIGetDebugInterface = (fPtr)GetProcAddress(hDll, "DXGIGetDebugInterface");
 
-			IDXGIDebug* debugDev;
+			IDXGIDebug* debugDev = nullptr;
 			DXGIGetDebugInterface(__uuidof(IDXGIDebug), (void**)&debugDev);
 			debugDev->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
 
@@ -217,7 +234,7 @@ namespace S2DE::Render
 	{
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&m_backBuffer);
 		S2DE_CHECK(m_device->CreateRenderTargetView(m_backBuffer, NULL, &m_targetView), "Render Error: Cannot create render target view");
-		CreateFramebufferTexture(m_backBuffer);
+		//CreateFramebufferTexture(m_backBuffer);
 		return true;
 	}
 
@@ -228,10 +245,7 @@ namespace S2DE::Render
 			D3D_FEATURE_LEVEL_11_1,
 			D3D_FEATURE_LEVEL_11_0,
 			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0,
-			D3D_FEATURE_LEVEL_9_3,
-			D3D_FEATURE_LEVEL_9_2,
-			D3D_FEATURE_LEVEL_9_1
+			D3D_FEATURE_LEVEL_10_0
 		};
 
 		D3D_DRIVER_TYPE driverTypes[] =
@@ -251,8 +265,8 @@ namespace S2DE::Render
 		HRESULT device_hr = S_OK;
 
 		DXGI_SWAP_CHAIN_DESC sd = { };
-		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidthFixed();
-		sd.BufferDesc.Height = Core::Engine::GetGameWindow()->GetHeightFixed();
+		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidth();
+		sd.BufferDesc.Height = Core::Engine::GetGameWindow()->GetHeight();
 		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -364,16 +378,13 @@ namespace S2DE::Render
 		if (!CreateRenderTarget())
 			return false;
 
-		std::uint32_t w = Core::Engine::GetGameWindow()->GetWidthFixed();
-		std::uint32_t h = Core::Engine::GetGameWindow()->GetHeightFixed();
-
-		//Set up the description of the depth buffer.
+		// Set up the description of the depth buffer.
 		D3D11_TEXTURE2D_DESC depthBufferDesc = { };
-		depthBufferDesc.Width = w;
-		depthBufferDesc.Height = h;
+		depthBufferDesc.Width = Core::Engine::GetGameWindow()->GetWidth();
+		depthBufferDesc.Height = Core::Engine::GetGameWindow()->GetHeight();
 		depthBufferDesc.MipLevels = 1;
 		depthBufferDesc.ArraySize = 1;
-		depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;//DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		depthBufferDesc.SampleDesc.Count = 1;
 		depthBufferDesc.SampleDesc.Quality = 0;
 		depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -383,43 +394,44 @@ namespace S2DE::Render
 
 		S2DE_CHECK(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer), "Render Error: Cannot create depth buffer");
 
-		//Set up the description of the stencil state.
+		// Set up the description of the stencil state.
 		D3D11_DEPTH_STENCIL_DESC depthStencilDesc = { };
+
 		depthStencilDesc.DepthEnable = true;
 		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
-		//FIX ME: Stencil temporarily is disabled
-		//depthStencilDesc.StencilEnable = false;
-		//depthStencilDesc.StencilReadMask = 0xFF;
-		//depthStencilDesc.StencilWriteMask = 0xFF;
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
 
-		//Stencil operations if pixel is front-facing.
-		//depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		//depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-		//depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		//depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		// Stencil operations if pixel is front-facing.
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-		//Stencil operations if pixel is back-facing.
-		//depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		//depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-		//depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		//depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		// Stencil operations if pixel is back-facing.
+		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 		
 		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateEnabled), "Render Error: Cannot create enabled depth stencil state");
 
 		depthStencilDesc.DepthEnable = false;
 		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateDisabled), "Render Error: Cannot create disabled depth stencil state");
 
-		//Set up the depth stencil view description.
+		// Set up the depth stencil view description.
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = { };
 		depthStencilViewDesc.Format = depthBufferDesc.Format;
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-		//Create the depth stencil view.
+		// Create the depth stencil view.
 		S2DE_CHECK(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView), "Render Error: Cannot create depth stencil view");
 
+		// Set render target
 		m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
 		return true;	
 	}
@@ -427,8 +439,8 @@ namespace S2DE::Render
 	void Renderer::UpdateViewport()
 	{
 		//TODO: I need get it from swap chain or from window ?
-		m_viewport.Width	= (float)Core::Engine::GetGameWindow()->GetWidthFixed();
-		m_viewport.Height	= (float)Core::Engine::GetGameWindow()->GetHeightFixed();
+		m_viewport.Width	= (float)Core::Engine::GetGameWindow()->GetWidth();
+		m_viewport.Height	= (float)Core::Engine::GetGameWindow()->GetHeight();
 		m_viewport.MinDepth = 0.0f;
 		m_viewport.MaxDepth = 1.0f;
 		m_viewport.TopLeftX = 0.0f;
@@ -477,6 +489,7 @@ namespace S2DE::Render
 	void Renderer::Clear()
 	{
 		float color_array[4] = { m_clearColor.r, m_clearColor.g, m_clearColor.b , 1 };
+
 		m_context->OMSetDepthStencilState(m_depthStateEnabled, 0);
 		m_context->ClearRenderTargetView(m_targetView, color_array);
 		m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -490,7 +503,7 @@ namespace S2DE::Render
 	void Renderer::DestroyImGui()
 	{
 		ImGui_ImplDX11_Shutdown();
-		ImGui_ImplWin32_Shutdown();
+		ImGui_ImplSDL2_Shutdown();
 		ImGui::DestroyContext();
 	}
 
@@ -596,36 +609,19 @@ namespace S2DE::Render
 
 			//UpdateFramebufferShaderResource();
 
-
-
 			RenderImGui();
 
 			if (Engine::isEditor())
 			{
-				EditorColorPicker* colorPicker = reinterpret_cast<EditorColorPicker*>(GetImGui_Window("EditorBgColorPicker"));
+				EditorColorPicker* colorPicker = GetImGui_Window<EditorColorPicker*>("EditorBgColorPicker");
 
 				if (colorPicker != nullptr)
 					colorPicker->SetColor(m_clearColor);
-
-				//if (m_FramebufferShaderResourceView != nullptr && GetImGui_Window("EditorRenderWindow") != nullptr)
-				//	reinterpret_cast<EditorRenderWindow*>(GetImGui_Window("EditorRenderWindow"))->PushRenderTexture((void*)m_framebuffer_shaderResourceView);
 			}
 		}
 
 		End();
-	}
 
-	ImGui_Window* Renderer::GetImGui_Window(std::string name) const
-	{
-		std::vector<std::pair<std::string, ImGui_Window*>>::const_iterator it = std::find_if(m_windowsStorage.begin(),
-			m_windowsStorage.end(), [&name](std::pair<std::string, ImGui_Window*> const& elem) { 
-				return elem.first == name;
-			});
-
-		if(it != m_windowsStorage.end())
-			return it->second;
-
-		return nullptr;
 	}
 
 	ImGui_Window* Renderer::AddImGuiWindow(std::string name, ImGui_Window* wnd, bool visible)
@@ -682,16 +678,21 @@ namespace S2DE::Render
 		if (m_frameBufferData == nullptr)
 			return;
 
-		D3D11_TEXTURE2D_DESC textureDesc{};
+		D3D11_TEXTURE2D_DESC textureDesc = { };
 		m_frameBufferData->GetDesc(&textureDesc);
 		
-		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc {};
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = { };
 		shaderResourceViewDesc.Format = textureDesc.Format;
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
 		m_device->CreateShaderResourceView(m_frameBufferData, &shaderResourceViewDesc, &m_frameBufferShaderResourceView);
+	}
+
+	void Renderer::SetVsync(bool vsync)
+	{
+		m_vsync = vsync;
 	}
 
 	bool Renderer::CaptureMessages()
@@ -754,7 +755,6 @@ namespace S2DE::Render
 	void Renderer::DrawIndexed(std::uint64_t indexCount, std::uint32_t startIndexLocation, std::uint32_t baseVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)
 	{
 		m_context->IASetPrimitiveTopology(topology);
-		m_context->DrawIndexed((std::uint32_t)indexCount, startIndexLocation, baseVertexLocation);
 	}
 
 	void Renderer::Draw(std::uint64_t vertexCount, std::uint32_t startVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)

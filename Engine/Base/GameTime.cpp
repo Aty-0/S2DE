@@ -5,10 +5,9 @@
 namespace S2DE::Core
 {
 	GameTime::GameTime() :
-		m_time(std::chrono::high_resolution_clock::now()),
-		m_time_begin(std::chrono::high_resolution_clock::now()),
+		m_tickEnd(std::chrono::high_resolution_clock::now()),
 		m_fps(0),
-		m_frame_count(0),
+		m_frameCount(0),
 		m_deltaTime(0.0f),
 		m_timer(0.0f)
 	{
@@ -22,25 +21,22 @@ namespace S2DE::Core
 
 	void GameTime::Tick()
 	{
-		m_frame_count++;
+		m_frameCount++;
+		m_then = m_start;
+		m_start = std::chrono::high_resolution_clock::now();
+		m_deltaTime = std::chrono::duration_cast<us>(m_start - m_then).count() / 1000000.0f;
 
-		m_time = std::chrono::high_resolution_clock::now();
-		m_deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(m_time - m_time_lastUpdate).count() / 1000000.0f;
+		m_timerDuration = m_start - m_tickEnd;
+		m_timerDuration = std::chrono::duration_cast<us>(m_timerDuration);
 
-
-
-		m_timer_duration = m_time - m_time_begin;
-		m_timer_duration = std::chrono::duration_cast<std::chrono::microseconds>(m_timer_duration);
-		m_timer += m_timer_duration.count() / 10;
-
-		if (m_time - m_time_begin >= std::chrono::seconds{ 1 })
+		m_timer += m_timerDuration.count() / 10;
+		if (m_start - m_tickEnd >= se{ 1 })
 		{
-			m_fps = m_frame_count;
-			m_time_begin = m_time;
-			m_frame_count = 0;
+			m_fps = m_frameCount;
+			m_tickEnd = m_start;
+			m_frameCount = 0;
 		}
 
-		m_time_lastUpdate = m_time;
 	}
 
 	float GameTime::GetTime() const

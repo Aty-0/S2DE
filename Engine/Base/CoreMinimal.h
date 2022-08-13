@@ -11,7 +11,7 @@
 #include "Render/Shader.h"
 
 //////////////////////////////////////////
-#include "GameObjects/GameObject.h"
+#include "GameObjects/Base/GameObject.h"
 #include "GameObjects/Sprite.h"
 #include "GameObjects/Camera.h"
 

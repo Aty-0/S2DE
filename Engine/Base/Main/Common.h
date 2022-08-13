@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#define NOMINMAX
 #include <windows.h>
 
 //Disable warning "needs to have dll-interface to be used by clients of class"
@@ -16,6 +17,9 @@
 #include "Base/Main/S2DE_API.h"
 #include "Base/Utils/StringUtils.h"
 
+//SDL
+#include "SDL.h"
+#include "SDL_syswm.h"
 
 //DX11
 #include <dxgi.h>

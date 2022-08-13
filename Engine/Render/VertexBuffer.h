@@ -26,7 +26,7 @@ namespace S2DE::Render
 			if (m_array.size() == 0)
 				return false;
 
-			D3D11_BUFFER_DESC bufferDesc{};
+			D3D11_BUFFER_DESC bufferDesc = { };
 
 			bufferDesc.ByteWidth = static_cast<std::uint32_t>(sizeof(Vertex) * m_array.size());
 			bufferDesc.Usage = buffer_usage;
@@ -35,13 +35,13 @@ namespace S2DE::Render
 			bufferDesc.MiscFlags = 0;
 			bufferDesc.StructureByteStride = 0;
 
-			D3D11_SUBRESOURCE_DATA sub_data{};
+			D3D11_SUBRESOURCE_DATA subData = { };
 
-			sub_data.pSysMem = m_array.data();
-			sub_data.SysMemPitch = 0;
-			sub_data.SysMemSlicePitch = 0;
+			subData.pSysMem = m_array.data();
+			subData.SysMemPitch = 0;
+			subData.SysMemSlicePitch = 0;
 
-			S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &sub_data, &m_buffer), "Can't create buffer!");
+			S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subData, &m_buffer), "Can't create buffer!");
 
 			return true;
 		}
@@ -50,7 +50,7 @@ namespace S2DE::Render
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 			{
-				D3D11_MAPPED_SUBRESOURCE mappedResource{ };
+				D3D11_MAPPED_SUBRESOURCE mappedResource = { };
 				S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in vertex buffer");
 				memcpy((Vertex*)mappedResource.pData, (void*)m_array.data(), (sizeof(Vertex) * m_array.size()));
 			}

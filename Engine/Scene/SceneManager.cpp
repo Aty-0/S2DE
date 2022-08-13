@@ -1,14 +1,14 @@
 #include "SceneManager.h"
-#include "GameObjects/Camera.h"
-#include "GameObjects/Drawable.h"
 
 #include "Render/Renderer.h"
 
 #include "GameObjects/Skybox.h"
+#include "GameObjects/Camera.h"
 #include "GameObjects/UI/UI_Drawable.h"
+#include "GameObjects/Base/Drawable.h"
 
-#include "Editor/EditorGrid.h"
-#include "Editor/EditorCenterCursor.h"
+#include "GameObjects/Editor/EditorGrid.h"
+#include "GameObjects/Editor/EditorCenterCursor.h"
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -33,11 +33,11 @@ namespace S2DE::Scene
 		m_scene = new Scene();
 		CreateGameObject<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
 		CreateGameObject<GameObjects::Skybox>("Skybox", "");
-
+		
 		if (Core::Engine::isEditor())
 		{
-			CreateGameObject<Editor::EditorGrid>("_EditorGrid", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, DirectX::SimpleMath::Vector3(GRID_CELLS / 2, -1, GRID_CELLS / 2));
-			CreateGameObject<Editor::EditorCenterCursor>("_UIEditorCenterCursor", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+			CreateGameObject<GameObjects::Editor::EditorGrid>("_EditorGrid", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, DirectX::SimpleMath::Vector3(GRID_CELLS / 2, -1, GRID_CELLS / 2));
+			CreateGameObject<GameObjects::Editor::EditorCenterCursor>("_EditorCenterCursor", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
 		}
 	}	 
 		 
@@ -65,13 +65,6 @@ namespace S2DE::Scene
 		for (const auto& object : m_scene->GetStorage())
 			if (object.second.get() == dynamic_cast<GameObjects::Drawable*>(object.second.get()))
 				reinterpret_cast<GameObjects::Drawable*>(object.second.get())->UpdateTexture();	
-	}
-
-	void SceneManager::UpdateInput()
-	{
-		if (m_update_enabled && m_scene)
-			for (const auto& object : m_scene->GetStorage())
-				object.second.get()->UpdateInput();
 	}
 		 	 
 	void SceneManager::RenderImGUI()
