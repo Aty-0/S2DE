@@ -28,11 +28,11 @@ namespace S2DE::Core
 		// Two ways how we can get relative mouse state
 		// First:
 		m_mRPMouseState = m_mRCMouseState;		
-		m_mRCMouseState = DirectX::SimpleMath::Vector2(event.motion.x, event.motion.y);		
+		m_mRCMouseState = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.x), static_cast<float>(event.motion.y));
 		m_mRMouseState = m_mRCMouseState - m_mRPMouseState;
 
 		// Second:
-		//m_mRMouseState = DirectX::SimpleMath::Vector2(event.motion.xrel, event.motion.yrel);
+		//m_mRMouseState = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.xrel), static_cast<float>(event.motion.yrel));
 
 		// Get global mouse position
 		std::int32_t x = 0, y = 0;

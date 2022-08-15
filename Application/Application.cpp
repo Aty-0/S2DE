@@ -1,8 +1,5 @@
 #include "Application.h"
 #include <Base\CoreMinimal.h>
-#include <Math\Normalize.h>
-#include <GameObjects\NoTextureTestObject.h>
-#include <GameObjects\TestObject.h>
 #include <GameObjects\StaticMesh.h>
 
 using namespace S2DE;

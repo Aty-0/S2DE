@@ -755,6 +755,7 @@ namespace S2DE::Render
 	void Renderer::DrawIndexed(std::uint64_t indexCount, std::uint32_t startIndexLocation, std::uint32_t baseVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)
 	{
 		m_context->IASetPrimitiveTopology(topology);
+		m_context->DrawIndexed(indexCount, startIndexLocation, baseVertexLocation);
 	}
 
 	void Renderer::Draw(std::uint64_t vertexCount, std::uint32_t startVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)

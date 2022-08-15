@@ -66,7 +66,10 @@ namespace S2DE::Scene
 			CheckNameOnExist(name);
 			g->SetName(name); //It will be renamed if we are found same name
 
-			Logger::Log("[Scene] [%s] Added [%s] Name: %s UUID: %s", m_name.c_str(), Core::Utils::GetClassNameInString(g).c_str(), name.c_str(), g->GetUUIDString().c_str());
+			Logger::Log("[Scene] [%s] Added [%s] Name: %s UUID: %s at Position (%f %f %f)",
+				m_name.c_str(), Core::Utils::GetClassNameInString(g).c_str(),
+				name.c_str(), g->GetUUIDString().c_str(),
+				g->GetPosition().x, g->GetPosition().y, g->GetPosition().z);
 
 			//Add object to storage
 			std::shared_ptr<T> objectShared = std::make_shared<T>(*g);

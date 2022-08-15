@@ -124,7 +124,7 @@ namespace S2DE::GameObjects
 	void Skybox::SetDefaultTexture()
 	{
 		m_texture = new Render::Texture();
-		LoadTexture("sky");
+		S2DE_ASSERT(LoadTexture("sky"));
 	}
 
 	inline DirectX::SimpleMath::Matrix Skybox::UpdateTransformation()

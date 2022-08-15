@@ -72,13 +72,13 @@ namespace S2DE::Render
 	{
 		if (!compileVs && !compilePs)
 			return false; 
-		
+		Logger::Log("Compile: %s | Vs: %s Ps: %s", m_name.c_str(), compileVs == true ? "true" : "false", compilePs == true ? "true" : "false");
+
 		ID3D10Blob* code_buffer = nullptr;
 		ID3D10Blob* err_buffer = nullptr;
 
 		if (compileVs)
 		{
-			Logger::Log("[Shader] [%s] Compile vertex shader...", m_name.c_str());
 			if (FAILED(D3DCompile(m_fileDataVs.c_str(), m_fileDataVs.size(), m_path_vs.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 				"main", "vs_5_0", m_flags, 0, &code_buffer, &err_buffer)))
 			{
@@ -108,7 +108,6 @@ namespace S2DE::Render
 					0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 			};
 
-			Logger::Log("[Shader] [%s] Try to create input layout...", m_name.c_str());
 			if (FAILED(Core::Engine::GetRenderer()->GetDevice()->CreateInputLayout(elements, sizeof(elements) / sizeof(elements[0]), code_buffer->GetBufferPointer(),
 				code_buffer->GetBufferSize(), &m_layout)))
 			{
@@ -121,9 +120,7 @@ namespace S2DE::Render
 		}
 
 		if (compilePs)
-		{
-			Logger::Log("[Shader] [%s] Compile pixel shader...", m_name.c_str());
-			
+		{			
 			if (FAILED(D3DCompile(m_fileDataPs.c_str(), m_fileDataPs.size(), m_path_ps.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 				"main", "ps_5_0", m_flags, 0, &code_buffer, &err_buffer)))
 			{

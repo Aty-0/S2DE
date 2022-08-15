@@ -82,7 +82,8 @@ namespace S2DE::Render
 								FbxVector4 vec = vertices[index];
 						
 								Vertex vertex = Vertex();
-								vertex.position = DirectX::SimpleMath::Vector3(vec.mData[0], vec.mData[1], vec.mData[2]);
+								vertex.position = DirectX::SimpleMath::Vector3(static_cast<float>(vec.mData[0]), 
+									static_cast<float>(vec.mData[1]), static_cast<float>(vec.mData[2]));
 
 								FBX_Importer::GetUV(mesh, index, mesh->GetTextureUVIndex(poly, polyVert), 0, vertex.uv);
 								FBX_Importer::GetNormal(mesh, index, vertexCount, vertex.normal);
