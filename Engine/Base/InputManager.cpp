@@ -5,162 +5,189 @@
 
 namespace S2DE::Core
 {
-	InputManager::InputManager() :
-		m_DirectInput(nullptr),
-		m_InputKeyboard(nullptr),
-		m_InputMouse(nullptr),
-		m_KeyboardState(),
-		m_KeyboardStateLast(),
-		m_MouseCurrState(),
-		m_MouseLastState()
+	InputManager::InputManager() 
 	{
 
 	}
 
 	InputManager::~InputManager()
 	{
-		ReleaseInputDevice(m_InputMouse);
-		ReleaseInputDevice(m_InputKeyboard);
-		Release(m_DirectInput);
+
+	}
+	void InputManager::_MWheelUpdate(SDL_Event event)
+	{
+		m_mWheel = DirectX::SimpleMath::Vector2(static_cast<float>(event.wheel.x), static_cast<float>(event.wheel.y));
+		m_isWheelTurnsForward	=  event.wheel.preciseY >= 1;
+		m_isWheelTurnsBackward	=  event.wheel.preciseY <= -1;
 	}
 
-	bool InputManager::IsMouseWheelUseForward() const
+	void InputManager::_MMotionUpdate(SDL_Event event)
 	{
-		return m_MouseLastState.lZ > 0;
+		// FIX ME: When vsync is on we are get ragged movements
+		 
+		// Two ways how we can get relative mouse state
+		// First:
+		m_mRPMouseState = m_mRCMouseState;		
+		m_mRCMouseState = DirectX::SimpleMath::Vector2(event.motion.x, event.motion.y);		
+		m_mRMouseState = m_mRCMouseState - m_mRPMouseState;
+
+		// Second:
+		//m_mRMouseState = DirectX::SimpleMath::Vector2(event.motion.xrel, event.motion.yrel);
+
+		// Get global mouse position
+		std::int32_t x = 0, y = 0;
+		SDL_GetGlobalMouseState(&x, &y);
+		m_mGlobalPosition = DirectX::SimpleMath::Vector2(static_cast<float>(x), static_cast<float>(y));
+
+		// Get mouse position relative to window
+		m_mPosition = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.x), static_cast<float>(event.motion.y));
 	}
 
-	bool InputManager::IsMouseWheelUseBackward() const
+	void InputManager::Update()
 	{
-		return m_MouseLastState.lZ < 0;
+		// Disable all keys
+
+		m_isWheelTurnsForward = false;
+		m_isWheelTurnsBackward = false;
+
+		for (auto& up : m_keyboardKeyUp)
+			up = false;
+
+		for (auto& down : m_keyboardKeyDown)
+			down = false;
+
+		for (auto& up : m_mouseKeyUp)
+			up = false;
+
+		for (auto& down : m_mouseKeyDown)
+			down = false;
+	}
+
+	void InputManager::_KKeyDownArrayStateUpdate(SDL_Event event)
+	{
+		m_keyboard = SDL_GetKeyboardState(nullptr);
+		m_keyboardKeyDown[event.key.keysym.scancode] = true;
+	}
+
+	void InputManager::_KKeyUpArrayStateUpdate(SDL_Event event)
+	{
+		m_keyboard = SDL_GetKeyboardState(nullptr);
+		m_keyboardKeyUp[event.key.keysym.scancode] = true;
+	}
+
+	void InputManager::_MKeyUpArrayStateUpdate(SDL_Event event)
+	{
+		m_mouse = SDL_GetMouseState(&event.motion.x, &event.motion.y);
+		m_mouseKeyUp[event.button.button] = true;
+	}
+
+	void InputManager::_MKeyDownArrayStateUpdate(SDL_Event event)
+	{
+		m_mouse = SDL_GetMouseState(&event.motion.x, &event.motion.y);
+		m_mouseKeyDown[event.button.button] = true;
+	}
+
+	DirectX::SimpleMath::Vector2 InputManager::GetMousePositionRelative() const
+	{	
+		SDL_CaptureMouse(SDL_TRUE);
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+		SDL_WarpMouseInWindow(Engine::GetGameWindow()->GetSDLWindow(), Engine::GetGameWindow()->GetWidth() / 2, Engine::GetGameWindow()->GetHeight() / 2);
+		return m_mRMouseState;
+	}
+
+	DirectX::SimpleMath::Vector2 InputManager::GetMousePositionGlobal() const
+	{
+		return m_mGlobalPosition;
+	}
+
+	DirectX::SimpleMath::Vector2 InputManager::GetMousePosition() const
+	{
+		return m_mPosition;
+	}
+
+	DirectX::SimpleMath::Vector2 InputManager::GetMouseWheelPosition() const
+	{
+		return m_mWheel;
+	}
+
+	bool InputManager::IsMouseWheelTurnsForward() const
+	{
+		return m_isWheelTurnsForward && !m_lock_wheel;
+	}
+
+	bool InputManager::IsMouseWheelTurnsBackward() const
+	{
+		return m_isWheelTurnsBackward && !m_lock_wheel;
+	}
+
+	bool InputManager::IsMouseKeyPressed(Other::MouseKeyCode keycode) const
+	{
+		if (m_mouseKeyDown == nullptr || m_lock_mouse)
+			return false;
+
+		std::uint8_t i = static_cast<std::int8_t>(keycode);
+		return m_mouseKeyDown[i];
+	}
+
+	bool InputManager::IsMouseKeyUp(Other::MouseKeyCode keycode)      const
+	{
+		if (m_mouseKeyUp == nullptr || m_lock_mouse)
+			return false;
+
+		std::uint8_t i = static_cast<std::uint8_t>(keycode);
+		return m_mouseKeyUp[i];
+	}
+
+	bool InputManager::IsMouseKeyDown(Other::MouseKeyCode keycode)    const
+	{
+		if (m_lock_mouse)
+			return false;
+
+		std::uint8_t i = static_cast<std::uint8_t>(keycode);
+		if (m_mouse & SDL_BUTTON(i))
+			return true;
+
+		return false;
 	}
 
 	bool InputManager::IsKeyPressed(Other::KeyCode keycode) const
-	{
-		return ((m_KeyboardState[(std::uint32_t)keycode] & 0x80) && (~m_KeyboardStateLast[(std::uint32_t)keycode] & 0x80)) ? true : false;
+	{		
+		if (m_keyboardKeyDown == nullptr || m_lock_keyboard)
+			return false;
+
+		std::uint16_t i = static_cast<std::int16_t>(keycode);
+		return m_keyboardKeyDown[i];
 	}
 
 	bool InputManager::IsKeyUp(Other::KeyCode keycode) const
-	{
-		return (m_KeyboardState[(std::uint32_t)keycode] & 0x80) ? false	: true;
+	{		
+		if (m_keyboardKeyUp == nullptr || m_lock_keyboard)
+			return false;
+
+		std::uint16_t i = static_cast<std::uint16_t>(keycode);
+		return m_keyboardKeyUp[i];
 	}
 
 	bool InputManager::IsKeyDown(Other::KeyCode keycode) const
 	{
-		return (m_KeyboardState[(std::uint32_t)keycode] & 0x80) ? true : false;
+		if (m_keyboard == nullptr || m_lock_keyboard)
+			return false;
+
+		std::uint16_t i = static_cast<std::uint16_t>(keycode);
+		if (m_keyboard[i])
+			return true;
+	
+		return false;
 	}
 
-	bool InputManager::Update()
+	bool InputManager::IsMouseLocked() const
+	{	 
+		return m_lock_mouse;
+	}	 
+		 
+	bool InputManager::IsKeyboardLocked() const
 	{
-		if (Engine::GetGameWindow()->isActive())
-		{
-			//Read the current state of the keyboard.
-			if (m_lock_keyboard == false)
-			{
-				if (!ReadKeyboard())
-					return false;
-			}
-
-			//Read the current state of the mouse.
-			if (m_lock_mouse == false)
-			{
-				if (!ReadMouse())
-					return false;
-			}
-
-			m_MouseLastState = m_MouseCurrState;
-		}
-
-		return true;
-	}
-
-
-	bool InputManager::ReadKeyboard()
-	{
-		if (m_InputKeyboard == nullptr)
-			return false;
-
-		for (std::int32_t i = 0; i < 256; i++)
-			m_KeyboardStateLast[i] = m_KeyboardState[i];
-
-		//Read the keyboard device.
-		HRESULT result = m_InputKeyboard->GetDeviceState(sizeof(m_KeyboardState), (LPVOID)&m_KeyboardState);
-		if (FAILED(result))
-		{
-			//If the keyboard lost focus or was not acquired then try to get control back.
-			if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
-				m_InputKeyboard->Acquire();
-			else
-				return false;
-
-		}
-
-		return true;
-	}
-
-	bool InputManager::ReadMouse()
-	{
-		if (m_InputMouse == nullptr)
-			return false;
-
-		//Read the mouse device.
-		HRESULT result = m_InputMouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&m_MouseCurrState);
-
-		if (FAILED(result))
-		{
-			//If the mouse lost focus or was not acquired then try to get control back.
-			if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
-				m_InputMouse->Acquire();
-			else
-				return false;
-
-		}
-
-		return true;
-	}
-
-	bool InputManager::Initialize()
-	{
-		Logger::Log("[InputManager] Initialize...");
-
-		//Create DirectInput8 Interface
-		if (FAILED(DirectInput8Create(Engine::GetGameWindow()->GetInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_DirectInput, NULL)))
-		{
-			Logger::Error("Failed to create DirectInput8");
-			return false;
-		}
-
-		//Create a keyboard device
-		if (FAILED(m_DirectInput->CreateDevice(GUID_SysKeyboard, &m_InputKeyboard, NULL)))
-		{
-			Logger::Error("Failed to create keyboard device");
-			return false;
-		}
-
-		m_InputKeyboard->SetDataFormat(&c_dfDIKeyboard);
-		if (FAILED(m_InputKeyboard->SetCooperativeLevel(Engine::GetGameWindow()->isChild() == false ? Engine::GetGameWindow()->GetHWND() : NULL, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE)))
-		{
-			Logger::Error("Failed to set cooperative level for keyboard device");
-			return false;
-		}
-	    m_InputKeyboard->Acquire();
-
-		//Create a mouse device
-		if (FAILED(m_DirectInput->CreateDevice(GUID_SysMouse, &m_InputMouse, NULL)))
-		{
-			Logger::Error("Failed to create mouse device");
-			return false;
-		}
-
-		m_InputMouse->SetDataFormat(&c_dfDIMouse);
-		if (FAILED(m_InputMouse->SetCooperativeLevel(Engine::GetGameWindow()->isChild() == false ? Engine::GetGameWindow()->GetHWND() : NULL, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE)))
-		{
-			Logger::Error("Failed to set cooperative level for mouse device");
-			return false;
-		}
-		m_InputMouse->Acquire();
-
-
-		return true;
+		return m_lock_keyboard;
 	}
 
 	void InputManager::LockMouseControl(bool lock)
@@ -171,5 +198,15 @@ namespace S2DE::Core
 	void InputManager::LockKeyboardControl(bool lock)
 	{
 		m_lock_keyboard = lock;
+	}
+
+	void InputManager::LockWheel(bool lock)
+	{
+		m_lock_wheel = lock;
+	}
+
+	bool InputManager::IsWheelLocked() const
+	{
+		return m_lock_wheel;
 	}
 }

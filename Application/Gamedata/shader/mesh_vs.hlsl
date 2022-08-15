@@ -1,11 +1,4 @@
-struct Light
-{
-    float3 dir;
-    float4 ambient;
-    float4 diffuse;
-};
-
-cbuffer MainConstBuffer  : register(b0)
+cbuffer CB_Main  : register(b0)
 {
     float Delta;
 	float Time;
@@ -13,7 +6,6 @@ cbuffer MainConstBuffer  : register(b0)
     matrix worldMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
-    Light light;
 }
 
 struct VSINPUT

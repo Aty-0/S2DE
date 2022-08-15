@@ -7,15 +7,17 @@ namespace S2DE::Render
 	//TODO: Load from json or something like that
 	static void SetS2DETheme()
 	{
-		ImGui::GetStyle().FrameRounding = 0.0f;
+		ImGui::GetStyle().FrameRounding = 1.0f;
 		ImGui::GetStyle().GrabRounding = 0.0f;
 		ImGui::GetStyle().TabRounding = 0.0f;
+		ImGui::GetStyle().FrameBorderSize = 1.0f;
 		ImGui::GetStyle().WindowRounding = 0.0f;
 		ImGui::GetStyle().WindowTitleAlign = ImVec2(0.5f, 0.5f);
 
 		ImVec4* colors = ImGui::GetStyle().Colors;
 
-		colors[ImGuiCol_Text] = ImVec4(1.0f, 0.89f, 1.0f, 0.8f);
+		colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+		//colors[ImGuiCol_Text] = ImVec4(1.0f, 0.89f, 1.0f, 0.8f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.36f, 0.42f, 0.47f, 1.00f);
 
 		colors[ImGuiCol_WindowBg] = ImVec4(0.14f, 0.14f, 0.14f, 0.8f);

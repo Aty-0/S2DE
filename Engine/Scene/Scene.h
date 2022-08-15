@@ -1,8 +1,8 @@
 #pragma once
 #include "Base/Main/Common.h"
 #include "Base/Engine.h"
-#include "GameObjects/GameObject.h"
-#include "GameObjects/GameObjectIDGenerator.h"
+#include "GameObjects/Base/GameObject.h"
+#include "GameObjects/Base/GameObjectIDGenerator.h"
 
 namespace S2DE::Scene
 {

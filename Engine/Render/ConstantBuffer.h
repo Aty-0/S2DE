@@ -26,7 +26,7 @@ namespace S2DE::Render
 		{
 			m_data = new T();
 
-			D3D11_BUFFER_DESC bufferDesc{};
+			D3D11_BUFFER_DESC bufferDesc = { };
 			bufferDesc.Usage = buffer_usage;
 			bufferDesc.ByteWidth = sizeof(T);
 			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -35,12 +35,12 @@ namespace S2DE::Render
 			bufferDesc.StructureByteStride = 0;
 
 
-			D3D11_SUBRESOURCE_DATA subresource{};
-			subresource.pSysMem = m_data;
-			subresource.SysMemPitch = 0;
-			subresource.SysMemSlicePitch = 0;
+			D3D11_SUBRESOURCE_DATA subResource = { };
+			subResource.pSysMem = m_data;
+			subResource.SysMemPitch = 0;
+			subResource.SysMemSlicePitch = 0;
 
-			S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subresource, &m_buffer), "Can't create constant buffer");
+			S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subResource, &m_buffer), "Can't create constant buffer");
 
 			return true;
 		}

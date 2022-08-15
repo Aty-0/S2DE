@@ -66,10 +66,10 @@
     <ClInclude Include="Base\ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\GameObject.h">
+    <ClInclude Include="GameObjects\Base\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\Transform.h">
+    <ClInclude Include="GameObjects\Base\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Render\Buffers.h">
@@ -97,9 +97,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libs\imgui\imgui_impl_dx11.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Libs\imgui\imgui_impl_win32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libs\imgui\imgui_internal.h">
@@ -138,10 +135,10 @@
     <ClInclude Include="Math\Rect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\TestObject.h">
+    <ClInclude Include="GameObjects\Test\TestObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\GameObjectIDGenerator.h">
+    <ClInclude Include="GameObjects\Base\GameObjectIDGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObjects\Camera.h">
@@ -174,7 +171,7 @@
     <ClInclude Include="Editor\EditorRenderWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\Drawable.h">
+    <ClInclude Include="GameObjects\Base\Drawable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libs\utfcpp\utf8.h">
@@ -192,7 +189,7 @@
     <ClInclude Include="Render\Buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\NoTextureTestObject.h">
+    <ClInclude Include="GameObjects\Test\NoTextureTestObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObjects\UI\UI_Drawable.h">
@@ -201,13 +198,13 @@
     <ClInclude Include="Editor\EditorColorPicker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\EditorCenterCursor.h">
+    <ClInclude Include="GameObjects\Editor\EditorCenterCursor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Render\ImGuiS2DETheme.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\EditorGrid.h">
+    <ClInclude Include="GameObjects\Editor\EditorGrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObjects\Skybox.h">
@@ -220,6 +217,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObjects\StaticMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Normalize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\imgui\imgui_impl_sdl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\CB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -253,10 +259,10 @@
     <ClCompile Include="Base\ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\GameObject.cpp">
+    <ClCompile Include="GameObjects\Base\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\Transform.cpp">
+    <ClCompile Include="GameObjects\Base\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Render\Renderer.cpp">
@@ -283,19 +289,16 @@
     <ClCompile Include="Libs\imgui\imgui_impl_dx11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Libs\imgui\imgui_impl_win32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Libs\imgui\imgui_tables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Libs\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\TestObject.cpp">
+    <ClCompile Include="GameObjects\Test\TestObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\GameObjectIDGenerator.cpp">
+    <ClCompile Include="GameObjects\Base\GameObjectIDGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameObjects\Camera.cpp">
@@ -328,19 +331,19 @@
     <ClCompile Include="Editor\EditorRenderWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\Drawable.cpp">
+    <ClCompile Include="GameObjects\Base\Drawable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\NoTextureTestObject.cpp">
+    <ClCompile Include="GameObjects\Test\NoTextureTestObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\EditorColorPicker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\EditorCenterCursor.cpp">
+    <ClCompile Include="GameObjects\Editor\EditorCenterCursor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\EditorGrid.cpp">
+    <ClCompile Include="GameObjects\Editor\EditorGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameObjects\Skybox.cpp">
@@ -353,6 +356,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameObjects\StaticMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\imgui\imgui_impl_sdl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

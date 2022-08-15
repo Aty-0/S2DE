@@ -142,6 +142,7 @@ namespace S2DE::Render
 			return false;
 		}
 
+		CreateSamplerState();
 		return true;
 	}
 
@@ -172,6 +173,7 @@ namespace S2DE::Render
 		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for empty texture");
 
 		UpdateTextureDesc();
+		CreateSamplerState();
 		return true;
 	}
 
