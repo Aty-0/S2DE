@@ -1,6 +1,5 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include <vector>
 
 namespace S2DE::IO
 {
