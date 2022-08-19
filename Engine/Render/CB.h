@@ -33,5 +33,6 @@ namespace S2DE::Render::CB
 		DirectX::SimpleMath::Vector2	tileFrame;
 		DirectX::SimpleMath::Vector2	tileSize;
 		DirectX::SimpleMath::Vector2	textureRes;
+		bool							billboard;
 	};
 }

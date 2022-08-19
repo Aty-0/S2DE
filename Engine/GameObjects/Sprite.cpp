@@ -1,4 +1,6 @@
 #include "Sprite.h"
+#include "Scene\SceneManager.h"
+#include "GameObjects\Camera.h"
 
 
 namespace S2DE::GameObjects
@@ -6,6 +8,8 @@ namespace S2DE::GameObjects
 	Sprite::Sprite() :
 		m_texture(nullptr),
 		m_shader(nullptr),
+		m_billboard(false),
+		m_twoSided(false),
 		m_indexBuffer(new Render::IndexBuffer<std::int32_t>()),
 		m_vertexBuffer(new Render::VertexBuffer<Render::Vertex>()),
 		m_tileFrame(DirectX::SimpleMath::Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
@@ -72,6 +76,16 @@ namespace S2DE::GameObjects
 		return true;
 	}
 
+	void Sprite::SetBillboard(bool billboard)
+	{
+		m_billboard = billboard;
+	}
+
+	void Sprite::SetTwoSidedMode(bool mode)
+	{
+		m_twoSided = mode;
+	}
+
 	void Sprite::OnRender()
 	{
 		//Bind and update variables in const buffer
@@ -81,8 +95,9 @@ namespace S2DE::GameObjects
 		m_spriteCB->GetData()->tileFrame	= DirectX::SimpleMath::Vector2(m_tileFrame.x, m_tileFrame.y);
 		m_spriteCB->GetData()->tileSize		= DirectX::SimpleMath::Vector2(m_tileFrame.z, m_tileFrame.w);
 		m_spriteCB->GetData()->textureRes	= DirectX::SimpleMath::Vector2((float)m_texture->GetWidth(), (float)m_texture->GetHeight());
+		m_spriteCB->GetData()->billboard    = m_billboard;
 		m_spriteCB->Unlock();
-		m_spriteCB->Bind(1);
+		m_spriteCB->Bind(2);
 
 		//Bind shader and texture 
 		m_shader->Bind();
@@ -93,8 +108,12 @@ namespace S2DE::GameObjects
 		m_indexBuffer->Bind();
 
 		//Draw poly 
-		Core::Engine::GetRenderer()->SetRasterizerState("fcc");
-		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		if (m_twoSided)
+		{
+			Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+			Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		}
+
 		Core::Engine::GetRenderer()->SetRasterizerState();
 		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		
@@ -107,7 +126,7 @@ namespace S2DE::GameObjects
 	}
 
 	inline DirectX::SimpleMath::Matrix Sprite::UpdateTransformation()
-	{
+	{		
 		m_WorldMatrix = DirectX::XMMatrixTransformation(
 			//Scale
 			//Center | Rotation | Scaling
@@ -188,11 +207,7 @@ namespace S2DE::GameObjects
 		}
 
 		m_shader = new Render::Shader(*new_shader);
-		S2DE_ASSERT(m_shader != nullptr);
-		
-		//Create constant buffer with sprite const buffer type
-		m_spriteCB = new Render::ConstantBuffer<Render::CB::CB_Sprite>();
-		S2DE_ASSERT(m_spriteCB->Create());
+		S2DE_ASSERT(m_shader != nullptr);		
 	}
 
 	void Sprite::SetDefaultShader()
