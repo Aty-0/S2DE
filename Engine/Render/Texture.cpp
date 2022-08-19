@@ -185,8 +185,9 @@ namespace S2DE::Render
 
 	void Texture::Bind(std::uint32_t NumViews)
 	{
-		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, NumViews, &m_resourceView);
-		//Check on sampler exist 
+		if(m_resourceView != nullptr)
+			Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, NumViews, &m_resourceView);
+
 		if(m_textureSamplerState != nullptr)
 			Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(0, 1, &m_textureSamplerState);
 	}
