@@ -84,7 +84,9 @@ namespace S2DE::Render
 		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
-			hr = DirectX::CreateDDSTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Utils::StringToWString(path).c_str(), &m_resource, &m_resourceView);
+			hr = DirectX::CreateDDSTextureFromFileEx(Core::Engine::GetRenderer()->GetDevice(), Core::Utils::StringToWString(path).c_str(), 
+				0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, false, &m_resource, &m_resourceView);
+
 			if (FAILED(hr))
 			{
 				Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
@@ -93,7 +95,10 @@ namespace S2DE::Render
 		}
 		else
 		{
-			hr = DirectX::CreateWICTextureFromFile(Core::Engine::GetRenderer()->GetDevice(), Core::Utils::StringToWString(path).c_str(), &m_resource, &m_resourceView);
+			hr = DirectX::CreateWICTextureFromFileEx(Core::Engine::GetRenderer()->GetDevice(), 
+				Core::Utils::StringToWString(path).c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0,
+				DirectX::WIC_LOADER_FLAGS::WIC_LOADER_IGNORE_SRGB, &m_resource, &m_resourceView);
+
 			if (FAILED(hr))
 			{
 				Logger::Error("Can't create texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
