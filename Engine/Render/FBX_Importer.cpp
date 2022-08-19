@@ -27,7 +27,16 @@ namespace S2DE::Render
 
     void FBX_Importer::GetNormal(FbxMesh* mesh, std::int32_t vertexIndex, std::int32_t vertexCount, DirectX::SimpleMath::Vector3& normal)
     {
+        if (mesh == nullptr)
+            return;
+
         FbxLayerElementNormal* normals = mesh->GetElementNormal();
+
+        if (normals == nullptr)
+        {
+            Logger::Error("Can't get normal element");
+            return;
+        }
 
         switch (normals->GetMappingMode())
         {
@@ -35,18 +44,20 @@ namespace S2DE::Render
             switch (normals->GetReferenceMode())
             {
                 case FbxGeometryElement::eDirect:
+                {
                     normal.x = static_cast<float>(normals->GetDirectArray().GetAt(vertexIndex)[0]);
                     normal.y = static_cast<float>(normals->GetDirectArray().GetAt(vertexIndex)[1]);
                     normal.z = static_cast<float>(normals->GetDirectArray().GetAt(vertexIndex)[2]);
                     break;
+                }
                 case FbxGeometryElement::eIndexToDirect:
                 {
                     std::int32_t id = normals->GetIndexArray().GetAt(vertexIndex);
                     normal.x = static_cast<float>(normals->GetDirectArray().GetAt(id)[0]);
                     normal.y = static_cast<float>(normals->GetDirectArray().GetAt(id)[1]);
                     normal.z = static_cast<float>(normals->GetDirectArray().GetAt(id)[2]);
+                    break;
                 }
-                break;
 
                 default:
                     Core::Utils::Logger::Error("Invalid reference");
@@ -57,18 +68,21 @@ namespace S2DE::Render
             switch (normals->GetReferenceMode())
             {
                 case FbxGeometryElement::eDirect:
+                {
                     normal.x = static_cast<float>(normals->GetDirectArray().GetAt(vertexCount)[0]);
                     normal.y = static_cast<float>(normals->GetDirectArray().GetAt(vertexCount)[1]);
                     normal.z = static_cast<float>(normals->GetDirectArray().GetAt(vertexCount)[2]);
                     break;
+                }
+
                 case FbxGeometryElement::eIndexToDirect:
                 {
                     std::int32_t id = normals->GetIndexArray().GetAt(vertexCount);
                     normal.x = static_cast<float>(normals->GetDirectArray().GetAt(id)[0]);
                     normal.y = static_cast<float>(normals->GetDirectArray().GetAt(id)[1]);
                     normal.z = static_cast<float>(normals->GetDirectArray().GetAt(id)[2]);
+                    break;
                 }
-                break;
 
                 default:
                     Core::Utils::Logger::Error("Invalid reference");
@@ -79,38 +93,47 @@ namespace S2DE::Render
         case FbxGeometryElement::eByPolygon:
         case FbxGeometryElement::eByEdge:
         case FbxGeometryElement::eAllSame:
-            Core::Utils::Logger::Error("Unhandled mapping mode for texture coordinate");
+            Core::Utils::Logger::Error("Unhandled mapping mode for normals");
             break;
         }
     }
 
     void FBX_Importer::GetUV(FbxMesh* mesh, std::int32_t vertexIndex, std::int32_t uvChannel, std::int32_t uvLayer, DirectX::SimpleMath::Vector2& uv)
     {
+        if (mesh == nullptr)
+            return;
+
         if (mesh->GetElementUVCount() == 0)        
             return;
         
         if (uvLayer > 1 || mesh->GetElementUVCount() <= uvLayer)
             return;
 
-        FbxGeometryElementUV* vertexUV = mesh->GetElementUV(uvLayer);
+        FbxGeometryElementUV* geomUVElement = mesh->GetElementUV(uvLayer);
 
-        switch (vertexUV->GetMappingMode())
+        if (geomUVElement == nullptr)
+        {
+            Logger::Error("Can't get geometry element uv!");
+            return;
+        }
+
+        switch (geomUVElement->GetMappingMode())
         {
         case FbxGeometryElement::eByControlPoint:
-            switch (vertexUV->GetReferenceMode())
+            switch (geomUVElement->GetReferenceMode())
             {
                 case FbxGeometryElement::eDirect:
                 {
-                    uv.x = static_cast<float>(vertexUV->GetDirectArray().GetAt(vertexIndex).mData[0]);
-                    uv.y = 1 - static_cast<float>(vertexUV->GetDirectArray().GetAt(vertexIndex).mData[1]);
+                    uv.x = static_cast<float>(geomUVElement->GetDirectArray().GetAt(vertexIndex).mData[0]);
+                    uv.y = 1 - static_cast<float>(geomUVElement->GetDirectArray().GetAt(vertexIndex).mData[1]);
                 }
                 break;
 
                 case FbxGeometryElement::eIndexToDirect:
                 {
-                    std::int32_t index = vertexUV->GetIndexArray().GetAt(vertexIndex);
-                    uv.x = static_cast<float>(vertexUV->GetDirectArray().GetAt(index).mData[0]);
-                    uv.y = 1 - static_cast<float>(vertexUV->GetDirectArray().GetAt(index).mData[1]);
+                    std::int32_t index = geomUVElement->GetIndexArray().GetAt(vertexIndex);
+                    uv.x = static_cast<float>(geomUVElement->GetDirectArray().GetAt(index).mData[0]);
+                    uv.y = 1 - static_cast<float>(geomUVElement->GetDirectArray().GetAt(index).mData[1]);
                 }
                 break;
 
@@ -121,13 +144,13 @@ namespace S2DE::Render
             break;
 
         case FbxGeometryElement::eByPolygonVertex:
-            switch (vertexUV->GetReferenceMode())
+            switch (geomUVElement->GetReferenceMode())
             {
                 case FbxGeometryElement::eDirect:
                 case FbxGeometryElement::eIndexToDirect:
                 {
-                    uv.x = static_cast<float>(vertexUV->GetDirectArray().GetAt(uvChannel).mData[0]);
-                    uv.y = 1 - static_cast<float>(vertexUV->GetDirectArray().GetAt(uvChannel).mData[1]);
+                    uv.x = static_cast<float>(geomUVElement->GetDirectArray().GetAt(uvChannel).mData[0]);
+                    uv.y = 1 - static_cast<float>(geomUVElement->GetDirectArray().GetAt(uvChannel).mData[1]);
                 }
                 break;
 
@@ -185,8 +208,8 @@ namespace S2DE::Render
         if (scene->GetGlobalSettings().GetSystemUnit() != FbxSystemUnit::m)
             FbxSystemUnit::m.ConvertScene(scene);
 
-        FbxGeometryConverter conventer(m_manager);
-        conventer.Triangulate(scene, true, false);
+        FbxGeometryConverter geometryConverter(m_manager);
+        geometryConverter.Triangulate(scene, true, false);
 
         importer->Destroy();
 		return true;
