@@ -49,7 +49,7 @@ namespace S2DE::Render
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 			{
-				D3D11_MAPPED_SUBRESOURCE mappedResource{};
+				D3D11_MAPPED_SUBRESOURCE mappedResource = { };
 				S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in constant buffer");
 				m_data = reinterpret_cast<T*>(mappedResource.pData);
 			}
@@ -60,6 +60,7 @@ namespace S2DE::Render
 		virtual void Unbind()  override
 		{
 			Core::Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(0, 0, nullptr);
+			Core::Engine::GetRenderer()->GetContext()->PSSetConstantBuffers(0, 0, nullptr);
 		}
 
 		virtual void Unlock() override
@@ -74,6 +75,7 @@ namespace S2DE::Render
 				Core::Engine::GetRenderer()->GetContext()->UpdateSubresource(m_buffer, 0, NULL, m_data, 0, 0);
 
 			Core::Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(startSlot, num_buffers, &m_buffer);
+			Core::Engine::GetRenderer()->GetContext()->PSSetConstantBuffers(startSlot, num_buffers, &m_buffer);
 		}
 
 		inline T*& GetData() { return reinterpret_cast<T*&>(m_data); }
