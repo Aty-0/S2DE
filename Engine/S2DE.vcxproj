@@ -23,9 +23,11 @@
     <ClInclude Include="Base\CoreMinimal.h" />
     <ClInclude Include="Base\DebugTools\Debug_Info.h" />
     <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h" />
+    <ClInclude Include="Editor\EditorModelExporterWindow.h" />
     <ClInclude Include="GameObjects\Editor\EditorGrid.h" />
     <ClInclude Include="GameObjects\Editor\EditorCenterCursor.h" />
     <ClInclude Include="Editor\EditorColorPicker.h" />
+    <ClInclude Include="GameObjects\Light\AmbientLight.h" />
     <ClInclude Include="GameObjects\Light\Light.h" />
     <ClInclude Include="Libs\imgui\imgui_impl_sdl.h" />
     <ClInclude Include="Math\Normalize.h" />

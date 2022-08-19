@@ -228,6 +228,12 @@
     <ClInclude Include="Render\CB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GameObjects\Light\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Light\AmbientLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc">
@@ -359,6 +365,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Libs\imgui\imgui_impl_sdl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Light\AmbientLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Light\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
