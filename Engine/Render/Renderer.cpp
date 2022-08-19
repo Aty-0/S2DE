@@ -72,7 +72,7 @@ namespace S2DE::Render
 		if (!CreateDeviceAndSwapChain())
 			return false;
 
-#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+#if defined(S2DE_DEBUG_RENDER_MODE)
 		CreateDebugLayer();
 #endif
 
@@ -257,7 +257,7 @@ namespace S2DE::Render
 		};
 
 		//If defined S2DE_DEBUG_RENDER_MODE macro and if it's debug build, we are add D3D11_CREATE_DEVICE_DEBUG flag to device
-#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+#if defined(S2DE_DEBUG_RENDER_MODE)
 		m_deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
@@ -478,7 +478,7 @@ namespace S2DE::Render
 		Release(m_frameBufferData);
 		Release(m_frameBufferShaderResourceView);
 
-#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+#if defined(S2DE_DEBUG_RENDER_MODE)
 		m_d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
 		Release(m_d3dInfoQueue);
 		Release(m_d3dDebug);
@@ -560,7 +560,7 @@ namespace S2DE::Render
 
 		Engine::GetSceneManager()->RenderImGUI();
 
-		#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+		#if defined(S2DE_DEBUG_RENDER_MODE)
 				if (Engine::isEditor() && m_showImguiDemoWindow)
 					ImGui::ShowDemoWindow(&m_showImguiDemoWindow);
 		#endif
@@ -598,7 +598,7 @@ namespace S2DE::Render
 	{
 		UpdateImGuiWindows();
 
-#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+#if defined(S2DE_DEBUG_RENDER_MODE)
 		CaptureMessages();
 #endif
 

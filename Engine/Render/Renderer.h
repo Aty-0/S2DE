@@ -10,8 +10,10 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+#ifdef _DEBUG
 //This macro enable debug layer, disable shader optimization and enable shader debug mode
 #define S2DE_DEBUG_RENDER_MODE 
+#endif
 
 //Name of default font in resources  
 #define S2DE_DEFAULT_FONT_NAME "default"
