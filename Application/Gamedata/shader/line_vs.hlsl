@@ -6,6 +6,7 @@ cbuffer CB_Main : register(b0)
     matrix worldMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
+    float3 cameraPosition;
 }
 
 struct VSINPUT

@@ -1,4 +1,3 @@
-//Global buffer 
 cbuffer CB_Main  : register(b0)
 {
     float Delta;
@@ -7,14 +6,15 @@ cbuffer CB_Main  : register(b0)
     matrix worldMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
+    float3 cameraPosition;
 }
 
-//Sprite buffer 
-cbuffer CB_Sprite  : register(b1)
+cbuffer CB_Sprite  : register(b2)
 {
     float2  tileFrame;
     float2  tileSize;
     float2  textureRes;
+    bool    billboard;
 }
 
 struct VSINPUT
@@ -43,13 +43,33 @@ float2 GetAtlasUV(float2 uv)
 PSINPUT main(VSINPUT input)
 {
     PSINPUT output;
-    
     input.position.w = 1.0f;
-    matrix worldViewProj = mul( mul( worldMatrix, viewMatrix ), projectionMatrix);
-    output.position = mul(input.position, worldViewProj );
+    
+    matrix modelView = viewMatrix;
+    
+    if (billboard == true)
+    {   
+        // Multiplication of the view matrix and the model matrix 
+        modelView[0][0] = 1.0;
+        modelView[0][1] = 0.0;
+        modelView[0][2] = 0.0;
+        modelView[1][0] = 0.0;
+        modelView[1][1] = 1.0;
+        modelView[1][2] = 0.0;
+        modelView[2][0] = 0.0;
+        modelView[2][1] = 0.0;
+        modelView[2][2] = 1.0;
+    }
+    
+    matrix worldViewProj = mul(mul(worldMatrix, modelView), projectionMatrix);
+    // Multiply worldViewProj matrix and input position
+    output.position = mul(input.position, worldViewProj);
     output.worldPos = mul(input.position, worldMatrix).xyz;
     output.color = input.color;    
+
+    // If atlas size is zero in both cordinates we are get input uv
+    // If we are have the atlas size we get atlas uv
     output.uv = (tileSize.x == 0 && tileSize.y == 0) ? input.uv : GetAtlasUV(input.uv);
-    
+
     return output;
 }
