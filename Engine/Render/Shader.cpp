@@ -254,6 +254,8 @@ namespace S2DE::Render
 				m_const_buffer->GetData()->projection = camera->GetProjectionMatrix();
 				m_const_buffer->GetData()->view = camera->GetViewMatrix();
 			}
+
+			m_const_buffer->GetData()->cameraPosition = camera->GetPosition();
 		}
 
 		m_const_buffer->Unlock();

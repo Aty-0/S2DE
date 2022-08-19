@@ -17,7 +17,7 @@ namespace S2DE::Render::CB
 		ambient_ligth_t ambient_lights[MAX_AMBIENT_LIGHTS];
 	};
 
-	struct S2DE_API CB_Main
+	struct S2DE_API S2DE_ALIGN(16) CB_Main
 	{
 		float						 deltatime;
 		float						 time;
@@ -25,6 +25,7 @@ namespace S2DE::Render::CB
 		DirectX::SimpleMath::Matrix  world;
 		DirectX::SimpleMath::Matrix  view;
 		DirectX::SimpleMath::Matrix  projection;
+		DirectX::SimpleMath::Vector3 cameraPosition;
 	};
 
 	struct S2DE_API S2DE_ALIGN(16) CB_Sprite
