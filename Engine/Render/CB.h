@@ -1,20 +1,18 @@
 #pragma once
 #include "Base/Main/Common.h"
 
-#define MAX_AMBIENT_LIGHTS 4 
-
 namespace S2DE::Render::CB
 {	
 	struct S2DE_API S2DE_ALIGN(16) CB_Light
 	{
 		// TODO: struct for point, spot lights...
-		struct ambient_ligth_t
+		struct ambient_light_t
 		{
 			DirectX::SimpleMath::Vector3 color;
 			float						 strength;
 		};
 
-		ambient_ligth_t ambient_lights[MAX_AMBIENT_LIGHTS];
+		ambient_light_t ambient_light;
 	};
 
 	struct S2DE_API S2DE_ALIGN(16) CB_Main

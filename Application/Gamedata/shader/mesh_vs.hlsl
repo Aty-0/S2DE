@@ -6,6 +6,7 @@ cbuffer CB_Main  : register(b0)
     matrix worldMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
+    float3 cameraPosition;
 }
 
 struct VSINPUT
@@ -36,7 +37,7 @@ PSINPUT main(VSINPUT input)
     output.worldPos = mul(input.position, worldMatrix).xyz;
     output.color = input.color;    
     output.uv = input.uv; 
-    output.normal = mul(input.normal, worldMatrix);
+    output.normal = normalize(mul(input.normal, worldMatrix));
     
     return output;
 }
