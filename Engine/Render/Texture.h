@@ -19,9 +19,8 @@ namespace S2DE::Render
 		bool							 CreateSamplerState();
 		void							 Bind(std::uint32_t NumViews = 1);
 		void							 Unbind();
-
-
-		inline ID3D11ShaderResourceView* GetShaderResourceView() const { return m_resourceView; }
+		
+		inline ID3D11ShaderResourceView* GetResourceView() const { return m_resourceView; }
 		inline ID3D11Texture2D*			 GetTexture2D() const { return m_textureHandle; }
 		inline std::uint32_t			 GetWidth() const { return m_textureDesc.Width; }
 		inline std::uint32_t			 GetHeight() const { return m_textureDesc.Height; }
