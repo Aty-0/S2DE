@@ -187,31 +187,113 @@ namespace S2DE::Render
         m_manager->Destroy();
     }
 
-	bool FBX_Importer::Import(std::string path, FbxScene*& scene)
+	bool FBX_Importer::Import(std::string path, std::vector<Vertex>& meshVertices, std::vector<std::uint32_t>& meshIndices)
 	{
         FbxImporter* importer = FbxImporter::Create(m_manager, "");
 
+        // Initialize Fbx importer
 		if (!importer->Initialize(path.c_str(), -1, m_manager->GetIOSettings()))
 		{
 			Core::Utils::Logger::Error("Can't import this model %s", path.c_str());
 			return false;
 		}
 
-		scene = FbxScene::Create(m_manager, "ImportScene");
-
-        if (!importer->Import(scene))
-            return false;
-        
+        // Check format valid
 		if (!importer->IsFBX())
 			return false;
 
+        // Create import scene 
+        FbxScene* scene = FbxScene::Create(m_manager, "ImportScene");		
+        if (scene == nullptr)
+            return false;
+
+        // Import model 
+        if (!importer->Import(scene))
+            return false;
+        
         if (scene->GetGlobalSettings().GetSystemUnit() != FbxSystemUnit::m)
             FbxSystemUnit::m.ConvertScene(scene);
-
         FbxGeometryConverter geometryConverter(m_manager);
         geometryConverter.Triangulate(scene, true, false);
 
         importer->Destroy();
+
+
+        if (scene == nullptr)
+            return false;
+
+        FbxNode* rootNode = scene->GetRootNode();
+
+        if (rootNode)
+        {
+            for (std::int32_t i = 0; i < rootNode->GetChildCount(); i++)
+            {
+                FbxNode* node = rootNode->GetChild(i);
+                if (node->GetNodeAttribute() == nullptr)
+                    continue;
+
+
+                FbxNodeAttribute::EType attributeType = node->GetNodeAttribute()->GetAttributeType();
+
+                FBX_Importer::PrintNodeInfo(node);
+
+                if (attributeType == FbxNodeAttribute::EType::eMesh)
+                {
+                    FbxMesh* mesh = node->GetMesh();
+                    std::uint32_t vertexCount = 0;
+                    std::uint32_t polyCount = mesh->GetPolygonCount();
+                    FbxVector4* vertices = mesh->GetControlPoints();
+                    if (vertices == nullptr)
+                        continue;
+
+                    for (std::uint32_t poly = 0; poly < polyCount; poly++)
+                    {
+                        std::int32_t polySize = mesh->GetPolygonSize(poly);
+                        S2DE_ASSERT(polySize == 3);
+                        for (std::int32_t polyVert = 0; polyVert < polySize; polyVert++)
+                        {
+                            std::int32_t index = mesh->GetPolygonVertex(poly, polyVert);
+                            meshIndices.push_back(vertexCount);
+
+                            FbxVector4 vec = vertices[index];
+                            Vertex vertex = Vertex();
+                            vertex.position = DirectX::SimpleMath::Vector3(static_cast<float>(vec.mData[0]),
+                                static_cast<float>(vec.mData[1]), static_cast<float>(vec.mData[2]));
+
+                            FBX_Importer::GetUV(mesh, index, mesh->GetTextureUVIndex(poly, polyVert), 0, vertex.uv);
+                            FBX_Importer::GetNormal(mesh, index, vertexCount, vertex.normal);
+
+
+                            FbxSurfaceMaterial* surfaceMaterial = node->GetMaterial(i);
+
+
+                            // TODO: We need to rework this
+                            bool isHasDiffColor = false;
+                            if (surfaceMaterial != nullptr)
+                            {
+                                if (surfaceMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+                                {
+                                    FbxDouble3 diffuse = ((FbxSurfacePhong*)surfaceMaterial)->Diffuse;
+                                    vertex.color = DirectX::SimpleMath::Vector4(diffuse[0], diffuse[1], diffuse[2], 1);
+                                    isHasDiffColor = true;
+                                }
+                            }
+
+                            if (isHasDiffColor == false)
+                            {
+                                vertex.color = DirectX::SimpleMath::Vector4(1, 1, 1, 1);
+                            }
+
+                            meshVertices.push_back(vertex);
+                            vertexCount++;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        scene->Destroy();
 		return true;
 	}
 }
