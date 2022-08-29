@@ -36,17 +36,16 @@ namespace S2DE::Render
 		std::string format = Core::Utils::GetFileExtension(path);
 
 		// TODO: Material
-		if (format == ".fbx")
+		if (format == "fbx")
 		{
 			if (!FBX_Importer::Import(path, m_vertices, m_indices))
 				return false;
 		}
-		else if (format == ".obj")
+		else if (format == "obj")
 		{
 			S2DE_NO_IMPL();
 		}
 
-		
 		return true;
 	}
 
