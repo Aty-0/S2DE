@@ -18,7 +18,7 @@ namespace S2DE::Render
 
 		m_flags |= D3DCOMPILE_ENABLE_STRICTNESS;
 
-#if defined(_DEBUG) && defined(S2DE_DEBUG_RENDER_MODE)
+#if defined(S2DE_DEBUG_RENDER_MODE)
 		m_flags |= D3DCOMPILE_DEBUG;
 		m_flags |= D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
@@ -72,7 +72,7 @@ namespace S2DE::Render
 	{
 		if (!compileVs && !compilePs)
 			return false; 
-		Logger::Log("Compile: %s | Vs: %s Ps: %s", m_name.c_str(), compileVs == true ? "true" : "false", compilePs == true ? "true" : "false");
+		Logger::Log("[Shader] Compile: %s | Vs: %s Ps: %s", m_name.c_str(), compileVs == true ? "true" : "false", compilePs == true ? "true" : "false");
 
 		ID3D10Blob* code_buffer = nullptr;
 		ID3D10Blob* err_buffer = nullptr;
@@ -256,6 +256,7 @@ namespace S2DE::Render
 			}
 
 			m_const_buffer->GetData()->cameraPosition = camera->GetPosition();
+			m_const_buffer->GetData()->cameraRotation = camera->GetRotation();
 		}
 
 		m_const_buffer->Unlock();

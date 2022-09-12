@@ -43,6 +43,7 @@ namespace S2DE::Render::CB
 		DirectX::SimpleMath::Matrix  view;
 		DirectX::SimpleMath::Matrix  projection;
 		DirectX::SimpleMath::Vector3 cameraPosition;
+		DirectX::SimpleMath::Vector3 cameraRotation;
 	};
 
 	struct S2DE_API S2DE_ALIGN(16) CB_Sprite
