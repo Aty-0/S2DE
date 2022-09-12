@@ -8,7 +8,7 @@ namespace S2DE::Render
 	void FBX_Importer::Init()
 	{
 		m_manager = FbxManager::Create();
-        Core::Utils::Logger::Log("FBX SDK Version: %s", m_manager->GetVersion());
+        Core::Utils::Logger::Log("[FBX_Importer] FBX SDK Version: %s", m_manager->GetVersion());
 
 		if (m_manager == nullptr)
 			S2DE_FATAL_ERROR("Can't create fbx manager");
@@ -34,7 +34,7 @@ namespace S2DE::Render
 
         if (normals == nullptr)
         {
-            Logger::Error("Can't get normal element");
+            Logger::Error("[FBX_Importer] Can't get normal element");
             return;
         }
 
@@ -60,7 +60,7 @@ namespace S2DE::Render
                 }
 
                 default:
-                    Core::Utils::Logger::Error("Invalid reference");
+                    Core::Utils::Logger::Error("[FBX_Importer] Invalid reference");
                     break;
             }
             break;
@@ -85,7 +85,7 @@ namespace S2DE::Render
                 }
 
                 default:
-                    Core::Utils::Logger::Error("Invalid reference");
+                    Core::Utils::Logger::Error("[FBX_Importer] Invalid reference");
                     break;
             }
             break;
@@ -93,7 +93,7 @@ namespace S2DE::Render
         case FbxGeometryElement::eByPolygon:
         case FbxGeometryElement::eByEdge:
         case FbxGeometryElement::eAllSame:
-            Core::Utils::Logger::Error("Unhandled mapping mode for normals");
+            Core::Utils::Logger::Error("[FBX_Importer] Unhandled mapping mode for normals");
             break;
         }
     }
@@ -113,7 +113,7 @@ namespace S2DE::Render
 
         if (geomUVElement == nullptr)
         {
-            Logger::Error("Can't get geometry element uv!");
+            Logger::Error("[FBX_Importer] Can't get geometry element uv!");
             return;
         }
 
@@ -138,7 +138,7 @@ namespace S2DE::Render
                 break;
 
                 default:
-                    Core::Utils::Logger::Error("Invalid reference");
+                    Core::Utils::Logger::Error("[FBX_Importer] Invalid reference");
                     break;
             }
             break;
@@ -155,7 +155,7 @@ namespace S2DE::Render
                 break;
 
                 default:
-                    Core::Utils::Logger::Error("Invalid reference");
+                    Core::Utils::Logger::Error("[FBX_Importer] Invalid reference");
                     break;
             }
             break;
@@ -164,7 +164,7 @@ namespace S2DE::Render
         case FbxGeometryElement::eByPolygon:
         case FbxGeometryElement::eByEdge:
         case FbxGeometryElement::eAllSame:
-            Core::Utils::Logger::Error("Unhandled mapping mode for texture coordinate");
+            Core::Utils::Logger::Error("[FBX_Importer] Unhandled mapping mode for texture coordinate");
             break;
         }
     }
@@ -175,7 +175,7 @@ namespace S2DE::Render
         FbxDouble3 translation = node->LclTranslation.Get();
         FbxDouble3 rotation = node->LclRotation.Get();
         FbxDouble3 scaling = node->LclScaling.Get();					
-        Core::Utils::Logger::Log("[Node] Name: %s Translation: (%f, %f, %f) Rotation: (%f, %f, %f) Scale: (%f, %f, %f)",
+        Core::Utils::Logger::Log("[FBX_Importer] [Node] Name: %s Translation: (%f, %f, %f) Rotation: (%f, %f, %f) Scale: (%f, %f, %f)",
         	nodeName,
         	translation[0], translation[1], translation[2],
         	rotation[0], rotation[1], rotation[2],
@@ -191,37 +191,49 @@ namespace S2DE::Render
 	{
         FbxImporter* importer = FbxImporter::Create(m_manager, "");
 
+	    Core::Utils::Logger::Log("[FBX_Importer] Import %s", path.c_str());
+
         // Initialize Fbx importer
 		if (!importer->Initialize(path.c_str(), -1, m_manager->GetIOSettings()))
 		{
-			Core::Utils::Logger::Error("Can't import this model %s", path.c_str());
+			Core::Utils::Logger::Error("[FBX_Importer] Can't import this model %s", path.c_str());
 			return false;
 		}
 
         // Check format valid
-		if (!importer->IsFBX())
-			return false;
+        if (!importer->IsFBX())
+        {
+			Core::Utils::Logger::Error("[FBX_Importer] Format is not valid");
+            return false;
+        }
 
         // Create import scene 
         FbxScene* scene = FbxScene::Create(m_manager, "ImportScene");		
+
         if (scene == nullptr)
+        {
+			Core::Utils::Logger::Error("[FBX_Importer] Scene creation error");
             return false;
+        }
 
         // Import model 
         if (!importer->Import(scene))
+        {
+			Core::Utils::Logger::Error("[FBX_Importer] Can't import scene!");
             return false;
-        
+        }
+
         if (scene->GetGlobalSettings().GetSystemUnit() != FbxSystemUnit::m)
             FbxSystemUnit::m.ConvertScene(scene);
+
+        // Create geometry conventer
         FbxGeometryConverter geometryConverter(m_manager);
+
+        // Triangulate mesh
         geometryConverter.Triangulate(scene, true, false);
-
+        
         importer->Destroy();
-
-
-        if (scene == nullptr)
-            return false;
-
+        
         FbxNode* rootNode = scene->GetRootNode();
 
         if (rootNode)
@@ -232,15 +244,14 @@ namespace S2DE::Render
                 if (node->GetNodeAttribute() == nullptr)
                     continue;
 
-
                 FbxNodeAttribute::EType attributeType = node->GetNodeAttribute()->GetAttributeType();
-
                 FBX_Importer::PrintNodeInfo(node);
 
                 if (attributeType == FbxNodeAttribute::EType::eMesh)
                 {
                     FbxMesh* mesh = node->GetMesh();
                     std::uint32_t vertexCount = 0;
+                    std::uint32_t indexCount = 0;
                     std::uint32_t polyCount = mesh->GetPolygonCount();
                     FbxVector4* vertices = mesh->GetControlPoints();
                     if (vertices == nullptr)
@@ -252,22 +263,27 @@ namespace S2DE::Render
                         S2DE_ASSERT(polySize == 3);
                         for (std::int32_t polyVert = 0; polyVert < polySize; polyVert++)
                         {
+                            // Get vertex index
                             std::int32_t index = mesh->GetPolygonVertex(poly, polyVert);
-                            meshIndices.push_back(vertexCount);
 
-                            FbxVector4 vec = vertices[index];
+                            // FIXME: This cycle add more details for model but still is not fully loads
+                            for (std::int32_t j = 0; j < 3; j++)
+                                meshIndices.push_back(indexCount++);
+    
+
+                            // Create new vertex
                             Vertex vertex = Vertex();
-                            vertex.position = DirectX::SimpleMath::Vector3(static_cast<float>(vec.mData[0]),
-                                static_cast<float>(vec.mData[1]), static_cast<float>(vec.mData[2]));
-
+                            // Get vertex position
+                            FbxVector4 currentVecPos = vertices[index];
+                            vertex.position = DirectX::SimpleMath::Vector3(static_cast<float>(currentVecPos.mData[0]),
+                                static_cast<float>(currentVecPos.mData[1]), static_cast<float>(currentVecPos.mData[2]));
+                            // Get uv position
                             FBX_Importer::GetUV(mesh, index, mesh->GetTextureUVIndex(poly, polyVert), 0, vertex.uv);
+                            // Get normal position
                             FBX_Importer::GetNormal(mesh, index, vertexCount, vertex.normal);
 
-
-                            FbxSurfaceMaterial* surfaceMaterial = node->GetMaterial(i);
-
-
                             // TODO: We need to rework this
+                            FbxSurfaceMaterial* surfaceMaterial = node->GetMaterial(i);
                             bool isHasDiffColor = false;
                             if (surfaceMaterial != nullptr)
                             {
@@ -284,6 +300,7 @@ namespace S2DE::Render
                                 vertex.color = DirectX::SimpleMath::Vector4(1, 1, 1, 1);
                             }
 
+                            // Push created vertex to list 
                             meshVertices.push_back(vertex);
                             vertexCount++;
                         }
@@ -292,7 +309,6 @@ namespace S2DE::Render
 
             }
         }
-
         scene->Destroy();
 		return true;
 	}
