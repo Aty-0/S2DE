@@ -23,7 +23,7 @@ namespace S2DE::GameObjects
 		virtual void			UpdateTexture() override;
 
 		void					SetColor(Math::Color<float> color);
-
+		void					UseIndices(bool use);
 	protected:
 		virtual void			OnUpdate(float DeltaTime) override { }
 		virtual void			OnRender() override;
@@ -40,8 +40,7 @@ namespace S2DE::GameObjects
 		Render::VertexBuffer<Render::Vertex>* m_vertexBuffer;
 		Render::IndexBuffer<std::uint32_t>* m_indexBuffer;
 		Math::Color<float> m_color;
-
-
+		bool				m_useIndices;
 	};
 }
 

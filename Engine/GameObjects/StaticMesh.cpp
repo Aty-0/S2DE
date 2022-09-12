@@ -24,7 +24,7 @@ namespace S2DE::GameObjects
 		Core::Delete(m_texture);
 		Core::Delete(m_mesh);
 	}
-
+	
 	bool StaticMesh::LoadMesh(std::string name)
 	{	
 		//If mesh not found in resource manager storage we try to load it 
@@ -133,31 +133,59 @@ namespace S2DE::GameObjects
 		}
 	}	 
 		 
+	void StaticMesh::UseIndices(bool use)
+	{
+		m_useIndices = use;
+	}
+
 	void StaticMesh::OnRender()
 	{	 
 		if (m_vertexBuffer && m_indexBuffer)
 		{
-			//Bind and update variables in const buffer
-			m_shader->UpdateMainConstBuffer(UpdateTransformation());
+			if (m_useIndices)
+			{
+				//Bind and update variables in const buffer
+				m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
-			//Bind shader and texture 
-			m_shader->Bind();
-			m_texture->Bind();
+				//Bind shader and texture 
+				m_shader->Bind();
+				m_texture->Bind();
 
-			//Bind buffers
-			m_vertexBuffer->Bind();
-			//m_indexBuffer->Bind();
+				//Bind buffers
+				m_vertexBuffer->Bind();
+				m_indexBuffer->Bind();
 
-			//Draw poly 		
-			Core::Engine::GetRenderer()->SetRasterizerState("fcc");
-			//Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			Core::Engine::GetRenderer()->Draw(m_vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				//Draw poly 		
+				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+				Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				
+				//Unbind 
+				m_shader->Unbind();
+				m_texture->Unbind();
+				m_vertexBuffer->Unbind();
+				m_indexBuffer->Unbind();
+			}
+			else
+			{
+				//Bind and update variables in const buffer
+				m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
-			//Unbind 
-			m_shader->Unbind();
-			m_texture->Unbind();
-			m_vertexBuffer->Unbind();
-			//m_indexBuffer->Unbind();
+				//Bind shader and texture 
+				m_shader->Bind();
+				m_texture->Bind();
+
+				//Bind buffers
+				m_vertexBuffer->Bind();
+				
+				//Draw poly 		
+				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+				Core::Engine::GetRenderer()->Draw(m_vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+				//Unbind 
+				m_shader->Unbind();
+				m_texture->Unbind();
+				m_vertexBuffer->Unbind();				
+			}
 		}
 	}	 
 		 
