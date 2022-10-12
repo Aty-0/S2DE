@@ -3,7 +3,7 @@
 #include "Base/Engine.h"
 #include "Base/ResourceManager.h"
 #include "Scene/Scene.h"
-#include "GameObjects/GameObject.h"
+#include "GameObjects/Base/GameObject.h"
 
 
 namespace S2DE::Scene
@@ -25,7 +25,6 @@ namespace S2DE::Scene
 					   
 		void		   RenderImGUI();
 		void		   RenderScene();
-		void		   UpdateInput();
 		void		   UpdateScene(float DeltaTime);
 					   
 		void		   UpdateShaders();

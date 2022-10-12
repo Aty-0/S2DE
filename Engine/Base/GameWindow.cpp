@@ -1,377 +1,267 @@
 #include "GameWindow.h"
 #include "Base/Engine.h"
 #include "Base/ApplicationHandle.h"
+#include "Base/InputManager.h"
 #include "Base/Main/BuildDate.h"
-#include "Graphics/Renderer.h"
-
-#define S2DE_WINDOW_CLASS_NAME "S2DE_WND_CLASS_NAME"
-
-//Styles
-#define S2DE_DEFAULT_WINDOW_STYLE WS_TILEDWINDOW //WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX
-#define S2DE_FULLSCREEN_WINDOW_STYLE WS_EX_TOPMOST | WS_POPUP
-#define S2DE_CHILD_WINDOW_STYLE WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP
+#include "Render/Renderer.h"
 
 namespace S2DE::Core
 {
-	GameWindow* GameWindow::m_InstanceWindow;
-
-	GameWindow::GameWindow() :
-		m_Fullscreen(false),
-		m_Height(0),
-		m_Width(0),
-		m_HWND(NULL),
-		m_Instance(NULL),
-		m_isChild(false),
-		m_isClosing(false),
-		m_Left(0),
-		m_Top(0),
-		m_Name(),
-		m_PreviousHeight(0),
-		m_PreviousWidth(0),
-		m_ShowCursor(false)
+	GameWindow::GameWindow() 
 	{
-		m_InstanceWindow = this;
+
 	}
 
 
 	GameWindow::~GameWindow()
 	{
-		Delete(m_InstanceWindow);
-		m_Top = 0;
-		m_Left = 0;
-		m_Fullscreen = false;
-		m_Instance = NULL;
-		m_HWND = NULL;
-		m_ShowCursor = false;
-		m_Width = 0;
-		m_Height = 0;
+
 	}
 
-	bool GameWindow::AttachChildWindow(HINSTANCE hInstance, std::uint32_t ClientRectangleX, std::uint32_t ClientRectangleY, std::uint32_t Width, std::uint32_t Height, HWND Handle)
+	bool GameWindow::Create(std::string name, std::uint32_t w, std::uint32_t h, std::int32_t x, std::int32_t y, SDL_WindowFlags flags)
 	{
-		Logger::Log("Try to attach child window...");
-
-		m_isChild = true;
-		m_Fullscreen = false;
-		m_Top = ClientRectangleX;
-		m_Left = ClientRectangleY;
-		m_Instance = hInstance;
-		m_Width = Width;
-		m_Height = Height;
-
-
-		ZeroMemory(&m_WindowClass, sizeof(WNDCLASSEX));
-		m_WindowClass.cbSize = sizeof(WNDCLASSEX);
-		m_WindowClass.style = CS_HREDRAW | CS_VREDRAW;
-		m_WindowClass.lpfnWndProc = InstanceWndProc;
-		m_WindowClass.hInstance = m_Instance;
-		m_WindowClass.hbrBackground = NULL;
-		m_WindowClass.lpszMenuName = NULL;
-		m_WindowClass.lpszClassName = S2DE_WINDOW_CLASS_NAME;
-
-
-		RegisterClassEx(&m_WindowClass);
-
-		m_HWND = CreateWindowEx(NULL, S2DE_WINDOW_CLASS_NAME, NULL, S2DE_CHILD_WINDOW_STYLE,
-			ClientRectangleX, ClientRectangleY, Width, Height, Handle, NULL, m_WindowClass.hInstance, NULL);
-
-		if (m_HWND == NULL)
+		Logger::Log("[SDL] Create game window...");
+		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		{
-			S2DE_FATAL_ERROR("Can't create child window!");
+			Logger::Error("[SDL] Error Desc: %s", SDL_GetError());
+			S2DE_FATAL_ERROR("[SDL] Can't initilize video!");
 			return false;
 		}
 
+		SDL_version ver = { };
+		SDL_GetVersion(&ver);
+		Logger::Log("[SDL] SDL Version %d.%d.%d", ver.major, ver.minor, ver.patch);
 
-
-		ShowWindow(m_HWND, SW_SHOW);
-		UpdateWindow(m_HWND);
-
-		return true;
-	}
-
-	RECT GameWindow::GetClientRes() const
-	{
-		RECT rc;
-		GetWindowRect(GetDesktopWindow(), &rc);
-		return rc;
-	}
-
-	void GameWindow::SetClientScreenRes()
-	{
-		Logger::Log("Set client screen resolution to game window...");
-		m_Width	 = GetClientRes().right;
-		m_Height = GetClientRes().bottom;
-
-		MoveWindow(m_HWND, m_Top, m_Left, m_Width, m_Height, TRUE);
-	}
-
-	bool GameWindow::Create(HINSTANCE hInstance, std::string name, std::uint32_t w, std::uint32_t h, std::int32_t top, std::int32_t left, bool Show_Cursor, bool Fullscreen)
-	{
-		Logger::Log("Create game window...");
-
-		//Get desktop resolution if fullscreen mode on
-		m_Width = Fullscreen == true ? GetClientRes().right : w;
-		m_Height = Fullscreen == true ? GetClientRes().bottom : h;
-		m_Fullscreen = Fullscreen;
-		m_Top = top;
-		m_Left = left;
-		m_ShowCursor = Show_Cursor;
-		m_Instance = hInstance;
-
-		std::string str;
+		std::string str = std::string();
 
 #ifdef NDEBUG
-		str = isStringEmpty(name) ? "S2DE Build: " + std::string(S2DE_BUILD_DATE) : name;
-		
-		if (Engine::isEditor())
-			str.append(L" Editor");
-
-#else
-		str = "S2DE Build: " + std::string(S2DE_BUILD_DATE);
+		str = Core::Utils::isStringEmpty(name) ? "S2DE " + std::string(S2DE_BUILD_DATE) : name;
 
 		if (Engine::isEditor())
 			str.append(" Editor");
 
-		if (!Core::Other::isStringEmpty(name))
+#else
+		str = "S2DE " + std::string(S2DE_BUILD_DATE);
+
+		if (Engine::isEditor())
+			str.append(" Editor");
+
+		if (!Core::Utils::isStringEmpty(name))
 			str.append(std::string(" (") + name + ")");
 
 		str.append(" Debug");
 #endif
-		m_WindowClass = { };
 
-		//Setup window class
-		m_WindowClass.cbSize = sizeof(WNDCLASSEXW);
-		m_WindowClass.style = CS_HREDRAW | CS_VREDRAW;
-		m_WindowClass.lpfnWndProc = InstanceWndProc;
-		m_WindowClass.hInstance = m_Instance;
-		m_WindowClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-		m_WindowClass.hIconSm = m_WindowClass.hIcon;
-		m_WindowClass.hCursor = LoadCursor(0, IDC_ARROW);
-		m_WindowClass.hbrBackground = NULL;
-		m_WindowClass.lpszMenuName = NULL;
-		m_WindowClass.lpszClassName = S2DE_WINDOW_CLASS_NAME;
-		m_WindowClass.cbClsExtra = 0;
-		m_WindowClass.cbWndExtra = 0;
-		RegisterClassEx(&m_WindowClass);
+		m_window = SDL_CreateWindow(str.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, flags);
 
-
-		RECT rc = { 0, 0, (std::int32_t)m_Width, (std::int32_t)m_Height };
-		AdjustWindowRect(&rc, Fullscreen ? S2DE_FULLSCREEN_WINDOW_STYLE : S2DE_DEFAULT_WINDOW_STYLE, false);
-
-		m_HWND = CreateWindowExA(NULL, S2DE_WINDOW_CLASS_NAME, str.c_str(), Fullscreen ? S2DE_FULLSCREEN_WINDOW_STYLE : S2DE_DEFAULT_WINDOW_STYLE,
-			m_Left, m_Top, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, m_WindowClass.hInstance, NULL);
-
-		if (m_HWND == NULL)
+		if (m_window == nullptr)
 		{
-			S2DE_FATAL_ERROR("Can't create game window");
+			Logger::Error("[SDL] Error Desc: %s", SDL_GetError());
+			S2DE_FATAL_ERROR("[SDL] Can't initilize window!");
 			return false;
 		}
-
-		ShowCursor(m_ShowCursor);
-		SetForegroundWindow(m_HWND);
-		SetFocus(m_HWND);
-		ShowWindow(m_HWND, SW_SHOW);
-
-		RECT wnd_rect;
-		GetWindowRect(m_HWND, &wnd_rect);
-
-		return true;
-	}
-
-	void GameWindow::SetMouseVisible(bool s)
-	{
-		m_ShowCursor = s;
-		ShowCursor(m_ShowCursor);
-	}
-
-	void GameWindow::SetWidht(std::uint32_t w)
-	{
-		m_Width = w;
-		MoveWindow(m_HWND, m_Top, m_Left, m_Width, m_Height, TRUE);
-	}
-
-	void GameWindow::SetHeight(std::uint32_t h)
-	{
-		m_Height = h;
-		MoveWindow(m_HWND, m_Top, m_Left, m_Width, m_Height, TRUE);
-	}
-
-	void GameWindow::SetTop(std::int32_t top)
-	{
-		m_Top = top;
-		MoveWindow(m_HWND, m_Top, m_Left, m_Width, m_Height, TRUE);
-	}
-
-	void GameWindow::SetLeft(std::int32_t left)
-	{
-		m_Left = left;
-		MoveWindow(m_HWND, m_Top, m_Left, m_Width, m_Height, TRUE);
-	}
-
-	void GameWindow::SetFullscreen(bool fullscreen)
-	{
-		m_Fullscreen = fullscreen;
-
-		if (m_Fullscreen == true)
-		{
-			Logger::Log("Set fullscreen mode...");
-
-			m_PreviousWidth = m_Width;
-			m_PreviousHeight = m_Height;
-
-			SetWindowLong(m_HWND, GWL_STYLE, S2DE_FULLSCREEN_WINDOW_STYLE);
-			SetWindowLong(m_HWND, GWL_EXSTYLE, WS_EX_TOPMOST);
-
-			GetWindowPlacement(m_HWND, &m_WindowPlacement);
-			ShowWindow(m_HWND, SW_SHOWMAXIMIZED);
-
-			m_Width = GetClientRes().right;
-			m_Height = GetClientRes().bottom;
-		}
-		else
-		{
-			Logger::Log("Set window mode...");
-
-			m_Width = m_PreviousWidth;
-			m_Height = m_PreviousHeight;
-
-			m_PreviousWidth = 0;
-			m_PreviousHeight = 0;
-
-			SetWindowLong(m_HWND, GWL_STYLE, S2DE_DEFAULT_WINDOW_STYLE);
-			SetWindowLong(m_HWND, GWL_EXSTYLE, 0L);
-
-			MoveWindow(m_HWND, m_Top, m_Left, m_Width, m_Height, TRUE);
-			SetWindowPlacement(m_HWND, &m_WindowPlacement);
-			ShowWindow(m_HWND, SW_SHOWDEFAULT);
-		}
-
-
-		Engine::GetRenderer()->Reset();
-	}
-
-	void GameWindow::Close()
-	{
-		if (m_HWND != NULL)
-		{
-			m_isClosing = true;
-			UnregisterClass(S2DE_WINDOW_CLASS_NAME, m_Instance);
-			DestroyWindow(m_HWND);
-			m_HWND = NULL;
-			m_Instance = NULL;
-
-			Logger::Log("Game window closed");
-		}
-	}
-
-	LRESULT CALLBACK GameWindow::InstanceWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-	{
-		return GameWindow::GetInstanceWindow()->WndProc(hWnd, msg, wParam, lParam);
-	}
-
-
-	LRESULT CALLBACK GameWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-	{
-		if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-			return 0;
-
-		switch (msg)
-		{
-		case WM_PAINT:
-			OnPaint(hWnd);
-			break;
-		case WM_MOVING:
-			OnMoving();
-			break;
-		case WM_SIZE:
-			if (!m_isChild)
-				OnSizeChanged();
-			break;
-		case WM_SIZING:
-			OnSizing();
-			break;
-		case WM_CLOSE:
-			OnClose();
-			return 0;
-		case WM_DESTROY:
-			OnDestroy();
-			break;
-		}
-
-
-		return DefWindowProc(hWnd, msg, wParam, lParam);
-	}
-
-	void GameWindow::OnPaint(HWND hWnd)
-	{
-		PAINTSTRUCT ps;
-
-		BeginPaint(hWnd, &ps);
-		EndPaint(hWnd, &ps);
-	}
-
-	void GameWindow::OnMoving()
-	{
-		RECT rc;
-		GetWindowRect(m_HWND, &rc);
-
-		m_Left	 = rc.left;
-		m_Top	 = rc.top;
-	}
-
-	void GameWindow::OnSizing()
-	{
-
-	}
-
-	void GameWindow::OnClose()
-	{
-		m_isClosing = true;
-		Engine::Destroy();
-	}
-
-	void GameWindow::OnDestroy()
-	{
-		PostQuitMessage(0);
-	}
-
-	void GameWindow::OnSizeChanged()
-	{
-		if (m_Fullscreen == false)
-		{
-			RECT wnd_rect;
-			GetWindowRect(m_HWND, &wnd_rect);
-
-			m_Width =  wnd_rect.right -  wnd_rect.left;
-			m_Height = wnd_rect.bottom - wnd_rect.top;
-
-			if (Engine::GetRenderer() != nullptr)
-			{
-				Engine::GetRenderer()->Reset();
-				Engine::GetApplicationHandle()->OnWindowResize();
-			}
-		}
-	}
-
-	bool GameWindow::ProcessMessage()
-	{
-		MSG msg;
 		
-		if (PeekMessage(&msg, m_HWND, 0, 0, PM_REMOVE))
-		{
-			if (msg.message == WM_NULL)
-			{
-				if (!IsWindow(m_HWND))
-				{
-					Close();
-					return false;
-				}
-			}
+		return true;
+	}
 
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+	void GameWindow::ParseWindowEvents(SDL_Event event)
+	{
+		switch (event.window.event)
+		{		
+			case SDL_WindowEventID::SDL_WINDOWEVENT_DISPLAY_CHANGED: // It's needed ?
+			case SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED:
+			case SDL_WindowEventID::SDL_WINDOWEVENT_SIZE_CHANGED:
+			case SDL_WindowEventID::SDL_WINDOWEVENT_MAXIMIZED:
+				Core::Engine::GetRenderer()->Reset();
+				break;			
+		}
+	}
+
+	bool GameWindow::PoolEvents()
+	{
+		Core::Engine::GetInputManager()->Update();
+
+		while (SDL_PollEvent(&m_event) != 0)
+		{
+			ImGui_ImplSDL2_ProcessEvent(&m_event);
+
+			switch (m_event.type)
+			{		
+				// Parse window events
+				case SDL_EventType::SDL_WINDOWEVENT:
+					ParseWindowEvents(m_event);
+					break;
+				// TODO: It's not all control events 
+				// TODO: joystick support
+				// Call event update when we are get the control type event
+				case SDL_EventType::SDL_TEXTINPUT:
+					break;
+				case SDL_EventType::SDL_MOUSEWHEEL:
+					Core::Engine::GetInputManager()->_MWheelUpdate(m_event);
+					break;
+				case SDL_EventType::SDL_MOUSEMOTION:
+					Core::Engine::GetInputManager()->_MMotionUpdate(m_event);
+					break;
+				case SDL_EventType::SDL_MOUSEBUTTONDOWN:
+					// Process the all keys on mouseDown array
+					Core::Engine::GetInputManager()->_MKeyDownArrayStateUpdate(m_event);
+					break;
+				case SDL_EventType::SDL_MOUSEBUTTONUP:
+					// Process the all keys on mouseUp array
+					Core::Engine::GetInputManager()->_MKeyUpArrayStateUpdate(m_event);
+					break;					
+				case SDL_EventType::SDL_KEYDOWN:
+					// Process the all keys on keyDown array
+					Core::Engine::GetInputManager()->_KKeyDownArrayStateUpdate(m_event);
+					break;
+				case SDL_EventType::SDL_KEYUP:
+					// Process the all keys on keyUp array
+					Core::Engine::GetInputManager()->_KKeyUpArrayStateUpdate(m_event);
+					break;
+
+				// Application close
+				case SDL_EventType::SDL_QUIT:
+					return false;
+			}
+		}
+		return true;
+	}
+
+	void GameWindow::Restore()
+	{
+		SDL_RestoreWindow(m_window);
+	}
+
+	void GameWindow::Hide()
+	{
+		SDL_MinimizeWindow(m_window);
+	}
+
+	void GameWindow::SetWidth(std::uint32_t width)
+	{
+		SDL_SetWindowSize(m_window, width, GetHeight());
+	}
+
+	void GameWindow::SetHeight(std::uint32_t height)
+	{
+		SDL_SetWindowSize(m_window, GetWidth(), height);
+	}
+
+	void GameWindow::SetPositionX(std::int32_t x)
+	{
+		SDL_SetWindowPosition(m_window, x, GetPositionY());
+	}
+
+	void GameWindow::SetPositionY(std::int32_t y)
+	{
+		SDL_SetWindowPosition(m_window, GetPositionX(), y);
+	}
+
+	void GameWindow::SetFullscreen(bool fullscreen, bool setClientRes)
+	{
+		if (setClientRes)
+		{
+			SDL_DisplayMode displayMode = { };
+			S2DE_ASSERT(SDL_GetCurrentDisplayMode(0, &displayMode) == 0);
+			SDL_SetWindowSize(m_window, displayMode.w, displayMode.h);
 		}
 
-		return true;
+		std::uint32_t flags = fullscreen == true ? SDL_WINDOW_FULLSCREEN : false;
+		SDL_SetWindowFullscreen(m_window, flags);
+		Core::Engine::GetRenderer()->Reset();
+	}
+
+	void GameWindow::SetMouseVisible(bool visible)
+	{
+		if (m_cursorVisible != visible) // Don't call any function if we are have same parameter state 
+		{
+			m_cursorVisible = visible;
+			SDL_ShowCursor(m_cursorVisible);
+			SDL_WarpMouseInWindow(m_window, GetWidth() / 2, GetHeight() / 2);			
+
+			if(m_cursorVisible)
+				SDL_SetRelativeMouseMode(SDL_FALSE);
+		}
+	}
+
+	void GameWindow::Destroy()
+	{
+		Logger::Log("[SDL] Destroy game window...");
+		SDL_DestroyWindow(m_window);
+		SDL_Quit();
+	}
+
+	DirectX::SimpleMath::Vector2 GameWindow::GetResolution() const 
+	{ 
+		std::int32_t w = 0, h = 0; 
+		SDL_GetWindowSize(m_window, &w, &h); 
+		return DirectX::SimpleMath::Vector2(static_cast<float>(w), static_cast<float>(h));
+	}
+
+	DirectX::SimpleMath::Vector2 GameWindow::GetWindowPosition() const 
+	{ 
+		std::int32_t x = 0, y = 0; 
+		SDL_GetWindowPosition(m_window, &x, &y); 
+		return DirectX::SimpleMath::Vector2(static_cast<float>(x), static_cast<float>(y)); 
+	}
+
+	std::int32_t GameWindow::GetWidth()  const 
+	{
+		return static_cast<std::int32_t>(GetResolution().x); 
+	}
+
+	std::int32_t GameWindow::GetHeight() const 
+	{
+		return static_cast<std::int32_t>(GetResolution().y);
+	}
+
+	std::int32_t GameWindow::GetPositionX() const 
+	{ 
+		return  static_cast<std::int32_t>(GetWindowPosition().x); 
+	}
+
+	std::int32_t GameWindow::GetPositionY() const
+	{
+		return  static_cast<std::int32_t>(GetWindowPosition().x);
+	}
+
+	bool GameWindow::isFullscreen() const 
+	{ 
+		std::uint32_t flags = SDL_GetWindowFlags(m_window); 
+		return (flags & SDL_WindowFlags::SDL_WINDOW_FULLSCREEN) || (flags & SDL_WindowFlags::SDL_WINDOW_FULLSCREEN_DESKTOP); 
+	}
+
+	bool GameWindow::isCursorVisible() const 
+	{ 
+		return m_cursorVisible;
+	}
+
+	bool GameWindow::isActive() const 
+	{ 
+		std::uint32_t flags = SDL_GetWindowFlags(m_window); 
+		return (flags & SDL_WindowFlags::SDL_WINDOW_INPUT_FOCUS) || (flags & SDL_WindowFlags::SDL_WINDOW_MOUSE_FOCUS); 
+	}
+	
+	HINSTANCE GameWindow::GetInstance() 
+	{ 
+		return GetModuleHandle(NULL); 
+	}
+
+	HWND& GameWindow::GetHWND() 
+	{ 
+		SDL_SysWMinfo sysWMInfo = { }; 
+		SDL_VERSION(&sysWMInfo.version); 
+		SDL_GetWindowWMInfo(m_window, &sysWMInfo); 
+		return sysWMInfo.info.win.window; 
+	}
+
+	SDL_Window* GameWindow::GetSDLWindow() 
+	{ 
+		return m_window; 
+	}
+	
+	SDL_Event GameWindow::GetEvent()
+	{
+		return m_event;
 	}
 }

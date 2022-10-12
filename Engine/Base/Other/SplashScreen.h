@@ -10,10 +10,11 @@ namespace S2DE::Core::Other
 		~SplashScreen();
 
 		//Set project name for editor splash screen 
-		void					  SetProjectName(std::string name);
+		static void				  SetProjectName(std::string name);
 
 		//Set corrent load state
-		void					  SetLoadState(std::string state);
+		static void				  SetLoadState(std::string state, SplashScreen* splashScreen);
+
 		//Create and show splash screen
 		bool					  ShowSplashScreen(HINSTANCE hinstance);
 		//Close window
@@ -43,11 +44,12 @@ namespace S2DE::Core::Other
 		HFONT					  m_hfont_Name_Ed;
 		HFONT					  m_hfont_Ed;
 		std::string				  m_text_build_str;
-		std::string				  m_text_load_state_str;
-		std::string				  m_text_project_name_str;
 		std::string				  m_text_ed_str;
 		static SplashScreen*      m_instanceWindow;
 
+
+		static std::string		  m_loadState;
+		static std::string		  m_projectName;
 
 		void					  RedrawWindowElements();
 	private:

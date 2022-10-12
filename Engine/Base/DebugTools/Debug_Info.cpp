@@ -64,20 +64,9 @@ namespace S2DE::Core::Debug
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
 
-			ImGui::Text("Game Window:\n");
-			ImGui::Text("Widht:%d\nHeight:%d\nLeft:%d\nTop:%d\nisActive:%d\nisChild:%d\nFullscreen:%d\nShowCursor:%d",
-				Engine::GetGameWindow()->GetWidth(),
-				Engine::GetGameWindow()->GetHeight(),
-				Engine::GetGameWindow()->GetLeft(),
-				Engine::GetGameWindow()->GetTop(),
-				Engine::GetGameWindow()->isActive(),
-				Engine::GetGameWindow()->isChild(),
-				Engine::GetGameWindow()->isFullscreen(),
-				Engine::GetGameWindow()->isShowingCursor());
-
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text("Resource Manager:");
-			ImGui::Text("Data name:%s", Engine::GetResourceManager().GetNameOfData().c_str());
+			ImGui::Text("Data name:%s", Engine::GetResourceManager().GetNameOfDataFolder().c_str());
 			ImGui::Text("Loaded Texture's:%d\nLoaded Shader's:%d", 
 				Engine::GetResourceManager().GetResourceCount<Render::Texture>(),
 				Engine::GetResourceManager().GetResourceCount<Render::Shader>());

@@ -4,11 +4,11 @@
 
 namespace S2DE::Core::Utils
 {
-	static const DWORDLONG GetUsedMem()
+	static const std::uint64_t GetUsedMem()
 	{
 		PROCESS_MEMORY_COUNTERS_EX pmc;
 		GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 		
-		return DWORDLONG(pmc.PagefileUsage >> 20);
+		return std::uint64_t(pmc.PagefileUsage >> 20);
 	}	
 }

@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#define NOMINMAX
 #include <windows.h>
 
 //Disable warning "needs to have dll-interface to be used by clients of class"
@@ -14,12 +15,14 @@
 
 //S2DE
 #include "Base/Main/S2DE_API.h"
-#include "Base/Other/StringUtils.h"
+#include "Base/Utils/StringUtils.h"
 
+//SDL
+#include "SDL.h"
+#include "SDL_syswm.h"
 
 //DX11
 #include <dxgi.h>
-//#include <d3d11_1.h>
 #include <d3d11.h>
 #include <d3dcommon.h>
 
@@ -33,7 +36,7 @@
 namespace S2DE::Core
 {
 	template<typename T>
-	static void  Delete(T t)
+	static void Delete(T t)
 	{
 		if (t)
 		{
@@ -73,7 +76,8 @@ namespace S2DE::Render
 		DirectX::SimpleMath::Vector3 position;
 		DirectX::SimpleMath::Vector4 color;
 		DirectX::SimpleMath::Vector2 uv;
-	};
+		DirectX::SimpleMath::Vector3 normal;
+	};	
 }
 
 

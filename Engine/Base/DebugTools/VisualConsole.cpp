@@ -1,6 +1,7 @@
 ﻿#include "VisualConsole.h"
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
+#include "Base/InputManager.h"
 
 #define S2DE_CONSOLE_DEFAULT_MODE VisualConsoleSizeMode::Fullscreen
 
@@ -14,7 +15,7 @@ namespace S2DE::Core::Debug
 		m_free(Engine::isEditor()),
 		m_sizemode(S2DE_CONSOLE_DEFAULT_MODE)
 	{ 
-
+		Logger::onPrintCallbacks.push_back(std::bind(&VisualConsole::Scroll, this));
 	}
 
 	VisualConsole::~VisualConsole()
@@ -56,6 +57,12 @@ namespace S2DE::Core::Debug
 			ImGui::SetWindowSize("Console", ImVec2(float(Engine::GetGameWindow()->GetWidth() / 2), float(Engine::GetGameWindow()->GetHeight() - 35.0f)));
 			break;
 		}
+	}
+
+	void VisualConsole::ToggleDraw()
+	{
+		m_draw = !m_draw;
+		Core::Engine::GetInputManager()->LockWheel(m_draw);
 	}
 
 	void VisualConsole::Render()

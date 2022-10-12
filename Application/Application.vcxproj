@@ -37,7 +37,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -50,7 +50,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -72,15 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>TestGame</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>TestGame</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>TestGame</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>TestGame</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -88,15 +92,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Libs/DirectXTK/Inc/;../Engine/;$(IncludePath);../Libs/boost_1_76_0/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Engine/;$(IncludePath);../Libs/boost_1_76_0/;../Libs/DirectXTK/Inc/;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Libs/DirectXTK/lib/debug/;../Debug/;../Libs/boost_1_76_0/stage/x86/lib;../Libs/tinyxml2/libs;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>S2DE.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;d3d11.lib;dxguid.lib;d3dx11.lib;d3dx10.lib;dinput8.lib;D3DCompiler.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Debug/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/x32/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>S2DE.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;d3d11.lib;dxguid.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,13 +126,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\S2DE_DX11\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Libs/SDL/include/;../Libs/FBX SDK/2020.2.1/include/;../Engine/;$(IncludePath);../Libs/boost_1_76_0/;../Libs/DirectXTK/Inc/;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\x64\Debug\;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>S2DE_DX11.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Libs/SDL/lib/x64/Debug/;../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/debug/;../x64/Debug/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2maind.lib;SDL2d.lib;S2DE.lib;libfbxsdk.lib;libfbxsdk-md.lib;libfbxsdk-mt.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;d3d11.lib;dxguid.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -139,12 +144,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../Libs/SDL/include/;../Libs/FBX SDK/2020.2.1/include/;../Engine/;$(IncludePath);../Libs/boost_1_76_0/;../Libs/DirectXTK/Inc/;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../Libs/SDL/lib/x64/Release/;../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/release/;../x64/Release/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/release/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;S2DE.lib;libfbxsdk-md.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2.lib;dxgi.lib;d3d11.lib;dxguid.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

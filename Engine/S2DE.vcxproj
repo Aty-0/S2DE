@@ -23,17 +23,29 @@
     <ClInclude Include="Base\CoreMinimal.h" />
     <ClInclude Include="Base\DebugTools\Debug_Info.h" />
     <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h" />
-    <ClInclude Include="Editor\EditorCenterCursor.h" />
+    <ClInclude Include="GameObjects\Light\DirectionalLight.h" />
+    <ClInclude Include="Editor\EditorModelExporterWindow.h" />
+    <ClInclude Include="GameObjects\Editor\EditorGrid.h" />
+    <ClInclude Include="GameObjects\Editor\EditorCenterCursor.h" />
     <ClInclude Include="Editor\EditorColorPicker.h" />
-    <ClInclude Include="GameObjects\Drawable.h" />
+    <ClInclude Include="GameObjects\Light\AmbientLight.h" />
+    <ClInclude Include="GameObjects\Light\Light.h" />
+    <ClInclude Include="Render\LightGlobals.h" />
+    <ClInclude Include="Libs\imgui\imgui_impl_sdl.h" />
+    <ClInclude Include="Math\Normalize.h" />
+    <ClInclude Include="GameObjects\Light\PointLight.h" />
+    <ClInclude Include="Render\CB.h" />
+    <ClInclude Include="Render\FBX_Importer.h" />
+    <ClInclude Include="GameObjects\Base\Drawable.h" />
     <ClInclude Include="Editor\EditorRenderWindow.h" />
     <ClInclude Include="Editor\EditorObjectInspector.h" />
     <ClInclude Include="Editor\EditorToolstrip.h" />
-    <ClInclude Include="GameObjects\NoTextureTestObject.h" />
-    <ClInclude Include="Graphics\Buffer.h" />
-    <ClInclude Include="Graphics\ConstantBuffer.h" />
-    <ClInclude Include="Graphics\ImGuiS2DETheme.h" />
-    <ClInclude Include="Graphics\ImGui_Window.h" />
+    <ClInclude Include="GameObjects\Test\NoTextureTestObject.h" />
+    <ClInclude Include="Render\Mesh.h" />
+    <ClInclude Include="Render\Buffer.h" />
+    <ClInclude Include="Render\ConstantBuffer.h" />
+    <ClInclude Include="Render\ImGuiS2DETheme.h" />
+    <ClInclude Include="Render\ImGui_Window.h" />
     <ClInclude Include="Base\DebugTools\VisualConsole.h" />
     <ClInclude Include="Base\Engine.h" />
     <ClInclude Include="Base\GameTime.h" />
@@ -44,27 +56,26 @@
     <ClInclude Include="Base\Main\S2DE_API.h" />
     <ClInclude Include="Base\Other\InputCode.h" />
     <ClInclude Include="Base\Other\SplashScreen.h" />
-    <ClInclude Include="Base\Other\StringUtils.h" />
+    <ClInclude Include="Base\Utils\StringUtils.h" />
     <ClInclude Include="Base\ResourceManager.h" />
     <ClInclude Include="Base\Utils\AppUsage.h" />
     <ClInclude Include="Base\Utils\Logger.h" />
     <ClInclude Include="GameObjects\Camera.h" />
-    <ClInclude Include="GameObjects\GameObject.h" />
-    <ClInclude Include="GameObjects\GameObjectIDGenerator.h" />
-    <ClInclude Include="GameObjects\Transform.h" />
-    <ClInclude Include="Graphics\Buffers.h" />
-    <ClInclude Include="Graphics\IndexBuffer.h" />
-    <ClInclude Include="Graphics\Renderer.h" />
-    <ClInclude Include="Graphics\Shader.h" />
-    <ClInclude Include="Graphics\Texture.h" />
-    <ClInclude Include="Graphics\VertexBuffer.h" />
+    <ClInclude Include="GameObjects\Base\GameObject.h" />
+    <ClInclude Include="GameObjects\Base\GameObjectIDGenerator.h" />
+    <ClInclude Include="GameObjects\Base\Transform.h" />
+    <ClInclude Include="Render\Buffers.h" />
+    <ClInclude Include="Render\IndexBuffer.h" />
+    <ClInclude Include="Render\Renderer.h" />
+    <ClInclude Include="Render\Shader.h" />
+    <ClInclude Include="Render\Texture.h" />
+    <ClInclude Include="Render\VertexBuffer.h" />
     <ClInclude Include="Libs\utfcpp\utf8.h" />
     <ClInclude Include="IO\IO_Disposible.h" />
     <ClInclude Include="IO\IO_File.h" />
     <ClInclude Include="Libs\imgui\imconfig.h" />
     <ClInclude Include="Libs\imgui\imgui.h" />
     <ClInclude Include="Libs\imgui\imgui_impl_dx11.h" />
-    <ClInclude Include="Libs\imgui\imgui_impl_win32.h" />
     <ClInclude Include="Libs\imgui\imgui_internal.h" />
     <ClInclude Include="Libs\imgui\imstb_rectpack.h" />
     <ClInclude Include="Libs\imgui\imstb_textedit.h" />
@@ -78,11 +89,14 @@
     <ClInclude Include="Math\Random.h" />
     <ClInclude Include="Math\Rect.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="GameObjects\TestObject.h" />
+    <ClInclude Include="GameObjects\Test\TestObject.h" />
     <ClInclude Include="Scene\Scene.h" />
     <ClInclude Include="Scene\SceneManager.h" />
     <ClInclude Include="GameObjects\Sprite.h" />
     <ClInclude Include="GameObjects\UI\UI_Drawable.h" />
+    <ClInclude Include="GameObjects\Skybox.h" />
+    <ClInclude Include="GameObjects\StaticMesh.h" />
+    <ClInclude Include="GameObjects\Light\SpotLight.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc" />
@@ -90,15 +104,24 @@
   <ItemGroup>
     <ClCompile Include="Base\DebugTools\Debug_Info.cpp" />
     <ClCompile Include="Base\DebugTools\Debug_ObjectInspector.cpp" />
-    <ClCompile Include="Editor\EditorCenterCursor.cpp" />
+    <ClCompile Include="GameObjects\Light\DirectionalLight.cpp" />
+    <ClCompile Include="Editor\EditorModelExporterWindow.cpp" />
+    <ClCompile Include="GameObjects\Editor\EditorGrid.cpp" />
+    <ClCompile Include="GameObjects\Editor\EditorCenterCursor.cpp" />
     <ClCompile Include="Editor\EditorColorPicker.cpp" />
-    <ClCompile Include="GameObjects\Drawable.cpp" />
+    <ClCompile Include="GameObjects\Light\AmbientLight.cpp" />
+    <ClCompile Include="GameObjects\Light\Light.cpp" />
+    <ClCompile Include="Libs\imgui\imgui_impl_sdl.cpp" />
+    <ClCompile Include="GameObjects\Light\PointLight.cpp" />
+    <ClCompile Include="Render\FBX_Importer.cpp" />
+    <ClCompile Include="GameObjects\Base\Drawable.cpp" />
     <ClCompile Include="Editor\EditorRenderWindow.cpp" />
     <ClCompile Include="Editor\EditorObjectInspector.cpp" />
     <ClCompile Include="Editor\EditorToolstrip.cpp" />
-    <ClCompile Include="GameObjects\NoTextureTestObject.cpp" />
-    <ClCompile Include="GameObjects\UI\UI_Drawable.cpp" />
-    <ClCompile Include="Graphics\ImGui_Window.cpp" />
+    <ClCompile Include="GameObjects\Test\NoTextureTestObject.cpp" />
+    <ClCompile Include="Render\LightGlobals.cpp" />
+    <ClCompile Include="Render\Mesh.cpp" />
+    <ClCompile Include="Render\ImGui_Window.cpp" />
     <ClCompile Include="Base\DebugTools\VisualConsole.cpp" />
     <ClCompile Include="Base\Engine.cpp" />
     <ClCompile Include="Base\GameTime.cpp" />
@@ -108,24 +131,26 @@
     <ClCompile Include="Base\ResourceManager.cpp" />
     <ClCompile Include="Base\Utils\Logger.cpp" />
     <ClCompile Include="GameObjects\Camera.cpp" />
-    <ClCompile Include="GameObjects\GameObject.cpp" />
-    <ClCompile Include="GameObjects\GameObjectIDGenerator.cpp" />
-    <ClCompile Include="GameObjects\Transform.cpp" />
-    <ClCompile Include="Graphics\Renderer.cpp" />
-    <ClCompile Include="Graphics\Shader.cpp" />
-    <ClCompile Include="Graphics\Texture.cpp" />
+    <ClCompile Include="GameObjects\Base\GameObject.cpp" />
+    <ClCompile Include="GameObjects\Base\GameObjectIDGenerator.cpp" />
+    <ClCompile Include="GameObjects\Base\Transform.cpp" />
+    <ClCompile Include="Render\Renderer.cpp" />
+    <ClCompile Include="Render\Shader.cpp" />
+    <ClCompile Include="Render\Texture.cpp" />
     <ClCompile Include="IO\IO_File.cpp" />
     <ClCompile Include="Libs\imgui\imgui.cpp" />
     <ClCompile Include="Libs\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libs\imgui\imgui_draw.cpp" />
     <ClCompile Include="Libs\imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="Libs\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Libs\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libs\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="GameObjects\TestObject.cpp" />
+    <ClCompile Include="GameObjects\Test\TestObject.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp" />
     <ClCompile Include="GameObjects\Sprite.cpp" />
+    <ClCompile Include="GameObjects\Skybox.cpp" />
+    <ClCompile Include="GameObjects\StaticMesh.cpp" />
+    <ClCompile Include="GameObjects\Light\SpotLight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\splash.bmp" />
@@ -156,14 +181,14 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -192,9 +217,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>S2DE</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>S2DE</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -211,7 +238,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>../Libs/boost_1_76_0/stage/x86/lib;;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/;$(LibraryPath);</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/x32/;$(LibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;dxguid.lib;d3d11.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -239,16 +266,20 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;S2DE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;S2DE_EXPORTS;_WINDOWS;FBXSDK_SHARED;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>../Libs/SDL/include/;../Libs/FBX SDK/2020.2.1/include/;$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;../Libs/DirectXMath/D3D/;#(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>../Libs/SDL/lib/x64/Debug/;../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/debug/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/debug/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2maind.lib;SDL2d.lib;libfbxsdk.lib;libfbxsdk-md.lib;wininet.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2-d.lib;dxgi.lib;dxguid.lib;d3d11.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBMCT</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -257,11 +288,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;S2DE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FBXSDK_SHARED;NDEBUG;S2DE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>../Libs/SDL/include/;../Libs/FBX SDK/2020.2.1/include/;$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;../Libs/DirectXMath/D3D/;#(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -269,6 +301,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>../Libs/SDL/lib/x64/Release/;../Libs/FBX SDK/2020.2.1/lib/vs2019/x64/release/;../Libs/boost_1_76_0/stage/lib;../Libs/tinyxml2/libs;../Libs/DirectXTK/lib/release/x64/;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;libfbxsdk.lib;wininet.lib;DirectXTK.lib;d3dcompiler.lib;winmm.lib;tinyxml2.lib;dxgi.lib;dxguid.lib;d3d11.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

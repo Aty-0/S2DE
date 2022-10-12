@@ -1,12 +1,12 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "Graphics/ImGui_Window.h"
+#include "Render/ImGui_Window.h"
 #include "Math/Color.h"
 
 
 namespace S2DE::Editor
 {
-	class EditorColorPicker : public Render::ImGui_Window
+	class S2DE_API EditorColorPicker : public Render::ImGui_Window
 	{
 	public:
 		EditorColorPicker();

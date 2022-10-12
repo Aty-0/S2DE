@@ -36,7 +36,7 @@
     <ClInclude Include="Base\Other\SplashScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Base\Other\StringUtils.h">
+    <ClInclude Include="Base\Utils\StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Base\Utils\AppUsage.h">
@@ -66,22 +66,22 @@
     <ClInclude Include="Base\ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\GameObject.h">
+    <ClInclude Include="GameObjects\Base\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\Transform.h">
+    <ClInclude Include="GameObjects\Base\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Buffers.h">
+    <ClInclude Include="Render\Buffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Renderer.h">
+    <ClInclude Include="Render\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Shader.h">
+    <ClInclude Include="Render\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Texture.h">
+    <ClInclude Include="Render\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IO\IO_Disposible.h">
@@ -97,9 +97,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libs\imgui\imgui_impl_dx11.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Libs\imgui\imgui_impl_win32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libs\imgui\imgui_internal.h">
@@ -138,10 +135,10 @@
     <ClInclude Include="Math\Rect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\TestObject.h">
+    <ClInclude Include="GameObjects\Test\TestObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\GameObjectIDGenerator.h">
+    <ClInclude Include="GameObjects\Base\GameObjectIDGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObjects\Camera.h">
@@ -159,7 +156,7 @@
     <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ImGui_Window.h">
+    <ClInclude Include="Render\ImGui_Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorToolstrip.h">
@@ -174,25 +171,25 @@
     <ClInclude Include="Editor\EditorRenderWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\Drawable.h">
+    <ClInclude Include="GameObjects\Base\Drawable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libs\utfcpp\utf8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\VertexBuffer.h">
+    <ClInclude Include="Render\VertexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\IndexBuffer.h">
+    <ClInclude Include="Render\IndexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ConstantBuffer.h">
+    <ClInclude Include="Render\ConstantBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Buffer.h">
+    <ClInclude Include="Render\Buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\NoTextureTestObject.h">
+    <ClInclude Include="GameObjects\Test\NoTextureTestObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObjects\UI\UI_Drawable.h">
@@ -201,10 +198,55 @@
     <ClInclude Include="Editor\EditorColorPicker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\EditorCenterCursor.h">
+    <ClInclude Include="GameObjects\Editor\EditorCenterCursor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ImGuiS2DETheme.h">
+    <ClInclude Include="Render\ImGuiS2DETheme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Editor\EditorGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\FBX_Importer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\StaticMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Normalize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\imgui\imgui_impl_sdl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\CB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Light\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorModelExporterWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Light\AmbientLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Light\PointLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Light\DirectionalLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\LightGlobals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Light\SpotLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -238,19 +280,19 @@
     <ClCompile Include="Base\ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\GameObject.cpp">
+    <ClCompile Include="GameObjects\Base\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\Transform.cpp">
+    <ClCompile Include="GameObjects\Base\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Renderer.cpp">
+    <ClCompile Include="Render\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Shader.cpp">
+    <ClCompile Include="Render\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Texture.cpp">
+    <ClCompile Include="Render\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IO\IO_File.cpp">
@@ -268,19 +310,16 @@
     <ClCompile Include="Libs\imgui\imgui_impl_dx11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Libs\imgui\imgui_impl_win32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Libs\imgui\imgui_tables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Libs\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\TestObject.cpp">
+    <ClCompile Include="GameObjects\Test\TestObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\GameObjectIDGenerator.cpp">
+    <ClCompile Include="GameObjects\Base\GameObjectIDGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameObjects\Camera.cpp">
@@ -298,7 +337,7 @@
     <ClCompile Include="Base\DebugTools\Debug_ObjectInspector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ImGui_Window.cpp">
+    <ClCompile Include="Render\ImGui_Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\EditorToolstrip.cpp">
@@ -313,19 +352,55 @@
     <ClCompile Include="Editor\EditorRenderWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\Drawable.cpp">
+    <ClCompile Include="GameObjects\Base\Drawable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\NoTextureTestObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObjects\UI\UI_Drawable.cpp">
+    <ClCompile Include="GameObjects\Test\NoTextureTestObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\EditorColorPicker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\EditorCenterCursor.cpp">
+    <ClCompile Include="GameObjects\Editor\EditorCenterCursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Editor\EditorGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Render\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Render\FBX_Importer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\StaticMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\imgui\imgui_impl_sdl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\EditorModelExporterWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Light\AmbientLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Light\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Light\PointLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Light\DirectionalLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Render\LightGlobals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Light\SpotLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

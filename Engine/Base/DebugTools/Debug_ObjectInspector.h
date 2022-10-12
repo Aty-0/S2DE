@@ -1,7 +1,6 @@
 #pragma once
 #include "Base/Main/Common.h"
-
-#include "Graphics/ImGui_Window.h"
+#include "Render/ImGui_Window.h"
 
 namespace S2DE::Core::Debug
 {

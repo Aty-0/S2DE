@@ -1,8 +1,6 @@
 #include "Application.h"
 #include <Base\CoreMinimal.h>
-#include <GameObjects\NoTextureTestObject.h>
-#include <GameObjects\TestObject.h>
-
+#include <GameObjects\StaticMesh.h>
 
 using namespace S2DE;
 using namespace S2DE::GameObjects;
@@ -12,8 +10,6 @@ using namespace S2DE::Render;
 using namespace S2DE::Core;
 using namespace S2DE::Core::Other;
 using namespace DirectX::SimpleMath;
-
-
 
 Application::Application()
 {
@@ -32,7 +28,7 @@ Application::~Application()
 
 void Application::OnStart()
 {
-
+	Engine::GetGameWindow()->SetMouseVisible(true);
 }
 
 bool Application::LoadResources()
@@ -52,7 +48,12 @@ void Application::OnRender()
 
 void Application::InputEvents()
 {
-	
+	if (Engine::GetInputManager()->IsKeyDown(KeyCode::KEY_O))
+	{
+		StaticMesh* mesh = CreateGameObject<StaticMesh>("Sponza", "GameObject", 1, Vector3(Vector3(0, 0, 0)));
+		mesh->LoadMesh("Sponza");
+		mesh->SetScale(DirectX::SimpleMath::Vector3(0.15f, 0.15f, 0.15f));
+	}
 }
 
 void Application::OnResetDevice()

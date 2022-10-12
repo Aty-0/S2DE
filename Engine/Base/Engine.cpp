@@ -6,8 +6,8 @@
 #include "Base/InputManager.h"
 #include "Base/ResourceManager.h"
 #include "Scene/SceneManager.h"
-#include "Graphics/Renderer.h"
-#include "Graphics/ImGui_Window.h"
+#include "Render/Renderer.h"
+#include "Render/ImGui_Window.h"
 
 using namespace S2DE::Scene;
 using namespace S2DE::Math;
@@ -60,17 +60,21 @@ namespace S2DE::Core
 
 		//Get params
 		m_params = GetCommandLineA();
+		bool splash = !CheckAppParam("-nsplash");
+		SplashScreen* sp = nullptr;
+		SplashScreen::SetProjectName(pname);
 
-		SplashScreen* sp = new SplashScreen();
-		S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
+		if (splash)
+		{
+			sp = new SplashScreen();
+			S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
+		}
 
-		//Set project name
-		sp->SetProjectName(pname);
 		//Create log file 
 		Logger::CreateLogFile();
 
 		Logger::Log("Starting engine...");
-		sp->SetLoadState("Starting engine...");
+		SplashScreen::SetLoadState("Starting engine...", sp);
 
 		//Check application handle
 		if ((m_app_handle = app_handle) == nullptr)
@@ -79,34 +83,31 @@ namespace S2DE::Core
 			return;
 		}
 
-		//Delay for showing splash screen
-		//Sleep(1000);
+		SplashScreen::SetLoadState("Create game window...", sp);
 
-		sp->SetLoadState("Create game window...");
 		m_window = new GameWindow();
-		m_window->Create(GetModuleHandle(NULL), pname.c_str());
+		m_window->Create(pname.c_str());
+		if (splash)
+			m_window->Hide();
 
-		sp->SetLoadState("Initialize input manager...");
 		m_input_m = new InputManager();
-		if (!m_input_m->Initialize())
-			return;
+		SplashScreen::SetLoadState("Initialize render...", sp);
 
-		sp->SetLoadState("Initialize render...");
 		m_render = new Renderer();
 		if (!m_render->Create())
 			return;
 		
-		sp->SetLoadState("Initialize scene...");
-		m_scene_manager = new SceneManager();
-		m_scene_manager->CreateNewScene();
-
 		//Load engine resources, read main config, etc
-		sp->SetLoadState("Load engine resources...");
+		SplashScreen::SetLoadState("Load engine resources...", sp);
 		
 		if (!LoadEngineResources())
 			return;
 
-		sp->SetLoadState("Load game resources...");
+		SplashScreen::SetLoadState("Initialize scene...", sp);
+		m_scene_manager = new SceneManager();
+		m_scene_manager->CreateNewScene();
+
+		SplashScreen::SetLoadState("Load game resources...", sp);
 		if (!m_app_handle->LoadResources())
 		{
 			S2DE_FATAL_ERROR("Failed to load application resources");
@@ -118,10 +119,14 @@ namespace S2DE::Core
 		m_app_handle->OnStart();
 
 
-		//Close and destroy splash screen
-		sp->Close();
-		Delete(sp);
-		   
+		//Destroy splash screen and show game window
+		if (splash)
+		{
+			sp->Close();
+			Delete(sp);
+		}
+		m_window->Restore();
+
 		//Run main game loop
 		RunLoop();
 
@@ -129,10 +134,8 @@ namespace S2DE::Core
 
 	void Engine::RunLoop()
 	{
-		while (m_window->ProcessMessage() == true && m_window->isClosing() == false)
-		{
-			OnLoop();
-		}
+		while (m_window->PoolEvents())
+			OnLoop();	
 	}
 
 	void Engine::UpdateEngineInputKeys()
@@ -144,7 +147,7 @@ namespace S2DE::Core
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_GRAVE))
 		{
-			m_render->GetImGui_Window("EngineConsole")->ToggleDraw();
+			m_render->GetImGui_Window<Render::ImGui_Window*>("EngineConsole")->ToggleDraw();
 		}
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_F11))
@@ -152,15 +155,9 @@ namespace S2DE::Core
 			m_window->SetFullscreen(!m_window->isFullscreen());
 		}
 
-#ifdef _DEBUG
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_0))
 		{
-			m_render->GetImGui_Window("DebugInfoWindow")->ToggleDraw();
-		}
-
-		if (m_input_m->IsKeyPressed(KeyCode::KEY_9))
-		{
-			m_render->GetImGui_Window("DebugObjectInspectorWindow")->ToggleDraw();
+			m_render->GetImGui_Window<Render::ImGui_Window*>("DebugInfoWindow")->ToggleDraw();
 		}
 
 #ifdef S2DE_DEBUG_RENDER_MODE
@@ -173,8 +170,6 @@ namespace S2DE::Core
 		}
 #endif
 
-
-#endif
 		if (Engine::isEditor())
 		{
 			if (m_input_m->IsKeyPressed(KeyCode::KEY_F1))
@@ -187,13 +182,8 @@ namespace S2DE::Core
 
 	void Engine::UpdateInput()
 	{
-		//Update input manager
-		if (m_input_m->Update())
-		{
-			UpdateEngineInputKeys();
-			m_app_handle->InputEvents();
-			m_scene_manager->UpdateInput();
-		}
+		m_app_handle->InputEvents();
+		UpdateEngineInputKeys();
 	}
 
 	void Engine::OnGlobalUpdate(float DeltaTime)
@@ -228,6 +218,7 @@ namespace S2DE::Core
 		S2DE_ASSERT(m_resource_manager.LoadDefaultTexture());
 		S2DE_ASSERT(m_resource_manager.Load<Shader>("Sprite"));
 		S2DE_ASSERT(m_resource_manager.Load<Shader>("Line"));
+		S2DE_ASSERT(m_resource_manager.Load<Shader>("Mesh"));
 
 		return true;
 	}
