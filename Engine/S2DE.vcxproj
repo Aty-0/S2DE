@@ -30,6 +30,7 @@
     <ClInclude Include="Editor\EditorColorPicker.h" />
     <ClInclude Include="GameObjects\Light\AmbientLight.h" />
     <ClInclude Include="GameObjects\Light\Light.h" />
+    <ClInclude Include="Render\LightGlobals.h" />
     <ClInclude Include="Libs\imgui\imgui_impl_sdl.h" />
     <ClInclude Include="Math\Normalize.h" />
     <ClInclude Include="GameObjects\Light\PointLight.h" />
@@ -95,6 +96,7 @@
     <ClInclude Include="GameObjects\UI\UI_Drawable.h" />
     <ClInclude Include="GameObjects\Skybox.h" />
     <ClInclude Include="GameObjects\StaticMesh.h" />
+    <ClInclude Include="GameObjects\Light\SpotLight.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc" />
@@ -117,6 +119,7 @@
     <ClCompile Include="Editor\EditorObjectInspector.cpp" />
     <ClCompile Include="Editor\EditorToolstrip.cpp" />
     <ClCompile Include="GameObjects\Test\NoTextureTestObject.cpp" />
+    <ClCompile Include="Render\LightGlobals.cpp" />
     <ClCompile Include="Render\Mesh.cpp" />
     <ClCompile Include="Render\ImGui_Window.cpp" />
     <ClCompile Include="Base\DebugTools\VisualConsole.cpp" />
@@ -147,6 +150,7 @@
     <ClCompile Include="GameObjects\Sprite.cpp" />
     <ClCompile Include="GameObjects\Skybox.cpp" />
     <ClCompile Include="GameObjects\StaticMesh.cpp" />
+    <ClCompile Include="GameObjects\Light\SpotLight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\splash.bmp" />
