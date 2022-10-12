@@ -11,7 +11,6 @@ using namespace S2DE::Core;
 using namespace S2DE::Core::Other;
 using namespace DirectX::SimpleMath;
 
-
 Application::Application()
 {
 	Engine* engine = new Engine();
@@ -37,16 +36,14 @@ bool Application::LoadResources()
 	return true;
 }
 
-
-
 void Application::OnUpdate(float DeltaTime)
 {
-
+	
 }
 
 void Application::OnRender()
 {
-	
+
 }
 
 void Application::InputEvents()
