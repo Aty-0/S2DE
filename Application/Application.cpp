@@ -37,16 +37,14 @@ bool Application::LoadResources()
 	return true;
 }
 
-
-
 void Application::OnUpdate(float DeltaTime)
 {
-
+	
 }
 
 void Application::OnRender()
 {
-	
+
 }
 
 void Application::InputEvents()
