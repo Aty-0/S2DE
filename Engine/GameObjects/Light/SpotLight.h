@@ -3,13 +3,16 @@
 
 namespace S2DE::GameObjects::Light
 {
-	class S2DE_API PointLight : public Light
+	// TODO: Texture 
+	class S2DE_API SpotLight : public Light
 	{
 	public:
-		PointLight();
-		virtual ~PointLight();
+		SpotLight();
+		virtual ~SpotLight();
+		virtual void		 SetSpot(float spot);
 
 	protected:
+		virtual void		 OnChangeSpot();
 		virtual void		 UpdateCB() override;
 		virtual void		 OnPositionChanged()  override;
 		virtual void		 OnRotationChanged()  override;
@@ -19,5 +22,9 @@ namespace S2DE::GameObjects::Light
 		virtual void		 OnChangeRange()  override;
 		virtual void		 OnChangeAttenuation()  override;
 
+	private:
+		float				 m_spot;
+
 	};
 }
+

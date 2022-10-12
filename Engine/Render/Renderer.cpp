@@ -10,10 +10,12 @@
 #include "Render/ImGui_Window.h"
 #include "Render/ImGuiS2DETheme.h"
 #include "Render/FBX_Importer.h"
+#include "Render/LightGlobals.h"
 
 #include "Base/DebugTools/Debug_Info.h"
 #include "Base/DebugTools/Debug_ObjectInspector.h"
 
+#include "Editor/EditorModelExporterWindow.h"
 #include "Editor/EditorToolstrip.h"
 #include "Editor/EditorObjectInspector.h"
 #include "Editor/EditorRenderWindow.h"
@@ -43,7 +45,7 @@ namespace S2DE::Render
 							m_depthStencilView(nullptr),
 							m_blendStateOn(nullptr),
 							m_blendStateOff(nullptr),	
-							m_vsync(true),
+							m_vsync(false),
 							m_showImguiWindows(true),
 							m_showImguiDemoWindow(false),
 							m_deviceFlags(0),
@@ -109,7 +111,9 @@ namespace S2DE::Render
 		Logger::Log("[Renderer] Initialize fbx sdk...");
 		FBX_Importer::Init();
 
+		LightGlobals::CreateLightConstantBuffer();
 		CreateEngineWindowsAndEditorUI();
+
 
 		return true;
 	}
@@ -124,6 +128,7 @@ namespace S2DE::Render
 			//AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow(), true);
 			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), false);
 			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), false);
+			AddImGuiWindow("EditorModelExporterWindow", new EditorModelExporterWindow(), true);
 
 
 			m_editorToolStrip = new EditorToolStrip();
@@ -453,12 +458,12 @@ namespace S2DE::Render
 	{
 		Logger::Log("[Renderer] Destroy...");
 
+		LightGlobals::DeleteLightConstantBuffer();
 		FBX_Importer::Destroy();
 
 		if (Core::Engine::isEditor())
 			Delete(m_editorToolStrip);
 		
-
 		m_windowsStorage.clear();
 		m_windowsStorage.shrink_to_fit();
 

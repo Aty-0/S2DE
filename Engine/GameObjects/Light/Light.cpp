@@ -2,33 +2,19 @@
 
 namespace S2DE::GameObjects::Light
 {
-	std::int32_t Light::LightCount;
-
-	// FIX ME: We need to move it to light globals or something like that
-	Render::ConstantBuffer<Render::CB::CB_Light>*  Light::m_lightCB;
-
 	Light::Light()
 	{
-		// Create global light constant buffer 
-		if (m_lightCB == nullptr)
-		{
-			m_lightCB = new Render::ConstantBuffer<Render::CB::CB_Light>();
-			S2DE_ASSERT(m_lightCB->Create());
-
-			m_lightCB->GetData()->ambient_light = Render::CB::PS_AmbientLight_Structure();
-			std::fill_n(m_lightCB->GetData()->lights, MAX_LIGHTS, Render::CB::PS_Light_Structure());
-		}
-
 		m_lightStructure = Render::CB::PS_Light_Structure();
 		CreateIcon();
-
-		m_index = Light::LightCount;
-		Light::LightCount++;
+		
+		m_index = Render::LightGlobals::LightCount;
+		Render::LightGlobals::LightCount++;
 	}
 
 	Light::~Light()
 	{
-
+		Render::LightGlobals::LightCount--;
+		Core::Delete(m_iconSprite);
 	}
 
 	void Light::CreateIcon() 
@@ -37,7 +23,6 @@ namespace S2DE::GameObjects::Light
 		m_iconSprite->SetBillboard(true); 
 		m_iconSprite->LoadTexture("engine_light_icon");
 		m_iconSprite->SetScale(DirectX::SimpleMath::Vector3(0.6f, 0.6f, 0.6f));
-		// FIX ME: ....
 		Alpha = true;
 	}
 
@@ -72,5 +57,23 @@ namespace S2DE::GameObjects::Light
 	{ 
 		m_strength = strength; 
 		OnChangeStrength();
+	}
+
+	void Light::SetPad(float pad)
+	{
+		m_pad = pad;
+		OnChangePad();
+	}
+
+	void Light::SetRange(float range)
+	{
+		m_range = range;
+		OnChangeRange();
+	}
+
+	void Light::SetAttenuation(DirectX::SimpleMath::Vector3 attenuation)
+	{
+		m_attenuation = attenuation;
+		OnChangeAttenuation();
 	}
 }

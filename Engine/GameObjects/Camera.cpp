@@ -124,9 +124,13 @@ namespace S2DE::GameObjects
 			}
 			else
 			{
-				m_Rotation.z += (float)Core::Engine::GetInputManager()->GetMousePositionRelative().x * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
-				m_Rotation.y += (float)Core::Engine::GetInputManager()->GetMousePositionRelative().y * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
-			}
+				if (Core::Engine::GetGameTime().GetDeltaTime() < 1) // FIX ME: We need to fix Time class   
+				{
+					m_Rotation.z += Core::Engine::GetInputManager()->GetMousePositionRelative().x * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
+					m_Rotation.y += Core::Engine::GetInputManager()->GetMousePositionRelative().y * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime();
+				}
+				//Logger::Log("%f %f %f %f %f", m_Rotation.z, m_Rotation.y, Core::Engine::GetInputManager()->GetMousePositionRelative().x, Core::Engine::GetInputManager()->GetMousePositionRelative().y, Core::Engine::GetGameTime().GetDeltaTime());
+			}															  
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
 			{

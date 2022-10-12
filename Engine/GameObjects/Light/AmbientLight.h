@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObjects/Light/Light.h"
 
+//TODO: Compute normal function
 //TODO: Get color from texture 
 
 namespace S2DE::GameObjects::Light

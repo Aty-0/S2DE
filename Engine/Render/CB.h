@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Main/Common.h"
 
-#define MAX_LIGHTS 8
+#define MAX_LIGHTS 64
 
 namespace S2DE::Render::CB
 {	
@@ -16,12 +16,13 @@ namespace S2DE::Render::CB
 		DirectX::SimpleMath::Vector4   position;
 		DirectX::SimpleMath::Vector4   direction;
 		DirectX::SimpleMath::Vector4   color;
-		DirectX::SimpleMath::Vector3  attenuation;
+		DirectX::SimpleMath::Vector3   attenuation;
 
 		float   spotAngle;
 		float	range;
 		float   pad;
 		float	strength;
+		float	spot;
 
 		int     light_type;
 		int		enabled;

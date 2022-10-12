@@ -14,17 +14,16 @@ namespace S2DE::GameObjects::Light
 
 	void AmbientLight::UpdateCB()
 	{
-		if (m_lightCB)
-		{
-			m_lightCB->Lock();
+		// Get light constant buffer
+		Render::LightConstBuff buffer = Render::LightGlobals::GlobalLightConstBuffer;
 
-			m_lightCB->GetData()->ambient_light.strength = m_strength;
-			m_lightCB->GetData()->ambient_light.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
-			m_lightCB->Unlock();
-
-			m_lightCB->Bind(1);
-			m_lightCB->Unbind();
-		}
+		// Upload new data
+		buffer->Lock();
+		buffer->GetData()->ambient_light.strength = m_strength;
+		buffer->GetData()->ambient_light.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
+		buffer->Unlock();
+		buffer->Bind(1);
+		buffer->Unbind();
 	}
 
 	void AmbientLight::OnChangeStrength()

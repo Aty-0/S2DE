@@ -12,31 +12,30 @@ namespace S2DE::GameObjects::Light
 
 	PointLight::~PointLight()
 	{
-		Light::LightCount--;
+	
 	}
 
 	void PointLight::UpdateCB()
-	{
-		if (m_lightCB)
-		{								
-			m_lightCB->Lock();	
+	{						
+		// Update light structure
+		m_lightStructure.strength = m_strength;
+		m_lightStructure.attenuation = m_attenuation;
+		m_lightStructure.range = m_range;
+		m_lightStructure.pad = m_pad;
+		m_lightStructure.light_type = static_cast<std::int32_t>(Render::LightTypes::Point);
+		m_lightStructure.enabled = static_cast<std::int32_t>(isEnabled());
+		m_lightStructure.position = DirectX::SimpleMath::Vector4(GetPosition().x, GetPosition().y, GetPosition().z, 1);
+		m_lightStructure.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
 
-			m_lightStructure.strength				= m_strength;
-			m_lightStructure.attenuation			= m_attenuation;
-			m_lightStructure.range					= m_range;
-			m_lightStructure.pad				    = m_pad;
-			m_lightStructure.light_type				= static_cast<std::int32_t>(LightTypes::POINT_LIGHT);
-			m_lightStructure.enabled				= static_cast<std::int32_t>(isEnabled());
-			m_lightStructure.position				= DirectX::SimpleMath::Vector4(GetPosition().x, GetPosition().y, GetPosition().z, 1);
-			m_lightStructure.direction				= DirectX::SimpleMath::Vector4(GetRotation().x, GetRotation().y, GetRotation().z, 1);
-			m_lightStructure.color					= DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
+		// Get light constant buffer
+		Render::LightConstBuff buffer = Render::LightGlobals::GlobalLightConstBuffer;
 
-			m_lightCB->GetData()->lights[m_index] = m_lightStructure;
-
-			m_lightCB->Unlock();
-			m_lightCB->Bind(1);
-			m_lightCB->Unbind();
-		}
+		// Upload new data
+		buffer->Lock();
+		buffer->GetData()->lights[m_index] = m_lightStructure;
+		buffer->Unlock();
+		buffer->Bind(1);
+		buffer->Unbind();
 	}
 
 	void PointLight::OnPositionChanged()  
@@ -61,6 +60,21 @@ namespace S2DE::GameObjects::Light
 	}
 
 	void PointLight::OnChangeColor()
+	{
+		UpdateCB();
+	}
+
+	void PointLight::OnChangePad() 
+	{
+		UpdateCB();
+	}
+
+	void PointLight::OnChangeRange()  
+	{
+		UpdateCB();
+	}
+
+	void PointLight::OnChangeAttenuation()  
 	{
 		UpdateCB();
 	}

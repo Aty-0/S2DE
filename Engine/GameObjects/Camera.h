@@ -6,10 +6,10 @@
 
 namespace S2DE::GameObjects
 {
-	class Camera : public GameObject
+	class S2DE_API Camera : public GameObject
 	{
 	public:
-		enum CameraProjectionMode
+		enum S2DE_API CameraProjectionMode
 		{
 			Perspective,
 			Orthographics,
@@ -34,6 +34,9 @@ namespace S2DE::GameObjects
 		inline float							GetzFar() const { return m_zFar; }
 		inline float							GetFov() const { return m_fov; }
 		inline float							GetSpeedBoost() const { return m_speedBoost; }
+		inline DirectX::SimpleMath::Vector3&	GetUp() { return m_up; }
+		inline DirectX::SimpleMath::Vector3&	GetForward() { return m_forward; }
+
 
 		void									SetFov(float fov);
 		void									SetSpeed(float speed);
