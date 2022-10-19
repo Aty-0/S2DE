@@ -1,6 +1,6 @@
 #include "Application.h"
 #include <Base\CoreMinimal.h>
-#include <GameObjects\StaticMesh.h>
+#include <GameObjects\Components\StaticMesh.h>
 
 using namespace S2DE;
 using namespace S2DE::GameObjects;
@@ -51,9 +51,15 @@ void Application::InputEvents()
 {
 	if (Engine::GetInputManager()->IsKeyDown(KeyCode::KEY_O))
 	{
-		StaticMesh* mesh = CreateGameObject<StaticMesh>("Sponza", "GameObject", 1, Vector3(Vector3(0, 0, 0)));
-		mesh->LoadMesh("Sponza");
-		mesh->SetScale(DirectX::SimpleMath::Vector3(0.15f, 0.15f, 0.15f));
+		auto meshGO = CreateGameObject<GameObject>("Sponza", "GameObject", 1, Vector3(Vector3(0, 0, 0)));
+		meshGO->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(0.15f, 0.15f, 0.15f));
+		auto meshC = meshGO->CreateComponent<Components::StaticMesh>();
+		meshC->LoadMesh("Sponza");
+		auto testGet = meshGO->GetComponent<Components::StaticMesh>();
+		if (testGet != nullptr)
+			Logger::Log("%s %s %s", testGet->GetOwner()->GetName().c_str(), testGet->GetName().c_str(), testGet->GetUUIDString().c_str());
+		else
+			Logger::Error("get error");
 	}
 }
 
