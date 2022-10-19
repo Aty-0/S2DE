@@ -2,7 +2,7 @@
 #include "Base/Main/Common.h"
 #include "Base/Engine.h"
 #include "GameObjects/Base/GameObject.h"
-#include "GameObjects/Base/GameObjectIDGenerator.h"
+#include "Base/Utils/UUID.h"
 
 namespace S2DE::Scene
 {
@@ -69,7 +69,7 @@ namespace S2DE::Scene
 			Logger::Log("[Scene] [%s] Added [%s] Name: %s UUID: %s at Position (%f %f %f)",
 				m_name.c_str(), Core::Utils::GetClassNameInString(g).c_str(),
 				name.c_str(), g->GetUUIDString().c_str(),
-				g->GetPosition().x, g->GetPosition().y, g->GetPosition().z);
+				g->GetTransform()->GetPosition().x, g->GetTransform()->GetPosition().y, g->GetTransform()->GetPosition().z);
 
 			//Add object to storage
 			std::shared_ptr<T> objectShared = std::make_shared<T>(*g);
@@ -118,7 +118,7 @@ namespace S2DE::Scene
 		{
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
-			Logger::Log("[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), GameObjects::GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str(),
+			Logger::Log("[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), Core::Utils::UUID::ConvertUUIDToString(object_id).c_str(),
 				Core::Utils::isStringEmpty(new_name) ? "No" : new_name.c_str());
 
 			SceneObjectStorage::iterator it = std::find_if(m_storage.begin(), m_storage.end(),

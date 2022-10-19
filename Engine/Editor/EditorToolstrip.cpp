@@ -5,10 +5,8 @@
 #include "Scene/SceneManager.h"
 #include "Render/Renderer.h"
 
-#include "GameObjects/Camera.h"
-#include "GameObjects/Sprite.h"
-#include "GameObjects/Test/TestObject.h"
-#include "GameObjects/Test/NoTextureTestObject.h"
+#include "GameObjects/Components/Camera.h"
+#include "GameObjects/Components/Sprite.h"
 
 #include "Editor/EditorColorPicker.h"
 
@@ -31,7 +29,7 @@ namespace S2DE::Editor
 
 		if (ImGui::BeginMainMenuBar()) 
 		{
-			auto maincamera = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
+			auto maincamera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
 			
 			if (ImGui::BeginMenu("File")) 
 			{
@@ -138,7 +136,7 @@ namespace S2DE::Editor
 					DirectX::SimpleMath::Vector3 spawn_vec = DirectX::SimpleMath::Vector3::Zero;
 
 					if (maincamera != nullptr)
-						spawn_vec = maincamera->GetPosition();
+						spawn_vec = maincamera->GetOwner()->GetTransform()->GetPosition();
 
 					if (ImGui::MenuItem("GameObject"))
 					{
@@ -146,21 +144,8 @@ namespace S2DE::Editor
 					}
 					if (ImGui::MenuItem("Sprite"))
 					{
-						Scene::CreateGameObject<GameObjects::Sprite>("Sprite", "GameObject", 1, spawn_vec);
-					}
-
-					if (ImGui::BeginMenu("Test's"))
-					{
-						if (ImGui::MenuItem("Basic Test object"))
-						{
-							Scene::CreateGameObject<GameObjects::TestObject>("TestObject", "GameObject", 1, spawn_vec);
-						}
-
-						if (ImGui::MenuItem("No texture test object"))
-						{
-							Scene::CreateGameObject<GameObjects::NoTextureTestObject>("NoTextureTestObject", "GameObject", 1, spawn_vec);
-						}
-						ImGui::EndMenu();
+						auto sprite = Scene::CreateGameObject<GameObjects::GameObject>("Sprite", "GameObject", 1, spawn_vec + DirectX::SimpleMath::Vector3(0,0,-1));
+						sprite->CreateComponent<GameObjects::Components::Sprite>();
 					}
 					ImGui::EndMenu();
 				}
@@ -209,17 +194,28 @@ namespace S2DE::Editor
 			if (maincamera != nullptr)
 			{
 				ImGui::SetCursorPos(ImVec2((Core::Engine::GetGameWindow()->GetWidth() / 2) - 100,0));
+				auto cameraTransform = maincamera->GetOwner()->GetTransform();
+
+				ImGui::Text("Pos: %f %f %f", cameraTransform->GetPosition().x,
+					cameraTransform->GetPosition().y,
+					cameraTransform->GetPosition().z);
+
+
+				ImGui::Text("Rot: %f %f %f", cameraTransform->GetRotation().x,
+					cameraTransform->GetRotation().y,
+					cameraTransform->GetRotation().z);
+
 				if (ImGui::Button("2D"))
 				{
-					maincamera->SetProjectionMode(GameObjects::Camera::CameraProjectionMode::Orthographics);
+					maincamera->SetProjectionMode(GameObjects::Components::Camera::CameraProjectionMode::Orthographics);
 				}
 
 				if (ImGui::Button("3D"))
 				{
-					maincamera->SetProjectionMode(GameObjects::Camera::CameraProjectionMode::Perspective);
+					maincamera->SetProjectionMode(GameObjects::Components::Camera::CameraProjectionMode::Perspective);
 				}
 
-				if (maincamera->GetProjectionMode() == GameObjects::Camera::CameraProjectionMode::Perspective)
+				if (maincamera->GetProjectionMode() == GameObjects::Components::Camera::CameraProjectionMode::Perspective)
 				{
 					static float fov = maincamera->GetFov();
 					ImGui::PushItemWidth(100);

@@ -1,8 +1,10 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "GameObjects/Base/Transform.h"
-#include "GameObjects/Base/GameObjectIDGenerator.h"
+#include "Base/Utils/UUID.h"
+#include "Base/Utils/Logger.h"
 
+#include "GameObjects/Components/Component.h"
+#include "GameObjects/Components/Transform.h"
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/utility.hpp>
@@ -12,56 +14,37 @@
 
 //TODO: 1. Prefix 
 //		2. Objects serialization
-//#define S2DE_SERIALIZE_WITH_GAMEOBJECT_BASE(AR, T) AR & boost::serialization::base_object<S2DE::GameObjects::GameObject>(*this) & T;
-//		3. Components
-//			struct AlphaComponent
-//			{
-//				bool useAlpha = false;
-//			};
 
-#define S2DE_DEFAULT_GAMEOBJECT_NAME "EmptyGameObjectName"
-#define S2DE_DEFAULT_GAMEOBJECT_TYPE "EmptyGameObjectType"
+#include <typeinfo>
+#include <typeindex>
+
+#define S2DE_UUID_REGENERATE "R"
+#define S2DE_DEFAULT_GAMEOBJECT_NAME "GameObject"
+#define S2DE_DEFAULT_GAMEOBJECT_TYPE "Default"
 #define S2DE_DEFAULT_GAMEOBJECT_PREFIX 0
-#define	S2DE_ENGINE_GAMEOBJECT_TYPE "_Engine"
+#define	S2DE_ENGINE_GAMEOBJECT_TYPE "_Engine_"
 
 
 namespace S2DE::GameObjects
 {
-
-	class S2DE_API GameObject : public Transform
+	class S2DE_API GameObject : public Core::Utils::UUID
 	{
 	public:
 		GameObject();
+		explicit GameObject(std::string name, std::string type, std::int32_t prefix, std::string id = std::string());
+
 		virtual ~GameObject();
 
-		//Object initialization 
-		void						 Init(std::string name, std::string type, std::int32_t prefix, std::string id = std::string());
-
-		//Main gameobject render function
+		
 		void						 Render();
-		void						 RenderImGUI();
-
-		//Main gameobject update function
-		void						 Update(float DeltaTime);
-
-		//Set new name for gameobject
+		void						 Update(float deltaTime);
 		void						 SetName(std::string name);
-
-		//Set new prefix for gameobject
 		void						 SetPrefix(std::int32_t prefix);
-
-		//Set new type for gameobject
 		void						 SetType(std::string type);
-
-		//Set visible condition for gameobject
 		void						 SetVisible(bool visible);
-
-		//Set enabled condition for gameobject
 		void						 SetEnabled(bool enabled);
 									 
 		inline std::string           GetName()   const { return m_name; }
-		inline boost::uuids::uuid    GetUUID()	 const { return m_id->GetUUID(); }
-		inline std::string           GetUUIDString()     const { return m_id->GetUUIDString(); }
 		inline std::int32_t			 GetPrefix() const { return m_prefix; }
 		inline std::string           GetType()   const { return m_type; }
 		inline bool                  isVisible() const { return m_visible; }
@@ -71,26 +54,125 @@ namespace S2DE::GameObjects
 		virtual void				 Select() { m_isSelected = true; }
 		virtual void				 Unselect() { m_isSelected = false; }
 
-		//FIX ME: Remove
-		bool						 Alpha = false;
-
-	protected:
-		virtual void				 OnPositionChanged()  override { }
-		virtual void				 OnRotationChanged()  override { }
-		virtual void				 OnScaleChanged()     override { }
-		virtual void				 OnCreate() { }
-		virtual void				 OnDestroy() { }
-		virtual void				 OnRender() { }
-		virtual void				 OnUpdate(float DeltaTime) { }
-		virtual void				 OnRenderImGUI() { }
+		// Get transform component
+		inline Components::Transform*			 GetTransform() { return m_transform; }
 
 	private:
 		std::string					 m_name; 
 		std::int32_t				 m_prefix;
-		GameObjectIDGenerator*		 m_id;
 		std::string					 m_type;
 		bool						 m_enabled;
 		bool						 m_visible;
 		bool						 m_isSelected;
+
+		Components::Transform*					 m_transform;
+	public:
+		template<typename T>
+		T* AddComponent(T* component, std::uint32_t priority = 0)
+		{
+			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
+				"This is not Component or Component based class");
+
+			component->OnCreate();
+			component->SetOwner(this);
+			component->SetName(Core::Utils::GetClassNameInString(component));
+			Core::Utils::Logger::Log("[%s] AddComponent %s", GetName().c_str(), component->GetName().c_str());
+
+			m_components.push_back(std::make_pair(std::make_pair(component->GetUUID(), std::type_index(typeid(T))), component));
+			return component;
+		}
+
+		// TODO: delete by priority ?
+
+		template<typename T = Components::Component>
+		void DeleteComponent()
+		{
+			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
+				"This is not Component or Component based class");
+
+			auto component = GetComponent<T>();
+			component->OnDestroy();
+
+			m_components.erase(component);
+		}
+
+		template<typename T = Components::Component>
+		T* CreateComponent(std::uint32_t priority = 0)
+		{
+			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
+				"This is not Component or Component based class");
+
+			auto component = new T();
+
+			component->SetOwner(this);
+			component->SetName(Core::Utils::GetClassNameInString(component));
+			Core::Utils::Logger::Log("[%s] CreateComponent %s", GetName().c_str(), component->GetName().c_str());
+			// When name and owner is setted
+			component->OnCreate();
+
+			// TODO: 
+			//if(priority != 0)
+			//	component->SetPriority();
+
+			m_components.push_back(std::make_pair(std::make_pair(component->GetUUID(), std::type_index(typeid(T))), component));
+
+			return component;
+		}
+
+		template<typename T = Components::Component>
+		inline T* GetComponent() 
+		{ 
+			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
+				"This is not Component or Component based class");
+
+			std::type_index typeIndex = std::type_index(typeid(T));
+
+			std::vector<std::pair<std::pair<boost::uuids::uuid, std::type_index>, Components::Component*>>::iterator it =
+				std::find_if(m_components.begin(), m_components.end(), [&typeIndex](std::pair<std::pair<boost::uuids::uuid,
+					std::type_index>, Components::Component*> const& elem)
+			{ 
+				return elem.first.second == typeIndex;
+			});
+
+			// For avoid null casting 
+			if (it == m_components.end())
+				return nullptr;
+
+			return dynamic_cast<T*>(it->second);
+		}
+
+		template<typename T = Components::Component>
+		inline T* GetComponentInChildren() 
+		{
+			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
+				"This is not Component or Component based class");
+
+			if (m_transform->GetChild() != nullptr)
+			{
+				return m_transform->GetChild()->GetComponent<T>();
+			}
+
+			return nullptr;
+		}
+
+		template<typename T = Components::Component>
+		inline T* GetComponentInParent() 
+		{
+			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
+				"This is not Component or Component based class");
+
+			if (m_transform->GetParent() != nullptr)
+			{
+				return m_transform->GetParent()->GetComponent<T>();
+			}
+
+			return nullptr; 
+		}
+
+	private:
+		// TODO: smart pointer
+		std::vector<std::pair<std::pair<boost::uuids::uuid, std::type_index>, Components::Component*>> m_components;
+
+
 	};
 }

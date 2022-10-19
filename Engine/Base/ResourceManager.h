@@ -6,9 +6,10 @@
 ///Resources headers
 ///////////////////////////////////
 #include "IO/IO_File.h"
-#include "Render/Shader.h"
-#include "Render/Texture.h"
-#include "Render/Mesh.h"
+
+#include "Render/FR/Shader.h"
+#include "Render/FR/Texture.h"
+#include "Render/FR/Mesh.h"
 
 
 #define S2DE_DEFAULT_RESOURCE_DATA_NAME "Gamedata/"
@@ -54,9 +55,9 @@ namespace S2DE::Core
 			m_resource->SetFileName(name);
 
 			//If we have diffrent load functions 
-			if (std::is_same<T, Render::Shader>::value)
+			if (std::is_same<T, Render::FR::Shader>::value)
 			{
-				if (!reinterpret_cast<Render::Shader*>(m_resource)->SetPaths(
+				if (!reinterpret_cast<Render::FR::Shader*>(m_resource)->SetPaths(
 					Engine::GetResourceManager().GetFilePath(name + "_vs", reinterpret_cast<T*>(m_resource)),
 					Engine::GetResourceManager().GetFilePath(name + "_ps", reinterpret_cast<T*>(m_resource))
 				))
@@ -91,7 +92,7 @@ namespace S2DE::Core
 	{
 	private:
 		std::map<std::pair<std::string, std::type_index>, std::unique_ptr<RMResourceBase>>	m_ResourceStorage;
-		std::unique_ptr <Render::Texture>			m_defaultTexture;
+		std::unique_ptr <Render::FR::Texture>			m_defaultTexture;
 		std::string									m_dataFolderName;
 	public:
 		ResourceManager();
@@ -102,7 +103,7 @@ namespace S2DE::Core
 		//Clear all resources
 		void				ClearAll();
 		//Get default texture
-		inline Render::Texture*		GetDefaultTexture() const { return m_defaultTexture.get(); }
+		inline Render::FR::Texture* GetDefaultTexture() const { return m_defaultTexture.get(); }
 		//Get data folder name
 		inline std::string  GetNameOfDataFolder() const { return m_dataFolderName; }
 
@@ -165,7 +166,7 @@ namespace S2DE::Core
 			auto it = m_ResourceStorage.find(key);
 
 			if (it == m_ResourceStorage.end())
-				return std::is_same<T, Render::Texture>::value ? reinterpret_cast<T*>(Engine::GetResourceManager().GetDefaultTexture()) : nullptr;
+				return std::is_same<T, Render::FR::Texture>::value ? reinterpret_cast<T*>(Engine::GetResourceManager().GetDefaultTexture()) : nullptr;
 	
 			return reinterpret_cast<RMResource<T>*>(it->second.get())->Get();
 		}

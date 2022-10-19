@@ -14,7 +14,7 @@ namespace S2DE::Scene
 
 	}
 
-	//FIX ME: Reducing perfomance
+	// FIX ME: Reducing perfomance
 	void Scene::CheckNameOnExist(std::string& name)
 	{
 		std::uint32_t count = 0;
@@ -94,7 +94,7 @@ namespace S2DE::Scene
 		{
 			Logger::Error("[Scene] [%s] Can't delete object UUID: %s", 
 				m_name.c_str(), 
-				GameObjects::GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str());
+				Core::Utils::UUID::ConvertUUIDToString(object_id).c_str());
 			return;
 		}
 

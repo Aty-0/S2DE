@@ -3,7 +3,7 @@
 #include "Base/ResourceManager.h"
 #include "Base/GameWindow.h"
 #include "Scene/SceneManager.h"
-#include "GameObjects/StaticMesh.h"
+#include "GameObjects/Components/StaticMesh.h"
 #include "Base/InputManager.h"
 
 namespace S2DE::Editor
@@ -44,11 +44,13 @@ namespace S2DE::Editor
 
 				if (ImGui::Button("Load & Create New Object"))
 				{
-					GameObjects::StaticMesh* mesh = Scene::CreateGameObject<GameObjects::StaticMesh>(fileName, std::string(), 0, 
+					auto meshGO = Scene::CreateGameObject<GameObjects::GameObject>(fileName, std::string(), 0, 
 						DirectX::SimpleMath::Vector3(position[0], position[1], position[2]),
 						DirectX::SimpleMath::Vector3(rotation[0], rotation[1], rotation[2]),
 						DirectX::SimpleMath::Vector3(scale[0], scale[1], scale[2]));
-					mesh->LoadMesh(fileName);
+
+					auto meshComponent = meshGO->CreateComponent<GameObjects::Components::StaticMesh>();
+					meshComponent->LoadMesh(fileName);
 				}
 
 			}

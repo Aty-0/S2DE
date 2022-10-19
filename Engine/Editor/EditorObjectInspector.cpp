@@ -61,9 +61,7 @@ namespace S2DE::Editor
 					//If iterator is empty we skip it
 					if (object.second == nullptr)
 						continue;
-					if (object.second->Alpha == false)
-						continue;
-
+					
 					//If we don't need to show objects with ENGINE prefix we skip that object
 					if (m_show_engine_object == false && object.second->GetPrefix() == -1)
 						continue;
@@ -89,47 +87,7 @@ namespace S2DE::Editor
 
 				ImGui::ListBoxFooter();
 			}
-
-			ImGui::Spacing();
-			ImGui::Separator();
-
-			if (ImGui::ListBoxHeader("2", ImVec2(ImGui::GetWindowSize().x, 300)))
-			{
-				for (const auto& object : Core::Engine::GetSceneManager()->GetScene()->GetStorage())
-				{
-					//If iterator is empty we skip it
-					if (object.second == nullptr)
-						continue;
-
-					if (object.second->Alpha  == true)
-						continue;
-
-					//If we don't need to show objects with ENGINE prefix we skip that object
-					if (m_show_engine_object == false && object.second->GetPrefix() == -1)
-						continue;
-
-					if (ImGui::Selectable(object.first.first.c_str(), object.second->isSelected()))
-					{
-						if (m_handle == nullptr)
-						{
-							m_select_object_name = object.first.first;
-							m_handle = object.second.get();
-							m_handle->Select();
-						}
-						else if (m_handle != object.second.get())
-						{
-							//Unselect previous object and select new object
-							m_handle->Unselect();
-							m_select_object_name = object.first.first;
-							m_handle = object.second.get();
-							m_handle->Select();
-						}
-					}
-
-				}
-				ImGui::ListBoxFooter();
-			}
-
+	
 			ImGui::End();
 		}
 	}

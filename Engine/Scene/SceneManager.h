@@ -23,7 +23,6 @@ namespace S2DE::Scene
 		//Save current scene
 		bool		   SaveScene();
 					   
-		void		   RenderImGUI();
 		void		   RenderScene();
 		void		   UpdateScene(float DeltaTime);
 					   
@@ -94,14 +93,22 @@ namespace S2DE::Scene
 		DirectX::SimpleMath::Vector3 rotation = DirectX::SimpleMath::Vector3::Zero,
 		DirectX::SimpleMath::Vector3 scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f))
 	{
-		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
-		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
-		auto object = new T();
-		object->SetPosition(position);
-		object->SetRotation(rotation);
-		object->SetScale(scale);
-		object->Init(name, type, prefix, std::string());
+		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, 
+			"This is not GameObject or GameObject based class");
 
+		// Without scene we can't do something 
+		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
+
+		auto object = new T(name, type, prefix, std::string());
+		auto transform = object->GetTransform();
+
+		// If we get there assertion fail it means something very bad happened. 
+		S2DE_ASSERT(transform);
+
+		transform->SetPosition(position);
+		transform->SetRotation(rotation);
+		transform->SetScale(scale);
+		
 		return Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
 	}
 
@@ -109,7 +116,9 @@ namespace S2DE::Scene
 	template<typename T = GameObjects::GameObject>
 	static inline T* CreateGameObjectNoInit()
 	{
-		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
+		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, 
+			"This is not GameObject or GameObject based class");
+		// Without scene we can't do something 
 		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
 		auto object = new T();
 		return Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);

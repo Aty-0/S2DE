@@ -19,8 +19,8 @@ namespace S2DE::Core
 
 		for (const auto& p : m_ResourceStorage)
 		{
-			if (p.first.second == std::type_index(typeid(Render::Shader)))
-				reinterpret_cast<RMResource<Render::Shader>*>(p.second.get())->Get()->Reload();
+			if (p.first.second == std::type_index(typeid(Render::FR::Shader)))
+				reinterpret_cast<RMResource<Render::FR::Shader>*>(p.second.get())->Get()->Reload();
 		}
 	}
 	
@@ -30,9 +30,9 @@ namespace S2DE::Core
 
 		for (const auto& p : m_ResourceStorage)
 		{
-			if (p.first.second == std::type_index(typeid(Render::Texture)))
+			if (p.first.second == std::type_index(typeid(Render::FR::Texture)))
 			{
-				Render::Texture* t = reinterpret_cast<RMResource<Render::Texture>*>(p.second.get())->Get();
+				auto t = reinterpret_cast<RMResource<Render::FR::Texture>*>(p.second.get())->Get();
 				t->Load(GetFilePath(t->GetName(), t));
 			}
 		}
@@ -40,7 +40,7 @@ namespace S2DE::Core
 
 	bool ResourceManager::LoadDefaultTexture() 
 	{
-		m_defaultTexture = std::make_unique<Render::Texture>();
+		m_defaultTexture = std::make_unique<Render::FR::Texture>();
 		m_defaultTexture->SetFileName("default_texture");
 		return m_defaultTexture->Load(GetFilePath("default_texture", m_defaultTexture.get()));
 	}

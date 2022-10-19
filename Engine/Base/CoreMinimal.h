@@ -7,13 +7,15 @@
 //////////////////////////////////////////
 #include "Render/Renderer.h"
 #include "Render/Buffers.h"
-#include "Render/Texture.h"
-#include "Render/Shader.h"
+#include "Render/FR/Texture.h"
+#include "Render/FR/Shader.h"
 
 //////////////////////////////////////////
 #include "GameObjects/Base/GameObject.h"
-#include "GameObjects/Sprite.h"
-#include "GameObjects/Camera.h"
+
+#include "GameObjects/Components/Component.h"
+#include "GameObjects/Components/Sprite.h"
+#include "GameObjects/Components/Camera.h"
 
 //////////////////////////////////////////
 #include "Scene/Scene.h"

@@ -30,9 +30,9 @@ namespace S2DE::Core::Utils
 		}
 
 		//Remove other garbage 
-		pos = 0;
-		pos = class_name.find(" ", pos);
-		class_name.erase(pos, class_name.length() - 1);
+		// pos = 0;
+		// pos = class_name.find(" ", pos);
+		// class_name.erase(pos, class_name.length() - 1);
 
 		return class_name;
 	}

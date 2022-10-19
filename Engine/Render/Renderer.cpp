@@ -556,10 +556,6 @@ namespace S2DE::Render
 				it.second->Render();
 		}
 
-
-
-		Engine::GetSceneManager()->RenderImGUI();
-
 		#if defined(S2DE_DEBUG_RENDER_MODE)
 				if (Engine::isEditor() && m_showImguiDemoWindow)
 					ImGui::ShowDemoWindow(&m_showImguiDemoWindow);

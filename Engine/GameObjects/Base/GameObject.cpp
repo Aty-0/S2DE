@@ -8,38 +8,67 @@ namespace S2DE::GameObjects
 		m_prefix(0),
 		m_visible(true),
 		m_enabled(true),
-		m_id(new GameObjectIDGenerator()),
 		m_isSelected(false)
 	{								  
+	}
 
+	GameObject::GameObject(std::string name, std::string type, std::int32_t prefix, std::string id)
+	{
+		// Basic setup: set name, type and prefix 
+		SetName(name);
+		SetType(type);
+		SetPrefix(prefix);
+
+		// TODO: Need check UUID on exist or invalid value
+		if (id == S2DE_UUID_REGENERATE)
+			RegenerateUUID();
+		else if (!Core::Utils::isStringEmpty(id))
+			SetUUID(id);
+
+		m_visible = true;
+		m_enabled = true;
+
+		//OnCreate();
+
+		m_transform = CreateComponent<Components::Transform>();
 	}
 
 	GameObject::~GameObject()
 	{
-		OnDestroy();
+		//OnDestroy();
 
+		m_components.clear();
 		m_type.clear();
 		m_name.clear();
-		m_id = nullptr;
 		m_prefix = 0;
 	}
 
-	void GameObject::Update(float DeltaTime)
+	void GameObject::Update(float deltaTime)
 	{
 		if (m_enabled == true)
-			OnUpdate(DeltaTime);
-	}
-
-	void GameObject::RenderImGUI()
-	{
-		if (m_visible == true)
-			OnRenderImGUI();
+		{
+			for (auto component : m_components)
+			{
+				if (component.second != nullptr)
+				{
+					component.second->OnUpdate(deltaTime);
+				}
+			}
+		}
 	}
 
 	void GameObject::Render()
 	{
 		if (m_visible == true)
-			OnRender();
+		{
+			for (auto component : m_components)
+			{
+				if (component.second != nullptr)
+				{
+					component.second->OnRender();
+				}
+			}
+		}
 	}
 
 	void GameObject::SetName(std::string name)
@@ -67,19 +96,4 @@ namespace S2DE::GameObjects
 		m_prefix = prefix;
 	}
 
-	void GameObject::Init(std::string name, std::string type, std::int32_t prefix, std::string id)
-	{
-		//Set name, type and prefix 
-		SetName(name);
-		SetType(type);
-		SetPrefix(prefix);
-
-		//TODO: Need check special id on invalid
-		if(id == "REGENERATE")
-			m_id->RegenerateUUID();
-		else if (!Core::Utils::isStringEmpty(id))
-			m_id->SetUUID(id);
-
-		OnCreate();
-	}
 }
