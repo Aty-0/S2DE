@@ -25,14 +25,14 @@ namespace S2DE::Core::Utils
 		std::uint64_t pos = 0;
 		while (pos != std::string::npos)
 		{
-			class_name = class_name.substr(pos + 2);
+			class_name = class_name.substr(pos + 1);
 			pos = class_name.find(":", pos);
 		}
 
 		//Remove other garbage 
-		// pos = 0;
-		// pos = class_name.find(" ", pos);
-		// class_name.erase(pos, class_name.length() - 1);
+		pos = 0;
+		pos = class_name.find(" ", pos);
+		class_name.erase(pos, class_name.length() - 1);
 
 		return class_name;
 	}

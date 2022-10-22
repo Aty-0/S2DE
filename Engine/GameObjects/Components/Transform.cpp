@@ -38,8 +38,15 @@ namespace S2DE::GameObjects::Components
 		return GetChild() == go->GetTransform()->GetChild();
 	}
 
+	void Transform::SetChild(GameObject* go)
+	{
+		m_child = go;
+	}
+
 	void Transform::SetParent(GameObject* go)
 	{
+		go->GetTransform()->SetChild(GetOwner());
+
 		m_parent = go;
 	}
 
@@ -189,19 +196,21 @@ namespace S2DE::GameObjects::Components
 	}
 
 	DirectX::SimpleMath::Matrix Transform::UpdateTransformation()
-	{	
-		Transform* transformParent = nullptr;
+	{			
+		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
+		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
+		auto parentScale = DirectX::SimpleMath::Vector3::One;
 
-		DirectX::SimpleMath::Vector3 parentPosition = DirectX::SimpleMath::Vector3::Zero;
-		DirectX::SimpleMath::Vector3 parentRotation = DirectX::SimpleMath::Vector3::Zero;
-		DirectX::SimpleMath::Vector3 parentScale = DirectX::SimpleMath::Vector3::One;
-
-		if (m_parent != nullptr)
+		if (GetParent() != nullptr)
 		{
-			transformParent = m_parent->GetTransform();
-			parentPosition = transformParent->GetPosition();
-			parentRotation = transformParent->GetPosition();
-			parentScale	   = transformParent->GetPosition();
+			auto transformParent = GetParent()->GetTransform();
+
+			if (transformParent != nullptr)
+			{
+				parentPosition = transformParent->GetPosition();
+				parentRotation = transformParent->GetRotation();
+				parentScale = transformParent->GetScale();
+			}
 		}
 
 		m_worldMatrix = DirectX::XMMatrixTransformation(

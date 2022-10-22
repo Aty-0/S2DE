@@ -34,6 +34,7 @@ namespace S2DE::GameObjects::Components
 
 		virtual void									OnRender() override;
 
+		virtual void									OnCreate();
 	protected:
 		virtual void									CreateVertexBuffer();
 		virtual void									CreateIndexBuffer();

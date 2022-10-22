@@ -27,6 +27,7 @@
 
 namespace S2DE::GameObjects
 {
+	typedef std::vector<std::pair<std::pair<boost::uuids::uuid, std::type_index>, Components::Component*>> ComponentsList;
 	class S2DE_API GameObject : public Core::Utils::UUID
 	{
 	public:
@@ -55,8 +56,8 @@ namespace S2DE::GameObjects
 		virtual void				 Unselect() { m_isSelected = false; }
 
 		// Get transform component
-		inline Components::Transform*			 GetTransform() { return m_transform; }
-
+		inline Components::Transform*			 GetTransform() const { return m_transform; }
+		inline ComponentsList		GetComponentsList() const { return m_components; }
 	private:
 		std::string					 m_name; 
 		std::int32_t				 m_prefix;
@@ -127,8 +128,7 @@ namespace S2DE::GameObjects
 
 			std::type_index typeIndex = std::type_index(typeid(T));
 
-			std::vector<std::pair<std::pair<boost::uuids::uuid, std::type_index>, Components::Component*>>::iterator it =
-				std::find_if(m_components.begin(), m_components.end(), [&typeIndex](std::pair<std::pair<boost::uuids::uuid,
+			ComponentsList::iterator it = std::find_if(m_components.begin(), m_components.end(), [&typeIndex](std::pair<std::pair<boost::uuids::uuid,
 					std::type_index>, Components::Component*> const& elem)
 			{ 
 				return elem.first.second == typeIndex;
@@ -171,7 +171,7 @@ namespace S2DE::GameObjects
 
 	private:
 		// TODO: smart pointer
-		std::vector<std::pair<std::pair<boost::uuids::uuid, std::type_index>, Components::Component*>> m_components;
+		ComponentsList m_components;
 
 
 	};

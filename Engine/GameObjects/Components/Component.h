@@ -19,6 +19,11 @@ namespace S2DE::GameObjects::Components
 		inline std::uint32_t		 GetPriority() const { return m_priority; }
 		inline GameObject*			 GetOwner() const { return m_owner; }
 
+		inline bool                  isSelected() const { return m_isSelected; }
+
+		virtual void				 Select() { m_isSelected = true; }
+		virtual void				 Unselect() { m_isSelected = false; }
+
 		virtual void				 OnCreate() { }
 		virtual void				 OnDestroy() { }
 		virtual void				 OnRender() { }
@@ -29,7 +34,7 @@ namespace S2DE::GameObjects::Components
 		std::string			m_name;
 		std::uint32_t		m_priority;
 		GameObject*			m_owner;
-
+		bool				m_isSelected;
 	protected:
 		// Needed for setting instance pointer safely
 		friend GameObject;

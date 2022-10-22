@@ -17,8 +17,7 @@ namespace S2DE::Scene
 	SceneManager::SceneManager() : 
 		m_scene(nullptr),
 		m_update_enabled(true),
-		m_render_enabled(true),
-		m_render_imgui_enabled(true)
+		m_render_enabled(true)
 	{
 
 	}
@@ -158,11 +157,6 @@ namespace S2DE::Scene
 	void SceneManager::ToggleGameObjectVisibility()
 	{
 		m_render_enabled =! m_render_enabled;
-	}
-
-	void SceneManager::ToggleImGUIVisibility()
-	{
-		m_render_imgui_enabled =! m_render_imgui_enabled;
 	}
 
 	void SceneManager::ToggleGameObjectUpdate()

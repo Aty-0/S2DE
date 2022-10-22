@@ -4,14 +4,21 @@
 
 namespace S2DE::GameObjects::Components
 {
-	Component::Component()
+	Component::Component() :
+		m_owner(nullptr),
+		m_isSelected(false),
+		m_name(std::string()),
+		m_priority(0)
 	{
 
 	}
 
 	Component::~Component()
 	{
-
+		m_owner = nullptr;
+		m_isSelected = false;
+		m_name = std::string();
+		m_priority = 0;
 	}
 
 	void Component::SetName(std::string name)

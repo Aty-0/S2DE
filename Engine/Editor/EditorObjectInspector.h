@@ -7,6 +7,11 @@ namespace S2DE::GameObjects
 	class GameObject;
 }
 
+namespace S2DE::GameObjects::Components
+{
+	class Component;
+}
+
 namespace S2DE::Editor
 {
 	class S2DE_API EditorObjectInspector : public Render::ImGui_Window
@@ -16,10 +21,11 @@ namespace S2DE::Editor
 		~EditorObjectInspector();
 
 		virtual void						  Render() override;										  
-		inline class GameObjects::GameObject* GetHandle() { return m_handle; }
+		inline GameObjects::GameObject*		  GetHandle() { return m_handle; }
 		void								  Reset();
 	private:
-		class GameObjects::GameObject*	m_handle;
+		GameObjects::GameObject*		m_handle;
+		GameObjects::Components::Component*		m_component;
 		std::string						m_select_object_name;
 		bool							m_show_engine_object;
 	};

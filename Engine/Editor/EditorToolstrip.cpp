@@ -33,12 +33,12 @@ namespace S2DE::Editor
 			
 			if (ImGui::BeginMenu("File")) 
 			{
-				if (ImGui::MenuItem("Open"))
+				if (ImGui::MenuItem("Open scene"))
 				{
 					Logger::Log("Not implemented");
 				}
 
-				if (ImGui::MenuItem("Save"))
+				if (ImGui::MenuItem("Save scene"))
 				{
 					Logger::Log("Not implemented");
 				}
@@ -48,28 +48,22 @@ namespace S2DE::Editor
 
 			if (ImGui::BeginMenu("View"))
 			{
-				if (ImGui::MenuItem("Object inspector"))
+				if (ImGui::MenuItem("Draw object inspector"))
 				{
 					m_inspector = Core::Engine::GetRenderer()->GetImGui_Window<Editor::EditorObjectInspector*>("EditorObjectInspector");
 
 					m_inspector->ToggleDraw();
 				}
 
-				if (ImGui::MenuItem("Toggle objects visible"))
+				if (ImGui::MenuItem("Draw GameObject's"))
 				{
 					Core::Engine::GetSceneManager()->ToggleGameObjectVisibility();
 				}
 
-				if (ImGui::MenuItem("Toggle editor windows"))
+				if (ImGui::MenuItem("Draw editor windows"))
 				{
 					Core::Engine::GetRenderer()->ToggleImGuiWindowsVisible();
 				}
-
-				if (ImGui::MenuItem("Toggle debug (in objects) windows"))
-				{
-					Core::Engine::GetSceneManager()->ToggleImGUIVisibility();
-				}
-
 
 				if (ImGui::BeginMenu("Fill mode"))
 				{
@@ -194,17 +188,7 @@ namespace S2DE::Editor
 			if (maincamera != nullptr)
 			{
 				ImGui::SetCursorPos(ImVec2((Core::Engine::GetGameWindow()->GetWidth() / 2) - 100,0));
-				auto cameraTransform = maincamera->GetOwner()->GetTransform();
-
-				ImGui::Text("Pos: %f %f %f", cameraTransform->GetPosition().x,
-					cameraTransform->GetPosition().y,
-					cameraTransform->GetPosition().z);
-
-
-				ImGui::Text("Rot: %f %f %f", cameraTransform->GetRotation().x,
-					cameraTransform->GetRotation().y,
-					cameraTransform->GetRotation().z);
-
+				
 				if (ImGui::Button("2D"))
 				{
 					maincamera->SetProjectionMode(GameObjects::Components::Camera::CameraProjectionMode::Orthographics);
@@ -230,7 +214,7 @@ namespace S2DE::Editor
 				{
 					static float zoom = maincamera->GetZoom();
 					ImGui::PushItemWidth(100);
-					if (ImGui::SliderFloat("Zoom", &zoom, 0.0001f, 0.13f))
+					if (ImGui::SliderFloat("Zoom", &zoom, 0.01f, 0.13f))
 					{
 						maincamera->SetZoom(zoom);
 					}

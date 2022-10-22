@@ -56,6 +56,9 @@ namespace S2DE::GameObjects::Components
 		inline GameObject*						GetChild() const { return m_child; }
 		inline GameObject*						GetParent() const { return m_parent; }
 
+	protected:
+		void									SetChild(GameObject* go);
+
 	private:
 		DirectX::SimpleMath::Vector3			m_position;
 		DirectX::SimpleMath::Vector3			m_rotation;

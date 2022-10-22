@@ -35,14 +35,13 @@ namespace S2DE::Scene
 
 
 		void		   ToggleGameObjectVisibility();
-		void		   ToggleImGUIVisibility();
 		void		   ToggleGameObjectUpdate();
+
 	private:
 		Scene*		   m_scene;
 					   
 		bool		   m_update_enabled;
 		bool		   m_render_enabled;
-		bool		   m_render_imgui_enabled;
 	};
 
 	//FIX ME: Need to replace this functions 

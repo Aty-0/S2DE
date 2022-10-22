@@ -12,7 +12,13 @@ namespace S2DE::GameObjects
 	{								  
 	}
 
-	GameObject::GameObject(std::string name, std::string type, std::int32_t prefix, std::string id)
+	GameObject::GameObject(std::string name, std::string type, std::int32_t prefix, std::string id) :
+		m_name(std::string()),
+		m_type(std::string()),
+		m_prefix(0),
+		m_visible(true),
+		m_enabled(true),
+		m_isSelected(false)
 	{
 		// Basic setup: set name, type and prefix 
 		SetName(name);
@@ -25,8 +31,6 @@ namespace S2DE::GameObjects
 		else if (!Core::Utils::isStringEmpty(id))
 			SetUUID(id);
 
-		m_visible = true;
-		m_enabled = true;
 
 		//OnCreate();
 

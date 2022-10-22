@@ -122,7 +122,7 @@ namespace S2DE::Render
 		if (Engine::isEditor())
 		{
 			//AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow(), true);
-			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), false);
+			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), true);
 			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), false);
 
 

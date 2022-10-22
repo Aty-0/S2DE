@@ -2,6 +2,7 @@
 #include "Scene\SceneManager.h"
 #include "GameObjects\Base\GameObject.h"
 #include "GameObjects\Components\Camera.h"
+#include "GameObjects\Components\AlphaComponent.h"
 
 
 namespace S2DE::GameObjects::Components
@@ -131,15 +132,31 @@ namespace S2DE::GameObjects::Components
 	{			
 		auto transform = GetOwner()->GetTransform();
 		auto wMatrix = transform->GetWorldMatrix();
+		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
+		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
+		auto parentScale = DirectX::SimpleMath::Vector3::One;
+
+		if (transform->GetParent() != nullptr)
+		{
+			auto transformParent = transform->GetParent()->GetTransform();
+
+			if (transformParent != nullptr)
+			{
+				parentPosition = transformParent->GetPosition();
+				parentRotation = transformParent->GetRotation();
+				parentScale = transformParent->GetScale();
+			}
+		}
+
 		wMatrix = DirectX::XMMatrixTransformation(
 			//Scale
 			//Center | Rotation | Scaling
-			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, transform->GetScale() * CalcScaleFactor(),
+			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, transform->GetScale() * parentScale * CalcScaleFactor(),
 			//Rotation
 			//Center | Quatarnion
-			DirectX::SimpleMath::Vector3::Zero, TransformHelpers::ToQuaternion(transform->GetRotation()),
+			DirectX::SimpleMath::Vector3::Zero, TransformHelpers::ToQuaternion(transform->GetRotation() + parentRotation),
 			//Translation
-			transform->GetPosition());
+			transform->GetPosition() + parentPosition);
 
 		wMatrix.Transpose(wMatrix);
 
@@ -212,6 +229,11 @@ namespace S2DE::GameObjects::Components
 
 		m_shader = new Render::FR::Shader(*new_shader);
 		S2DE_ASSERT(m_shader != nullptr);		
+	}
+
+	void Sprite::OnCreate()
+	{
+		GetOwner()->CreateComponent<GameObjects::Components::AlphaComponent>();
 	}
 
 	void Sprite::SetDefaultShader()
