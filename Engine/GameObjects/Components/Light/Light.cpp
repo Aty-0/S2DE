@@ -23,16 +23,6 @@ namespace S2DE::GameObjects::Components::Light
 
 		m_index = Light::LightCount;
 		Light::LightCount++;
-
-		CreateIcon();
-
-		// Add callbacks...
-		auto transform = GetOwner()->GetTransform();
-		transform->onPositionChanged.push_back(std::bind(&Light::PositionChanged, this));
-		transform->onRotationChanged.push_back(std::bind(&Light::UpdateCB, this));
-		transform->onScaleChanged.push_back(std::bind(&Light::UpdateCB, this));
-		onColorChanged.push_back(std::bind(&Light::UpdateCB, this));
-		onStrengthChanged.push_back(std::bind(&Light::UpdateCB, this));
 	}
 
 	Light::~Light()
@@ -57,14 +47,12 @@ namespace S2DE::GameObjects::Components::Light
 
 	void Light::PositionChanged()
 	{
-		if (m_iconSprite)
-		{
-			auto spriteTransform = m_iconSprite->GetOwner()->GetTransform();
-			spriteTransform->SetPosition(spriteTransform->GetPosition());
-		}
-
-
 		UpdateCB();
+	}
+
+	void Light::UpdateCB()
+	{
+		Logger::Warning("[Light] UpdateCB is not override");
 	}
 
 	void Light::CreateIcon() 
@@ -81,6 +69,16 @@ namespace S2DE::GameObjects::Components::Light
 	{
 		// Light first initialization
 		UpdateCB();
+
+		CreateIcon();
+
+		// Add callbacks...
+		auto transform = GetOwner()->GetTransform();
+		transform->onPositionChanged.push_back(std::bind(&Light::PositionChanged, this));
+		transform->onRotationChanged.push_back(std::bind(&Light::UpdateCB, this));
+		transform->onScaleChanged.push_back(std::bind(&Light::UpdateCB, this));
+		onColorChanged.push_back(std::bind(&Light::UpdateCB, this));
+		onStrengthChanged.push_back(std::bind(&Light::UpdateCB, this));
 	}
 
 	void Light::RenderIcon()

@@ -9,7 +9,9 @@ namespace S2DE::GameObjects::Components
 		m_position(DirectX::SimpleMath::Vector3::Zero),
 		m_rotation(DirectX::SimpleMath::Vector3::Zero),
 		m_scale(DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f)),
-		m_worldMatrix(DirectX::SimpleMath::Matrix::Identity)
+		m_worldMatrix(DirectX::SimpleMath::Matrix::Identity),
+		m_parent(nullptr),
+		m_child(nullptr)
 	{
 
 	}
@@ -19,6 +21,8 @@ namespace S2DE::GameObjects::Components
 		m_position	= DirectX::SimpleMath::Vector3::Zero;
 		m_rotation	= DirectX::SimpleMath::Vector3::Zero;
 		m_scale		= DirectX::SimpleMath::Vector3::Zero;
+		m_parent	= nullptr;
+		m_child		= nullptr;
 	}
 
 	void Transform::Reset()
@@ -59,6 +63,12 @@ namespace S2DE::GameObjects::Components
 				callback();
 			}
 		}
+
+		// If parent have changes, we should call change and for child
+		if (m_child != nullptr)
+		{
+			m_child->GetTransform()->RunOnPositionChangedCallbacks();
+		}
 	}
 
 	void Transform::RunOnRotationChangedCallbacks()
@@ -70,6 +80,12 @@ namespace S2DE::GameObjects::Components
 				callback();
 			}
 		}
+
+		// If parent have changes, we should call change and for child
+		if (m_child != nullptr)
+		{
+			m_child->GetTransform()->RunOnRotationChangedCallbacks();
+		}
 	}
 
 	void Transform::RunOnScaleChangedCallbacks()
@@ -80,6 +96,12 @@ namespace S2DE::GameObjects::Components
 			{
 				callback();
 			}
+		}
+
+		// If parent have changes, we should call change and for child
+		if (m_child != nullptr)
+		{
+			m_child->GetTransform()->RunOnScaleChangedCallbacks();
 		}
 	}
 

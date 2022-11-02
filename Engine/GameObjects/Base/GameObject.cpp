@@ -41,6 +41,7 @@ namespace S2DE::GameObjects
 	{
 		//OnDestroy();
 
+		m_transform = nullptr;
 		m_components.clear();
 		m_type.clear();
 		m_name.clear();

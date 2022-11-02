@@ -11,41 +11,39 @@
 
 namespace S2DE::GameObjects::Components::Light
 {
-	class S2DE_API Light : public Component 
+	class S2DE_API Light : public Component
 	{
 	public:
 		enum LightTypes
 		{
-			DEFAULT_LIGHT = 0, 
+			DEFAULT_LIGHT = 0,
 			DIRECTIONAL_LIGHT = 1,
 			POINT_LIGHT = 2,
-			SPOT_LIGHT  = 3,
+			SPOT_LIGHT = 3,
 		};
 
 		Light();
 		virtual ~Light();
 
-								 
+
 		void										  SetColor(Math::Color<float> color);
 		void										  SetStrength(float strength);
 		inline Math::Color<float>					  GetColor() const { return m_color; }
 		inline float								  GetStrength()  const { return m_strength; }
 
-	public:											  
+	public:
 		std::vector<std::function<void()>>			  onColorChanged;
 		std::vector<std::function<void()>>			  onStrengthChanged;
-		
-	protected:										  
+
+		virtual void								  OnRender() override;
+		virtual void								  OnCreate() override;
+
+	protected:
 		virtual void								  CreateIcon();
 		virtual void								  RenderIcon();
 
-		virtual void								  UpdateCB() { }
-
-
-		virtual void								  OnRender() override;
-		virtual void								  OnUpdate(float DeltaTime)  override { }
-		virtual void								  OnCreate() override;
-
+		virtual void								  UpdateCB();
+	
 		virtual void								  PositionChanged();
 		virtual void								  ColorChanged();
 		virtual void								  StrengthChanged();

@@ -21,12 +21,17 @@ namespace S2DE::Editor
 		~EditorObjectInspector();
 
 		virtual void						  Render() override;										  
-		inline GameObjects::GameObject*		  GetHandle() { return m_handle; }
+
+		inline GameObjects::GameObject*		  GetSeletectedGameObject() { return m_selectedGameObject; }
+		inline GameObjects::Components::Component*	GetSeletectedComponent() { return m_selectedComponent; }
+
 		void								  Reset();
 	private:
-		GameObjects::GameObject*		m_handle;
-		GameObjects::Components::Component*		m_component;
-		std::string						m_select_object_name;
-		bool							m_show_engine_object;
+		GameObjects::GameObject*				m_selectedGameObject;
+		GameObjects::Components::Component*		m_selectedComponent;
+
+		// Some custom stuff
+		float									m_uiElementsHeight;
+		bool									m_showEngineGameObjects;
 	};
 }

@@ -19,7 +19,7 @@ namespace S2DE::GameObjects::Components::Light
 	void PointLight::UpdateCB()
 	{
 		if (m_lightCB)
-		{								
+		{					
 			m_lightCB->Lock();	
 
 			m_lightStructure.strength				= m_strength;

@@ -3,8 +3,11 @@
 #include "Base/Engine.h"
 #include "Base/ResourceManager.h"
 #include "Scene/Scene.h"
-#include "GameObjects/Base/GameObject.h"
 
+namespace S2DE::GameObjects
+{
+	class GameObject;
+}
 
 namespace S2DE::Scene
 {

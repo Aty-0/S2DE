@@ -9,6 +9,9 @@
 #include "GameObjects/Components/Sprite.h"
 
 #include "Editor/EditorColorPicker.h"
+#include "Base/Utils/SerializeUtils.h"
+
+#include <sstream>
 
 namespace S2DE::Editor
 {
@@ -30,17 +33,17 @@ namespace S2DE::Editor
 		if (ImGui::BeginMainMenuBar()) 
 		{
 			auto maincamera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
-			
+
 			if (ImGui::BeginMenu("File")) 
 			{
 				if (ImGui::MenuItem("Open scene"))
 				{
-					Logger::Log("Not implemented");
+					Core::Engine::GetSceneManager()->LoadScene("");
 				}
 
 				if (ImGui::MenuItem("Save scene"))
 				{
-					Logger::Log("Not implemented");
+					Core::Engine::GetSceneManager()->SaveScene();
 				}
 
 				ImGui::EndMenu();
@@ -99,10 +102,10 @@ namespace S2DE::Editor
 				{
 					m_inspector = Core::Engine::GetRenderer()->GetImGui_Window<Editor::EditorObjectInspector*>("EditorObjectInspector");
 
-					if (m_inspector->GetHandle() != nullptr)
+					if (m_inspector->GetSeletectedGameObject() != nullptr)
 					{
 						//Get object name from handle
-						std::string handle_name = m_inspector->GetHandle()->GetName();
+						std::string handle_name = m_inspector->GetSeletectedGameObject()->GetName();
 						//Reset handle in inspector 
 						m_inspector->Reset();
 						//Delete object
@@ -223,6 +226,7 @@ namespace S2DE::Editor
 				}
 
 			}
+
 			ImGui::EndMainMenuBar();
 		}
 	}

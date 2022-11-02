@@ -136,6 +136,8 @@ namespace S2DE::GameObjects::Components
 		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
 		auto parentScale = DirectX::SimpleMath::Vector3::One;
 
+		// TODO: Get global position, rotation, scale 
+		//		 This is local p, r, s
 		if (transform->GetParent() != nullptr)
 		{
 			auto transformParent = transform->GetParent()->GetTransform();

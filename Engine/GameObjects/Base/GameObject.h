@@ -6,12 +6,6 @@
 #include "GameObjects/Components/Component.h"
 #include "GameObjects/Components/Transform.h"
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/assume_abstract.hpp>
-
-
 //TODO: 1. Prefix 
 //		2. Objects serialization
 
@@ -65,8 +59,7 @@ namespace S2DE::GameObjects
 		bool						 m_enabled;
 		bool						 m_visible;
 		bool						 m_isSelected;
-
-		Components::Transform*					 m_transform;
+		Components::Transform*		 m_transform;
 	public:
 		template<typename T>
 		T* AddComponent(T* component, std::uint32_t priority = 0)

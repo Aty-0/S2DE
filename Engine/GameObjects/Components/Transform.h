@@ -70,12 +70,29 @@ namespace S2DE::GameObjects::Components
 		GameObject*								m_parent;
 		GameObject*								m_child;
 
+		S2DE_SERIALIZE_BEGIN(S2DE::GameObjects::Components::Component);
+		S2DE_SERIALIZE_ADD(m_position.x);
+		S2DE_SERIALIZE_ADD(m_position.y);
+		S2DE_SERIALIZE_ADD(m_position.z);
+		S2DE_SERIALIZE_ADD(m_rotation.z);
+		S2DE_SERIALIZE_ADD(m_rotation.z);
+		S2DE_SERIALIZE_ADD(m_rotation.z);
+		S2DE_SERIALIZE_ADD(m_scale.z);
+		S2DE_SERIALIZE_ADD(m_scale.z);
+		S2DE_SERIALIZE_ADD(m_scale.z);
+		S2DE_SERIALIZE_END();
+
+	protected:
 		void									RunOnPositionChangedCallbacks();
 		void									RunOnRotationChangedCallbacks();
 		void									RunOnScaleChangedCallbacks();
+
 	public:
 		std::vector<std::function<void()>>		onPositionChanged;
 		std::vector<std::function<void()>>		onRotationChanged;
 		std::vector<std::function<void()>>		onScaleChanged;
 	};
 }
+
+
+S2DE_SERIALIZE_CLASS_IMPLEMENTATION(S2DE::GameObjects::Components::Transform, boost::serialization::object_serializable);
