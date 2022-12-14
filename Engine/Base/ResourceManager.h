@@ -38,18 +38,18 @@ namespace S2DE::Core
 			static_assert(!std::is_base_of<T, IO_Disposible>::value, "It's not IO_Disposible based class");
 		}
 
-		virtual ~RMResource() override
+		~RMResource() override
 		{
-	
+
 		}
 
-		virtual void Clear() override
+		void Clear() override
 		{
 			m_resource->Cleanup();
 			Delete(m_resource);
 		}
 
-		virtual bool Load(std::string name) const override
+		bool Load(std::string name) const override
 		{		
 			m_resource = new T();
 			m_resource->SetFileName(name);
@@ -77,12 +77,12 @@ namespace S2DE::Core
 			return true;
 		}
 
-		virtual void CreateResource() override
+		void CreateResource() override
 		{
 			m_resource = new T();
 		}
 
-		inline T* Get() const { return m_resource; }
+		[[nodiscard]] T* Get() const { return m_resource; }
 
 	private:
 		mutable T* m_resource;
@@ -98,16 +98,22 @@ namespace S2DE::Core
 		ResourceManager();
 		~ResourceManager();
 
-		//Load default texture
-		bool				LoadDefaultTexture();
-		//Clear all resources
-		void				ClearAll();
-		//Get default texture
-		inline Render::FR::Texture* GetDefaultTexture() const { return m_defaultTexture.get(); }
-		//Get data folder name
-		inline std::string  GetNameOfDataFolder() const { return m_dataFolderName; }
+		// Load default texture
+		bool LoadDefaultTexture();
 
-		std::string			GetFilePath(std::string filename, IO_File* file);		
+		// Clear all resources
+		void ClearAll();
+
+		// Get default texture
+		[[nodiscard]] inline Render::FR::Texture* GetDefaultTexture() const;
+
+		// Get data folder name
+		[[nodiscard]] inline std::string GetNameOfDataFolder() const;
+
+
+		[[nodiscard]] std::string			GetFilePath(std::string filename, IO_File* file);
+
+
 		bool				GetFilePath(std::string filename, IO_File* file, std::string& resultpath);
 		bool				GetFilePath(std::string filename, std::string type, std::string ex[], std::string& resultpath);
 		bool				GetFilePath(std::string filename, std::string type, std::string ex, std::string& resultpath);

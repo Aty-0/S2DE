@@ -48,7 +48,13 @@ namespace S2DE::Render::FR
 		m_textureHandle->GetDesc(&m_textureDesc);
 	}
 
-	bool Texture::CreateSamplerState()
+	bool Texture::SetSamplerState(D3D11_SAMPLER_DESC const& samplerDesc)
+	{
+		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&samplerDesc, &m_textureSamplerState), "Can't create sampler state");
+		return true;
+	}
+
+	bool Texture::CreateDefaultSamplerState()
 	{
 		D3D11_SAMPLER_DESC sampler_desc = { };
 		sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -107,7 +113,7 @@ namespace S2DE::Render::FR
 		}
 		
 		//Create sampler state for current texture
-		CreateSamplerState();
+		CreateDefaultSamplerState();
 
 		//Get and save texture description
 		UpdateTextureDesc();
@@ -147,13 +153,13 @@ namespace S2DE::Render::FR
 			return false;
 		}
 
-		CreateSamplerState();
+		CreateDefaultSamplerState();
 		return true;
 	}
 
 	bool Texture::CreateEmptyTexture(Math::Color<std::uint32_t> color)
 	{
-		const uint32_t pixel = color.r | (color.g << 8) | (color.b << 16) | (color.a << 24); 
+		const std::uint32_t pixel = color.r | (color.g << 8) | (color.b << 16) | (color.a << 24); 
 		D3D11_SUBRESOURCE_DATA initData = { &pixel, sizeof(uint32_t), 0 };
 		D3D11_TEXTURE2D_DESC texture_desc = { };
 
@@ -178,7 +184,7 @@ namespace S2DE::Render::FR
 		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for empty texture");
 
 		UpdateTextureDesc();
-		CreateSamplerState();
+		CreateDefaultSamplerState();
 		return true;
 	}
 
@@ -188,12 +194,56 @@ namespace S2DE::Render::FR
 		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, 0, nullptr);
 	}
 
-	void Texture::Bind(std::uint32_t NumViews)
+	void Texture::Bind(std::uint32_t numViews)
 	{
-		if(m_resourceView != nullptr)
-			Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, NumViews, &m_resourceView);
+		if (m_resourceView != nullptr)
+		{
+			Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, numViews, &m_resourceView);
+		}
 
-		if(m_textureSamplerState != nullptr)
+		if (m_textureSamplerState != nullptr)
+		{
 			Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(0, 1, &m_textureSamplerState);
+		}
+	}
+
+	inline ID3D11ShaderResourceView* Texture::GetResourceView() const
+	{
+		return m_resourceView;
+	}
+
+	inline ID3D11Texture2D* Texture::GetTexture2D() const
+	{
+		return m_textureHandle;
+	}
+
+	inline std::uint32_t Texture::GetWidth() const
+	{
+		return m_textureDesc.Width;
+	}
+
+	inline std::uint32_t Texture::GetHeight() const
+	{
+		return m_textureDesc.Height;
+	}
+
+	inline std::uint32_t Texture::GetMipLevels() const
+	{
+		return m_textureDesc.MipLevels;
+	}
+
+	inline DXGI_FORMAT	Texture::GetFormat() const
+	{
+		return m_textureDesc.Format;
+	}
+
+	inline DXGI_SAMPLE_DESC	Texture::GetSampleDesc() const
+	{
+		return m_textureDesc.SampleDesc;
+	}
+
+	inline D3D11_USAGE	Texture::GetUsage() const
+	{
+		return m_textureDesc.Usage;
 	}
 }

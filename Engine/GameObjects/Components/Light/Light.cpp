@@ -29,20 +29,20 @@ namespace S2DE::GameObjects::Components::Light
 	{
 
 	}
+
 	void Light::ColorChanged()
 	{
-		for (const auto& callback : onColorChanged)
-		{
-			callback();
-		}
+		onColorChanged.RunAllCallbacks();
 	}
 
 	void Light::StrengthChanged()
 	{
-		for (const auto& callback : onStrengthChanged)
-		{
-			callback();
-		}
+		onStrengthChanged.RunAllCallbacks();
+	}
+
+	void Light::InitLight()
+	{
+		
 	}
 
 	void Light::PositionChanged()
@@ -52,7 +52,7 @@ namespace S2DE::GameObjects::Components::Light
 
 	void Light::UpdateCB()
 	{
-		Logger::Warning("[Light] UpdateCB is not override");
+		Logger::Warning("[Light] UpdateCB is not override %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
 	}
 
 	void Light::CreateIcon() 
@@ -69,16 +69,8 @@ namespace S2DE::GameObjects::Components::Light
 	{
 		// Light first initialization
 		UpdateCB();
-
 		CreateIcon();
-
-		// Add callbacks...
-		auto transform = GetOwner()->GetTransform();
-		transform->onPositionChanged.push_back(std::bind(&Light::PositionChanged, this));
-		transform->onRotationChanged.push_back(std::bind(&Light::UpdateCB, this));
-		transform->onScaleChanged.push_back(std::bind(&Light::UpdateCB, this));
-		onColorChanged.push_back(std::bind(&Light::UpdateCB, this));
-		onStrengthChanged.push_back(std::bind(&Light::UpdateCB, this));
+		InitLight();
 	}
 
 	void Light::RenderIcon()
@@ -93,7 +85,8 @@ namespace S2DE::GameObjects::Components::Light
 	}
 
 	void Light::SetColor(Math::Color<float> color)
-	{ 
+	{
+		Logger::Log("Light::SetColor(Math::Color<float> color)");
 		m_color = color; 
 		
 		if (m_iconSprite) // TODO: Multiply to strength
@@ -104,6 +97,7 @@ namespace S2DE::GameObjects::Components::Light
 
 	void Light::SetStrength(float strength)
 	{ 
+		Logger::Log("Light::SetStrength(float strength)");
 		m_strength = strength; 
 		StrengthChanged();
 	}

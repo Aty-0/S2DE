@@ -12,7 +12,7 @@ namespace S2DE::GameObjects
 	{								  
 	}
 
-	GameObject::GameObject(std::string name, std::string type, std::int32_t prefix, std::string id) :
+	GameObject::GameObject(std::string name, std::string type, std::int32_t prefix, std::string uuid) :
 		m_name(std::string()),
 		m_type(std::string()),
 		m_prefix(0),
@@ -25,12 +25,17 @@ namespace S2DE::GameObjects
 		SetType(type);
 		SetPrefix(prefix);
 
-		// TODO: Need check UUID on exist or invalid value
-		if (id == S2DE_UUID_REGENERATE)
+		if (uuid == S2DE_UUID_REGENERATE)
+		{
 			RegenerateUUID();
-		else if (!Core::Utils::isStringEmpty(id))
-			SetUUID(id);
-
+		}
+		else if (!Core::Utils::isStringEmpty(uuid))
+		{
+			if(!SetUUID(uuid))
+			{
+				Core::Utils::Logger::Error("Invalid UUID! GameObject Name: %s UUID Input: %s", m_name.c_str(), uuid.c_str());
+			}
+		}
 
 		//OnCreate();
 
@@ -52,7 +57,7 @@ namespace S2DE::GameObjects
 	{
 		if (m_enabled == true)
 		{
-			for (auto component : m_components)
+			for (const auto component : m_components)
 			{
 				if (component.second != nullptr)
 				{
@@ -66,7 +71,7 @@ namespace S2DE::GameObjects
 	{
 		if (m_visible == true)
 		{
-			for (auto component : m_components)
+			for (const auto component : m_components)
 			{
 				if (component.second != nullptr)
 				{
@@ -99,6 +104,46 @@ namespace S2DE::GameObjects
 	void GameObject::SetPrefix(std::int32_t prefix)
 	{
 		m_prefix = prefix;
+	}
+
+	inline Components::Transform* GameObject::GetTransform() const
+	{
+		return m_transform;
+	}
+
+	inline ComponentsList GameObject::GetComponentsList() const
+	{
+		return m_components;
+	}
+
+	inline std::string GameObject::GetName()   const
+	{
+		return m_name;
+	}
+
+	inline std::int32_t GameObject::GetPrefix() const
+	{
+		return m_prefix;
+	}
+
+	inline std::string GameObject::GetType()   const
+	{
+		return m_type;
+	}
+
+	inline bool GameObject::isVisible() const
+	{
+		return m_visible;
+	}
+
+	inline bool GameObject::isEnabled() const
+	{
+		return m_enabled;
+	}
+
+	inline bool GameObject::isSelected() const
+	{
+		return m_isSelected;
 	}
 
 }

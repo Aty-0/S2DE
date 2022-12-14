@@ -1,4 +1,5 @@
 #include "AmbientLight.h"
+#include "GameObjects/Base/GameObject.h"
 
 namespace S2DE::GameObjects::Components::Light
 {
@@ -9,7 +10,15 @@ namespace S2DE::GameObjects::Components::Light
 
 	AmbientLight::~AmbientLight()
 	{
+		onColorChanged.Clear();
+		onStrengthChanged.Clear();
+	}
 
+	void AmbientLight::InitLight()
+	{
+		m_strength = 1.0f;
+		onColorChanged.AddCallback(std::bind(&AmbientLight::UpdateCB, this));
+		onStrengthChanged.AddCallback(std::bind(&AmbientLight::UpdateCB, this));
 	}
 
 	void AmbientLight::UpdateCB()

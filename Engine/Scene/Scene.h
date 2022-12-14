@@ -15,35 +15,34 @@ namespace S2DE::Scene
 		Scene();
 		~Scene();
 		
-		//Rename object (by name)
+		// Rename object (by name)
 		void							Rename(std::string object_name, std::string new_object_name);
-		//Rename object (by id)
+		// Rename object (by uuid)
 		void							Rename(boost::uuids::uuid object_id, std::string new_object_name);
 
-		//Delete game object (by name)
+		// Delete game object (by name)
 		void							Delete(std::string object_name);
-		//Delete game object (by id)
+		// Delete game object (by uuid)
 		void							Delete(boost::uuids::uuid object_id);
 
-		//Replace game object (by name)
+		// Replace game object (by name)
 		void							Replace(std::string object_name, GameObjects::GameObject* object);
-		//Replace game object (by id)
+		// Replace game object (by uuid)
 		void							Replace(boost::uuids::uuid object_id, GameObjects::GameObject* object);
 
-		//Clear all scene
-		//NOTE: Object with engine prefix (-1) will not been deleted
+		// Clear all scene
+		// NOTE: Object with engine prefix (-1) will not been deleted
 		void							Clear();
-		//Destroy scene
+		// Destroy scene
 		void							Destroy();
 
-		//Check object name on exist
-		//if name existing we add number of same object
+		// Check object name on exist, if we found object with same name we are add num prefix 
 		void							CheckNameOnExist(std::string& name);
 
-		inline SceneObjectStorage&		GetStorage() { return m_storage; }
-		inline std::string				GetName() const { return m_name; }
+		[[nodiscard]] inline SceneObjectStorage& GetStorage();
+		[[nodiscard]] inline std::string				GetName() const;
 
-		//Add game object to scene
+		// Add game object to scene
 		template<typename T>
 		T*							Add(T* g)
 		{
@@ -79,7 +78,7 @@ namespace S2DE::Scene
 		}
 
 
-		//Clone game object (by name)
+		// Clone game object (by name)
 		template<typename T>
 		T* Clone(std::string object_name, std::string new_name = std::string())
 		{
@@ -112,7 +111,7 @@ namespace S2DE::Scene
 			return Add<T>(new_obj);
 		}
 
-		//Clone game object (by id)
+		// Clone game object (by id)
 		template<typename T>
 		T* Clone(boost::uuids::uuid object_id, std::string new_name = std::string())
 		{

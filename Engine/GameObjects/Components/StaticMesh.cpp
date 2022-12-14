@@ -145,22 +145,22 @@ namespace S2DE::GameObjects::Components
 		{
 			if (m_useIndices)
 			{
-				//Bind and update variables in const buffer
+				// Bind and update variables in const buffer
 				m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
 
-				//Bind shader and texture 
+				// Bind shader and texture 
 				m_shader->Bind();
 				m_texture->Bind();
 
-				//Bind buffers
+				// Bind buffers
 				m_vertexBuffer->Bind();
 				m_indexBuffer->Bind();
 
-				//Draw poly 		
+				// Draw poly 		
 				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
 				Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				
-				//Unbind 
+				// Unbind 
 				m_shader->Unbind();
 				m_texture->Unbind();
 				m_vertexBuffer->Unbind();
@@ -168,21 +168,21 @@ namespace S2DE::GameObjects::Components
 			}
 			else
 			{
-				//Bind and update variables in const buffer
+				// Bind and update variables in const buffer
 				m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
 
-				//Bind shader and texture 
+				// Bind shader and texture 
 				m_shader->Bind();
 				m_texture->Bind();
 
-				//Bind buffers
+				// Bind buffers
 				m_vertexBuffer->Bind();
 				
-				//Draw poly 		
+				// Draw poly 		
 				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
 				Core::Engine::GetRenderer()->Draw(m_vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-				//Unbind 
+				// Unbind 
 				m_shader->Unbind();
 				m_texture->Unbind();
 				m_vertexBuffer->Unbind();				

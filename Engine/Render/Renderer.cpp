@@ -11,6 +11,7 @@
 #include "Render/ImGuiS2DETheme.h"
 #include "Render/FBX_Importer.h"
 
+
 #include "Base/DebugTools/Debug_Info.h"
 #include "Base/DebugTools/Debug_ObjectInspector.h"
 
@@ -18,6 +19,7 @@
 #include "Editor/EditorObjectInspector.h"
 #include "Editor/EditorRenderWindow.h"
 #include "Editor/EditorColorPicker.h"
+#include "Editor/EditorModelExporterWindow.h"
 
 #include <dxgidebug.h>
 
@@ -42,7 +44,10 @@ namespace S2DE::Render
 							m_depthStateDisabled(nullptr),
 							m_depthStencilView(nullptr),
 							m_blendStateOn(nullptr),
-							m_blendStateOff(nullptr),	
+							m_blendStateOff(nullptr),
+							m_frameBufferShaderResourceView(nullptr),
+							m_frameRenderTarget(nullptr),
+							m_frameBufferData(nullptr),
 							m_vsync(true),
 							m_showImguiWindows(true),
 							m_showImguiDemoWindow(false),
@@ -121,9 +126,10 @@ namespace S2DE::Render
 
 		if (Engine::isEditor())
 		{
-			//AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow(), true);
+			AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow(), true);
 			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), true);
 			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), false);
+			AddImGuiWindow("EditorModelExporterWindow", new EditorModelExporterWindow(), true);
 
 
 			m_editorToolStrip = new EditorToolStrip();
@@ -135,6 +141,7 @@ namespace S2DE::Render
 	{
 		m_context->OMSetRenderTargets(0, nullptr, nullptr);
 		Release(m_targetView);
+		Release(m_frameRenderTarget);
 
 		Release(m_backBuffer);			
 		Release(m_depthStencilView);			
@@ -142,13 +149,15 @@ namespace S2DE::Render
 		Release(m_depthStencilBuffer);
 		Release(m_depthStateDisabled);
 
+		Release(m_frameBufferData);
+
 		m_context->Flush();
 		
 		HRESULT hr = m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 		
 		if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 		{
-			//TODO: What's we need to do with device in this case ?
+			// TODO: What's we need to do with device in this case ?
 			S2DE_FATAL_ERROR("hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET");
 			return false;
 		}	
@@ -159,8 +168,7 @@ namespace S2DE::Render
 		}
 
 		CreateDepthStencil();
-		UpdateViewport();
-
+		
 		return true;
 	}
 
@@ -233,14 +241,20 @@ namespace S2DE::Render
 	bool Renderer::CreateRenderTarget()
 	{
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&m_backBuffer);
-		S2DE_CHECK(m_device->CreateRenderTargetView(m_backBuffer, NULL, &m_targetView), "Render Error: Cannot create render target view");
-		//CreateFramebufferTexture(m_backBuffer);
+		S2DE_CHECK(m_device->CreateRenderTargetView(m_backBuffer, nullptr, &m_targetView), "Render Error: Cannot create render target view");
+		CreateFramebufferTexture(m_backBuffer);
+
+		if (m_frameBufferData != nullptr)
+		{
+			S2DE_CHECK_SAFE(m_device->CreateRenderTargetView(m_frameBufferData, nullptr, &m_frameRenderTarget), "[Renderer] minor render target creation failed!")
+		}
+
 		return true;
 	}
 
 	bool Renderer::CreateDeviceAndSwapChain()
 	{
-		D3D_FEATURE_LEVEL FeatureLevels[] = 
+		D3D_FEATURE_LEVEL featureLevels[] = 
 		{
 			D3D_FEATURE_LEVEL_11_1,
 			D3D_FEATURE_LEVEL_11_0,
@@ -261,8 +275,6 @@ namespace S2DE::Render
 		m_deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-		std::uint32_t driver_types_size = ARRAYSIZE(driverTypes);
-		HRESULT device_hr = S_OK;
 
 		DXGI_SWAP_CHAIN_DESC sd = { };
 		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidth();
@@ -281,23 +293,32 @@ namespace S2DE::Render
 		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-		//Try to create device with correct driver type 
+		// Try to create device with correct driver type 
+		HRESULT device_hr = S_OK;
+		std::uint32_t driver_types_size = ARRAYSIZE(driverTypes);
 		for (std::uint32_t driverTypeIndex = 0; driverTypeIndex < driver_types_size; driverTypeIndex++)
 		{
 			D3D_DRIVER_TYPE driverType = driverTypes[driverTypeIndex];
-			device_hr = D3D11CreateDeviceAndSwapChain(nullptr, driverType, nullptr, m_deviceFlags, FeatureLevels, ARRAYSIZE(FeatureLevels), D3D11_SDK_VERSION, &sd, &m_swapChain, &m_device, nullptr, &m_context);
+			device_hr = D3D11CreateDeviceAndSwapChain(nullptr, driverType, nullptr, m_deviceFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &sd, &m_swapChain, &m_device, nullptr, &m_context);
 
 			//If we get E_INVALIDARG probably we are need to use D3D_FEATURE_LEVEL_11_0 
 			if (device_hr == E_INVALIDARG)
-				device_hr = D3D11CreateDeviceAndSwapChain(nullptr, driverType, nullptr, m_deviceFlags, FeatureLevels, ARRAYSIZE(FeatureLevels), D3D11_SDK_VERSION, &sd, &m_swapChain, &m_device, nullptr, &m_context);
+			{
+				device_hr = D3D11CreateDeviceAndSwapChain(nullptr, driverType, nullptr, m_deviceFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &sd, &m_swapChain, &m_device, nullptr, &m_context);
+			}
 
-			if (SUCCEEDED(device_hr)) //If creation device succeeded we are break that loop
+			// If creation device succeeded we are break that loop
+			if (SUCCEEDED(device_hr))
+			{
 				break;
+			}
 		}
 
 		//If device not created we are get fatal error 
 		if (m_device == nullptr)
+		{
 			S2DE_FATAL_ERROR("Render Error: Can't create device and swap chain!");
+		}
 
 		return true;
 	}
@@ -307,14 +328,14 @@ namespace S2DE::Render
 		Logger::Log("[Renderer] Switch fill mode to %s", mode == RenderFillMode::Solid ? "Solid" : "Wireframe");
 		m_fillMode = mode;
 
-		for (const auto& r : m_rasterizerVariants)
+		for (const auto& variant : m_rasterizerVariants)
 		{
-			if (r.second != nullptr)
+			if (variant.second != nullptr)
 			{
 				D3D11_RASTERIZER_DESC desc = {  };
-				r.second->GetDesc(&desc);
+				variant.second->GetDesc(&desc);
 				desc.FillMode = static_cast<D3D11_FILL_MODE>(m_fillMode);
-				CreateRasterizerState(desc, r.first);
+				CreateRasterizerState(desc, variant.first);
 			}
 		}
 	}
@@ -438,14 +459,24 @@ namespace S2DE::Render
 
 	void Renderer::UpdateViewport()
 	{
-		//TODO: I need get it from swap chain or from window ?
-		m_viewport.Width	= (float)Core::Engine::GetGameWindow()->GetWidth();
-		m_viewport.Height	= (float)Core::Engine::GetGameWindow()->GetHeight();
+		// FIXME:
+		const auto renderWindow = GetImGui_Window<EditorRenderWindow*>("EditorRenderWindow");
+		if (Core::Engine::isEditor() && renderWindow != nullptr)
+		{
+			m_viewport.Width = renderWindow->GetWindowWidth();
+			m_viewport.Height = renderWindow->GetWindowHeight();
+		}
+		else
+		{
+			m_viewport.Width = (float)Core::Engine::GetGameWindow()->GetWidth();
+			m_viewport.Height = (float)Core::Engine::GetGameWindow()->GetHeight();
+		}
+
 		m_viewport.MinDepth = 0.0f;
 		m_viewport.MaxDepth = 1.0f;
 		m_viewport.TopLeftX = 0.0f;
 		m_viewport.TopLeftY = 0.0f;
-
+		
 		m_context->RSSetViewports(1, &m_viewport);
 	}
 
@@ -471,6 +502,7 @@ namespace S2DE::Render
 		Release(m_device);
 		Release(m_context);
 		Release(m_targetView);
+		Release(m_frameRenderTarget);
 		Release(m_depthStencilBuffer);
 		Release(m_depthStateEnabled);
 		Release(m_depthStateDisabled);
@@ -541,11 +573,16 @@ namespace S2DE::Render
 			ImGui::DockSpace(ImGui::GetID("Dockspace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);	
 
 			if (m_showImguiWindows)
+			{
 				for (const auto& it : m_windowsStorage)
+				{
 					it.second->Render();
-
+				}
+			}
 			m_editorToolStrip->SetDrawState(show);
 			m_editorToolStrip->Render();
+
+
 
 			ImGui::End();
 			
@@ -553,7 +590,9 @@ namespace S2DE::Render
 		else
 		{
 			for (const auto& it : m_windowsStorage)
+			{
 				it.second->Render();
+			}
 		}
 
 		#if defined(S2DE_DEBUG_RENDER_MODE)
@@ -600,20 +639,43 @@ namespace S2DE::Render
 
 		Clear();
 		{
-			Engine::GetApplicationHandle()->OnRender();
-			Engine::GetSceneManager()->RenderScene();
-
-			//UpdateFramebufferShaderResource();
-
-			RenderImGui();
+			UpdateFramebufferShaderResource();
 
 			if (Engine::isEditor())
 			{
-				EditorColorPicker* colorPicker = GetImGui_Window<EditorColorPicker*>("EditorBgColorPicker");
+				// Basic support of render window
 
+				// TODO: We need array of targets to make more render windows
+				if (m_frameRenderTarget != nullptr)
+				{
+					m_context->OMSetRenderTargets(1, &m_frameRenderTarget, m_depthStencilView);
+					Engine::GetApplicationHandle()->OnRender();
+					Engine::GetSceneManager()->RenderScene();
+				}
+
+				m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
+
+				const auto renderWindow = GetImGui_Window<EditorRenderWindow*>("EditorRenderWindow");
+				if (renderWindow != nullptr
+					&& m_frameBufferShaderResourceView != nullptr)
+				{
+					renderWindow->PushRenderTexture(m_frameBufferShaderResourceView);
+				}
+
+				const auto colorPicker = GetImGui_Window<EditorColorPicker*>("EditorBgColorPicker");
 				if (colorPicker != nullptr)
+				{
 					colorPicker->SetColor(m_clearColor);
+				}
 			}
+			else
+			{
+				Engine::GetApplicationHandle()->OnRender();
+				Engine::GetSceneManager()->RenderScene();
+			}
+
+			RenderImGui();
+			
 		}
 
 		End();
@@ -665,25 +727,35 @@ namespace S2DE::Render
 	{
 		ID3D11Texture2D* pBuffer = nullptr;
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
+
 		if (pBuffer == nullptr)
+		{
+			CreateFramebufferTexture(m_frameBufferData);
 			return;
+		}
 		
 		m_context->CopyResource(m_frameBufferData, pBuffer);
 		Release(pBuffer);
 
 		if (m_frameBufferData == nullptr)
+		{
+			Core::Utils::Logger::Warning("[Renderer] Error: Framebuffer data is null!");
 			return;
+		}
 
-		D3D11_TEXTURE2D_DESC textureDesc = { };
-		m_frameBufferData->GetDesc(&textureDesc);
-		
-		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = { };
-		shaderResourceViewDesc.Format = textureDesc.Format;
-		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		shaderResourceViewDesc.Texture2D.MipLevels = 1;
+		//if (m_frameBufferShaderResourceView == nullptr)
+		{
+			D3D11_TEXTURE2D_DESC textureDesc = { };
+			m_frameBufferData->GetDesc(&textureDesc);
 
-		m_device->CreateShaderResourceView(m_frameBufferData, &shaderResourceViewDesc, &m_frameBufferShaderResourceView);
+			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = { };
+			shaderResourceViewDesc.Format = textureDesc.Format;
+			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+			shaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+			m_device->CreateShaderResourceView(m_frameBufferData, &shaderResourceViewDesc, &m_frameBufferShaderResourceView);
+		}
 	}
 
 	void Renderer::SetVsync(bool vsync)
@@ -700,7 +772,7 @@ namespace S2DE::Render
 			SIZE_T message_size = 0;
 			m_d3dInfoQueue->GetMessage(i, nullptr, &message_size); 
 			D3D11_MESSAGE* message = (D3D11_MESSAGE*)malloc(message_size);
-			if (message == nullptr) //If malloc failed
+			if (message == nullptr)
 				return false;
 			S2DE_CHECK_SAFE(m_d3dInfoQueue->GetMessageA(i, message, &message_size), "Can't get message");
 
@@ -758,5 +830,55 @@ namespace S2DE::Render
 	{
 		m_context->IASetPrimitiveTopology(topology);
 		m_context->Draw((std::uint32_t)vertexCount, startVertexLocation);
+	}
+
+	inline ID3D11Device* Renderer::GetDevice()
+	{
+		return m_device;
+	}
+
+	inline ID3D11DeviceContext* Renderer::GetContext()
+	{
+		return m_context;
+	}
+
+	inline IDXGISwapChain* Renderer::GetSwapChain()
+	{
+		return m_swapChain;
+	}
+
+	inline ID3D11RenderTargetView* Renderer::GetRenderTargetView()
+	{
+		return m_targetView;
+	}
+
+	inline D3D11_VIEWPORT Renderer::GetViewport() const
+	{
+		return m_viewport;
+	}
+
+	inline ID3D11Texture2D* Renderer::GetDepthStencilBuffer()
+	{
+		return m_depthStencilBuffer;
+	}
+
+	inline ID3D11DepthStencilView* Renderer::GetDepthStencilView()
+	{
+		return m_depthStencilView;
+	}
+
+	inline ID3D11ShaderResourceView* Renderer::GetFramebufferShaderResource() const
+	{
+		return m_frameBufferShaderResourceView;
+	}
+
+	inline ID3D11Texture2D* Renderer::GetFramebufferTextureData() const
+	{
+		return m_frameBufferData;
+	}
+
+	inline bool Renderer::GetVsync() const
+	{
+		return m_vsync;
 	}
 }

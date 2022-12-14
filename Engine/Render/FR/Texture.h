@@ -12,22 +12,27 @@ namespace S2DE::Render::FR
 		Texture();
 		~Texture();
 		
-		virtual void					 Cleanup() override;
-		virtual bool					 Load(std::string path) override;
+		bool							 Load(std::string path) final;
+		void							 Cleanup() final;
+		// Create cubemap texture from path 
 		bool							 CreateCubeMapTexture(std::string path);
+		// Create 1x1 blank texture 
 		bool							 CreateEmptyTexture(Math::Color<std::uint32_t> color = Math::Color<std::uint32_t>(208, 0, 255, 255));
-		bool							 CreateSamplerState();
-		void							 Bind(std::uint32_t NumViews = 1);
+		// Create default sampler state 
+		bool							 CreateDefaultSamplerState();
+		bool							 SetSamplerState(D3D11_SAMPLER_DESC const& samplerDesc);
+		// Bind texture 
+		void							 Bind(std::uint32_t numViews = 1);
 		void							 Unbind();
 		
-		inline ID3D11ShaderResourceView* GetResourceView() const { return m_resourceView; }
-		inline ID3D11Texture2D*			 GetTexture2D() const { return m_textureHandle; }
-		inline std::uint32_t			 GetWidth() const { return m_textureDesc.Width; }
-		inline std::uint32_t			 GetHeight() const { return m_textureDesc.Height; }
-		inline std::uint32_t			 GetMipLevels() const { return m_textureDesc.MipLevels; }
-		inline DXGI_FORMAT				 GetFormat() const { return m_textureDesc.Format; }
-		inline DXGI_SAMPLE_DESC			 GetSampleDesc() const { return m_textureDesc.SampleDesc; }
-		inline D3D11_USAGE				 GetUsage() const { return m_textureDesc.Usage; }
+		[[nodiscard]] inline ID3D11ShaderResourceView* GetResourceView() const;
+		[[nodiscard]] inline ID3D11Texture2D* GetTexture2D() const;
+		[[nodiscard]] inline std::uint32_t GetWidth() const;
+		[[nodiscard]] inline std::uint32_t GetHeight() const;
+		[[nodiscard]] inline std::uint32_t GetMipLevels() const;
+		[[nodiscard]] inline DXGI_FORMAT GetFormat() const;
+		[[nodiscard]] inline DXGI_SAMPLE_DESC GetSampleDesc() const;
+		[[nodiscard]] inline D3D11_USAGE GetUsage() const;
 
 	private:
 		void							 UpdateTextureDesc();

@@ -9,9 +9,9 @@ namespace S2DE::GameObjects::Components
 		AlphaComponent() = default;
 		virtual ~AlphaComponent() { }
 
-		inline bool HaveAlpha() const { return m_haveAlpha; }
-		void SetAlpha(bool alpha) { m_haveAlpha = alpha; }
+		void SetAlpha(bool alpha);
 
+		[[nodiscard]] inline bool HaveAlpha() const;
 	private:
 		bool m_haveAlpha;
 	};

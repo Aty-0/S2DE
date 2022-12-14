@@ -9,7 +9,7 @@ namespace S2DE::Core::Utils
 	UUID::UUID()
 		:	m_uuid(boost::uuids::random_generator()())
 	{
-
+		m_uuidInStringFIXME = GetUUIDString();
 	}
 
 	UUID::~UUID()
@@ -20,18 +20,52 @@ namespace S2DE::Core::Utils
 	void UUID::RegenerateUUID()
 	{
 		m_uuid = boost::uuids::random_generator()();
+
+		m_uuidInStringFIXME = GetUUIDString();
+	}
+
+	inline bool UUID::isUUIDValid(std::string const& uuidInString, boost::uuids::uuid& result)
+	{
+		try
+		{
+			result = boost::uuids::string_generator()(uuidInString);
+			return result.version() != boost::uuids::uuid::version_unknown;
+		}
+		catch (...)
+		{
+			return false;
+		}
 	}
 
 	void UUID::SetUUID(boost::uuids::uuid uuid)
 	{
 		m_uuid = uuid;
+
+		m_uuidInStringFIXME = GetUUIDString();
 	}
 
-	void UUID::SetUUID(const std::string id_str)
+	bool UUID::SetUUID(std::string const& id_str)
 	{
 		m_uuid = boost::uuids::nil_uuid();
-		std::istringstream strm(id_str);
-		strm >> m_uuid;
+
+		if (isUUIDValid(id_str, m_uuid))
+		{
+			//std::istringstream strm(id_str);
+			//strm >> m_uuid;
+
+			m_uuidInStringFIXME = GetUUIDString();
+			return true;
+		}
+		else
+		{
+			RegenerateUUID();
+			return false;
+		}
+	}
+
+	inline boost::uuids::uuid UUID::GetUUID() const
+	{
+		return m_uuid;
 	}
 
 	inline std::string UUID::GetUUIDString() const

@@ -41,6 +41,8 @@ namespace S2DE::Editor
 				ImGui::InputFloat3("Rotation", rotation);
 				ImGui::InputFloat3("Scale", scale);
 				ImGui::InputText("File Name", fileName, sizeof(fileName));
+				static bool useIndices = false;
+				ImGui::Checkbox("useIndices", &useIndices);
 
 				if (ImGui::Button("Load & Create New Object"))
 				{
@@ -50,6 +52,7 @@ namespace S2DE::Editor
 						DirectX::SimpleMath::Vector3(scale[0], scale[1], scale[2]));
 
 					auto meshComponent = meshGO->CreateComponent<GameObjects::Components::StaticMesh>();
+					meshComponent->UseIndices(useIndices);
 					meshComponent->LoadMesh(fileName);
 				}
 

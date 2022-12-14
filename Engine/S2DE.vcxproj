@@ -23,6 +23,7 @@
     <ClInclude Include="Base\CoreMinimal.h" />
     <ClInclude Include="Base\DebugTools\Debug_Info.h" />
     <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h" />
+    <ClInclude Include="Base\Utils\CallbackWrapper.h" />
     <ClInclude Include="GameObjects\Components\AlphaComponent.h" />
     <ClInclude Include="GameObjects\Components\DrawableComponent.h" />
     <ClInclude Include="GameObjects\Components\Component.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="Editor\EditorColorPicker.h" />
     <ClInclude Include="GameObjects\Components\Light\AmbientLight.h" />
     <ClInclude Include="GameObjects\Components\Light\Light.h" />
+    <ClInclude Include="Base\Utils\SerializeUtils.h" />
     <ClInclude Include="Libs\imgui\imgui_impl_sdl.h" />
     <ClInclude Include="Math\Normalize.h" />
     <ClInclude Include="GameObjects\Components\Light\PointLight.h" />

@@ -1,6 +1,7 @@
 #pragma once
 #include "Base/Main/Common.h"
 #include "Base/Utils/UUID.h"
+#include "Base/Utils/CallbackWrapper.h"
 
 namespace S2DE::GameObjects
 {
@@ -13,13 +14,12 @@ namespace S2DE::GameObjects::Components
 	{
 	public:
 		Component();
-		virtual ~Component();
+		~Component();
 
-		inline std::string			 GetName() const { return m_name; }
-		inline std::uint32_t		 GetPriority() const { return m_priority; }
-		inline GameObject*			 GetOwner() const { return m_owner; }
-
-		inline bool                  isSelected() const { return m_isSelected; }
+		[[nodiscard]] inline std::string GetName() const;
+		[[nodiscard]] inline std::uint32_t GetPriority() const;
+		[[nodiscard]] inline GameObject* GetOwner() const;
+		[[nodiscard]] inline bool isSelected() const;
 
 		virtual void				 Select() { m_isSelected = true; }
 		virtual void				 Unselect() { m_isSelected = false; }
@@ -41,5 +41,16 @@ namespace S2DE::GameObjects::Components
 
 		void						 SetOwner(GameObject* go);
 		void						 SetName(std::string name);
+
+	private:
+		S2DE_SERIALIZE_BASE_BEGIN();
+		S2DE_SERIALIZE_ADD(m_name);
+		S2DE_SERIALIZE_ADD(m_priority);
+		S2DE_SERIALIZE_ADD(m_isSelected);
+		S2DE_SERIALIZE_ADD(m_owner); 
+		S2DE_SERIALIZE_END();
+
 	};
 }
+
+S2DE_SERIALIZE_CLASS_IMPLEMENTATION(S2DE::GameObjects::Components::Component, boost::serialization::object_serializable);

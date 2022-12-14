@@ -243,6 +243,12 @@
     <ClInclude Include="GameObjects\Components\AlphaComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Base\Utils\SerializeUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\Utils\CallbackWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc">

@@ -272,4 +272,60 @@ namespace S2DE::GameObjects::Components
 	{
 		m_sensitivity = sensitivity;
 	}
+
+
+	inline DirectX::SimpleMath::Matrix& Camera::GetViewMatrix()
+	{
+		return m_viewMatrix;
+	}
+
+	inline DirectX::SimpleMath::Matrix& Camera::GetProjectionMatrix()
+	{
+		return m_projectionMatrix;
+	}
+
+	inline DirectX::SimpleMath::Matrix& Camera::GetOrthoMatrix()
+	{
+		return m_ortho_Matrix;
+	}
+
+	inline Camera::CameraProjectionMode	Camera::GetProjectionMode() const
+	{
+		return m_mode;
+	}
+
+	inline float Camera::GetSensitivity() const
+	{
+		return m_sensitivity;
+	}
+
+	inline float Camera::GetSpeed() const
+	{
+		return m_speed;
+	}
+
+	inline float Camera::GetZoom() const
+	{
+		return m_zoom;
+	}
+
+	inline float Camera::GetzNear() const
+	{
+		return m_zNear;
+	}
+
+	inline float Camera::GetzFar() const
+	{
+		return m_zFar;
+	}
+
+	inline float Camera::GetFov() const
+	{
+		return m_fov;
+	}
+
+	inline float Camera::GetSpeedBoost() const
+	{
+		return m_speedBoost;
+	}
 }

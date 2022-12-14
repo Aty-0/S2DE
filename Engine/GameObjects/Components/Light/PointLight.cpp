@@ -5,33 +5,80 @@ namespace S2DE::GameObjects::Components::Light
 {
 	PointLight::PointLight()
 	{
-		m_attenuation = DirectX::SimpleMath::Vector3(0.04f, 0.1f, 0.06f);
-		m_range = 100.0f;
-		m_pad = 1.0f;
-		m_strength = 1.0f;
+
 	}
 
 	PointLight::~PointLight()
 	{
-		Light::LightCount--;
+		//Light::LightCount--;
+		onColorChanged.Clear();
+		onStrengthChanged.Clear();
+	}
+
+	void PointLight::InitLight()
+	{
+		m_index = Light::LightCount;
+		Light::LightCount++;
+
+		m_attenuation = DirectX::SimpleMath::Vector3(0.04f, 0.1f, 0.06f);
+		m_range = 100.0f;
+		m_pad = 1.0f;
+		m_strength = 1.0f;
+
+		// Add callbacks...
+		const auto transform = GetOwner()->GetTransform();
+		S2DE_ASSERT(transform != nullptr);
+
+		transform->onPositionChanged.AddCallback(std::bind(&PointLight::UpdateCB, this));
+		transform->onRotationChanged.AddCallback(std::bind(&PointLight::UpdateCB, this));
+		transform->onScaleChanged.AddCallback(std::bind(&PointLight::UpdateCB, this));
+		onColorChanged.AddCallback(std::bind(&PointLight::UpdateCB, this));
+		onStrengthChanged.AddCallback(std::bind(&PointLight::UpdateCB, this));
 	}
 
 	void PointLight::UpdateCB()
 	{
 		if (m_lightCB)
-		{					
+		{
 			m_lightCB->Lock();	
+			auto& str = m_lightStructure;
 
-			m_lightStructure.strength				= m_strength;
-			m_lightStructure.attenuation			= m_attenuation;
-			m_lightStructure.range					= m_range;
-			m_lightStructure.pad				    = m_pad;
-			m_lightStructure.light_type				= static_cast<std::int32_t>(LightTypes::POINT_LIGHT);
-			m_lightStructure.enabled				= static_cast<std::int32_t>(GetOwner()->isEnabled());
-			auto transform = GetOwner()->GetTransform();
-			m_lightStructure.position				= DirectX::SimpleMath::Vector4(transform->GetPosition().x, transform->GetPosition().y, transform->GetPosition().z, 1);
-			m_lightStructure.direction				= DirectX::SimpleMath::Vector4(transform->GetRotation().x, transform->GetRotation().y, transform->GetRotation().z, 1);
-			m_lightStructure.color					= DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
+			str.strength				= m_strength;
+			str.attenuation			= m_attenuation;
+			str.range					= m_range;
+			str.pad				    = m_pad;
+			str.light_type				= static_cast<std::int32_t>(LightTypes::POINT_LIGHT);
+			str.enabled				= static_cast<std::int32_t>(GetOwner()->isEnabled());
+			str.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
+
+			const auto transform = GetOwner()->GetTransform();
+			S2DE_ASSERT(transform);
+
+			auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
+			auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
+
+			// TODO: Get global position, rotation, scale 
+			//		 This is local p, r, s
+			if (transform->GetParent() != nullptr)
+			{
+				auto transformParent = transform->GetParent()->GetTransform();
+
+				if (transformParent != nullptr)
+				{
+					parentPosition = transformParent->GetPosition();
+					parentRotation = transformParent->GetRotation();
+				}
+			}
+
+
+	 		if (transform != nullptr)
+			{
+				str.position = DirectX::SimpleMath::Vector4(transform->GetPosition().x + parentPosition.x, 
+					transform->GetPosition().y + parentPosition.y, transform->GetPosition().z + parentPosition.z, 1);
+
+				str.direction = DirectX::SimpleMath::Vector4(transform->GetRotation().x + parentRotation.x,
+					transform->GetRotation().y + parentRotation.y, transform->GetRotation().z + parentRotation.z, 1);
+			}
 
 			m_lightCB->GetData()->lights[m_index] = m_lightStructure;
 

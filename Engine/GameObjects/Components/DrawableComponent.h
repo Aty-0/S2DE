@@ -21,5 +21,9 @@ namespace S2DE::GameObjects::Components
 		virtual void				 CreateIndexBuffer() { }
 		virtual void				 SetDefaultShader() { }
 		virtual void				 SetDefaultTexture() { }
+
+	private:
+		S2DE_SERIALIZE_BEGIN(S2DE::GameObjects::Components::Component)
+		S2DE_SERIALIZE_END();
 	};
 }

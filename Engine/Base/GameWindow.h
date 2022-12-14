@@ -26,19 +26,27 @@ namespace S2DE::Core
 		void									Restore();
 		void									Hide();
 		bool									PoolEvents();
-		inline DirectX::SimpleMath::Vector2		GetResolution() const;
-		inline DirectX::SimpleMath::Vector2		GetWindowPosition() const;
-		inline std::int32_t						GetWidth()  const;
-		inline std::int32_t						GetHeight() const;
-		inline std::int32_t						GetPositionX() const;
-		inline std::int32_t						GetPositionY() const;
-		inline bool								isFullscreen() const;
-		inline bool								isCursorVisible() const;
-		inline bool								isActive() const;
-		inline HINSTANCE						GetInstance();
-		inline HWND&							GetHWND();
-		inline SDL_Window*						GetSDLWindow();
-		inline SDL_Event						GetEvent();
+
+		[[nodiscard]] inline DirectX::SimpleMath::Vector2		GetWindowPosition() const;
+
+		[[nodiscard]] inline DirectX::SimpleMath::Vector2		GetResolution() const;
+		[[nodiscard]] inline std::int32_t						GetWidth()  const;
+		[[nodiscard]] inline std::int32_t						GetHeight() const;
+
+		[[nodiscard]] inline std::int32_t						GetViewportWidth()  const;
+		[[nodiscard]] inline std::int32_t						GetViewportHeight() const;
+
+
+
+		[[nodiscard]] inline std::int32_t						GetPositionX() const;
+		[[nodiscard]] inline std::int32_t						GetPositionY() const;
+		[[nodiscard]] inline bool								isFullscreen() const;
+		[[nodiscard]] inline bool								isCursorVisible() const;
+		[[nodiscard]] inline bool								isActive() const;
+		[[nodiscard]] inline HINSTANCE						GetInstance();
+		[[nodiscard]] inline HWND&							GetHWND();
+		[[nodiscard]] inline SDL_Window*						GetSDLWindow();
+		[[nodiscard]] inline SDL_Event						GetEvent();
 
 	private:
 		SDL_Event   m_event;

@@ -112,4 +112,15 @@ namespace S2DE::Core
 		return GetFilePath(filename, file, resultpath);
 	}
 
+	inline Render::FR::Texture* ResourceManager::GetDefaultTexture() const
+	{
+		return m_defaultTexture.get();
+	}
+	// Get data folder name
+	inline std::string ResourceManager::GetNameOfDataFolder() const
+	{
+		return m_dataFolderName;
+	}
+
+
 }

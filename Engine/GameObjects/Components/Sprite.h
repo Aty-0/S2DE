@@ -14,13 +14,13 @@ namespace S2DE::GameObjects::Components
 		virtual ~Sprite();
 
 		// Load sprite texture
-		virtual bool									LoadTexture(std::string name) override;
+		bool											LoadTexture(std::string name) override;
 		// Load sprite texture with some options
-		virtual bool									LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = true) override;
+		bool											LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = true) override;
 		// Get new version of current shader from resource manager
-		virtual void									UpdateShader() override;
+		void											UpdateShader() override;
 		// Get new version of current texture from resource manager
-		virtual void									UpdateTexture() override;
+		void											UpdateTexture() override;
 		// Set atlas frame position 
 		void											SetAtlasFramePosition(DirectX::SimpleMath::Vector2 position);
 		// Set atlas frame size								 
@@ -32,17 +32,17 @@ namespace S2DE::GameObjects::Components
 		// Set two sided mode
 		void											SetTwoSidedMode(bool mode);
 
-		virtual void									OnRender() override;
+		void											OnRender() override;
 
-		virtual void									OnCreate();
+		void											OnCreate() override;
 	protected:
-		virtual void									CreateVertexBuffer();
-		virtual void									CreateIndexBuffer();
-		virtual void									SetDefaultShader();
-		virtual void									SetDefaultTexture();
-		virtual inline DirectX::SimpleMath::Vector3		CalcScaleFactor();
+		void											CreateVertexBuffer() override;
+		void											CreateIndexBuffer() override;
+		void											SetDefaultShader() override;
+		void											SetDefaultTexture() override;
 
-		inline DirectX::SimpleMath::Matrix				UpdateTransformation();
+		[[nodiscard]] virtual inline DirectX::SimpleMath::Vector3		CalcScaleFactor();
+		[[nodiscard]] inline DirectX::SimpleMath::Matrix				UpdateTransformation();
 
 	private:
 		Render::FR::Texture*								m_texture;

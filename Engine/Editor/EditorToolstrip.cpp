@@ -30,6 +30,8 @@ namespace S2DE::Editor
 		if (!m_draw)
 			return;
 
+		//static std::stringstream ss;
+
 		if (ImGui::BeginMainMenuBar()) 
 		{
 			auto maincamera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
@@ -169,7 +171,7 @@ namespace S2DE::Editor
 
 				if (ImGui::MenuItem("Toggle GameObject update"))
 				{
-					Core::Engine::GetSceneManager()->ToggleGameObjectUpdate();
+					Core::Engine::GetSceneManager()->ToggleGameObjectUpdating();
 				}
 
 				if (ImGui::BeginMenu("Render"))

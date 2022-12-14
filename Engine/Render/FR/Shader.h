@@ -24,14 +24,14 @@ namespace S2DE::Render::FR
 		//Unbind shader						 
 		void								 Unbind();
 		//Release all resource				 
-		virtual void						 Cleanup() final;
+		void								 Cleanup() final;
 
 		void								 UpdateMainConstBuffer(DirectX::SimpleMath::Matrix world, bool isUI = false);
 
-		inline ID3D11VertexShader* GetVertexShader()	 const { return m_vertexShader; }
-		inline ID3D11PixelShader* GetPixelShader()	 const { return m_pixelShader; }
-		inline ID3D11InputLayout* GetLayout()		 const { return m_layout; }
-		inline ConstantBuffer<CB::CB_Main>* GetConstBuffer()	 const { return m_const_buffer; }
+		[[nodiscard]] inline ID3D11VertexShader* GetVertexShader()	 const;
+		[[nodiscard]] inline ID3D11PixelShader* GetPixelShader()	 const;
+		[[nodiscard]] inline ID3D11InputLayout* GetLayout() const;
+		[[nodiscard]] inline ConstantBuffer<CB::CB_Main>* GetConstBuffer()	 const	;
 
 	private:
 		std::string							 m_path_vs;

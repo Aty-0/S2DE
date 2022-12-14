@@ -7,6 +7,7 @@ cbuffer CB_Main  : register(b0)
     matrix viewMatrix;
     matrix projectionMatrix;
     float3 cameraPosition;
+    float3 cameraRotation;
 }
 
 cbuffer CB_Sprite  : register(b2)
@@ -49,16 +50,18 @@ PSINPUT main(VSINPUT input)
     
     if (billboard == true)
     {   
+        // FIX ME: Rotation bug
+
         // Multiplication of the view matrix and the model matrix 
-        modelView[0][0] = 1.0;
-        modelView[0][1] = 0.0;
-        modelView[0][2] = 0.0;
-        modelView[1][0] = 0.0;
-        modelView[1][1] = 1.0;
-        modelView[1][2] = 0.0;
-        modelView[2][0] = 0.0;
-        modelView[2][1] = 0.0;
-        modelView[2][2] = 1.0;
+        //modelView[0][0] = 1.0;
+        //modelView[0][1] = 0.0;
+        //modelView[0][2] = 0.0;
+        //modelView[1][0] = 0.0;
+        //modelView[1][1] = 1.0;
+        //modelView[1][2] = 0.0;
+        //modelView[2][0] = 0.0;
+        //modelView[2][1] = 0.0;
+        //modelView[2][2] = 1.0;
     }
     
     matrix worldViewProj = mul(mul(worldMatrix, modelView), projectionMatrix);

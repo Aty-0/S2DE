@@ -10,10 +10,17 @@ namespace S2DE::Editor
 		EditorRenderWindow();
 		~EditorRenderWindow();
 
+		[[nodiscard]] inline float GetWindowWidth() const;
+		[[nodiscard]] inline float GetWindowHeight() const;
+
+		bool		 HandleWindowResize();
+
 		virtual void PushRenderTexture(void* texture);
 		virtual void SetDefaultResolution();
-		virtual void Render() override;
+		void Render() override;
 	private:
 		void* m_bufferdata;
+		float m_width;
+		float m_height;
 	};
 }

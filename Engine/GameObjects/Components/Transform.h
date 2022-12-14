@@ -37,24 +37,19 @@ namespace S2DE::GameObjects::Components
 		void									SetScale_X(float x);
 		void									SetScale_Y(float y);
 		void									SetScale_Z(float z);
-
-
-		inline DirectX::SimpleMath::Vector3		GetPosition()   const { return m_position; }
-		inline DirectX::SimpleMath::Vector3		GetRotation()   const { return m_rotation; }
-		inline DirectX::SimpleMath::Vector3		GetScale()      const { return m_scale; }
-
-		// Get object world matrix
-		inline DirectX::SimpleMath::Matrix&		GetWorldMatrix() { return m_worldMatrix; }
-
-		DirectX::SimpleMath::Matrix				UpdateTransformation();
-		DirectX::SimpleMath::Matrix				UpdateTransformation2D();
-
 		void									SetParent(GameObject* go);
 
-		inline bool								isChildOf(GameObject* go) const;
 
-		inline GameObject*						GetChild() const { return m_child; }
-		inline GameObject*						GetParent() const { return m_parent; }
+		[[nodiscard]] inline DirectX::SimpleMath::Matrix&		GetWorldMatrix();
+		// TODO: Make basic template for UpdateTransformation to avoid copy-paste code
+		[[nodiscard]] inline DirectX::SimpleMath::Matrix		UpdateTransformation();
+		[[nodiscard]] inline DirectX::SimpleMath::Matrix		UpdateTransformation2D();
+		[[nodiscard]] inline bool								isChildOf(GameObject* go) const;
+		[[nodiscard]] inline DirectX::SimpleMath::Vector3		GetPosition()   const;
+		[[nodiscard]] inline DirectX::SimpleMath::Vector3		GetRotation()   const;
+		[[nodiscard]] inline DirectX::SimpleMath::Vector3		GetScale()      const;
+		[[nodiscard]] inline GameObject*						GetChild() const;
+		[[nodiscard]] inline GameObject*						GetParent() const;
 
 	protected:
 		void									SetChild(GameObject* go);
@@ -88,9 +83,9 @@ namespace S2DE::GameObjects::Components
 		void									RunOnScaleChangedCallbacks();
 
 	public:
-		std::vector<std::function<void()>>		onPositionChanged;
-		std::vector<std::function<void()>>		onRotationChanged;
-		std::vector<std::function<void()>>		onScaleChanged;
+		Core::Utils::CallbackWrapper<Core::Utils::DefaultCallback>		onPositionChanged;
+		Core::Utils::CallbackWrapper<Core::Utils::DefaultCallback>		onRotationChanged;
+		Core::Utils::CallbackWrapper<Core::Utils::DefaultCallback>		onScaleChanged;
 	};
 }
 

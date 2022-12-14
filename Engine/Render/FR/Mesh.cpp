@@ -49,4 +49,13 @@ namespace S2DE::Render::FR
 		return true;
 	}
 
+	inline std::vector<Vertex> Mesh::GetVertices() const
+	{
+		return m_vertices;
+	}
+
+	inline std::vector<std::uint32_t> Mesh::GetIndices()  const
+	{
+		return m_indices;
+	}
 }

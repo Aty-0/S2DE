@@ -22,26 +22,25 @@ namespace S2DE::GameObjects::Components::Light
 			SPOT_LIGHT = 3,
 		};
 
+		Core::Utils::CallbackWrapper<Core::Utils::DefaultCallback> onColorChanged;
+		Core::Utils::CallbackWrapper<Core::Utils::DefaultCallback> onStrengthChanged;
+
 		Light();
-		virtual ~Light();
+		~Light();
 
 
 		void										  SetColor(Math::Color<float> color);
 		void										  SetStrength(float strength);
+		void										  OnRender() override;
+		void										  OnCreate() override;
+
 		inline Math::Color<float>					  GetColor() const { return m_color; }
 		inline float								  GetStrength()  const { return m_strength; }
-
-	public:
-		std::vector<std::function<void()>>			  onColorChanged;
-		std::vector<std::function<void()>>			  onStrengthChanged;
-
-		virtual void								  OnRender() override;
-		virtual void								  OnCreate() override;
-
+		
 	protected:
 		virtual void								  CreateIcon();
 		virtual void								  RenderIcon();
-
+		virtual void								  InitLight();
 		virtual void								  UpdateCB();
 	
 		virtual void								  PositionChanged();

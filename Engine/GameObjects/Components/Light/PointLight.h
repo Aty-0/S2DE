@@ -7,10 +7,11 @@ namespace S2DE::GameObjects::Components::Light
 	{
 	public:
 		PointLight();
-		virtual ~PointLight();
+		~PointLight();
 
 	protected:
-		virtual void		 UpdateCB() override;
+		void		 UpdateCB() override;
+		void		 InitLight() override;
 
 	};
 }

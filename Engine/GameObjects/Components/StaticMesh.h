@@ -7,31 +7,31 @@
 
 namespace S2DE::GameObjects::Components
 {
-	class S2DE_API StaticMesh : public Components::DrawableComponent
+	class S2DE_API StaticMesh : public DrawableComponent
 	{
 	public:
 		StaticMesh();
-		virtual ~StaticMesh();
+		~StaticMesh();
 
-		virtual bool			LoadMesh(std::string name);
-		virtual bool			LoadTexture(std::string name);
-		virtual bool			LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = true) override;
+		bool					LoadMesh(std::string name) override;
+		bool					LoadTexture(std::string name) override;
+		bool					LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = true) override;
 
 		//Get new version of current shader from resource manager
-		virtual void			UpdateShader() override;
+		void					UpdateShader() override;
 
 		//Get new version of current texture from resource manager
-		virtual void			UpdateTexture() override;
+		void					UpdateTexture() override;
 
 		void					SetColor(Math::Color<float> color);
 		void					UseIndices(bool use);
 	protected:
-		virtual void			OnUpdate(float DeltaTime) override { }
-		virtual void			OnRender() override;
-		virtual void			CreateVertexBuffer();
-		virtual void			CreateIndexBuffer();
-		virtual void			SetDefaultShader();
-		virtual void			SetDefaultTexture();
+		void					OnUpdate(float deltaTime) override { }
+		void					OnRender() override;
+		void					CreateVertexBuffer()	override;
+		void					CreateIndexBuffer()	override;
+		void					SetDefaultShader()	override;
+		void					SetDefaultTexture()	override;
 
 	private:
 		Render::FR::Mesh* m_mesh;

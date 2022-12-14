@@ -19,39 +19,33 @@ namespace S2DE::Scene
 
 		//Create new scene 
 		void		   CreateNewScene();
-
 		//Load scene from file 
 		bool		   LoadScene(std::string name);
-
 		//Save current scene
 		bool		   SaveScene();
-					   
 		void		   RenderScene();
 		void		   UpdateScene(float DeltaTime);
-					   
 		void		   UpdateShaders();
 		void		   UpdateTextures();
-
 		void		   Clear();
-					   
-		inline Scene*  GetScene() const { return m_scene; }
-
-
 		void		   ToggleGameObjectVisibility();
-		void		   ToggleGameObjectUpdate();
+		void		   ToggleGameObjectUpdating();
 
+		[[nodiscard]] inline Scene* GetScene() const;
 	private:
 		Scene*		   m_scene;
 					   
 		bool		   m_update_enabled;
 		bool		   m_render_enabled;
+
+		std::stringstream m_os;
 	};
 
 	//FIX ME: Need to replace this functions 
 
 	//Get game object from scene by name
 	template<typename T = GameObjects::GameObject>
-	static inline T* GetObjectByName(std::string name)
+	[[nodiscard]] static T* GetObjectByName(std::string name)
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
@@ -69,7 +63,7 @@ namespace S2DE::Scene
 
 	//Get game object from scene by uuid
 	template<typename T = GameObjects::GameObject>
-	static inline T* GetObjectByUUID(boost::uuids::uuid id)
+	[[nodiscard]] static T* GetObjectByUUID(boost::uuids::uuid id)
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
@@ -87,7 +81,7 @@ namespace S2DE::Scene
 
 	//Create game object in scene
 	template<typename T = GameObjects::GameObject>
-	static inline T* CreateGameObject(
+	static T* CreateGameObject(
 		std::string name = std::string(),
 		std::string type = std::string(),
 		std::int32_t prefix = S2DE_DEFAULT_GAMEOBJECT_PREFIX,
@@ -116,7 +110,7 @@ namespace S2DE::Scene
 
 	//Create game object function without initialization 
 	template<typename T = GameObjects::GameObject>
-	static inline T* CreateGameObjectNoInit()
+	static T* CreateGameObjectNoInit()
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, 
 			"This is not GameObject or GameObject based class");

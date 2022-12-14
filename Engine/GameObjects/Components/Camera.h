@@ -26,24 +26,25 @@ namespace S2DE::GameObjects::Components
 		virtual void							Fly(float side);
 		virtual void							Strafe(float side);
 
-		inline DirectX::SimpleMath::Matrix		GetViewMatrix() { return m_viewMatrix; }
-		inline DirectX::SimpleMath::Matrix		GetProjectionMatrix() { return m_projectionMatrix; }
-		inline DirectX::SimpleMath::Matrix		GetOrthoMatrix() { return m_ortho_Matrix; }
-		
-		inline CameraProjectionMode				GetProjectionMode() const { return m_mode;  }
-		inline float							GetSensitivity() const { return m_sensitivity;  }
-		inline float							GetSpeed() const { return m_speed;  }
-		inline float							GetZoom() const { return m_zoom; }
-		inline float							GetzNear() const { return m_zNear; }
-		inline float							GetzFar() const { return m_zFar; }
-		inline float							GetFov() const { return m_fov; }
-		inline float							GetSpeedBoost() const { return m_speedBoost; }
 
 		void									SetFov(float fov);
 		void									SetSpeed(float speed);
 		void									SetZoom(float zoom);
 		void									SetSensitivity(float sensitivity);
+
 		void									SetProjectionMode(CameraProjectionMode mode);
+
+		[[nodiscard]] inline DirectX::SimpleMath::Matrix&		GetViewMatrix();
+		[[nodiscard]] inline DirectX::SimpleMath::Matrix&		GetProjectionMatrix();
+		[[nodiscard]] inline DirectX::SimpleMath::Matrix&		GetOrthoMatrix();
+		[[nodiscard]] inline CameraProjectionMode				GetProjectionMode() const;
+		[[nodiscard]] inline float								GetSensitivity() const;
+		[[nodiscard]] inline float								GetSpeed() const;
+		[[nodiscard]] inline float								GetZoom() const;
+		[[nodiscard]] inline float								GetzNear() const;
+		[[nodiscard]] inline float								GetzFar() const;
+		[[nodiscard]] inline float								GetFov() const;
+		[[nodiscard]] inline float								GetSpeedBoost() const;
 	protected:
 		virtual void							OnRender() override;
 		virtual void							OnUpdate(float DeltaTime) override;

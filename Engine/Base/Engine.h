@@ -43,34 +43,33 @@ namespace S2DE::Core
 		//Application will be closed when this function is called
 		static void						Destroy();
 
-		static inline Engine*			GetEngine() { return m_engine; }
-		static inline ApplicationHandle* GetApplicationHandle() { return m_app_handle; }
-		static inline GameWindow*		GetGameWindow() { return m_window; }
-		static inline GameTime			GetGameTime() { return m_time; }
-		static inline Render::Renderer*			GetRenderer() { return m_render; }
-		static inline InputManager*		GetInputManager() { return m_input_m; }
-		static inline Scene::SceneManager*		GetSceneManager() { return m_scene_manager; }
-		static inline ResourceManager&	GetResourceManager() { return m_resource_manager; }
-		static inline bool				isEditor() { return m_isEditor; }
-
-		static inline bool				CheckAppParam(std::string param) { return m_params.find(param) != std::string::npos; }
+		[[nodiscard]] static Engine* GetEngine();
+		[[nodiscard]] static ApplicationHandle* GetApplicationHandle();
+		[[nodiscard]] static GameWindow* GetGameWindow();
+		[[nodiscard]] static GameTime			GetGameTime();
+		[[nodiscard]] static Render::Renderer* GetRenderer();
+		[[nodiscard]] static InputManager* GetInputManager();
+		[[nodiscard]] static Scene::SceneManager* GetSceneManager();
+		[[nodiscard]] static ResourceManager& GetResourceManager();
+		[[nodiscard]] static bool isEditor();
+		[[nodiscard]] static bool CheckAppParam(std::string param);
 
 	private:
-		//Run engine function
-		//Initialize all engine components, load resources, etc...
+		// Run engine function
+		// Initialize all engine components, load resources, etc...
 		void							RunEngine(ApplicationHandle* app_handle, std::string pname, bool isEditor);
 
-		//Update input manager and get key events from app
+		// Update input manager and get key events from app
 		void							UpdateInput();
 		void							UpdateEngineInputKeys();
 
-		//Run game loop
+		// Run game loop
 		void							RunLoop();
 		void							OnLoop();
 		void							OnGlobalUpdate(float DeltaTime);
 
-		//Load engine resources
-		//Configs, textures, shaders
+		// Load engine resources
+		// Configs, textures, shaders
 		bool							LoadEngineResources();
 
 		static Engine* m_engine;

@@ -9,9 +9,10 @@ namespace S2DE::GameObjects::Components::Light
 	{
 	public:
 		AmbientLight();
-		virtual ~AmbientLight();
+		~AmbientLight();
 
 	protected:
-		virtual void		 UpdateCB() override;
+		void		 UpdateCB() override;
+		void		 InitLight() override;
 	};
 }

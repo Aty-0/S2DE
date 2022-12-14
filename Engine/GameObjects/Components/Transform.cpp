@@ -5,7 +5,7 @@
 
 namespace S2DE::GameObjects::Components
 {
-	Transform::Transform() : 
+	Transform::Transform() :
 		m_position(DirectX::SimpleMath::Vector3::Zero),
 		m_rotation(DirectX::SimpleMath::Vector3::Zero),
 		m_scale(DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f)),
@@ -18,18 +18,22 @@ namespace S2DE::GameObjects::Components
 
 	Transform::~Transform()
 	{
-		m_position	= DirectX::SimpleMath::Vector3::Zero;
-		m_rotation	= DirectX::SimpleMath::Vector3::Zero;
-		m_scale		= DirectX::SimpleMath::Vector3::Zero;
-		m_parent	= nullptr;
-		m_child		= nullptr;
+		m_position = DirectX::SimpleMath::Vector3::Zero;
+		m_rotation = DirectX::SimpleMath::Vector3::Zero;
+		m_scale = DirectX::SimpleMath::Vector3::Zero;
+		m_parent = nullptr;
+		m_child = nullptr;
+
+		onPositionChanged.Clear();
+		onRotationChanged.Clear();
+		onScaleChanged.Clear();
 	}
 
 	void Transform::Reset()
 	{
-		m_position	= DirectX::SimpleMath::Vector3::Zero;
-		m_rotation	= DirectX::SimpleMath::Vector3::Zero;
-		m_scale		= DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
+		m_position = DirectX::SimpleMath::Vector3::Zero;
+		m_rotation = DirectX::SimpleMath::Vector3::Zero;
+		m_scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
 
 
 		RunOnPositionChangedCallbacks();
@@ -56,13 +60,7 @@ namespace S2DE::GameObjects::Components
 
 	void Transform::RunOnPositionChangedCallbacks()
 	{
-		for (const auto& callback : onPositionChanged)
-		{
-			if (callback != nullptr)
-			{
-				callback();
-			}
-		}
+		onPositionChanged.RunAllCallbacks();
 
 		// If parent have changes, we should call change and for child
 		if (m_child != nullptr)
@@ -73,13 +71,7 @@ namespace S2DE::GameObjects::Components
 
 	void Transform::RunOnRotationChangedCallbacks()
 	{
-		for (const auto& callback : onRotationChanged)
-		{
-			if (callback != nullptr)
-			{
-				callback();
-			}
-		}
+		onRotationChanged.RunAllCallbacks();
 
 		// If parent have changes, we should call change and for child
 		if (m_child != nullptr)
@@ -90,13 +82,7 @@ namespace S2DE::GameObjects::Components
 
 	void Transform::RunOnScaleChangedCallbacks()
 	{
-		for (const auto& callback : onScaleChanged)
-		{
-			if (callback != nullptr)
-			{
-				callback();
-			}
-		}
+		onScaleChanged.RunAllCallbacks();
 
 		// If parent have changes, we should call change and for child
 		if (m_child != nullptr)
@@ -179,22 +165,20 @@ namespace S2DE::GameObjects::Components
 
 	inline DirectX::SimpleMath::Quaternion TransformHelpers::ToQuaternion(DirectX::SimpleMath::Vector3 rot)
 	{
-		return DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.z), 
-			DirectX::XMConvertToRadians(rot.y), 
+		return DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.z),
+			DirectX::XMConvertToRadians(rot.y),
 			DirectX::XMConvertToRadians(rot.x));
 	}
 
 	DirectX::SimpleMath::Matrix Transform::UpdateTransformation2D()
 	{
-		Transform* transformParent = nullptr;
-
-		DirectX::SimpleMath::Vector3 parentPosition = DirectX::SimpleMath::Vector3::Zero;
-		DirectX::SimpleMath::Vector3 parentRotation = DirectX::SimpleMath::Vector3::Zero;
-		DirectX::SimpleMath::Vector3 parentScale = DirectX::SimpleMath::Vector3::Zero;
+		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
+		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
+		auto parentScale = DirectX::SimpleMath::Vector3::Zero;
 
 		if (m_parent != nullptr)
 		{
-			transformParent = m_parent->GetTransform();
+			const auto transformParent = m_parent->GetTransform();
 			parentPosition = transformParent->GetPosition();
 			parentRotation = transformParent->GetPosition();
 			parentScale = transformParent->GetPosition();
@@ -218,14 +202,14 @@ namespace S2DE::GameObjects::Components
 	}
 
 	DirectX::SimpleMath::Matrix Transform::UpdateTransformation()
-	{			
+	{
 		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
 		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
 		auto parentScale = DirectX::SimpleMath::Vector3::One;
 
 		if (GetParent() != nullptr)
 		{
-			auto transformParent = GetParent()->GetTransform();
+			const auto transformParent = GetParent()->GetTransform();
 
 			if (transformParent != nullptr)
 			{
@@ -247,6 +231,36 @@ namespace S2DE::GameObjects::Components
 
 		m_worldMatrix.Transpose(m_worldMatrix);
 
+		return m_worldMatrix;
+	}
+
+	inline DirectX::SimpleMath::Vector3 Transform::GetPosition() const
+	{
+		return m_position;
+	}
+
+	inline DirectX::SimpleMath::Vector3	Transform::GetRotation()   const
+	{
+		return m_rotation;
+	}
+
+	inline DirectX::SimpleMath::Vector3 Transform::GetScale() const
+	{
+		return m_scale;
+	}
+
+	inline GameObject* Transform::GetChild() const
+	{
+		return m_child;
+	}
+
+	inline GameObject* Transform::GetParent() const
+	{
+		return m_parent;
+	}
+
+	DirectX::SimpleMath::Matrix& Transform::GetWorldMatrix()
+	{
 		return m_worldMatrix;
 	}
 }

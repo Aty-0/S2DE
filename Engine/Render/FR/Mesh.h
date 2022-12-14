@@ -11,11 +11,11 @@ namespace S2DE::Render::FR
 		Mesh();
 		virtual ~Mesh();
 
-		virtual void					  Cleanup() override;
-		virtual bool					  Load(std::string path) override;
+		void					  Cleanup() override;
+		bool					  Load(std::string path) override;
 										  
-		inline std::vector<Vertex>		  GetVertices() const { return m_vertices; }
-		inline std::vector<std::uint32_t> GetIndices()  const { return m_indices; }
+		[[nodiscard]] inline std::vector<Vertex>		  GetVertices() const;
+		[[nodiscard]] inline std::vector<std::uint32_t> GetIndices()  const;
 
 	private:
 		std::vector<Vertex>				  m_vertices;

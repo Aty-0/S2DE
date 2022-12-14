@@ -264,4 +264,24 @@ namespace S2DE::Render::FR
 		m_const_buffer->Bind();
 		m_const_buffer->Unbind();
 	}
+
+	inline ID3D11VertexShader* Shader::GetVertexShader()	 const
+	{
+		return m_vertexShader;
+	}
+
+	inline ID3D11PixelShader* Shader::GetPixelShader()	 const
+	{
+		return m_pixelShader;
+	}
+
+	inline ID3D11InputLayout* Shader::GetLayout()		 const
+	{
+		return m_layout;
+	}
+
+	inline ConstantBuffer<CB::CB_Main>* Shader::GetConstBuffer()	 const
+	{
+		return m_const_buffer;
+	}
 }

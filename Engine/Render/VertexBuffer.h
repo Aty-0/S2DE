@@ -14,14 +14,14 @@ namespace S2DE::Render
 
 		}
 
-		virtual ~VertexBuffer() override
+		~VertexBuffer() final
 		{
 			Core::Release(m_buffer);
 			m_array.clear();
 			m_array.shrink_to_fit();
 		}
 
-		virtual bool Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DYNAMIC) override
+		bool Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DYNAMIC) final
 		{
 			if (m_array.size() == 0)
 				return false;
@@ -46,7 +46,7 @@ namespace S2DE::Render
 			return true;
 		}
 
-		virtual bool Lock()	 override
+		bool Lock() final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 			{
@@ -58,18 +58,18 @@ namespace S2DE::Render
 			return true;
 		}
 
-		virtual void Unbind()  override
+		void Unbind() final
 		{
 			Core::Engine::GetRenderer()->GetContext()->IASetVertexBuffers(0, 0, nullptr, 0, 0);
 		}
 
-		virtual void Unlock() override
+		void Unlock() final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 				Core::Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
 		}
 
-		virtual void Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1) override
+		void Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1) final
 		{
 			std::uint32_t stride = sizeof(Vertex);
 			std::uint32_t offset = 0;

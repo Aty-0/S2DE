@@ -17,12 +17,12 @@ namespace S2DE::Render
 
 		}
 
-		~ConstantBuffer()
+		~ConstantBuffer() final
 		{
 			Core::Release(m_buffer);
 		}
 
-		virtual bool Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DEFAULT) override
+		bool Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DEFAULT) final
 		{
 			m_data = new T();
 
@@ -45,7 +45,7 @@ namespace S2DE::Render
 			return true;
 		}
 
-		virtual bool Lock()	 override
+		bool Lock() final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 			{
@@ -57,19 +57,19 @@ namespace S2DE::Render
 			return true;
 		}
 
-		virtual void Unbind()  override
+		void Unbind() final
 		{
 			Core::Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(0, 0, nullptr);
 			Core::Engine::GetRenderer()->GetContext()->PSSetConstantBuffers(0, 0, nullptr);
 		}
 
-		virtual void Unlock() override
+		void Unlock() final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 				Core::Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
 		}
 
-		virtual void Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1)	 override
+		void Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1) final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DEFAULT)
 				Core::Engine::GetRenderer()->GetContext()->UpdateSubresource(m_buffer, 0, NULL, m_data, 0, 0);

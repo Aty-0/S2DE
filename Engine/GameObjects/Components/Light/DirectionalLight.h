@@ -7,10 +7,11 @@ namespace S2DE::GameObjects::Components::Light
 	{
 	public:
 		DirectionalLight();
-		virtual ~DirectionalLight();
+		~DirectionalLight();
 		
 	protected:
-		virtual void		 UpdateCB() override;
+		void		 UpdateCB() override;
+		virtual void InitLight();
 	};
 }
 

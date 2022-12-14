@@ -58,9 +58,11 @@ namespace S2DE::Core
 	{
 		m_isEditor = isEditor;
 
-		//Get params
+		// Get params
 		m_params = GetCommandLineA();
+
 		bool splash = !CheckAppParam("-nsplash");
+
 		SplashScreen* sp = nullptr;
 		SplashScreen::SetProjectName(pname);
 
@@ -70,13 +72,13 @@ namespace S2DE::Core
 			S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
 		}
 
-		//Create log file 
+		// Create log file 
 		Logger::CreateLogFile();
 
 		Logger::Log("Starting engine...");
 		SplashScreen::SetLoadState("Starting engine...", sp);
 
-		//Check application handle
+		// Check application handle
 		if ((m_app_handle = app_handle) == nullptr)
 		{
 			S2DE_FATAL_ERROR("No application handle setted");
@@ -97,7 +99,7 @@ namespace S2DE::Core
 		if (!m_render->Create())
 			return;
 		
-		//Load engine resources, read main config, etc
+		// Load engine resources, read main config, etc
 		SplashScreen::SetLoadState("Load engine resources...", sp);
 		
 		if (!LoadEngineResources())
@@ -114,12 +116,12 @@ namespace S2DE::Core
 			return;
 		}
 
-		//Application On start
+		// Application On start
 		Logger::Log("Application OnStart event");
 		m_app_handle->OnStart();
 
 
-		//Destroy splash screen and show game window
+		// Destroy splash screen and show game window
 		if (splash)
 		{
 			sp->Close();
@@ -127,7 +129,7 @@ namespace S2DE::Core
 		}
 		m_window->Restore();
 
-		//Run main game loop
+		// Run main game loop
 		RunLoop();
 
 	}
@@ -221,5 +223,55 @@ namespace S2DE::Core
 		S2DE_ASSERT(m_resource_manager.Load<FR::Shader>("Mesh"));
 
 		return true;
+	}
+
+	inline Engine* Engine::GetEngine()
+	{
+		return m_engine;
+	}
+
+	inline ApplicationHandle* Engine::GetApplicationHandle()
+	{
+		return m_app_handle;
+	}
+
+	inline GameWindow* Engine::GetGameWindow()
+	{
+		return m_window;
+	}
+
+	inline GameTime Engine::GetGameTime()
+	{
+		return m_time;
+	}
+
+	inline Render::Renderer* Engine::GetRenderer()
+	{
+		return m_render;
+	}
+
+	inline InputManager* Engine::GetInputManager()
+	{
+		return m_input_m;
+	}
+
+	inline Scene::SceneManager* Engine::GetSceneManager()
+	{
+		return m_scene_manager;
+	}
+
+	inline ResourceManager& Engine::GetResourceManager()
+	{
+		return m_resource_manager;
+	}
+
+	inline bool Engine::isEditor()
+	{
+		return m_isEditor;
+	}
+
+	inline bool Engine::CheckAppParam(std::string param)
+	{
+		return m_params.find(param) != std::string::npos;
 	}
 }

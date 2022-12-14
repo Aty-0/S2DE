@@ -146,4 +146,15 @@ namespace S2DE::Scene
 		m_storage.erase(m_storage.begin(), m_storage.end());
 		m_storage.shrink_to_fit();
 	}
+
+	inline SceneObjectStorage& Scene::GetStorage()
+	{
+		return m_storage;
+	}
+
+	inline std::string Scene::GetName() const
+	{
+		return m_name;
+	}
+
 }

@@ -131,7 +131,8 @@ namespace S2DE::GameObjects::Components
 
 	inline DirectX::SimpleMath::Matrix Skybox::UpdateTransformation()
 	{
-		auto transform = GetOwner()->GetTransform();
+		const auto transform = GetOwner()->GetTransform();
+
 		auto wMatrix = transform->GetWorldMatrix();
 		auto camera = Scene::GetObjectByName<GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<Camera>();
 		auto camPosition = DirectX::SimpleMath::Vector3(1, 1, 1);

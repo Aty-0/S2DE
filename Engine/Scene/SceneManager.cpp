@@ -12,6 +12,12 @@
 #include "GameObjects/Components/Editor/EditorCenterCursor.h"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <sstream>
+#include <fstream>
+
+#include "Base/Utils/SerializeUtils.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 
 namespace S2DE::Scene
 {
@@ -31,19 +37,21 @@ namespace S2DE::Scene
 	void SceneManager::CreateNewScene()
 	{	 
 		m_scene = new Scene();
-		auto camera = CreateGameObject<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+		const auto camera = CreateGameObject<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
 		camera->CreateComponent<GameObjects::Components::Camera>();
-		auto sky = CreateGameObject<GameObjects::GameObject>("Sky", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+		const auto sky = CreateGameObject<GameObjects::GameObject>("Sky", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
 		sky->CreateComponent<GameObjects::Components::Skybox>();
 		
 		if (Core::Engine::isEditor())
 		{
-			auto editorGrid = CreateGameObject<GameObjects::GameObject>("_EditorGrid", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, DirectX::SimpleMath::Vector3(GRID_CELLS / 2, -1, GRID_CELLS / 2));
+			const auto editorGrid = CreateGameObject<GameObjects::GameObject>("_EditorGrid", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, DirectX::SimpleMath::Vector3(GRID_CELLS / 2, -1, GRID_CELLS / 2));
 			editorGrid->CreateComponent<GameObjects::Components::Editor::EditorGrid>();
 
-			auto editorCenterCursor = CreateGameObject<GameObjects::GameObject>("_EditorCenterCursor", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+			const auto editorCenterCursor = CreateGameObject<GameObjects::GameObject>("_EditorCenterCursor", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
 			editorCenterCursor->CreateComponent<GameObjects::Components::Editor::EditorCenterCursor>();
 		}
+
+		// TODO: Callbacks
 	}	 
 		 
 	bool SceneManager::LoadScene(std::string name)
@@ -51,10 +59,25 @@ namespace S2DE::Scene
 		S2DE_NO_IMPL();
 		return true;
 	}	 
-		 
+
 	bool SceneManager::SaveScene()
 	{	 
-		S2DE_NO_IMPL();
+		Logger::Log("[SceneManager] Save scene");
+		boost::archive::xml_oarchive oa(m_os);
+
+		for (const auto& object : m_scene->GetStorage())
+		{
+			oa << boost::serialization::make_nvp(object.first.first.c_str(), static_cast<GameObjects::GameObject&>(*object.second.get()));
+		}	
+
+		//PrintSerializedObjects();
+		
+		std::ofstream file;
+
+		file.open("scene.xml");
+		file << m_os.str();
+		file.close();
+
 		return true;
 	}	 
 
@@ -66,6 +89,7 @@ namespace S2DE::Scene
 
 			if (components != nullptr)
 			{
+				Logger::Log("Update shader for %s", object.first.first.c_str());
 				components->UpdateShader();
 			}
 		}
@@ -160,9 +184,14 @@ namespace S2DE::Scene
 		m_render_enabled =! m_render_enabled;
 	}
 
-	void SceneManager::ToggleGameObjectUpdate()
+	void SceneManager::ToggleGameObjectUpdating()
 	{
 		m_update_enabled =! m_update_enabled;
+	}
+
+	inline Scene* SceneManager::GetScene() const
+	{
+		return m_scene;
 	}
 
 	void SceneManager::Clear()
