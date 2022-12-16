@@ -1,48 +1,59 @@
-#include "DirectionalLight.h"
+#include "SpotLight.h"
 #include "GameObjects/Base/GameObject.h"
 
 namespace S2DE::GameObjects::Components::Light
 {
-	DirectionalLight::DirectionalLight()
+	SpotLight::SpotLight()
 	{
 
 	}
 
-	DirectionalLight::~DirectionalLight()
+	SpotLight::~SpotLight()
 	{
 		//Light::LightCount--;
+		onColorChanged.Clear();
+		onStrengthChanged.Clear();
 	}
 
-	void DirectionalLight::InitLight()
+	void SpotLight::InitLight()
 	{
 		m_index = Light::LightCount;
 		Light::LightCount++;
 
-		m_attenuation = DirectX::SimpleMath::Vector3(0.0f, 0.1f, 0.0f);
-		m_range = 25.0f;
+		m_attenuation = DirectX::SimpleMath::Vector3(0.04f, 0.1f, 0.06f);
+		m_range = 100.0f;
 		m_pad = 1.0f;
+		m_strength = 1.0f;
+		m_spot = 1.0f;
+		m_spotAngle = 30.0f;
 
 		// Add callbacks...
 		const auto transform = GetOwner()->GetTransform();
 		S2DE_ASSERT(transform != nullptr);
 
-		transform->onPositionChanged.AddCallback(std::bind(&DirectionalLight::UpdateCB, this));
-		transform->onRotationChanged.AddCallback(std::bind(&DirectionalLight::UpdateCB, this));
-		transform->onScaleChanged.AddCallback(std::bind(&DirectionalLight::UpdateCB, this));
-		onColorChanged.AddCallback(std::bind(&DirectionalLight::UpdateCB, this));
-		onStrengthChanged.AddCallback(std::bind(&DirectionalLight::UpdateCB, this));
+		transform->onPositionChanged.AddCallback(std::bind(&SpotLight::UpdateCB, this));
+		transform->onRotationChanged.AddCallback(std::bind(&SpotLight::UpdateCB, this));
+		transform->onScaleChanged.AddCallback(std::bind(&SpotLight::UpdateCB, this));
+		onColorChanged.AddCallback(std::bind(&SpotLight::UpdateCB, this));
+		onStrengthChanged.AddCallback(std::bind(&SpotLight::UpdateCB, this));
 	}
 
-	void DirectionalLight::UpdateCB()
+	void SpotLight::UpdateCB()
 	{
 		if (m_lightCB)
 		{
 			m_lightCB->Lock();
 			auto& str = m_lightStructure;
 
+			str.strength = m_strength;
 			str.attenuation = m_attenuation;
-			str.pad = m_pad;
-			str.light_type = static_cast<std::int32_t>(LightTypes::DIRECTIONAL_LIGHT);
+			str.range = m_range;
+			str.spot = m_spot;
+			str.spotAngle = m_spotAngle;
+
+			str.light_type = static_cast<std::int32_t>(LightTypes::SPOT_LIGHT);
+			str.enabled = static_cast<std::int32_t>(GetOwner()->isEnabled());
+			str.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
 
 			const auto transform = GetOwner()->GetTransform();
 			S2DE_ASSERT(transform);
@@ -71,8 +82,6 @@ namespace S2DE::GameObjects::Components::Light
 				str.direction = DirectX::SimpleMath::Vector4(transform->GetRotation().x + parentRotation.x,
 					transform->GetRotation().y + parentRotation.y, transform->GetRotation().z + parentRotation.z, 1);
 			}
-
-			m_lightStructure.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
 
 			m_lightCB->GetData()->lights[m_index] = m_lightStructure;
 
