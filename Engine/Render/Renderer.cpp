@@ -459,19 +459,8 @@ namespace S2DE::Render
 
 	void Renderer::UpdateViewport()
 	{
-		// FIXME:
-		const auto renderWindow = GetImGui_Window<EditorRenderWindow*>("EditorRenderWindow");
-		if (Core::Engine::isEditor() && renderWindow != nullptr)
-		{
-			m_viewport.Width = renderWindow->GetWindowWidth();
-			m_viewport.Height = renderWindow->GetWindowHeight();
-		}
-		else
-		{
-			m_viewport.Width = (float)Core::Engine::GetGameWindow()->GetWidth();
-			m_viewport.Height = (float)Core::Engine::GetGameWindow()->GetHeight();
-		}
-
+		m_viewport.Width = static_cast<float>(Core::Engine::GetGameWindow()->GetWidth());
+		m_viewport.Height = static_cast<float>(Core::Engine::GetGameWindow()->GetHeight());
 		m_viewport.MinDepth = 0.0f;
 		m_viewport.MaxDepth = 1.0f;
 		m_viewport.TopLeftX = 0.0f;

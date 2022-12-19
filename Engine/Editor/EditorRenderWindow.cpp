@@ -73,7 +73,7 @@ namespace S2DE::Editor
 				ImGui::End();
 			}
 
-			ImGui::Image(m_bufferdata, ImVec2(float(Core::Engine::GetGameWindow()->GetWidth()), float(Core::Engine::GetGameWindow()->GetHeight())));
+			ImGui::Image(m_bufferdata, ImVec2(m_width, m_height));
 
 			ImGui::End();
 		}
