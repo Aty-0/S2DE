@@ -196,11 +196,11 @@ namespace S2DE::Core
 
 	void Engine::OnLoop()
 	{
+		m_time.Begin();
 		UpdateInput();
-		m_time.Tick();
-
 		OnGlobalUpdate(m_time.GetDeltaTime());
 		m_render->Render();
+		m_time.End();
 	}
 
 	void Engine::Destroy()
