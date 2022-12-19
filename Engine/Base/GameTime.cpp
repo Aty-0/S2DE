@@ -4,11 +4,13 @@ namespace S2DE::Core
 {
 	GameTime::GameTime() :
 		m_tickEnd(std::chrono::high_resolution_clock::now()),
+		m_now(std::chrono::high_resolution_clock::now()),
 		m_then(std::chrono::high_resolution_clock::now()),
 		m_fps(0),
 		m_frameCount(0),
 		m_deltaTime(0.0f),
-		m_timer(0.0f)
+		m_timer(0.0f),
+		m_timerDuration()
 	{
 
 	}
