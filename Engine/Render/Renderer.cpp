@@ -732,7 +732,7 @@ namespace S2DE::Render
 			return;
 		}
 
-		//if (m_frameBufferShaderResourceView == nullptr)
+		if (m_frameBufferShaderResourceView == nullptr)
 		{
 			D3D11_TEXTURE2D_DESC textureDesc = { };
 			m_frameBufferData->GetDesc(&textureDesc);
