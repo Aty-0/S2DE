@@ -12,9 +12,9 @@ namespace S2DE::Editor
 
 		[[nodiscard]] inline float GetWindowWidth() const;
 		[[nodiscard]] inline float GetWindowHeight() const;
-
+		
 		bool		 HandleWindowResize();
-
+		void		 Reset();
 		virtual void PushRenderTexture(void* texture);
 		virtual void SetDefaultResolution();
 		void Render() override;

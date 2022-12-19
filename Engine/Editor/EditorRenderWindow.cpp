@@ -61,6 +61,11 @@ namespace S2DE::Editor
 		m_bufferdata = texture;
 	}
 
+	void EditorRenderWindow::Reset()
+	{
+		m_bufferdata = nullptr;
+	}
+
 	void EditorRenderWindow::Render()
 	{
 		if (m_draw)
@@ -73,7 +78,10 @@ namespace S2DE::Editor
 				ImGui::End();
 			}
 
-			ImGui::Image(m_bufferdata, ImVec2(m_width, m_height));
+			if (m_bufferdata != nullptr)
+			{
+				ImGui::Image(m_bufferdata, ImVec2(m_width, m_height));
+			}
 
 			ImGui::End();
 		}

@@ -150,6 +150,7 @@ namespace S2DE::Render
 		Release(m_depthStateDisabled);
 
 		Release(m_frameBufferData);
+		m_frameBufferData = nullptr;
 
 		m_context->Flush();
 		
@@ -709,6 +710,16 @@ namespace S2DE::Render
 		sw_buff->GetDesc(&td);
 		td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 		S2DE_CHECK(m_device->CreateTexture2D(&td, NULL, &m_frameBufferData), "Can't create framebuffer texture data");
+
+		const auto renderWindow = GetImGui_Window<EditorRenderWindow*>("EditorRenderWindow");
+		if(renderWindow != nullptr)
+		{
+			renderWindow->Reset();
+		}
+
+		Release(m_frameBufferShaderResourceView);
+		m_frameBufferShaderResourceView = nullptr;
+
 		return true;
 	}
 
