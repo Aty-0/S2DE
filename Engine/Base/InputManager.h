@@ -10,39 +10,33 @@ namespace S2DE::Core
 		InputManager();
 		~InputManager();
 
-		// Lock mouse control
-		void								LockMouseControl(bool lock);
-		// Lock keyboard control			
-		void								LockKeyboardControl(bool lock);
+		void LockMouseControl(bool lock);
+		void LockKeyboardControl(bool lock);
+		void LockWheel(bool lock);
+		void Update();
+			 
+		void _MWheelUpdate(SDL_Event event);
+		void _MMotionUpdate(SDL_Event event);
+		void _KKeyDownArrayStateUpdate(SDL_Event event);
+		void _KKeyUpArrayStateUpdate(SDL_Event event);
+		void _MKeyUpArrayStateUpdate(SDL_Event event);
+		void _MKeyDownArrayStateUpdate(SDL_Event event);
 
-		void								LockWheel(bool lock);
-
-		inline bool							IsWheelLocked() const;
-		inline bool							IsMouseLocked() const;
-		inline bool							IsKeyboardLocked() const;
-		inline bool							IsMouseWheelTurnsForward()			 const;
-		inline bool							IsMouseWheelTurnsBackward()			 const;
-
-		inline bool							IsKeyPressed(Other::KeyCode keycode) const;
-		inline bool							IsKeyUp(Other::KeyCode keycode)      const;
-		inline bool							IsKeyDown(Other::KeyCode keycode)    const;
-		inline bool							IsMouseKeyPressed(Other::MouseKeyCode keycode) const;
-		inline bool							IsMouseKeyUp(Other::MouseKeyCode keycode)      const;
-		inline bool							IsMouseKeyDown(Other::MouseKeyCode keycode)    const;
-
-		inline DirectX::SimpleMath::Vector2 GetMousePositionRelative() const;
-		inline DirectX::SimpleMath::Vector2 GetMousePositionGlobal() const;
-		inline DirectX::SimpleMath::Vector2 GetMousePosition()		 const;
-		inline DirectX::SimpleMath::Vector2 GetMouseWheelPosition()	 const;
-
-		void								Update();
-
-		void								_MWheelUpdate(SDL_Event event);
-		void								_MMotionUpdate(SDL_Event event);
-		void								_KKeyDownArrayStateUpdate(SDL_Event event);
-		void								_KKeyUpArrayStateUpdate(SDL_Event event);
-		void								_MKeyUpArrayStateUpdate(SDL_Event event);
-		void								_MKeyDownArrayStateUpdate(SDL_Event event);
+		[[nodiscard]] inline bool IsWheelLocked() const;
+		[[nodiscard]] inline bool IsMouseLocked() const;
+		[[nodiscard]] inline bool IsKeyboardLocked() const;
+		[[nodiscard]] inline bool IsMouseWheelTurnsForward()			 const;
+		[[nodiscard]] inline bool IsMouseWheelTurnsBackward()			 const;
+		[[nodiscard]] inline bool IsKeyPressed(Other::KeyCode keycode) const;
+		[[nodiscard]] inline bool IsKeyUp(Other::KeyCode keycode)      const;
+		[[nodiscard]] inline bool IsKeyDown(Other::KeyCode keycode)    const;
+		[[nodiscard]] inline bool IsMouseKeyPressed(Other::MouseKeyCode keycode) const;
+		[[nodiscard]] inline bool IsMouseKeyUp(Other::MouseKeyCode keycode)      const;
+		[[nodiscard]] inline bool IsMouseKeyDown(Other::MouseKeyCode keycode)    const;
+		[[nodiscard]] inline DirectX::SimpleMath::Vector2 GetMousePositionRelative() const;
+		[[nodiscard]] inline DirectX::SimpleMath::Vector2 GetMousePositionGlobal() const;
+		[[nodiscard]] inline DirectX::SimpleMath::Vector2 GetMousePosition()		 const;
+		[[nodiscard]] inline DirectX::SimpleMath::Vector2 GetMouseWheelPosition()	 const;
 
 	private:
 		std::uint32_t						m_mouse;
@@ -51,12 +45,11 @@ namespace S2DE::Core
 		bool								m_keyboardKeyDown[Other::KeyboardSize];
 		bool								m_mouseKeyUp[Other::MouseSize];
 		bool								m_mouseKeyDown[Other::MouseSize];
-
 		bool								m_lock_wheel;
 		bool								m_lock_mouse;
 		bool								m_lock_keyboard;
-
-		// On update 
+		bool								m_isMouseMotionWork;
+		bool								m_isMouseWheelMotionWork;
 		bool								m_isWheelTurnsForward;
 		bool								m_isWheelTurnsBackward;
 		DirectX::SimpleMath::Vector2		m_mRPMouseState;

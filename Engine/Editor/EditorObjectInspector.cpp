@@ -223,4 +223,14 @@ namespace S2DE::Editor
 			ImGui::End();
 		}
 	}
+
+	inline GameObjects::GameObject* EditorObjectInspector::GetSeletectedGameObject()
+	{
+		return m_selectedGameObject;
+	}
+
+	inline GameObjects::Components::Component* EditorObjectInspector::GetSeletectedComponent()
+	{
+		return m_selectedComponent;
+	}
 }

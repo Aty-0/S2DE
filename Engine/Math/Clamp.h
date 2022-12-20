@@ -1,5 +1,4 @@
 #pragma once
-#include "Base/Main/Common.h"
 #include "Math/Min.h"
 #include "Math/Max.h"
 

@@ -7,7 +7,11 @@ namespace S2DE::Render
 	class S2DE_API Buffer
 	{
 	public:
-		Buffer() = default;
+		Buffer() :  m_buffer(nullptr),
+					m_buffer_desc()
+		{
+			
+		}
 		virtual ~Buffer() { }
 		virtual bool				  Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DEFAULT) = 0;
 		virtual bool				  Lock() = 0;
@@ -15,9 +19,9 @@ namespace S2DE::Render
 		virtual void				  Update() { Lock(); Unlock(); }
 		virtual void				  Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1) = 0;
 		virtual void				  Unbind() = 0;
-		virtual ID3D11Buffer*& GetBuffer() { return m_buffer; }
+		[[nodiscard]] virtual ID3D11Buffer*& GetBuffer() { return m_buffer; }
 
-		virtual D3D11_BUFFER_DESC GetBufferDesc()
+		[[nodiscard]] virtual D3D11_BUFFER_DESC GetBufferDesc()
 		{
 			m_buffer->GetDesc(&m_buffer_desc);
 			return m_buffer_desc;

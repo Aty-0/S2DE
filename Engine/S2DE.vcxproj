@@ -22,7 +22,6 @@
     <ClInclude Include="Base\ApplicationHandle.h" />
     <ClInclude Include="Base\CoreMinimal.h" />
     <ClInclude Include="Base\DebugTools\Debug_Info.h" />
-    <ClInclude Include="Base\DebugTools\Debug_ObjectInspector.h" />
     <ClInclude Include="Base\Utils\CallbackWrapper.h" />
     <ClInclude Include="GameObjects\Components\AlphaComponent.h" />
     <ClInclude Include="GameObjects\Components\DrawableComponent.h" />
@@ -97,13 +96,13 @@
     <ClInclude Include="GameObjects\Components\UI\UIDrawableComponent.h" />
     <ClInclude Include="GameObjects\Components\Skybox.h" />
     <ClInclude Include="GameObjects\Components\StaticMesh.h" />
+    <ClInclude Include="GameObjects\Components\Light\SpotLight.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Base\DebugTools\Debug_Info.cpp" />
-    <ClCompile Include="Base\DebugTools\Debug_ObjectInspector.cpp" />
     <ClCompile Include="GameObjects\Components\AlphaComponent.cpp" />
     <ClCompile Include="GameObjects\Components\DrawableComponent.cpp" />
     <ClCompile Include="GameObjects\Components\Component.cpp" />
@@ -149,6 +148,7 @@
     <ClCompile Include="GameObjects\Components\Sprite.cpp" />
     <ClCompile Include="GameObjects\Components\Skybox.cpp" />
     <ClCompile Include="GameObjects\Components\StaticMesh.cpp" />
+    <ClCompile Include="GameObjects\Components\Light\SpotLight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\splash.bmp" />

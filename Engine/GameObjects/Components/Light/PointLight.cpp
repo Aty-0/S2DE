@@ -10,7 +10,7 @@ namespace S2DE::GameObjects::Components::Light
 
 	PointLight::~PointLight()
 	{
-		//Light::LightCount--;
+		Light::LightCount--;
 		onColorChanged.Clear();
 		onStrengthChanged.Clear();
 	}

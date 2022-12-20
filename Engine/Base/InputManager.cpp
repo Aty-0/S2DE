@@ -5,17 +5,55 @@
 
 namespace S2DE::Core
 {
-	InputManager::InputManager() 
+	InputManager::InputManager() :  m_mouse(0),
+									m_keyboard(nullptr),
+									m_keyboardKeyUp(),
+									m_keyboardKeyDown(),
+									m_mouseKeyUp(),
+									m_mouseKeyDown(),
+									m_lock_wheel(false),
+									m_lock_mouse(false),
+									m_lock_keyboard(false),
+									m_isMouseMotionWork(false),
+									m_isMouseWheelMotionWork(false),
+									m_isWheelTurnsForward(false),
+									m_isWheelTurnsBackward(false),
+									m_mRPMouseState(DirectX::SimpleMath::Vector2::Zero),
+									m_mRCMouseState(DirectX::SimpleMath::Vector2::Zero),
+									m_mRMouseState(DirectX::SimpleMath::Vector2::Zero),
+									m_mPosition(DirectX::SimpleMath::Vector2::Zero),
+									m_mGlobalPosition(DirectX::SimpleMath::Vector2::Zero),
+									m_mWheel(DirectX::SimpleMath::Vector2::Zero)
 	{
 
 	}
 
 	InputManager::~InputManager()
 	{
-
+		m_mouse = 0;
+		Delete(m_keyboard);
+		Delete(m_keyboardKeyUp);
+		Delete(m_keyboardKeyDown);
+		Delete(m_mouseKeyUp);
+		Delete(m_mouseKeyDown);
+		m_lock_wheel = false;
+		m_lock_mouse = false;
+		m_lock_keyboard = false;
+		m_isMouseMotionWork = false;
+		m_isMouseWheelMotionWork = false;
+		m_isWheelTurnsForward = false;
+		m_isWheelTurnsBackward = false;
+		m_mRPMouseState = DirectX::SimpleMath::Vector2::Zero;
+		m_mRCMouseState = DirectX::SimpleMath::Vector2::Zero;
+		m_mRMouseState = DirectX::SimpleMath::Vector2::Zero;
+		m_mPosition = DirectX::SimpleMath::Vector2::Zero;
+		m_mGlobalPosition = DirectX::SimpleMath::Vector2::Zero;
+		m_mWheel = DirectX::SimpleMath::Vector2::Zero;
 	}
+
 	void InputManager::_MWheelUpdate(SDL_Event event)
 	{
+		m_isMouseWheelMotionWork = true;
 		m_mWheel = DirectX::SimpleMath::Vector2(static_cast<float>(event.wheel.x), static_cast<float>(event.wheel.y));
 		m_isWheelTurnsForward	=  event.wheel.preciseY >= 1;
 		m_isWheelTurnsBackward	=  event.wheel.preciseY <= -1;
@@ -23,16 +61,17 @@ namespace S2DE::Core
 
 	void InputManager::_MMotionUpdate(SDL_Event event)
 	{
+		m_isMouseMotionWork = true;
 		// FIX ME: When vsync is on we are get ragged movements
 		 
 		// Two ways how we can get relative mouse state
 		// First:
-		m_mRPMouseState = m_mRCMouseState;		
-		m_mRCMouseState = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.x), static_cast<float>(event.motion.y));
-		m_mRMouseState = m_mRCMouseState - m_mRPMouseState;
-
+		//m_mRPMouseState = m_mRCMouseState;		
+		//m_mRCMouseState = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.x), static_cast<float>(event.motion.y));
+		//m_mRMouseState = m_mRCMouseState - m_mRPMouseState;
 		// Second:
-		//m_mRMouseState = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.xrel), static_cast<float>(event.motion.yrel));
+		m_mRMouseState = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.xrel), static_cast<float>(event.motion.yrel));
+		//SDL_SetRelativeMouseMode(SDL_FALSE);
 
 		// Get global mouse position
 		std::int32_t x = 0, y = 0;
@@ -46,7 +85,8 @@ namespace S2DE::Core
 	void InputManager::Update()
 	{
 		// Disable all keys
-
+		m_isMouseMotionWork = false;
+		m_isMouseWheelMotionWork = false;
 		m_isWheelTurnsForward = false;
 		m_isWheelTurnsBackward = false;
 
@@ -87,40 +127,43 @@ namespace S2DE::Core
 		m_mouseKeyDown[event.button.button] = true;
 	}
 
-	DirectX::SimpleMath::Vector2 InputManager::GetMousePositionRelative() const
-	{	
-		SDL_CaptureMouse(SDL_TRUE);
+	inline DirectX::SimpleMath::Vector2 InputManager::GetMousePositionRelative() const
+	{
+		//SDL_CaptureMouse(SDL_TRUE);
 		SDL_SetRelativeMouseMode(SDL_TRUE);
-		SDL_WarpMouseInWindow(Engine::GetGameWindow()->GetSDLWindow(), Engine::GetGameWindow()->GetWidth() / 2, Engine::GetGameWindow()->GetHeight() / 2);
+		//SDL_WarpMouseInWindow(Engine::GetGameWindow()->GetSDLWindow(), Engine::GetGameWindow()->GetWidth() / 2, Engine::GetGameWindow()->GetHeight() / 2);
+		if(m_isMouseMotionWork == false)
+			return DirectX::SimpleMath::Vector2::Zero;
+
 		return m_mRMouseState;
 	}
 
-	DirectX::SimpleMath::Vector2 InputManager::GetMousePositionGlobal() const
+	inline DirectX::SimpleMath::Vector2 InputManager::GetMousePositionGlobal() const
 	{
 		return m_mGlobalPosition;
 	}
 
-	DirectX::SimpleMath::Vector2 InputManager::GetMousePosition() const
+	inline DirectX::SimpleMath::Vector2 InputManager::GetMousePosition() const
 	{
 		return m_mPosition;
 	}
 
-	DirectX::SimpleMath::Vector2 InputManager::GetMouseWheelPosition() const
+	inline DirectX::SimpleMath::Vector2 InputManager::GetMouseWheelPosition() const
 	{
 		return m_mWheel;
 	}
 
-	bool InputManager::IsMouseWheelTurnsForward() const
+	inline bool InputManager::IsMouseWheelTurnsForward() const
 	{
 		return m_isWheelTurnsForward && !m_lock_wheel;
 	}
 
-	bool InputManager::IsMouseWheelTurnsBackward() const
+	inline bool InputManager::IsMouseWheelTurnsBackward() const
 	{
 		return m_isWheelTurnsBackward && !m_lock_wheel;
 	}
 
-	bool InputManager::IsMouseKeyPressed(Other::MouseKeyCode keycode) const
+	inline bool InputManager::IsMouseKeyPressed(Other::MouseKeyCode keycode) const
 	{
 		if (m_mouseKeyDown == nullptr || m_lock_mouse)
 			return false;
@@ -129,7 +172,7 @@ namespace S2DE::Core
 		return m_mouseKeyDown[i];
 	}
 
-	bool InputManager::IsMouseKeyUp(Other::MouseKeyCode keycode)      const
+	inline bool InputManager::IsMouseKeyUp(Other::MouseKeyCode keycode)      const
 	{
 		if (m_mouseKeyUp == nullptr || m_lock_mouse)
 			return false;
@@ -138,7 +181,7 @@ namespace S2DE::Core
 		return m_mouseKeyUp[i];
 	}
 
-	bool InputManager::IsMouseKeyDown(Other::MouseKeyCode keycode)    const
+	inline bool InputManager::IsMouseKeyDown(Other::MouseKeyCode keycode)    const
 	{
 		if (m_lock_mouse)
 			return false;
@@ -150,7 +193,7 @@ namespace S2DE::Core
 		return false;
 	}
 
-	bool InputManager::IsKeyPressed(Other::KeyCode keycode) const
+	inline bool InputManager::IsKeyPressed(Other::KeyCode keycode) const
 	{		
 		if (m_keyboardKeyDown == nullptr || m_lock_keyboard)
 			return false;
@@ -159,7 +202,7 @@ namespace S2DE::Core
 		return m_keyboardKeyDown[i];
 	}
 
-	bool InputManager::IsKeyUp(Other::KeyCode keycode) const
+	inline bool InputManager::IsKeyUp(Other::KeyCode keycode) const
 	{		
 		if (m_keyboardKeyUp == nullptr || m_lock_keyboard)
 			return false;
@@ -168,7 +211,7 @@ namespace S2DE::Core
 		return m_keyboardKeyUp[i];
 	}
 
-	bool InputManager::IsKeyDown(Other::KeyCode keycode) const
+	inline bool InputManager::IsKeyDown(Other::KeyCode keycode) const
 	{
 		if (m_keyboard == nullptr || m_lock_keyboard)
 			return false;
@@ -180,12 +223,12 @@ namespace S2DE::Core
 		return false;
 	}
 
-	bool InputManager::IsMouseLocked() const
+	inline bool InputManager::IsMouseLocked() const
 	{	 
 		return m_lock_mouse;
 	}	 
 		 
-	bool InputManager::IsKeyboardLocked() const
+	inline bool InputManager::IsKeyboardLocked() const
 	{
 		return m_lock_keyboard;
 	}

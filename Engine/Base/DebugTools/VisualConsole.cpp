@@ -11,6 +11,7 @@ namespace S2DE::Core::Debug
 	static std::uint32_t line_count = 0;
 
 	VisualConsole::VisualConsole() : 
+		m_showMessages(true),
 		m_scroll_to_bottom(false), 
 		m_free(Engine::isEditor()),
 		m_sizemode(S2DE_CONSOLE_DEFAULT_MODE)

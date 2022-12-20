@@ -13,7 +13,6 @@
 
 
 #include "Base/DebugTools/Debug_Info.h"
-#include "Base/DebugTools/Debug_ObjectInspector.h"
 
 #include "Editor/EditorToolstrip.h"
 #include "Editor/EditorObjectInspector.h"
@@ -26,12 +25,6 @@
 #define S2DE_IMGUI_NEW_FRAME()  ImGui_ImplDX11_NewFrame(); \
 								ImGui_ImplSDL2_NewFrame(); \
 								ImGui::NewFrame(); \
-
-using namespace S2DE::Core;
-using namespace S2DE::Core::Utils;
-using namespace S2DE::Core::Debug;
-using namespace S2DE::Math;
-using namespace S2DE::Editor;
 
 namespace S2DE::Render
 {
@@ -48,12 +41,18 @@ namespace S2DE::Render
 							m_frameBufferShaderResourceView(nullptr),
 							m_frameRenderTarget(nullptr),
 							m_frameBufferData(nullptr),
+							m_backBuffer(nullptr),
+							m_editorToolStrip(nullptr),
+							m_editorCenterCursor(nullptr),
+							m_d3dDebug(nullptr),
+							m_d3dInfoQueue(nullptr),
 							m_vsync(true),
 							m_showImguiWindows(true),
 							m_showImguiDemoWindow(false),
 							m_deviceFlags(0),
+							m_viewport(),
 							m_fillMode(RenderFillMode::Solid),
-							m_clearColor(Color<float>(0.0f, 0.0f, 0.0f, 1.0f))
+							m_clearColor(Math::Color<float>(0.0f, 0.0f, 0.0f, 1.0f))
 
 	{
 
@@ -121,18 +120,18 @@ namespace S2DE::Render
 
 	void Renderer::CreateEngineWindowsAndEditorUI()
 	{
-		AddImGuiWindow("EngineConsole", new Debug::VisualConsole());
-		AddImGuiWindow("DebugInfoWindow", new Debug_Info());
+		AddImGuiWindow("EngineConsole", new Core::Debug::VisualConsole());
+		AddImGuiWindow("DebugInfoWindow", new Core::Debug::Debug_Info());
 
-		if (Engine::isEditor())
+		if (Core::Engine::isEditor())
 		{
-			AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow(), true);
-			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), true);
-			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), false);
-			AddImGuiWindow("EditorModelExporterWindow", new EditorModelExporterWindow(), true);
+			AddImGuiWindow("EditorRenderWindow", new Editor::EditorRenderWindow(), true);
+			AddImGuiWindow("EditorObjectInspector", new Editor::EditorObjectInspector(), true);
+			AddImGuiWindow("EditorBgColorPicker", new Editor::EditorColorPicker(), false);
+			AddImGuiWindow("EditorModelExporterWindow", new Editor::EditorModelExporterWindow(), true);
 
 
-			m_editorToolStrip = new EditorToolStrip();
+			m_editorToolStrip = new Editor::EditorToolStrip();
 			m_editorToolStrip->SetDrawState(true);
 		}
 	}
@@ -140,16 +139,16 @@ namespace S2DE::Render
 	bool Renderer::Reset()
 	{
 		m_context->OMSetRenderTargets(0, nullptr, nullptr);
-		Release(m_targetView);
-		Release(m_frameRenderTarget);
+		Core::Release(m_targetView);
+		Core::Release(m_frameRenderTarget);
 
-		Release(m_backBuffer);			
-		Release(m_depthStencilView);			
-		Release(m_depthStateEnabled);
-		Release(m_depthStencilBuffer);
-		Release(m_depthStateDisabled);
+		Core::Release(m_backBuffer);			
+		Core::Release(m_depthStencilView);			
+		Core::Release(m_depthStateEnabled);
+		Core::Release(m_depthStencilBuffer);
+		Core::Release(m_depthStateDisabled);
 
-		Release(m_frameBufferData);
+		Core::Release(m_frameBufferData);
 		m_frameBufferData = nullptr;
 
 		m_context->Flush();
@@ -183,13 +182,13 @@ namespace S2DE::Render
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
-		ImGuiIO& io = ImGui::GetIO(); 
-		io.ConfigFlags = Engine::isEditor() ? ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange 
+		auto& io = ImGui::GetIO(); 
+		io.ConfigFlags = Core::Engine::isEditor() ? ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange
 			: ImGuiConfigFlags_NoMouseCursorChange;
 
 		// Search custom font
-		std::string path = std::string();
-		if (Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
+		auto path = std::string();
+		if (Core::Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
 			io.Fonts->AddFontFromFileTTF(path.c_str(), 16);
 		
 		LoadCustomImguiTheme();
@@ -205,19 +204,20 @@ namespace S2DE::Render
 	{
 		if (SUCCEEDED(m_device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&m_d3dDebug))))
 		{
-			HMODULE hDll = LoadLibraryA("dxgidebug.dll");
+			const auto hDll = LoadLibraryA("dxgidebug.dll");
 
-			if (hDll == 0)
+			if (hDll == nullptr)
 			{
 				Logger::Warning("Can't create debug layer because could not load library dxgidebug.dll... ");
 				return;
 			}
 
-			typedef HRESULT(__stdcall* fPtr)(const IID&, void**);
-			fPtr DXGIGetDebugInterface = (fPtr)GetProcAddress(hDll, "DXGIGetDebugInterface");
+			typedef HRESULT (__stdcall* fPtr)(const IID&, void**);
+
+			const auto DXGIGetDebugInterface = reinterpret_cast<fPtr>(GetProcAddress(hDll, "DXGIGetDebugInterface"));
 
 			IDXGIDebug* debugDev = nullptr;
-			DXGIGetDebugInterface(__uuidof(IDXGIDebug), (void**)&debugDev);
+			DXGIGetDebugInterface(__uuidof(IDXGIDebug), reinterpret_cast<void**>(&debugDev));
 			debugDev->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
 
 			if (SUCCEEDED(m_device->QueryInterface(__uuidof(ID3D11InfoQueue), reinterpret_cast<void**>(&m_d3dInfoQueue))))
@@ -228,7 +228,7 @@ namespace S2DE::Render
 					D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
 				};
 
-				D3D11_INFO_QUEUE_FILTER filter = {};
+				D3D11_INFO_QUEUE_FILTER filter = { };
 				filter.DenyList.NumIDs = _countof(hide);
 				filter.DenyList.pIDList = hide;
 
@@ -289,8 +289,8 @@ namespace S2DE::Render
 		sd.BufferCount = 1;
 		sd.SampleDesc.Count = 1;
 		sd.SampleDesc.Quality = 0;
-		sd.Windowed = !Engine::GetGameWindow()->isFullscreen();
-		sd.OutputWindow = Engine::GetGameWindow()->GetHWND();
+		sd.Windowed = !Core::Engine::GetGameWindow()->isFullscreen();
+		sd.OutputWindow = Core::Engine::GetGameWindow()->GetHWND();
 		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
@@ -477,8 +477,10 @@ namespace S2DE::Render
 		FBX_Importer::Destroy();
 
 		if (Core::Engine::isEditor())
-			Delete(m_editorToolStrip);
-		
+		{
+			Core::Delete(m_editorToolStrip);
+			Core::Delete(m_editorCenterCursor);
+		}
 
 		m_windowsStorage.clear();
 		m_windowsStorage.shrink_to_fit();
@@ -488,22 +490,22 @@ namespace S2DE::Render
 		m_rasterizerVariants.clear();
 		m_rasterizerVariants.shrink_to_fit();
 
-		Release(m_swapChain);
-		Release(m_device);
-		Release(m_context);
-		Release(m_targetView);
-		Release(m_frameRenderTarget);
-		Release(m_depthStencilBuffer);
-		Release(m_depthStateEnabled);
-		Release(m_depthStateDisabled);
-		Release(m_depthStencilView);
-		Release(m_frameBufferData);
-		Release(m_frameBufferShaderResourceView);
+		Core::Release(m_swapChain);
+		Core::Release(m_device);
+		Core::Release(m_context);
+		Core::Release(m_targetView);
+		Core::Release(m_frameRenderTarget);
+		Core::Release(m_depthStencilBuffer);
+		Core::Release(m_depthStateEnabled);
+		Core::Release(m_depthStateDisabled);
+		Core::Release(m_depthStencilView);
+		Core::Release(m_frameBufferData);
+		Core::Release(m_frameBufferShaderResourceView);
 
 #if defined(S2DE_DEBUG_RENDER_MODE)
 		m_d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
-		Release(m_d3dInfoQueue);
-		Release(m_d3dDebug);
+		Core::Release(m_d3dInfoQueue);
+		Core::Release(m_d3dDebug);
 #endif
 
 	}
@@ -538,13 +540,11 @@ namespace S2DE::Render
 	{
 		S2DE_IMGUI_NEW_FRAME();
 
-		if (Engine::isEditor())
+		if (Core::Engine::isEditor())
 		{
 			ImGui::SetNextWindowPos(ImVec2(0, 0));
-
-			ImGui::SetNextWindowSize(ImVec2(float(Engine::GetGameWindow()->GetWidth()), float(Engine::GetGameWindow()->GetHeight())));
-
-			ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoBringToFrontOnFocus |
+			ImGui::SetNextWindowSize(ImVec2(static_cast<float>(Core::Engine::GetGameWindow()->GetWidth()), static_cast<float>(Core::Engine::GetGameWindow()->GetHeight())));
+			const auto windowFlags = ImGuiWindowFlags_NoBringToFrontOnFocus |
 				ImGuiWindowFlags_NoNavFocus |
 				ImGuiWindowFlags_NoDocking |
 				ImGuiWindowFlags_NoTitleBar |
@@ -557,7 +557,7 @@ namespace S2DE::Render
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-			bool show = ImGui::Begin("Dockspace", NULL, windowFlags);
+			const auto show = ImGui::Begin("Dockspace", NULL, windowFlags);
 
 			ImGui::PopStyleVar();
 			ImGui::DockSpace(ImGui::GetID("Dockspace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);	
@@ -586,7 +586,7 @@ namespace S2DE::Render
 		}
 
 		#if defined(S2DE_DEBUG_RENDER_MODE)
-				if (Engine::isEditor() && m_showImguiDemoWindow)
+				if (Core::Engine::isEditor() && m_showImguiDemoWindow)
 					ImGui::ShowDemoWindow(&m_showImguiDemoWindow);
 		#endif
 		
@@ -631,7 +631,7 @@ namespace S2DE::Render
 		{
 			UpdateFramebufferShaderResource();
 
-			if (Engine::isEditor())
+			if (Core::Engine::isEditor())
 			{
 				// Basic support of render window
 
@@ -639,20 +639,20 @@ namespace S2DE::Render
 				if (m_frameRenderTarget != nullptr)
 				{
 					m_context->OMSetRenderTargets(1, &m_frameRenderTarget, m_depthStencilView);
-					Engine::GetApplicationHandle()->OnRender();
-					Engine::GetSceneManager()->RenderScene();
+					Core::Engine::GetApplicationHandle()->OnRender();
+					Core::Engine::GetSceneManager()->RenderScene();
 				}
 
 				m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
 
-				const auto renderWindow = GetImGui_Window<EditorRenderWindow*>("EditorRenderWindow");
+				const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
 				if (renderWindow != nullptr
 					&& m_frameBufferShaderResourceView != nullptr)
 				{
 					renderWindow->PushRenderTexture(m_frameBufferShaderResourceView);
 				}
 
-				const auto colorPicker = GetImGui_Window<EditorColorPicker*>("EditorBgColorPicker");
+				const auto colorPicker = GetImGui_Window<Editor::EditorColorPicker*>("EditorBgColorPicker");
 				if (colorPicker != nullptr)
 				{
 					colorPicker->SetColor(m_clearColor);
@@ -660,8 +660,8 @@ namespace S2DE::Render
 			}
 			else
 			{
-				Engine::GetApplicationHandle()->OnRender();
-				Engine::GetSceneManager()->RenderScene();
+				Core::Engine::GetApplicationHandle()->OnRender();
+				Core::Engine::GetSceneManager()->RenderScene();
 			}
 
 			RenderImGui();
@@ -699,7 +699,7 @@ namespace S2DE::Render
 		Logger::Log("[Renderer] Removed window %s", name.c_str());
 	}
 
-	void Renderer::SetBackColor(Color<float> color)
+	void Renderer::SetBackColor(Math::Color<float> color)
 	{
 		m_clearColor = color;
 	}
@@ -711,13 +711,13 @@ namespace S2DE::Render
 		td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 		S2DE_CHECK(m_device->CreateTexture2D(&td, NULL, &m_frameBufferData), "Can't create framebuffer texture data");
 
-		const auto renderWindow = GetImGui_Window<EditorRenderWindow*>("EditorRenderWindow");
+		const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
 		if(renderWindow != nullptr)
 		{
 			renderWindow->Reset();
 		}
 
-		Release(m_frameBufferShaderResourceView);
+		Core::Release(m_frameBufferShaderResourceView);
 		m_frameBufferShaderResourceView = nullptr;
 
 		return true;
@@ -735,7 +735,7 @@ namespace S2DE::Render
 		}
 		
 		m_context->CopyResource(m_frameBufferData, pBuffer);
-		Release(pBuffer);
+		Core::Release(pBuffer);
 
 		if (m_frameBufferData == nullptr)
 		{
@@ -823,13 +823,13 @@ namespace S2DE::Render
 	void Renderer::DrawIndexed(std::uint64_t indexCount, std::uint32_t startIndexLocation, std::uint32_t baseVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)
 	{
 		m_context->IASetPrimitiveTopology(topology);
-		m_context->DrawIndexed(indexCount, startIndexLocation, baseVertexLocation);
+		m_context->DrawIndexed(static_cast<std::uint32_t>(indexCount), startIndexLocation, baseVertexLocation);
 	}
 
 	void Renderer::Draw(std::uint64_t vertexCount, std::uint32_t startVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)
 	{
 		m_context->IASetPrimitiveTopology(topology);
-		m_context->Draw((std::uint32_t)vertexCount, startVertexLocation);
+		m_context->Draw(static_cast<std::uint32_t>(vertexCount), startVertexLocation);
 	}
 
 	inline ID3D11Device* Renderer::GetDevice()

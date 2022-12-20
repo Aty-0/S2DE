@@ -283,8 +283,9 @@ namespace S2DE::Core
 		return GetModuleHandle(NULL); 
 	}
 
+#pragma warning(default : 4172)
 	HWND& GameWindow::GetHWND() 
-	{ 
+	{
 		SDL_SysWMinfo sysWMInfo = { }; 
 		SDL_VERSION(&sysWMInfo.version); 
 		SDL_GetWindowWMInfo(m_window, &sysWMInfo); 

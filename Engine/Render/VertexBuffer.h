@@ -19,6 +19,7 @@ namespace S2DE::Render
 			Core::Release(m_buffer);
 			m_array.clear();
 			m_array.shrink_to_fit();
+
 		}
 
 		bool Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DYNAMIC) final
@@ -52,7 +53,7 @@ namespace S2DE::Render
 			{
 				D3D11_MAPPED_SUBRESOURCE mappedResource = { };
 				S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in vertex buffer");
-				memcpy((Vertex*)mappedResource.pData, (void*)m_array.data(), (sizeof(Vertex) * m_array.size()));
+				memcpy(static_cast<Vertex*>(mappedResource.pData), static_cast<void*>(m_array.data()), (sizeof(Vertex) * m_array.size()));
 			}
 
 			return true;
@@ -77,7 +78,7 @@ namespace S2DE::Render
 			Core::Engine::GetRenderer()->GetContext()->IASetVertexBuffers(startSlot, num_buffers, &m_buffer, &stride, &offset);
 		}
 
-		inline std::vector<T>& GetArray()
+		[[nodiscard]] std::vector<T>& GetArray()
 		{
 			return m_array;
 		}

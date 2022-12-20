@@ -25,10 +25,10 @@ namespace S2DE::Core::Utils
 		static void					CreateLogFile();
 
 
-		static std::string			GetTime(bool printMinAndSec = false);
-		static const std::string		GetLogFileName() { return m_logFileName; }
-		static std::string			GetHRCodeDetails(HRESULT hr);
-		static bool					CheckHR(HRESULT hr, bool printCode = false);
+		[[nodiscard]] static std::string			GetTime(bool printMinAndSec = false);
+		[[nodiscard]] static std::string			GetLogFileName() { return m_logFileName; }
+		[[nodiscard]] static std::string			GetHRCodeDetails(HRESULT hr);
+		[[nodiscard]] static bool					CheckHR(HRESULT hr, bool printCode = false);
 
 	private:
 		static std::uint32_t		m_lineCount;
@@ -36,8 +36,10 @@ namespace S2DE::Core::Utils
 		static tm*					m_localTime;
 		static std::ofstream		m_logFile;
 		static std::string			m_logFileName;
-		static void					Print(const char* type, const char* text);
-		static std::string			GetCorrentTime();
+
+		static void									Print(const char* type, const char* text);
+		[[nodiscard]] static std::string			GetCorrentTime();
+
 	public:
 		static std::vector<std::function<void()>> onPrintCallbacks;
 	};

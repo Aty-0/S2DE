@@ -20,10 +20,10 @@ namespace S2DE::Editor
 		EditorObjectInspector();
 		~EditorObjectInspector();
 
-		virtual void						  Render() override;										  
+		void						  Render() override;										  
 
-		inline GameObjects::GameObject*		  GetSeletectedGameObject() { return m_selectedGameObject; }
-		inline GameObjects::Components::Component*	GetSeletectedComponent() { return m_selectedComponent; }
+		[[nodiscard]] inline GameObjects::GameObject*				GetSeletectedGameObject();
+		[[nodiscard]] inline GameObjects::Components::Component*	GetSeletectedComponent();
 
 		void								  Reset();
 	private:

@@ -11,9 +11,9 @@ namespace S2DE::IO
 		IO_File(std::string type, std::string ex);
 
 
-		virtual inline std::string	GetName() const { return m_name; }
-		virtual inline std::string	GetType() const { return m_type; }
-		virtual inline std::vector<std::string>  GetExtension() const { return m_ex; }
+		[[nodiscard]] virtual std::string	GetName() const { return m_name; }
+		[[nodiscard]] virtual std::string	GetType() const { return m_type; }
+		[[nodiscard]] virtual std::vector<std::string>  GetExtension() const { return m_ex; }
 		virtual void   SetFileName(std::string name);
 		virtual bool   Load(std::string name);
 

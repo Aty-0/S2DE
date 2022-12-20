@@ -166,7 +166,7 @@ namespace S2DE::Core
 
 		//Get resource from storage
 		template <typename T>
-		T* Get(std::string name)
+		[[nodiscard]] T* Get(std::string name)
 		{
 			auto key = std::make_pair(name, std::type_index(typeid(T)));
 			auto it = m_ResourceStorage.find(key);
@@ -179,7 +179,7 @@ namespace S2DE::Core
 
 		//Check resource on exist
 		template <typename T>
-		bool IsExists(std::string name) const
+		[[nodiscard]] bool IsExists(std::string name) const
 		{
 			auto key = std::make_pair(name, std::type_index(typeid(T)));
 			auto it = m_ResourceStorage.find(key);
@@ -189,7 +189,7 @@ namespace S2DE::Core
 
 		//Get count of resource in storage
 		template<typename T>
-		std::int32_t GetResourceCount() const
+		[[nodiscard]] std::int32_t GetResourceCount() const
 		{
 			std::int32_t count = 0;
 

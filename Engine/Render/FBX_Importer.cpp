@@ -1,5 +1,6 @@
 #include "FBX_Importer.h"
 #include "Base/Engine.h"
+#include "Scene/SceneManager.h"
 
 namespace S2DE::Render
 {
@@ -247,7 +248,11 @@ namespace S2DE::Render
                 FbxNodeAttribute::EType attributeType = node->GetNodeAttribute()->GetAttributeType();
                 FBX_Importer::PrintNodeInfo(node);
 
-                if (attributeType == FbxNodeAttribute::EType::eMesh)
+                if (attributeType == FbxNodeAttribute::EType::eLight)
+                {
+	                
+                }
+                else if (attributeType == FbxNodeAttribute::EType::eMesh)
                 {
                     FbxMesh* mesh = node->GetMesh();
                     std::uint32_t vertexCount = 0;

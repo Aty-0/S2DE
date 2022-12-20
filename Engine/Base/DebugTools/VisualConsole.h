@@ -23,17 +23,17 @@ namespace S2DE::Core::Debug
 		~VisualConsole();
 
 		//Clear text  buffer
-		void					Clear();
+		void Clear();
 		//Render console
-		virtual void			Render() override;
+		void Render() override;
 
-		void					Scroll();
+		void Scroll();
 
 		//Set window size by VisualConsoleSizeMode
-		void					UpdateSizeMode();
-		virtual void			ToggleDraw() override;
+		void UpdateSizeMode();
+		void ToggleDraw() override;
 	private:
-		bool					m_showMessages = true;
+		bool					m_showMessages;
 		bool					m_scroll_to_bottom;
 		bool					m_free;
 		VisualConsoleSizeMode	m_sizemode;
