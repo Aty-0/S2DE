@@ -45,6 +45,8 @@ namespace S2DE::GameObjects
 	GameObject::~GameObject()
 	{
 		//OnDestroy();
+		for (const auto component : m_components)
+			component.second->OnDestroy();
 
 		m_transform = nullptr;
 		m_components.clear();

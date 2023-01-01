@@ -5,7 +5,7 @@
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
 
-namespace S2DE::Render::FR
+namespace S2DE::Render
 {
 	Texture::Texture() :
 			m_resourceView(nullptr),
@@ -14,7 +14,7 @@ namespace S2DE::Render::FR
 			m_textureSamplerState(nullptr)
 	{
 		m_type = "Texture";
-		m_ex = 
+		m_extensions = 
 		{ 
 			// DDS loader supports
 			".dds", 
@@ -30,15 +30,11 @@ namespace S2DE::Render::FR
 
 	Texture::~Texture()
 	{
-		
-	}
-
-	void Texture::Cleanup()
-	{
 		Core::Release(m_resource);
 		Core::Release(m_resourceView);
 		Core::Release(m_textureHandle);
 		Core::Release(m_textureSamplerState);
+		
 	}
 
 	void Texture::UpdateTextureDesc()
@@ -75,18 +71,18 @@ namespace S2DE::Render::FR
 		return true;
 	}
 
-	bool Texture::Load(std::string path)
+	bool Texture::Load(std::string name)
 	{
-		//If path is empty 
-		if (Core::Utils::isStringEmpty(path))
+		const auto paths = FindPath({ name });
+		if (m_notLoaded == true)
 		{
-			Logger::Error("Path string is empty, can't load texture!");
 			return false;
 		}
 
+		const auto path = paths[0];
 		HRESULT hr = S_OK;
 
-		//Get file extension because for dds format we need to use special function
+		// Get file extension because for dds format we need to use special function
 		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
@@ -112,10 +108,10 @@ namespace S2DE::Render::FR
 			}
 		}
 		
-		//Create sampler state for current texture
+		// Create sampler state for current texture
 		CreateDefaultSamplerState();
 
-		//Get and save texture description
+		// Get and save texture description
 		UpdateTextureDesc();
 		return true;
 	}
@@ -194,11 +190,11 @@ namespace S2DE::Render::FR
 		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, 0, nullptr);
 	}
 
-	void Texture::Bind(std::uint32_t numViews)
+	void Texture::Bind(std::uint32_t startSlot, std::uint32_t numViews)
 	{
 		if (m_resourceView != nullptr)
 		{
-			Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, numViews, &m_resourceView);
+			Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(startSlot, numViews, &m_resourceView);
 		}
 
 		if (m_textureSamplerState != nullptr)

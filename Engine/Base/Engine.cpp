@@ -25,7 +25,7 @@ namespace S2DE::Core
 	bool Engine::m_isEditor;
 	Renderer* Engine::m_render;
 	InputManager* Engine::m_input_m;
-	ResourceManager Engine::m_resource_manager;
+	Resources::ResourceManager Engine::m_resource_manager;
 	SceneManager* Engine::m_scene_manager;
 	std::string Engine::m_params;
 
@@ -217,10 +217,10 @@ namespace S2DE::Core
 
 	bool Engine::LoadEngineResources()
 	{
-		S2DE_ASSERT(m_resource_manager.LoadDefaultTexture());
-		S2DE_ASSERT(m_resource_manager.Load<FR::Shader>("Sprite"));
-		S2DE_ASSERT(m_resource_manager.Load<FR::Shader>("Line"));
-		S2DE_ASSERT(m_resource_manager.Load<FR::Shader>("Mesh"));
+		S2DE_ASSERT(m_resource_manager.Load<Texture>("DefaultTexture"));
+		S2DE_ASSERT(m_resource_manager.Load<Shader>("Sprite"));
+		S2DE_ASSERT(m_resource_manager.Load<Shader>("Line"));
+		S2DE_ASSERT(m_resource_manager.Load<Shader>("Mesh"));
 
 		return true;
 	}
@@ -260,7 +260,7 @@ namespace S2DE::Core
 		return m_scene_manager;
 	}
 
-	inline ResourceManager& Engine::GetResourceManager()
+	inline Resources::ResourceManager& Engine::GetResourceManager()
 	{
 		return m_resource_manager;
 	}

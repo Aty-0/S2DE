@@ -17,7 +17,7 @@ namespace S2DE::GameObjects::Components
 	{
 		//TODO: Need to check count of using
 		if (m_unload_texture == true)
-			Core::Engine::GetResourceManager().Erase<Render::FR::Texture>(m_texture->GetName());
+			Core::Engine::GetResourceManager().Erase<Render::Texture>(m_texture->GetName());
 
 		Core::Delete(m_vertexBuffer);
 		Core::Delete(m_indexBuffer);
@@ -29,14 +29,14 @@ namespace S2DE::GameObjects::Components
 	bool StaticMesh::LoadMesh(std::string name)
 	{	
 		//If mesh not found in resource manager storage we try to load it 
-		if (!Core::Engine::GetResourceManager().IsExists<Render::FR::Mesh>(name))
+		if (!Core::Engine::GetResourceManager().IsExists<Render::Mesh>(name))
 		{
-			if (!Core::Engine::GetResourceManager().Load<Render::FR::Mesh>(name))
+			if (!Core::Engine::GetResourceManager().Load<Render::Mesh>(name))
 				return false;
 		}
 
 		//Set mesh if mesh is exist
-		m_mesh = new Render::FR::Mesh(*Core::Engine::GetResourceManager().Get<Render::FR::Mesh>(name));
+		m_mesh = new Render::Mesh(*Core::Engine::GetResourceManager().Get<Render::Mesh>(name));
 		S2DE_ASSERT(m_mesh != nullptr);
 
 		m_vertexBuffer = new Render::VertexBuffer<Render::Vertex>();
@@ -56,6 +56,10 @@ namespace S2DE::GameObjects::Components
 		SetDefaultShader();
 		SetDefaultTexture();
 
+		m_textureCube = new Render::Texture();
+		const auto cubePath = Core::Engine::GetResourceManager().GetFilePath("cubemap", m_textureCube);
+		m_textureCube->CreateCubeMapTexture(cubePath);
+
 		return true;
 	}	 
 		 
@@ -70,14 +74,14 @@ namespace S2DE::GameObjects::Components
 		m_unload_texture = unload_texture;
 
 		//If texture not found in resource manager storage we try to load it 
-		if (!Core::Engine::GetResourceManager().IsExists<Render::FR::Texture>(name)
+		if (!Core::Engine::GetResourceManager().IsExists<Render::Texture>(name)
 			&& auto_load_texture == true)
 		{
-			if (!Core::Engine::GetResourceManager().Load<Render::FR::Texture>(name))
+			if (!Core::Engine::GetResourceManager().Load<Render::Texture>(name))
 				return false;
 		}
 		//Set texture if texture is exist
-		m_texture = new Render::FR::Texture(*Core::Engine::GetResourceManager().Get<Render::FR::Texture>(name));
+		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>(name));
 		S2DE_ASSERT(m_texture != nullptr);
 		return true;
 	}	 
@@ -90,7 +94,7 @@ namespace S2DE::GameObjects::Components
 		Core::Delete(m_shader);
 
 		//Try to get shader by name from resource manager
-		auto new_shader = Core::Engine::GetResourceManager().Get<Render::FR::Shader>(name);
+		auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
 
 		//If shader not found
 		if (new_shader == nullptr)
@@ -99,7 +103,7 @@ namespace S2DE::GameObjects::Components
 			return;
 		}
 
-		m_shader = new Render::FR::Shader(*new_shader);
+		m_shader = new Render::Shader(*new_shader);
 		S2DE_ASSERT(m_shader != nullptr);
 	}	 
 		 
@@ -111,16 +115,16 @@ namespace S2DE::GameObjects::Components
 		Core::Delete(m_texture);
 
 		//Try to get texture by name from resource manager
-		auto new_texture = Core::Engine::GetResourceManager().Get<Render::FR::Texture>(name);
+		auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
 
 		//If texture not found
-		if (new_texture == Core::Engine::GetResourceManager().GetDefaultTexture())
+		if (new_texture == Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"))
 		{
 			Logger::Error("%s Can't update texture!", GetName().c_str());
 			return;
 		}
 
-		m_texture = new Render::FR::Texture(*new_texture);
+		m_texture = new Render::Texture(*new_texture);
 		S2DE_ASSERT(m_texture != nullptr);
 	}	 
 
@@ -150,6 +154,7 @@ namespace S2DE::GameObjects::Components
 
 				// Bind shader and texture 
 				m_shader->Bind();
+				m_textureCube->Bind(1);
 				m_texture->Bind();
 
 				// Bind buffers
@@ -162,6 +167,7 @@ namespace S2DE::GameObjects::Components
 				
 				// Unbind 
 				m_shader->Unbind();
+				m_textureCube->Unbind();
 				m_texture->Unbind();
 				m_vertexBuffer->Unbind();
 				m_indexBuffer->Unbind();
@@ -173,6 +179,7 @@ namespace S2DE::GameObjects::Components
 
 				// Bind shader and texture 
 				m_shader->Bind();
+				m_textureCube->Bind(1);
 				m_texture->Bind();
 
 				// Bind buffers
@@ -184,6 +191,7 @@ namespace S2DE::GameObjects::Components
 
 				// Unbind 
 				m_shader->Unbind();
+				m_textureCube->Unbind();
 				m_texture->Unbind();
 				m_vertexBuffer->Unbind();				
 			}
@@ -204,12 +212,12 @@ namespace S2DE::GameObjects::Components
 		 
 	void StaticMesh::SetDefaultShader()
 	{	 
-		m_shader = new Render::FR::Shader(*Core::Engine::GetResourceManager().Get<Render::FR::Shader>("Mesh"));
+		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Mesh"));
 	}	 
 		 
 	void StaticMesh::SetDefaultTexture()
 	{
-		m_texture = new Render::FR::Texture(*Core::Engine::GetResourceManager().GetDefaultTexture());
+		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"));
 	}
 
 }

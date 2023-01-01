@@ -1,10 +1,10 @@
 #pragma once
 #include "Base/Main/Common.h"
 
-#define MAX_LIGHTS 64
-
 namespace S2DE::Render::CB
 {	
+	static constexpr auto MAX_LIGHT_COUNT = 64;
+
 	struct S2DE_ALIGN(16) PS_AmbientLight_Structure
 	{
 		DirectX::SimpleMath::Vector4 color;
@@ -30,7 +30,7 @@ namespace S2DE::Render::CB
 
 	struct S2DE_API S2DE_ALIGN(16) CB_Light
 	{
-		PS_Light_Structure		  lights[MAX_LIGHTS];
+		PS_Light_Structure	lights[MAX_LIGHT_COUNT];
 		PS_AmbientLight_Structure ambient_light;
 	};
 

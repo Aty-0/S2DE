@@ -23,7 +23,7 @@ namespace S2DE::GameObjects::Components::Editor
 		virtual void				 SetDefaultShader()	 override;
 
 	private:
-		Render::FR::Shader* m_shader;
+		Render::Shader* m_shader;
 		Render::VertexBuffer<Render::Vertex>*	m_vertexBuffer;
 		Render::IndexBuffer<std::uint32_t>*		m_indexBuffer;
 	};

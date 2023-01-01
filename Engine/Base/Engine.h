@@ -8,9 +8,13 @@ namespace S2DE
 	namespace Core
 	{
 		class ApplicationHandle;
-		class ResourceManager;
 		class GameWindow;
 		class InputManager;
+
+		namespace Resources
+		{
+			class ResourceManager;
+		}
 	}
 
 	namespace Render
@@ -50,7 +54,7 @@ namespace S2DE::Core
 		[[nodiscard]] static Render::Renderer* GetRenderer();
 		[[nodiscard]] static InputManager* GetInputManager();
 		[[nodiscard]] static Scene::SceneManager* GetSceneManager();
-		[[nodiscard]] static ResourceManager& GetResourceManager();
+		[[nodiscard]] static Resources::ResourceManager& GetResourceManager();
 		[[nodiscard]] static bool isEditor();
 		[[nodiscard]] static bool CheckAppParam(std::string param);
 
@@ -79,7 +83,7 @@ namespace S2DE::Core
 		static Render::Renderer* m_render;
 		static InputManager* m_input_m;
 		static Scene::SceneManager* m_scene_manager;
-		static ResourceManager m_resource_manager;
+		static Resources::ResourceManager m_resource_manager;
 		static bool m_isEditor;
 
 		static std::string m_params;

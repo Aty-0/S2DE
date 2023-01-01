@@ -63,7 +63,7 @@ namespace S2DE::Scene
 
 	//Get game object from scene by uuid
 	template<typename T = GameObjects::GameObject>
-	[[nodiscard]] static T* GetObjectByUUID(boost::uuids::uuid id)
+	[[nodiscard]] static T* GetObjectByUUID(boost::uuids::uuid uuid)
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
@@ -71,9 +71,9 @@ namespace S2DE::Scene
 		SceneObjectStorage::iterator it = std::find_if(
 			Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
 			Core::Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
-			[&id](std::pair<std::pair<std::string, boost::uuids::uuid>,
+			[&uuid](std::pair<std::pair<std::string, boost::uuids::uuid>,
 				std::shared_ptr<GameObjects::GameObject>> const& elem) {
-					return elem.first.second == id;
+					return elem.first.second == uuid;
 			});
 
 		return dynamic_cast<T*>(it->second.get());

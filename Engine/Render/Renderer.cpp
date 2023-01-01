@@ -10,6 +10,7 @@
 #include "Render/ImGui_Window.h"
 #include "Render/ImGuiS2DETheme.h"
 #include "Render/FBX_Importer.h"
+#include "Render/LightGlobals.h"
 
 
 #include "Base/DebugTools/Debug_Info.h"
@@ -114,6 +115,7 @@ namespace S2DE::Render
 		FBX_Importer::Init();
 
 		CreateEngineWindowsAndEditorUI();
+		LightGlobals::Initialize();
 
 		return true;
 	}

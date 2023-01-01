@@ -7,8 +7,8 @@
 //////////////////////////////////////////
 #include "Render/Renderer.h"
 #include "Render/Buffers.h"
-#include "Render/FR/Texture.h"
-#include "Render/FR/Shader.h"
+#include "Render/Texture.h"
+#include "Render/Shader.h"
 
 //////////////////////////////////////////
 #include "GameObjects/Base/GameObject.h"

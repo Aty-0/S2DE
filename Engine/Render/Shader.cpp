@@ -10,12 +10,12 @@
 #include <fstream>
 #include <sstream>
 
-namespace S2DE::Render::FR
+namespace S2DE::Render
 {
 	Shader::Shader()
 	{
 		m_type = "Shader";
-		m_ex = { ".hlsl", ".shader", ".fx" };
+		m_extensions = { ".hlsl", ".shader", ".fx" };
 
 		m_flags |= D3DCOMPILE_ENABLE_STRICTNESS;
 
@@ -27,15 +27,11 @@ namespace S2DE::Render::FR
 
 	Shader::~Shader()
 	{
-
-	}
-
-	void Shader::Cleanup()
-	{
 		Core::Release(m_vertexShader);
 		Core::Release(m_pixelShader);
 		Core::Release(m_layout);
 	}
+
 
 	void Shader::Unbind()
 	{
@@ -72,7 +68,10 @@ namespace S2DE::Render::FR
 	bool Shader::Compile(bool compileVs, bool compilePs)
 	{
 		if (!compileVs && !compilePs)
-			return false; 
+		{
+			return false;
+		}
+
 		Logger::Log("[Shader] Compile: %s | Vs: %s Ps: %s", m_name.c_str(), compileVs == true ? "true" : "false", compilePs == true ? "true" : "false");
 
 		ID3D10Blob* code_buffer = nullptr;
@@ -148,88 +147,76 @@ namespace S2DE::Render::FR
 
 	bool Shader::Reload()
 	{
-		return SetPaths(m_path_vs, m_path_ps);
+		return Load(m_name);
 	}
 
-	bool Shader::SetPaths(std::string vs_path, std::string ps_path)
+	bool Shader::Load(std::string name)
 	{
-		if ((Core::Utils::isStringEmpty(m_path_vs = vs_path) || Core::Utils::isStringEmpty(m_path_ps = ps_path)))
+		const auto paths = FindPath({ name + "_vs", name + "_ps" });
+		if (m_notLoaded == true)
+		{
 			return false;
-		
-		std::ifstream fileVs = std::ifstream();
-		std::ifstream filePs = std::ifstream();
-		bool compileVs = false;
-		bool compilePs = false;
+		}
 
-		fileVs.exceptions(std::ios_base::badbit | std::ios_base::failbit);
-		filePs.exceptions(std::ios_base::badbit | std::ios_base::failbit);
+		m_path_vs = paths[0];
+		m_path_ps = paths[1];
+
+		bool compileVs = false;
+		CheckShadersOnModify(m_path_vs, m_fileDataVs, compileVs);
+
+		bool compilePs = false;
+		CheckShadersOnModify(m_path_ps, m_fileDataPs, compilePs);
+
+		return Compile(compileVs, compilePs);
+	}
+
+	bool Shader::CheckShadersOnModify(std::string path, std::string& fileData, bool& modify)
+	{
+		std::ifstream file = std::ifstream();		
+		file.exceptions(std::ios_base::badbit | std::ios_base::failbit);
 		
 		try
 		{
-			fileVs.open(m_path_vs.c_str(), std::ios::in);
+			file.open(path.c_str(), std::ios::in);
 			bool modifyOrEmpty = true;
 
 			std::stringstream stream = std::stringstream();
-			stream << fileVs.rdbuf();
-			fileVs.close();
+			stream << file.rdbuf();
+			file.close();
 
-			if (!Core::Utils::isStringEmpty(m_fileDataVs))
+			if (!Core::Utils::isStringEmpty(fileData))
 			{
-				if (m_fileDataVs.length() == stream.str().length())
+				if (fileData.length() == stream.str().length())
 				{
 					modifyOrEmpty = false;
 				}
 				else
 				{
-					m_fileDataVs.clear();
+					fileData.clear();
 				}
 			}
 
 			if (modifyOrEmpty)
 			{
-				m_fileDataVs = stream.str();				
-				compileVs = true;
+				fileData = stream.str();
+				modify = true;
 			}
 
 			modifyOrEmpty = true;
 
-			stream.clear();
-			stream = std::stringstream();
-
-			filePs.open(m_path_ps.c_str(), std::ios::in);
-			stream << filePs.rdbuf();
-			filePs.close();
-
-			if (!Core::Utils::isStringEmpty(m_fileDataPs))
-			{
-				if (m_fileDataPs.length() == stream.str().length())
-				{
-					modifyOrEmpty = false;
-				}
-				else
-				{
-					m_fileDataPs.clear();
-				}
-			}
-
-			if (modifyOrEmpty)
-			{
-				m_fileDataPs = stream.str();
-				compilePs = true;
-			}	
 
 			stream.clear();
 
 		}
 		catch (std::ifstream::failure e)
 		{
-			Logger::Error("Something wrong with shader files \n%s \n%s \n%s ", vs_path.c_str(), ps_path.c_str(), e.what());
+			Logger::Error("Something wrong with shader \n%s \n%s ", path.c_str(), e.what());
 
-			fileVs.close();
-			filePs.close();
+			file.close();
+			return false;
 		}
 
-		return Compile(compileVs, compilePs);
+		return true;
 	}
 
 	void Shader::UpdateMainConstBuffer(DirectX::SimpleMath::Matrix world, bool isUI)

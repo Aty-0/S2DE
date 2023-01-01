@@ -4,6 +4,8 @@
 #include "Scene/SceneManager.h"
 #include "Base/Utils/AppUsage.h"
 #include "Base/GameWindow.h"
+#include "Render/Texture.h"
+#include "Render/Shader.h"
 
 namespace S2DE::Core::Debug
 {
@@ -68,8 +70,8 @@ namespace S2DE::Core::Debug
 			ImGui::Text("Resource Manager:");
 			ImGui::Text("Data name:%s", Engine::GetResourceManager().GetNameOfDataFolder().c_str());
 			ImGui::Text("Loaded Texture's:%d\nLoaded Shader's:%d", 
-				Engine::GetResourceManager().GetResourceCount<Render::FR::Texture>(),
-				Engine::GetResourceManager().GetResourceCount<Render::FR::Shader>());
+				Engine::GetResourceManager().GetResourceCount<Render::Texture>(),
+				Engine::GetResourceManager().GetResourceCount<Render::Shader>());
 			
 
 			ImGui::EndTable();

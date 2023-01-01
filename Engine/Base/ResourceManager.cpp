@@ -1,7 +1,7 @@
 #include "ResourceManager.h"
 #include <fstream>
 
-namespace S2DE::Core
+namespace S2DE::Core::Resources
 {
 	ResourceManager::ResourceManager()
 	{
@@ -10,17 +10,19 @@ namespace S2DE::Core
 
 	ResourceManager::~ResourceManager()
 	{
-		m_defaultTexture.reset();
+		m_storage.clear();
 	}
 
 	void ResourceManager::ReloadShaders()
 	{
 		Logger::Log("[ResourceManager] Reload shaders...");
 
-		for (const auto& p : m_ResourceStorage)
+		for (const auto& p : m_storage)
 		{
-			if (p.first.second == std::type_index(typeid(Render::FR::Shader)))
-				reinterpret_cast<RMResource<Render::FR::Shader>*>(p.second.get())->Get()->Reload();
+			if (p.first.second == std::type_index(typeid(Render::Shader)))
+			{
+				reinterpret_cast<Render::Shader*>(p.second)->Reload();
+			}
 		}
 	}
 	
@@ -28,28 +30,22 @@ namespace S2DE::Core
 	{
 		Logger::Log("[ResourceManager] Reload textures...");
 
-		for (const auto& p : m_ResourceStorage)
+		for (const auto& p : m_storage)
 		{
-			if (p.first.second == std::type_index(typeid(Render::FR::Texture)))
+			if (p.first.second == std::type_index(typeid(Render::Texture)))
 			{
-				auto t = reinterpret_cast<RMResource<Render::FR::Texture>*>(p.second.get())->Get();
-				t->Load(GetFilePath(t->GetName(), t));
+				const auto texture = reinterpret_cast<Render::Shader*>(p.second);
+				texture->Load(texture->GetName());
 			}
 		}
 	}
 
-	bool ResourceManager::LoadDefaultTexture() 
-	{
-		m_defaultTexture = std::make_unique<Render::FR::Texture>();
-		m_defaultTexture->SetFileName("default_texture");
-		return m_defaultTexture->Load(GetFilePath("default_texture", m_defaultTexture.get()));
-	}
-
 	void ResourceManager::ClearAll()
 	{
-		Logger::Log("[ResourceManager] Clear all resources");
-
-		m_ResourceStorage.clear();
+		// TODO: Clear resources without m_cantDelete flag
+		//Logger::Log("[ResourceManager] Clear all resources");
+		//
+		//m_storage.clear();
 	}
 
 	bool ResourceManager::ConstructPath(std::string filename, std::string type, std::string ex, std::string& resultpath)
@@ -71,13 +67,11 @@ namespace S2DE::Core
 		return false;
 	}
 
-	bool ResourceManager::GetFilePath(std::string filename, IO_File* file, std::string& resultpath)
-	{
-		std::uint32_t size = (std::uint32_t)file->GetExtension().size();
-
-		for (std::uint32_t i = 0; i <= size - 1; i++)
+	bool ResourceManager::GetFilePath(std::string filename, Resource* file, std::string& resultpath)
+	{		
+		for(const auto extension : file->GetExtensions())
 		{
-			if (ConstructPath(filename, file->GetType(), file->GetExtension()[i], resultpath))
+			if (ConstructPath(filename, file->GetType(), extension, resultpath))
 				return true;			
 		}
 
@@ -85,14 +79,13 @@ namespace S2DE::Core
 		return false;
 	}
 
-	std::string  ResourceManager::GetFilePath(std::string filename, IO_File* file)
+	std::string  ResourceManager::GetFilePath(std::string filename, Resource* file)
 	{
 		std::string resultpath = std::string();
-		std::uint32_t size = (std::uint32_t)file->GetExtension().size();
 
-		for (std::uint32_t i = 0; i <= size - 1; i++)
+		for (const auto extension : file->GetExtensions())
 		{
-			if (ConstructPath(filename, file->GetType(), file->GetExtension()[i], resultpath))
+			if (ConstructPath(filename, file->GetType(), extension, resultpath))
 				return resultpath;
 		}
 
@@ -102,21 +95,16 @@ namespace S2DE::Core
 
 	bool ResourceManager::GetFilePath(std::string filename, std::string type, std::string ex[], std::string& resultpath)
 	{
-		IO_File* file = new IO_File(type, ex);
+		Resource* file = new Resource(type, ex);
 		return GetFilePath(filename, file, resultpath);
 	}
 
 	bool ResourceManager::GetFilePath(std::string filename, std::string type, std::string ex, std::string& resultpath)
 	{
-		IO_File* file = new IO_File(type, ex);
+		Resource* file = new Resource(type, ex);
 		return GetFilePath(filename, file, resultpath);
 	}
 
-	inline Render::FR::Texture* ResourceManager::GetDefaultTexture() const
-	{
-		return m_defaultTexture.get();
-	}
-	// Get data folder name
 	inline std::string ResourceManager::GetNameOfDataFolder() const
 	{
 		return m_dataFolderName;

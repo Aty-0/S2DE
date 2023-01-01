@@ -27,7 +27,7 @@ namespace S2DE::GameObjects::Components
 	{
 		//TODO: Need to check count of using
 		if (m_unloadTexture == true)
-			Core::Engine::GetResourceManager().Erase<Render::FR::Texture>(m_texture->GetName());
+			Core::Engine::GetResourceManager().Erase<Render::Texture>(m_texture->GetName());
 
 		Core::Delete(m_vertexBuffer);
 		Core::Delete(m_indexBuffer);
@@ -67,14 +67,14 @@ namespace S2DE::GameObjects::Components
 		m_unloadTexture = unload_texture;
 
 		//If texture not found in resource manager storage we try to load it 
-		if (!Core::Engine::GetResourceManager().IsExists<Render::FR::Texture>(name)
+		if (!Core::Engine::GetResourceManager().IsExists<Render::Texture>(name)
 			&& auto_load_texture == true)
 		{
-			if (!Core::Engine::GetResourceManager().Load<Render::FR::Texture>(name))
+			if (!Core::Engine::GetResourceManager().Load<Render::Texture>(name))
 				return false;
 		}
 		//Set texture if texture is exist
-		m_texture = new Render::FR::Texture(*Core::Engine::GetResourceManager().Get<Render::FR::Texture>(name));
+		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>(name));
 		S2DE_ASSERT(m_texture != nullptr);	
 		return true;
 	}
@@ -199,16 +199,16 @@ namespace S2DE::GameObjects::Components
 		Core::Delete(m_texture);
 
 		//Try to get texture by name from resource manager
-		auto new_texture = Core::Engine::GetResourceManager().Get<Render::FR::Texture>(name);
+		auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
 
 		//If texture not found
-		if (new_texture == Core::Engine::GetResourceManager().GetDefaultTexture())
+		if (new_texture == Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"))
 		{
 			Logger::Error("%s Can't update texture!", GetName().c_str());
 			return;
 		}
 
-		m_texture = new Render::FR::Texture(*new_texture);
+		m_texture = new Render::Texture(*new_texture);
 		S2DE_ASSERT(m_texture != nullptr);
 	}
 	 
@@ -220,7 +220,7 @@ namespace S2DE::GameObjects::Components
 		Core::Delete(m_shader);
 
 		//Try to get shader by name from resource manager
-		auto new_shader = Core::Engine::GetResourceManager().Get<Render::FR::Shader>(name);
+		auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
 
 		//If shader not found
 		if (new_shader == nullptr)
@@ -229,7 +229,7 @@ namespace S2DE::GameObjects::Components
 			return;
 		}
 
-		m_shader = new Render::FR::Shader(*new_shader);
+		m_shader = new Render::Shader(*new_shader);
 		S2DE_ASSERT(m_shader != nullptr);		
 	}
 
@@ -240,7 +240,7 @@ namespace S2DE::GameObjects::Components
 
 	void Sprite::SetDefaultShader()
 	{	 
-		m_shader = new Render::FR::Shader(*Core::Engine::GetResourceManager().Get<Render::FR::Shader>("Sprite"));
+		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Sprite"));
 		m_spriteCB = new Render::ConstantBuffer<Render::CB::CB_Sprite>();
 		S2DE_ASSERT(m_spriteCB->Create());
 	}	 
@@ -253,6 +253,6 @@ namespace S2DE::GameObjects::Components
 
 	void Sprite::SetDefaultTexture()
 	{
-		m_texture = new Render::FR::Texture(*Core::Engine::GetResourceManager().GetDefaultTexture());
+		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"));
 	}
 }

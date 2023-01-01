@@ -26,8 +26,8 @@ namespace S2DE::GameObjects::Components::Editor
 		m_vertex_buffer->Update();
 
 
-		S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::FR::Shader>("editor_cursor"));
-		m_shader = new Render::FR::Shader(*Core::Engine::GetResourceManager().Get<Render::FR::Shader>("editor_cursor"));
+		S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("editor_cursor"));
+		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("editor_cursor"));
 
 	}
 
@@ -39,7 +39,8 @@ namespace S2DE::GameObjects::Components::Editor
 
 	void EditorCenterCursor::OnCreate()
 	{
-		GetOwner()->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(1.8f, 1.8f, 1.0f));
+		GetOwner()->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(2, 2, 2));
+		GetOwner()->GetTransform()->SetRotation_X(45.0f);
 	}
 
 	void EditorCenterCursor::OnRender()

@@ -79,6 +79,6 @@ namespace S2DE::GameObjects::Components::Editor
 
 	void EditorGrid::SetDefaultShader()
 	{
-		m_shader = new Render::FR::Shader(*Core::Engine::GetResourceManager().Get<Render::FR::Shader>("Line"));
+		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Line"));
 	}
 }

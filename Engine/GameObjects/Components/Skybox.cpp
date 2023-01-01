@@ -34,7 +34,7 @@ namespace S2DE::GameObjects::Components
 
 	bool Skybox::LoadTexture(std::string name)
 	{
-		std::string path = Core::Engine::GetResourceManager().GetFilePath(name, m_texture);
+		const auto path = Core::Engine::GetResourceManager().GetFilePath(name, m_texture);
 		return m_texture->CreateCubeMapTexture(path);
 	}
 
@@ -118,14 +118,14 @@ namespace S2DE::GameObjects::Components
 	 
 	void Skybox::SetDefaultShader()
 	{	 
-		S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::FR::Shader>("Skybox"));
+		S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("Skybox"));
 
-		m_shader = new Render::FR::Shader(*Core::Engine::GetResourceManager().Get<Render::FR::Shader>("Skybox"));
+		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Skybox"));
 	}	 
 		 
 	void Skybox::SetDefaultTexture()
 	{
-		m_texture = new Render::FR::Texture();
+		m_texture = new Render::Texture();
 		S2DE_ASSERT(LoadTexture("sky"));
 	}
 

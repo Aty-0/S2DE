@@ -1,12 +1,12 @@
 #include "Mesh.h"
 #include "Render/FBX_Importer.h"
 
-namespace S2DE::Render::FR
+namespace S2DE::Render
 {
 	Mesh::Mesh()
 	{
 		m_type = "Model";
-		m_ex =
+		m_extensions =
 		{
 			".fbx",
 			".obj",
@@ -15,23 +15,19 @@ namespace S2DE::Render::FR
 
 	Mesh::~Mesh()
 	{
-
-	}
-
-	void Mesh::Cleanup()
-	{
 		m_indices.clear();
 		m_vertices.clear();
 	}
 
-	bool Mesh::Load(std::string path)
+	bool Mesh::Load(std::string name)
 	{
-		//If path is empty 
-		if (Core::Utils::isStringEmpty(path))
+		const auto paths = FindPath({ name });
+		if (m_notLoaded == true)
 		{
-			Core::Utils::Logger::Error("Path string is empty, can't load mesh!");
 			return false;
 		}
+
+		const auto path = paths[0];
 
 		std::string format = Core::Utils::GetFileExtension(path);
 
@@ -43,7 +39,7 @@ namespace S2DE::Render::FR
 		}
 		else if (format == "obj")
 		{
-			S2DE_NO_IMPL();
+			
 		}
 
 		return true;

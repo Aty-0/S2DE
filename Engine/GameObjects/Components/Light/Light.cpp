@@ -4,50 +4,18 @@
 
 namespace S2DE::GameObjects::Components::Light
 {
-	std::int32_t Light::LightCount;
-	Render::ConstantBuffer<Render::CB::CB_Light>*  Light::m_lightCB;
-
 	Light::Light()
 	{
-		// Create global light constant buffer 
-		if (m_lightCB == nullptr)
-		{
-			m_lightCB = new Render::ConstantBuffer<Render::CB::CB_Light>();
-			S2DE_ASSERT(m_lightCB->Create());
-
-			m_lightCB->GetData()->ambient_light = Render::CB::PS_AmbientLight_Structure();
-			std::fill_n(m_lightCB->GetData()->lights, MAX_LIGHTS, Render::CB::PS_Light_Structure());
-		}
-
 		m_lightStructure = Render::CB::PS_Light_Structure();
-
-		m_index = Light::LightCount;
-		Light::LightCount++;
 	}
 
 	Light::~Light()
 	{
-
-	}
-
-	void Light::ColorChanged()
-	{
-		onColorChanged.RunAllCallbacks();
-	}
-
-	void Light::StrengthChanged()
-	{
-		onStrengthChanged.RunAllCallbacks();
 	}
 
 	void Light::InitLight()
 	{
-		
-	}
-
-	void Light::PositionChanged()
-	{
-		UpdateCB();
+		Logger::Warning("[Light] InitLight is not override %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
 	}
 
 	void Light::UpdateCB()
@@ -55,51 +23,87 @@ namespace S2DE::GameObjects::Components::Light
 		Logger::Warning("[Light] UpdateCB is not override %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
 	}
 
-	void Light::CreateIcon() 
-	{		
-		m_iconSprite = GetOwner()->CreateComponent<Sprite>();
-		m_iconSprite->SetBillboard(true); 
-		m_iconSprite->LoadTexture("engine_light_icon");
-		m_iconSprite->GetOwner()->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(0.6f, 0.6f, 0.6f));
-		m_alpha = GetOwner()->CreateComponent<Components::AlphaComponent>();
-		m_alpha->SetAlpha(true);
+	void Light::CreateIcon()
+	{
+		if (Core::Engine::isEditor())
+		{
+			m_iconSprite = GetOwner()->CreateComponent<Sprite>();
+			m_iconSprite->SetBillboard(true);
+			m_iconSprite->LoadTexture("engine_light_icon");
+			m_iconSprite->GetOwner()->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(0.6f, 0.6f, 0.6f));
+			m_alpha = GetOwner()->CreateComponent<Components::AlphaComponent>();
+			m_alpha->SetAlpha(true);
+		}
+	}
+
+	void Light::OnDestroy()
+	{
+		Render::LightGlobals::RemoveLight(GetUUID());
 	}
 
 	void Light::OnCreate()
 	{
 		// Light first initialization
+		Render::LightGlobals::AddLight(m_lightStructure, GetUUID());
 		UpdateCB();
 		CreateIcon();
 		InitLight();
 	}
 
-	void Light::RenderIcon()
+	inline Math::Color<float>	Light::GetColor() const
 	{
-		if (Core::Engine::isEditor())
-			 m_iconSprite->OnRender(); 
+		return m_color;
 	}
 
-	void Light::OnRender()
+	inline float Light::GetStrength()  const
 	{
-		RenderIcon();
+		return m_strength;
+	}
+
+	inline float Light::GetPad() const
+	{
+		return m_pad;
+	}
+
+	inline float Light::GetRange() const
+	{
+		return m_range;
+	}
+
+	inline DirectX::SimpleMath::Vector3 Light::GetAttenuation() const
+	{
+		return m_attenuation;
+	}
+
+	void Light::SetPad(float pad)
+	{
+		m_pad = pad;
+	}
+
+	void Light::SetRange(float range)
+	{
+		m_range = range;
+	}
+
+	void Light::SetAttenuation(DirectX::SimpleMath::Vector3 attenuation)
+	{
+		m_attenuation = attenuation;
 	}
 
 	void Light::SetColor(Math::Color<float> color)
 	{
-		Logger::Log("Light::SetColor(Math::Color<float> color)");
 		m_color = color; 
 		
 		if (m_iconSprite) // TODO: Multiply to strength
 			m_iconSprite->SetColor(color);
 
-		ColorChanged();
+		onColorChanged.RunAllCallbacks();
 	}
 
 	void Light::SetStrength(float strength)
 	{ 
-		Logger::Log("Light::SetStrength(float strength)");
 		m_strength = strength; 
-		StrengthChanged();
+		onStrengthChanged.RunAllCallbacks();
 	}
 
 }

@@ -3,7 +3,7 @@
 #include "Render/Renderer.h"
 #include "Render/Buffers.h"
 
-#include "Render/FR/Shader.h"
+#include "Render/Shader.h"
 #include "GameObjects/Components/UI/UIDrawableComponent.h"
 
 namespace S2DE::GameObjects::Components::Editor
@@ -19,6 +19,6 @@ namespace S2DE::GameObjects::Components::Editor
 
 	private:
 		Render::VertexBuffer<Render::Vertex>* m_vertex_buffer;
-		Render::FR::Shader* m_shader;
+		Render::Shader* m_shader;
 	};
 }

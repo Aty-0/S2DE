@@ -10,16 +10,12 @@ namespace S2DE::GameObjects::Components::Light
 
 	SpotLight::~SpotLight()
 	{
-		//Light::LightCount--;
 		onColorChanged.Clear();
 		onStrengthChanged.Clear();
 	}
 
 	void SpotLight::InitLight()
 	{
-		m_index = Light::LightCount;
-		Light::LightCount++;
-
 		m_attenuation = DirectX::SimpleMath::Vector3(0.04f, 0.1f, 0.06f);
 		m_range = 100.0f;
 		m_pad = 1.0f;
@@ -40,54 +36,52 @@ namespace S2DE::GameObjects::Components::Light
 
 	void SpotLight::UpdateCB()
 	{
-		if (m_lightCB)
+		Render::LightGlobals::LightConstantBuffer->Lock();
+		auto& str = m_lightStructure;
+
+		str.strength = m_strength;
+		str.attenuation = m_attenuation;
+		str.range = m_range;
+		str.spot = m_spot;
+		str.spotAngle = m_spotAngle;
+
+		str.light_type = static_cast<std::int32_t>(LightTypes::SpotLight);
+		str.enabled = static_cast<std::int32_t>(GetOwner()->isEnabled());
+		str.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
+
+		const auto transform = GetOwner()->GetTransform();
+		S2DE_ASSERT(transform);
+
+		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
+		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
+
+		// TODO: Get global position, rotation, scale 
+		//		 This is local p, r, s
+		if (transform->GetParent() != nullptr)
 		{
-			m_lightCB->Lock();
-			auto& str = m_lightStructure;
+			auto transformParent = transform->GetParent()->GetTransform();
 
-			str.strength = m_strength;
-			str.attenuation = m_attenuation;
-			str.range = m_range;
-			str.spot = m_spot;
-			str.spotAngle = m_spotAngle;
-
-			str.light_type = static_cast<std::int32_t>(LightTypes::SPOT_LIGHT);
-			str.enabled = static_cast<std::int32_t>(GetOwner()->isEnabled());
-			str.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
-
-			const auto transform = GetOwner()->GetTransform();
-			S2DE_ASSERT(transform);
-
-			auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
-			auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
-
-			// TODO: Get global position, rotation, scale 
-			//		 This is local p, r, s
-			if (transform->GetParent() != nullptr)
+			if (transformParent != nullptr)
 			{
-				auto transformParent = transform->GetParent()->GetTransform();
-
-				if (transformParent != nullptr)
-				{
-					parentPosition = transformParent->GetPosition();
-					parentRotation = transformParent->GetRotation();
-				}
+				parentPosition = transformParent->GetPosition();
+				parentRotation = transformParent->GetRotation();
 			}
-
-			if (transform != nullptr)
-			{
-				str.position = DirectX::SimpleMath::Vector4(transform->GetPosition().x + parentPosition.x,
-					transform->GetPosition().y + parentPosition.y, transform->GetPosition().z + parentPosition.z, 1);
-
-				str.direction = DirectX::SimpleMath::Vector4(transform->GetRotation().x + parentRotation.x,
-					transform->GetRotation().y + parentRotation.y, transform->GetRotation().z + parentRotation.z, 1);
-			}
-
-			m_lightCB->GetData()->lights[m_index] = m_lightStructure;
-
-			m_lightCB->Unlock();
-			m_lightCB->Bind(1);
-			m_lightCB->Unbind();
 		}
+
+		if (transform != nullptr)
+		{
+			str.position = DirectX::SimpleMath::Vector4(transform->GetPosition().x + parentPosition.x,
+				transform->GetPosition().y + parentPosition.y, transform->GetPosition().z + parentPosition.z, 1);
+
+			str.direction = DirectX::SimpleMath::Vector4(transform->GetRotation().x + parentRotation.x,
+				transform->GetRotation().y + parentRotation.y, transform->GetRotation().z + parentRotation.z, 1);
+		}
+
+		Render::LightGlobals::SetNewLightStructure(str, GetUUID());
+
+		Render::LightGlobals::LightConstantBuffer->Unlock();
+		Render::LightGlobals::LightConstantBuffer->Bind(1);
+		Render::LightGlobals::LightConstantBuffer->Unbind();
+
 	}
 }

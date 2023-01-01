@@ -1,19 +1,18 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "IO/IO_File.h"
-#include "IO/IO_Disposible.h"
+#include "Base/Resource.h"
 #include "Render/Renderer.h"
 
-namespace S2DE::Render::FR
+namespace S2DE::Render
 {
-	class S2DE_API Texture : public IO::IO_File, public IO::IO_Disposible
+	class S2DE_API Texture : public Core::Resources::Resource
 	{
 	public:
 		Texture();
 		~Texture();
 		
-		bool							 Load(std::string path) final;
-		void							 Cleanup() final;
+		bool							 Load(std::string name) final;
+
 		// Create cubemap texture from path 
 		bool							 CreateCubeMapTexture(std::string path);
 		// Create 1x1 blank texture 
@@ -22,7 +21,7 @@ namespace S2DE::Render::FR
 		bool							 CreateDefaultSamplerState();
 		bool							 SetSamplerState(D3D11_SAMPLER_DESC const& samplerDesc);
 		// Bind texture 
-		void							 Bind(std::uint32_t numViews = 1);
+		void							 Bind(std::uint32_t startSlot = 0, std::uint32_t numViews = 1);
 		void							 Unbind();
 		
 		[[nodiscard]] inline ID3D11ShaderResourceView* GetResourceView() const;

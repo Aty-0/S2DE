@@ -1,37 +1,35 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "IO/IO_File.h"
-#include "IO/IO_Disposible.h"
-
+#include "Base/Resource.h"
 #include "Render/ConstantBuffer.h"
 #include "Render/CB.h"
 
-namespace S2DE::Render::FR
+namespace S2DE::Render
 {
-	class S2DE_API Shader : public IO::IO_File, public IO::IO_Disposible
+	class S2DE_API Shader : public Core::Resources::Resource
 	{
 	public:
 		Shader();
 		~Shader();
 
 		bool								 Reload();
-		//Set shader files path 
-		bool								 SetPaths(std::string vs_path, std::string ps_path);
-		//Compile shaders					 
+		bool								 Load(std::string name) final;
+
+		// Compile shaders					 
 		bool								 Compile(bool compileVs = true, bool compilePs = true);
-		//Bind shader 						 
+
+		// Bind shader 						 
 		void								 Bind();
-		//Unbind shader						 
+
+		// Unbind shader						 
 		void								 Unbind();
-		//Release all resource				 
-		void								 Cleanup() final;
 
 		void								 UpdateMainConstBuffer(DirectX::SimpleMath::Matrix world, bool isUI = false);
 
 		[[nodiscard]] inline ID3D11VertexShader* GetVertexShader()	 const;
 		[[nodiscard]] inline ID3D11PixelShader* GetPixelShader()	 const;
 		[[nodiscard]] inline ID3D11InputLayout* GetLayout() const;
-		[[nodiscard]] inline ConstantBuffer<CB::CB_Main>* GetConstBuffer()	 const	;
+		[[nodiscard]] inline ConstantBuffer<CB::CB_Main>* GetConstBuffer()	 const;
 
 	private:
 		std::string							 m_path_vs;
@@ -45,5 +43,8 @@ namespace S2DE::Render::FR
 		std::string 						 m_fileDataPs;
 
 		void								 ShowErrorDetails(ID3D10Blob* error_blob);
+
+		// TODO: Remove this and make same function for ResourceManager 
+		bool								 CheckShadersOnModify(std::string path, std::string& fileData, bool& modify);
 	};
 }
