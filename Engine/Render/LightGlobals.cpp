@@ -63,7 +63,7 @@ namespace S2DE::Render
 
 	std::int32_t LightGlobals::AddLight(Render::CB::PS_Light_Structure light, boost::uuids::uuid uuid)
 	{
-		if (m_parsedLights.size() <= CB::MAX_LIGHT_COUNT)
+		if (m_parsedLights.size() < CB::MAX_LIGHT_COUNT)
 		{
 			Render::LightGlobals::LightConstantBuffer->Lock();
 			m_parsedLights.push_back(std::make_pair(uuid, light));

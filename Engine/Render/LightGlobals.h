@@ -23,7 +23,10 @@ namespace S2DE::Render
 		// Writes current lights structures to CB Light array 
 		static void UpdateLights();
 
-
+		[[nodiscard]] static std::int32_t GetLightCount() 
+		{
+			return static_cast<std::int32_t>(m_parsedLights.size());
+		}
 
 	private:
 		static std::vector<std::pair<boost::uuids::uuid, 
