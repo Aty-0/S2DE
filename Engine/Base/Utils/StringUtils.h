@@ -15,6 +15,42 @@ namespace S2DE::Core::Utils
 		return str == L"" || str.empty();
 	}
 
+	[[nodiscard]] static bool StringAllReplace(std::string& str, const std::string& from, const std::string& to)
+	{
+		if (from.empty())
+		{
+			return false;
+		}
+
+		std::size_t start_pos = 0;
+
+		while ((start_pos = str.find(from, start_pos)) != std::string::npos) 
+		{
+			str.replace(start_pos, from.length(), to);
+			start_pos += to.length(); 
+		}
+
+		return true;
+	}
+
+	[[nodiscard]] static bool StringReplace(std::string& str, const std::string& from, const std::string& to)
+	{
+		if (from.empty())
+		{
+			return false;
+		}
+
+		std::size_t start_pos = str.find(from);
+
+		if (start_pos == std::string::npos)
+		{
+			return false;
+		}
+
+		str.replace(start_pos, from.length(), to);
+		return true;
+	}
+
 	template<typename T>
 	[[nodiscard]] static std::string GetClassNameInString(T obj)
 	{
