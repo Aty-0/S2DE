@@ -13,11 +13,16 @@ namespace S2DE::Core::Debug
 		Fullscreen,
 	};
 
+	struct ConsoleBufferObject
+	{
+		std::string text;
+		DirectX::SimpleMath::Color color;
+	};
 
 	class S2DE_API VisualConsole : public Render::ImGui_Window
 	{
 	public:
-		static std::vector<std::string> ConsoleBuffer;
+		static std::vector<ConsoleBufferObject> ConsoleBuffer;
 
 		VisualConsole();
 		~VisualConsole();

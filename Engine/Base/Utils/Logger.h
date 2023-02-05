@@ -22,6 +22,10 @@ namespace S2DE::Core::Utils
 		static void					Error(const char* text, ...);
 		static void					Warning(const char* text, ...);
 		static void					Fatal(const char* text, ...);
+
+		static void					LogColored(DirectX::SimpleMath::Color color, const char* text, ...);
+
+
 		static void					CreateLogFile();
 
 
@@ -36,8 +40,8 @@ namespace S2DE::Core::Utils
 		static tm*					m_localTime;
 		static std::ofstream		m_logFile;
 		static std::string			m_logFileName;
-
-		static void									Print(const char* type, const char* text);
+		
+		static void									Print(DirectX::SimpleMath::Color color, const char* type, const char* text);
 		[[nodiscard]] static std::string			GetCorrentTime();
 
 	public:

@@ -7,7 +7,7 @@
 
 namespace S2DE::Core::Debug
 {
-	std::vector<std::string> VisualConsole::ConsoleBuffer;
+	std::vector<ConsoleBufferObject> VisualConsole::ConsoleBuffer;
 	static std::uint32_t line_count = 0;
 
 	VisualConsole::VisualConsole() : 
@@ -39,7 +39,7 @@ namespace S2DE::Core::Debug
 
 		Line line = Line();
 		line.alpha = 1.0f;
-		line.text = ConsoleBuffer[(std::int32_t)ConsoleBuffer.size() - 1];
+		line.text = ConsoleBuffer[(std::int32_t)ConsoleBuffer.size() - 1].text;
 
 		m_linebuffer[line_count] = line;
 	}
@@ -174,33 +174,27 @@ namespace S2DE::Core::Debug
 
 		for (std::int32_t i = 0; i < (std::int32_t)ConsoleBuffer.size(); i++)
 		{
-			std::string item = ConsoleBuffer[i].c_str();
-
-			ImVec4 col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); 
+			auto item = ConsoleBuffer[i];
 
 			std::int32_t max_lines = 175 + Engine::GetGameWindow()->GetWidth() / 50;
 
-			if (item.length() >= (std::uint32_t)max_lines)
+			if (item.text.length() >= (std::uint32_t)max_lines)
 			{
-				for (std::int32_t i = 1; i <= std::int32_t(item.length() / max_lines); i++)
-					item.insert(max_lines * i, "\n");
+				for (std::int32_t i = 1; i <= std::int32_t(item.text.length() / max_lines); i++)
+				{
+					item.text.insert(max_lines * i, "\n");
+				}
 			}
 
-			if (strstr(item.c_str(), "[Error]")) 
-				col = ImColor(1.0f, 0.4f, 0.4f, 1.0f);
-			else if (strstr(item.c_str(), "[Fatal]"))
-				col = ImColor(1.0f, 0.0f, 0.0f, 1.0f);
-			else if (strstr(item.c_str(), "[Warning]"))
-				col = ImColor(0.8f, 0.8f, 0.0f, 1.0f);
-	
-
-			ImGui::PushStyleColor(ImGuiCol_Text, col);
-			ImGui::TextUnformatted(item.c_str());
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(item.color.x, item.color.y, item.color.z, item.color.w));
+			ImGui::TextUnformatted(item.text.c_str());
 			ImGui::PopStyleColor();
 		}
 
 		if (m_scroll_to_bottom)
+		{
 			ImGui::SetScrollHereY(1.0f);
+		}
 
 		m_scroll_to_bottom = false;
 		ImGui::PopStyleVar();

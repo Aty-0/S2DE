@@ -73,7 +73,7 @@ namespace S2DE::Render
 			return false;
 		}
 
-		Logger::Log("[Renderer] [Create Render] Create device and swapchain...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Create device and swapchain...");
 		if (!CreateDeviceAndSwapChain())
 			return false;
 
@@ -83,7 +83,7 @@ namespace S2DE::Render
 
 		UpdateViewport();
 
-		Logger::Log("[Renderer] [Create Render] Create default rasterizer state...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Create default rasterizer state...");
 		if (!CreateRasterizerState())
 			return false;
 
@@ -99,19 +99,19 @@ namespace S2DE::Render
 
 		SetRasterizerState();
 
-		Logger::Log("[Renderer] [Create Render] Create depth stencil and render target...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Create depth stencil and render target...");
 		if (!CreateDepthStencil())
 			return false;
 
-		Logger::Log("[Renderer] [Create Render] Create blend state...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Create blend state...");
 		if (!CreateBlendState())
 			return false;
 
-		Logger::Log("[Renderer] [Create Render] Initialize ImGui...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Initialize ImGui...");
 		if (!InitImGui())
 			return false;
 
-		Logger::Log("[Renderer] Initialize fbx sdk...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] Initialize fbx sdk...");
 		FBX_Importer::Init();
 
 		CreateEngineWindowsAndEditorUI();

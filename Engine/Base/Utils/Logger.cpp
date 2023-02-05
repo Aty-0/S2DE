@@ -60,8 +60,15 @@ namespace S2DE::Core::Utils
 	{
 		char buffer[1024];
 		VA_LIST_OUTPUT(buffer);
-		Print("Fatal", std::string(buffer).c_str());
-		throw std::runtime_error(std::string(buffer));
+		Print(DirectX::SimpleMath::Color(1.0f, 0.0f, 0.0f, 1.0f), "Error", std::string(buffer).c_str());
+		memset(buffer, 0, sizeof(buffer));
+	}
+
+	void Logger::LogColored(DirectX::SimpleMath::Color color, const char* text, ...)
+	{
+		char buffer[1024];
+		VA_LIST_OUTPUT(buffer);
+		Print(color, "Log", std::string(buffer).c_str());
 		memset(buffer, 0, sizeof(buffer));
 	}
 
@@ -69,7 +76,7 @@ namespace S2DE::Core::Utils
 	{
 		char buffer[1024];
 		VA_LIST_OUTPUT(buffer);
-		Print("Log", std::string(buffer).c_str());
+		Print(DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 1.0f), "Log", std::string(buffer).c_str());
 		memset(buffer, 0, sizeof(buffer));
 	}
 
@@ -77,15 +84,22 @@ namespace S2DE::Core::Utils
 	{
 		char buffer[1024];
 		VA_LIST_OUTPUT(buffer);
-		Print("Warning", std::string(buffer).c_str());
+		Print(DirectX::SimpleMath::Color(0.8f, 0.8f, 0.0f, 1.0f), "Warning", std::string(buffer).c_str());
 		memset(buffer, 0, sizeof(buffer));
 	}
+
+//		if (strstr(item.c_str(), "[Error]"))
+//			col = ImColor(1.0f, 0.4f, 0.4f, 1.0f);
+//		else if (strstr(item.c_str(), "[Fatal]"))
+//			col = ImColor(1.0f, 0.0f, 0.0f, 1.0f);
+//		else if (strstr(item.c_str(), "[Warning]"))
+//			col = ImColor(0.8f, 0.8f, 0.0f, 1.0f);
 
 	void Logger::Error(const char* text, ...)
 	{
 		char buffer[1024];
 		VA_LIST_OUTPUT(buffer);
-		Print("Error", std::string(buffer).c_str());
+		Print(DirectX::SimpleMath::Color(1.0f, 0.4f, 0.4f, 1.0f), "Error", std::string(buffer).c_str());
 		memset(buffer, 0, sizeof(buffer));
 	}
 
@@ -93,8 +107,12 @@ namespace S2DE::Core::Utils
 	{
 		// Create folder "Logs" if it's not exist
 		if (!std::filesystem::is_directory("Logs") || !std::filesystem::exists("Logs"))
-			if(!std::filesystem::create_directory("Logs"))
+		{
+			if (!std::filesystem::create_directory("Logs"))
+			{
 				throw std::runtime_error("Can't create directory");
+			}
+		}
 
 		// Set log name
 		m_logFileName = "S2DE-Log-" + GetTime(true) + ".log";
@@ -110,30 +128,42 @@ namespace S2DE::Core::Utils
 			"\n\n";
 	}
 
-	void Logger::Print(const char* type, const char* text)
+	void Logger::Print(DirectX::SimpleMath::Color color, const char* type, const char* text)
 	{
 		std::string line = std::string();
-
+		// Print line count
 		line.append("[" + std::to_string(m_lineCount) + "] ");
 
-		//Add to line corrent time
+		// Add to line corrent time
 		line.append(GetCorrentTime());
-		//Add type and text from buffer
+
+		// Add type and text from buffer
 		line.append(" [" + std::string(type) + "]  " + std::string(text) + "\n");
 
-		//print to vs console
+		// If we are have debuging output
 		OutputDebugString(line.c_str());
 
-		//Add text to log file
+		// Add text to log file
 		m_logFile << line;
-		Debug::VisualConsole::ConsoleBuffer.push_back(line);
 
-		//Add line 
+		Debug::ConsoleBufferObject object = Debug::ConsoleBufferObject();
+		object.text = line;
+		object.color = color;
+
+		Debug::VisualConsole::ConsoleBuffer.push_back(object);
+
+		// Add line 
 		m_lineCount++;
 
+		// Run callbacks
 		for (const auto& func : onPrintCallbacks)
-			func();
-	
+		{
+			if (func != nullptr)
+			{
+				func();
+			}
+		}
+
 		line.clear();
 	}
 
@@ -148,7 +178,10 @@ namespace S2DE::Core::Utils
 		if (FAILED(hr))
 		{
 			if (printCode == true)
+			{
 				Logger::Error("Error Code: 0x%08X Details: %s ", hr, GetHRCodeDetails(hr).c_str());
+			}
+
 			return false;
 		}
 		return true;

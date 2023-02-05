@@ -15,7 +15,7 @@ namespace S2DE::Core::Resources
 
 	void ResourceManager::ReloadShaders()
 	{
-		Logger::Log("[ResourceManager] Reload shaders...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "[ResourceManager] Reload shaders...");
 
 		for (const auto& p : m_storage)
 		{
@@ -28,7 +28,7 @@ namespace S2DE::Core::Resources
 	
 	void ResourceManager::ReloadTextures()
 	{
-		Logger::Log("[ResourceManager] Reload textures...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "[ResourceManager] Reload textures...");
 
 		for (const auto& p : m_storage)
 		{
@@ -57,7 +57,7 @@ namespace S2DE::Core::Resources
 		//Check on exist file by final path
 		if (file.is_open())
 		{
-			Logger::Log("[ResourceManager] %s found | %s", type.c_str(), res.c_str());
+			Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "[ResourceManager] %s found | %s", type.c_str(), res.c_str());
      		resultpath = res;
 			file.close();
 			return true;
