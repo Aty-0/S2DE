@@ -69,6 +69,7 @@ namespace S2DE::Render
 	{
 		if (!compileVs && !compilePs)
 		{
+			Logger::Error("[Shader] %s is not modified!", m_name.c_str());
 			return false;
 		}
 
@@ -162,10 +163,16 @@ namespace S2DE::Render
 		m_path_ps = paths[1];
 
 		bool compileVs = false;
-		CheckShadersOnModify(m_path_vs, m_fileDataVs, compileVs);
+		if(!CheckShadersOnModify(m_path_vs, m_fileDataVs, compileVs))
+		{
+			return false;
+		}
 
 		bool compilePs = false;
-		CheckShadersOnModify(m_path_ps, m_fileDataPs, compilePs);
+		if(!CheckShadersOnModify(m_path_ps, m_fileDataPs, compilePs))
+		{
+			return false;
+		}
 
 		return Compile(compileVs, compilePs);
 	}
