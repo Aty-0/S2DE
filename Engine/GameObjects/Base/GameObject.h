@@ -93,7 +93,7 @@ namespace S2DE::GameObjects
 
 			component->SetOwner(this);
 			component->SetName(Core::Utils::GetClassNameInString(component));
-			Core::Utils::Logger::Log("[%s] CreateComponent %s", GetName().c_str(), component->GetName().c_str());
+
 			// When name and owner is setted
 			component->OnCreate();
 
@@ -103,32 +103,42 @@ namespace S2DE::GameObjects
 
 			m_components.push_back(std::make_pair(std::make_pair(component->GetUUID(), std::type_index(typeid(*component))), component));
 
+			Core::Utils::Logger::Log("[%s] CreateComponent %s", GetName().c_str(), component->GetName().c_str());
 			return component;
 		}
 
 		template<typename T = Components::Component>
-		T* GetComponent() 
+		[[nodiscard]] T* GetComponent() 
 		{ 
 			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
 				"This is not Component or Component based class");
 
-			std::type_index typeIndex = std::type_index(typeid(T));
+			std::type_index type = typeid(T);
 
-			ComponentsList::iterator it = std::find_if(m_components.begin(), m_components.end(), [&typeIndex](std::pair<std::pair<boost::uuids::uuid,
+			ComponentsList::iterator it = std::find_if(m_components.begin(), m_components.end(), [&type](std::pair<std::pair<boost::uuids::uuid,
 					std::type_index>, Components::Component*> const& elem)
-			{ 
-				return elem.first.second == typeIndex;
+			{ 				
+				// If we try to get object based on component type
+				// Example: We try to get DrawableComponent but that object 
+				//			is currently is Sprite(Based on DrawableComponent)
+				if (dynamic_cast<T*>(elem.second) != nullptr)
+				{
+					return true;
+				}
+
+				return elem.first.second == type;
 			});
 
-			// For avoid null casting 
 			if (it == m_components.end())
+			{
 				return nullptr;
+			}
 
 			return dynamic_cast<T*>(it->second);
 		}
 
 		template<typename T = Components::Component>
-		T* GetComponentInChildren() 
+		[[nodiscard]] T* GetComponentInChildren() 
 		{
 			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
 				"This is not Component or Component based class");
@@ -142,7 +152,7 @@ namespace S2DE::GameObjects
 		}
 
 		template<typename T = Components::Component>
-		T* GetComponentInParent() 
+		[[nodiscard]] T* GetComponentInParent()
 		{
 			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
 				"This is not Component or Component based class");
