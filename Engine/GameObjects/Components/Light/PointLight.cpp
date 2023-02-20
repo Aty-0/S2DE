@@ -16,7 +16,8 @@ namespace S2DE::GameObjects::Components::Light
 
 	void PointLight::InitLight()
 	{
-		m_attenuation = DirectX::SimpleMath::Vector3(0.04f, 0.1f, 0.06f);
+		//m_attenuation = DirectX::SimpleMath::Vector3(0.04f, 0.1f, 0.06f);
+		m_attenuation = DirectX::SimpleMath::Vector3(3.0f, 0.0f, 1.0f);
 		m_range = 100.0f;
 		m_pad = 1.0f;
 		m_strength = 1.0f;

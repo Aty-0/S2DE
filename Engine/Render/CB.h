@@ -24,8 +24,8 @@ namespace S2DE::Render::CB
 		float	strength;
 		float	spot;
 
-		int     light_type;
-		int		enabled;
+		std::int32_t light_type;
+		std::int32_t enabled;
 	};
 
 	struct S2DE_API S2DE_ALIGN(16) CB_Light

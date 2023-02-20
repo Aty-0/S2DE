@@ -193,15 +193,15 @@ namespace S2DE::GameObjects::Components
 		 
 	void Sprite::UpdateTexture()
 	{
-		//Get texture name
+		// Get texture name
 		std::string name = m_texture->GetName();
-		//Delete previous texture
-		Core::Delete(m_texture);
+		// Delete previous texture
+		//Core::Delete(m_texture);
 
-		//Try to get texture by name from resource manager
+		// Try to get texture by name from resource manager
 		auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
 
-		//If texture not found
+		// If texture not found
 		if (new_texture == Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"))
 		{
 			Logger::Error("%s Can't update texture!", GetName().c_str());
@@ -214,15 +214,15 @@ namespace S2DE::GameObjects::Components
 	 
 	void Sprite::UpdateShader()
 	{
-		//Get shader name
+		// Get shader name
 		std::string name = m_shader->GetName();
-		//Delete previous shader 
-		Core::Delete(m_shader);
+		// Delete previous shader 
+		//Core::Delete(m_shader);
 
-		//Try to get shader by name from resource manager
+		// Try to get shader by name from resource manager
 		auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
 
-		//If shader not found
+		// If shader not found
 		if (new_shader == nullptr)
 		{
 			Logger::Error("%s Can't update shader!", GetName().c_str());
