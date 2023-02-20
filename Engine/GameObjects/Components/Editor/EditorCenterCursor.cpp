@@ -22,11 +22,11 @@ namespace S2DE::GameObjects::Components::Editor
 			{ DirectX::SimpleMath::Vector3(1.0f,   1.0f,	0.0f), DirectX::SimpleMath::Vector4(255, 255, 255, 255),  DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
 		};
 
-		S2DE_ASSERT(m_vertex_buffer->Create());
+		Assert(m_vertex_buffer->Create(), "Failed to create vertex buffer!");
 		m_vertex_buffer->Update();
 
 
-		S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("editor_cursor"));
+		Assert(Core::Engine::GetResourceManager().Load<Render::Shader>("editor_cursor"), "Cursor shader is not loaded!");
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("editor_cursor"));
 
 	}

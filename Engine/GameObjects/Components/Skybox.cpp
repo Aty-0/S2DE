@@ -79,7 +79,7 @@ namespace S2DE::GameObjects::Components
 			{   DirectX::SimpleMath::Vector3(-1.0f, -1.0f, 1.0f), DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
 			{	DirectX::SimpleMath::Vector3(1.0f, -1.0f,  1.0f), DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
 		};
-		S2DE_ASSERT(m_vertexBuffer->Create());
+		Assert(m_vertexBuffer->Create(), "Failed to create index buffer");
 		m_vertexBuffer->Update();
 	}	 
 		 
@@ -112,13 +112,13 @@ namespace S2DE::GameObjects::Components
 			6, 3, 7,
 		};
 
-		S2DE_ASSERT(m_indexBuffer->Create());
+		Assert(m_indexBuffer->Create(), "Failed to create index buffer");
 		m_indexBuffer->Update();
 	}
 	 
 	void Skybox::SetDefaultShader()
 	{	 
-		S2DE_ASSERT(Core::Engine::GetResourceManager().Load<Render::Shader>("Skybox"));
+		Assert(Core::Engine::GetResourceManager().Load<Render::Shader>("Skybox"), "Failed to load sky shader");
 
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Skybox"));
 	}	 
@@ -126,7 +126,7 @@ namespace S2DE::GameObjects::Components
 	void Skybox::SetDefaultTexture()
 	{
 		m_texture = new Render::Texture();
-		S2DE_ASSERT(LoadTexture("sky"));
+		Assert(LoadTexture("sky"), "Failed to load default sky texture");
 	}
 
 	inline DirectX::SimpleMath::Matrix Skybox::UpdateTransformation()

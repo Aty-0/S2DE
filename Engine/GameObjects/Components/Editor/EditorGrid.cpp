@@ -55,7 +55,7 @@ namespace S2DE::GameObjects::Components::Editor
 		}
 	
 
-		S2DE_ASSERT(m_vertexBuffer->Create());
+		Assert(m_vertexBuffer->Create(), "Failed to create vertex buffer");
 		m_vertexBuffer->Update();
 	}
 
@@ -73,7 +73,7 @@ namespace S2DE::GameObjects::Components::Editor
 				m_indexBuffer->GetArray().push_back((z + 1) * GRID_CELLS + (x + 1));
 			}
 		}
-		S2DE_ASSERT(m_indexBuffer->Create());
+		Assert(m_indexBuffer->Create(), "Failed to create vertex buffer");
 		m_indexBuffer->Update();
 	}
 

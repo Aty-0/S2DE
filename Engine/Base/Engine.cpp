@@ -69,7 +69,7 @@ namespace S2DE::Core
 		if (splash)
 		{
 			sp = new SplashScreen();
-			S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
+			Assert(sp->ShowSplashScreen(GetModuleHandle(NULL)), "");
 		}
 
 		// Create log file 
@@ -217,10 +217,10 @@ namespace S2DE::Core
 
 	bool Engine::LoadEngineResources()
 	{
-		S2DE_ASSERT(m_resource_manager.Load<Texture>("DefaultTexture"));
-		S2DE_ASSERT(m_resource_manager.Load<Shader>("Sprite"));
-		S2DE_ASSERT(m_resource_manager.Load<Shader>("Line"));
-		S2DE_ASSERT(m_resource_manager.Load<Shader>("Mesh"));
+		Assert(m_resource_manager.Load<Texture>("DefaultTexture"), "Can't load default texture");
+		Assert(m_resource_manager.Load<Shader>("Sprite"), "Can't load sprite shader");
+		Assert(m_resource_manager.Load<Shader>("Line"), "Can't load line shader");
+		Assert(m_resource_manager.Load<Shader>("Mesh"), "Can't load mesh shader");
 
 		return true;
 	}

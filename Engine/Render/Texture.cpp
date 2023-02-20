@@ -46,7 +46,7 @@ namespace S2DE::Render
 
 	bool Texture::SetSamplerState(D3D11_SAMPLER_DESC const& samplerDesc)
 	{
-		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&samplerDesc, &m_textureSamplerState), "Can't create sampler state");
+		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&samplerDesc, &m_textureSamplerState), "Can't create sampler state");
 		return true;
 	}
 
@@ -67,7 +67,7 @@ namespace S2DE::Render
 		sampler_desc.BorderColor[2] = 0;
 		sampler_desc.BorderColor[3] = 0;
 
-		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
+		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
 		return true;
 	}
 
@@ -118,7 +118,7 @@ namespace S2DE::Render
 
 	bool Texture::CreateCubeMapTexture(std::string path)
 	{
-		//If path is empty 
+		// If path is empty 
 		if (Core::Utils::isStringEmpty(path))
 		{
 			Logger::Error("Path string is empty, can't load texture!");
@@ -128,7 +128,7 @@ namespace S2DE::Render
 
 		HRESULT hr = S_OK;
 
-		//Get file extension because for dds format we need to use special function
+		// Get file extension because for dds format we need to use special function
 		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{

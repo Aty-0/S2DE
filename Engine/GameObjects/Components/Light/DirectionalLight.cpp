@@ -21,7 +21,7 @@ namespace S2DE::GameObjects::Components::Light
 
 		// Add callbacks...
 		const auto transform = GetOwner()->GetTransform();
-		S2DE_ASSERT(transform != nullptr);
+		Assert(transform, "transform is null");
 
 		transform->onPositionChanged.AddCallback(std::bind(&DirectionalLight::UpdateCB, this));
 		transform->onRotationChanged.AddCallback(std::bind(&DirectionalLight::UpdateCB, this));
@@ -40,7 +40,7 @@ namespace S2DE::GameObjects::Components::Light
 		str.light_type = static_cast<std::int32_t>(LightTypes::DirectionalLight);
 
 		const auto transform = GetOwner()->GetTransform();
-		S2DE_ASSERT(transform);
+		Assert(transform, "transform is null");
 
 		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
 		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;

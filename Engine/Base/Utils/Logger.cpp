@@ -88,13 +88,6 @@ namespace S2DE::Core::Utils
 		memset(buffer, 0, sizeof(buffer));
 	}
 
-//		if (strstr(item.c_str(), "[Error]"))
-//			col = ImColor(1.0f, 0.4f, 0.4f, 1.0f);
-//		else if (strstr(item.c_str(), "[Fatal]"))
-//			col = ImColor(1.0f, 0.0f, 0.0f, 1.0f);
-//		else if (strstr(item.c_str(), "[Warning]"))
-//			col = ImColor(0.8f, 0.8f, 0.0f, 1.0f);
-
 	void Logger::Error(const char* text, ...)
 	{
 		char buffer[1024];

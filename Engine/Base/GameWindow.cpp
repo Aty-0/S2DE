@@ -167,7 +167,7 @@ namespace S2DE::Core
 		if (setClientRes)
 		{
 			SDL_DisplayMode displayMode = { };
-			S2DE_ASSERT(SDL_GetCurrentDisplayMode(0, &displayMode) == 0);
+			Assert(SDL_GetCurrentDisplayMode(0, &displayMode) == 0, "");
 			SDL_SetWindowSize(m_window, displayMode.w, displayMode.h);
 		}
 

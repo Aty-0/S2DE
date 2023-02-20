@@ -23,7 +23,7 @@ namespace S2DE::GameObjects::Components::Light
 
 		// Add callbacks...
 		const auto transform = GetOwner()->GetTransform();
-		S2DE_ASSERT(transform != nullptr);
+		Assert(transform, "transform is nullptr");
 
 		transform->onPositionChanged.AddCallback(std::bind(&PointLight::UpdateCB, this));
 		transform->onRotationChanged.AddCallback(std::bind(&PointLight::UpdateCB, this));
@@ -47,7 +47,7 @@ namespace S2DE::GameObjects::Components::Light
 		str.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
 
 		const auto transform = GetOwner()->GetTransform();
-		S2DE_ASSERT(transform);
+		Assert(transform, "transform is nullptr");
 
 		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
 		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;

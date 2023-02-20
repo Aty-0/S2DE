@@ -49,7 +49,7 @@ namespace S2DE::Scene
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
-		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
+		Assert(Core::Engine::GetSceneManager()->GetScene() != nullptr, "Scene is nullptr");
 		SceneObjectStorage::iterator it = std::find_if(
 			Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
 			Core::Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
@@ -67,7 +67,7 @@ namespace S2DE::Scene
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
-		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
+		Assert(Core::Engine::GetSceneManager()->GetScene() != nullptr, "Scene is nullptr");
 		SceneObjectStorage::iterator it = std::find_if(
 			Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
 			Core::Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
@@ -92,14 +92,14 @@ namespace S2DE::Scene
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, 
 			"This is not GameObject or GameObject based class");
 
-		// Without scene we can't do something 
-		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
+		// Without scene we can't continue 
+		Assert(Core::Engine::GetSceneManager()->GetScene() != nullptr, "Scene is nullptr");
 
 		auto object = new T(name, type, prefix, std::string());
 		auto transform = object->GetTransform();
 
 		// If we get there assertion fail it means something very bad happened. 
-		S2DE_ASSERT(transform);
+		Assert(transform, "Transform component is nullptr, wat ?");
 
 		transform->SetPosition(position);
 		transform->SetRotation(rotation);
@@ -114,8 +114,8 @@ namespace S2DE::Scene
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, 
 			"This is not GameObject or GameObject based class");
-		// Without scene we can't do something 
-		S2DE_ASSERT(Core::Engine::GetSceneManager()->GetScene() != nullptr);
+		// Without scene we can't continue 
+		Assert(Core::Engine::GetSceneManager()->GetScene() != nullptr, "Scene is nullptr");
 		auto object = new T();
 		return Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
 	}

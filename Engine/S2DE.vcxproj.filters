@@ -249,6 +249,9 @@
     <ClInclude Include="Render\LightGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Base\Utils\LoggerDebugTools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc">

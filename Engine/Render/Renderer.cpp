@@ -244,12 +244,12 @@ namespace S2DE::Render
 	bool Renderer::CreateRenderTarget()
 	{
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&m_backBuffer);
-		S2DE_CHECK(m_device->CreateRenderTargetView(m_backBuffer, nullptr, &m_targetView), "Render Error: Cannot create render target view");
+		Verify_HR(m_device->CreateRenderTargetView(m_backBuffer, nullptr, &m_targetView), "Render Error: Cannot create render target view");
 		CreateFramebufferTexture(m_backBuffer);
 
 		if (m_frameBufferData != nullptr)
 		{
-			S2DE_CHECK_SAFE(m_device->CreateRenderTargetView(m_frameBufferData, nullptr, &m_frameRenderTarget), "[Renderer] minor render target creation failed!")
+			Verify_HR(m_device->CreateRenderTargetView(m_frameBufferData, nullptr, &m_frameRenderTarget), "[Renderer] frame render target creation failed!");
 		}
 
 		return true;
@@ -355,10 +355,10 @@ namespace S2DE::Render
 		bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 		bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA; //D3D11_BLEND_ONE;
 
-		S2DE_CHECK(m_device->CreateBlendState(&bd, &m_blendStateOn), "Render Error: Can't create blend state on");
+		Verify_HR(m_device->CreateBlendState(&bd, &m_blendStateOn), "Render Error: Can't create blend state on");
 
 		bd.RenderTarget[0].BlendEnable = false;
-		S2DE_CHECK(m_device->CreateBlendState(&bd, &m_blendStateOff), "Render Error: Can't create blend state off");
+		Verify_HR(m_device->CreateBlendState(&bd, &m_blendStateOff), "Render Error: Can't create blend state off");
 
 		return true;
 	}
@@ -388,7 +388,7 @@ namespace S2DE::Render
 		ID3D11RasterizerState* newRasterizer = nullptr;
 
 		// Create the rasterizer state from the description we just filled out.		
-		S2DE_CHECK_SAFE(m_device->CreateRasterizerState(&desc, &newRasterizer), "Render Error: Cannot create rasterizer state");
+		Verify_HR(m_device->CreateRasterizerState(&desc, &newRasterizer), "Render Error: Cannot create rasterizer state");
 
 		// Push new rasterizer variant to storage
 		m_rasterizerVariants.push_back(std::make_pair(name, newRasterizer));
@@ -416,7 +416,7 @@ namespace S2DE::Render
 		depthBufferDesc.CPUAccessFlags = 0;
 		depthBufferDesc.MiscFlags = 0;
 
-		S2DE_CHECK(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer), "Render Error: Cannot create depth buffer");
+		Verify_HR(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer), "Render Error: Cannot create depth buffer");
 
 		// Set up the description of the stencil state.
 		D3D11_DEPTH_STENCIL_DESC depthStencilDesc = { };
@@ -441,10 +441,10 @@ namespace S2DE::Render
 		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 		
-		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateEnabled), "Render Error: Cannot create enabled depth stencil state");
+		Verify_HR(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateEnabled), "Render Error: Cannot create enabled depth stencil state");
 
 		depthStencilDesc.DepthEnable = false;
-		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateDisabled), "Render Error: Cannot create disabled depth stencil state");
+		Verify_HR(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateDisabled), "Render Error: Cannot create disabled depth stencil state");
 
 		// Set up the depth stencil view description.
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = { };
@@ -453,7 +453,7 @@ namespace S2DE::Render
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 		// Create the depth stencil view.
-		S2DE_CHECK(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView), "Render Error: Cannot create depth stencil view");
+		Verify_HR(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView), "Render Error: Cannot create depth stencil view");
 
 		// Set render target
 		m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
@@ -711,7 +711,7 @@ namespace S2DE::Render
 		D3D11_TEXTURE2D_DESC td = { };
 		sw_buff->GetDesc(&td);
 		td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-		S2DE_CHECK(m_device->CreateTexture2D(&td, NULL, &m_frameBufferData), "Can't create framebuffer texture data");
+		Verify_HR(m_device->CreateTexture2D(&td, NULL, &m_frameBufferData), "Can't create framebuffer texture data");
 
 		const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
 		if(renderWindow != nullptr)
@@ -776,7 +776,7 @@ namespace S2DE::Render
 			D3D11_MESSAGE* message = (D3D11_MESSAGE*)malloc(message_size);
 			if (message == nullptr)
 				return false;
-			S2DE_CHECK_SAFE(m_d3dInfoQueue->GetMessageA(i, message, &message_size), "Can't get message");
+			Verify_HR(m_d3dInfoQueue->GetMessageA(i, message, &message_size), "Can't get message from queue!");
 
 			switch (message->Severity)
 			{
@@ -790,7 +790,7 @@ namespace S2DE::Render
 					Logger::Warning("[D3D11] WARNING %.*s", message->DescriptionByteLength, message->pDescription);
 					break;
 				default:
-					Logger::Log("[D3D11] %.*s", message->DescriptionByteLength, message->pDescription);
+					Logger::LogColored(DirectX::SimpleMath::Color(0.5f, 0, 0.2f, 1),"[D3D11] %.*s", message->DescriptionByteLength, message->pDescription);
 					break;
 			}
 

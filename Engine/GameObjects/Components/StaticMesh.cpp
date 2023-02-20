@@ -37,7 +37,7 @@ namespace S2DE::GameObjects::Components
 
 		//Set mesh if mesh is exist
 		m_mesh = new Render::Mesh(*Core::Engine::GetResourceManager().Get<Render::Mesh>(name));
-		S2DE_ASSERT(m_mesh != nullptr);
+		Assert(m_mesh != nullptr, "Failed to load mesh!");
 
 		m_vertexBuffer = new Render::VertexBuffer<Render::Vertex>();
 		m_indexBuffer = new Render::IndexBuffer<std::uint32_t>();
@@ -82,21 +82,21 @@ namespace S2DE::GameObjects::Components
 		}
 		//Set texture if texture is exist
 		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>(name));
-		S2DE_ASSERT(m_texture != nullptr);
+		Assert(m_texture != nullptr, "Failed to load texture");
 		return true;
 	}	 
 		 
 	void StaticMesh::UpdateShader()
 	{	 
-		//Get shader name
+		// Get shader name
 		std::string name = m_shader->GetName();
-		//Delete previous shader 
-		Core::Delete(m_shader);
+		// Delete previous shader 
+		//Core::Delete(m_shader);
 
-		//Try to get shader by name from resource manager
+		// Try to get shader by name from resource manager
 		auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
 
-		//If shader not found
+		// If shader not found
 		if (new_shader == nullptr)
 		{
 			Logger::Error("%s Can't update shader!", GetName().c_str());
@@ -104,17 +104,17 @@ namespace S2DE::GameObjects::Components
 		}
 
 		m_shader = new Render::Shader(*new_shader);
-		S2DE_ASSERT(m_shader != nullptr);
+		Assert(m_shader != nullptr, "Failed to load new shader");
 	}	 
 		 
 	void StaticMesh::UpdateTexture()
 	{	 	 
-		//Get texture name
+		// Get texture name
 		std::string name = m_texture->GetName();
-		//Delete previous texture
-		Core::Delete(m_texture);
+		// Delete previous texture
+		//Core::Delete(m_texture);
 
-		//Try to get texture by name from resource manager
+		// Try to get texture by name from resource manager
 		auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
 
 		//If texture not found
@@ -125,7 +125,7 @@ namespace S2DE::GameObjects::Components
 		}
 
 		m_texture = new Render::Texture(*new_texture);
-		S2DE_ASSERT(m_texture != nullptr);
+		Assert(m_texture != nullptr, "Failed to load new texture");
 	}	 
 
 	void StaticMesh::SetColor(Math::Color<float> color)
@@ -200,13 +200,13 @@ namespace S2DE::GameObjects::Components
 		 
 	void StaticMesh::CreateVertexBuffer()
 	{	 
-		S2DE_ASSERT(m_vertexBuffer->Create());
+		Assert(m_vertexBuffer->Create(), "Failed to create vertex buffer");
 		m_vertexBuffer->Update();
 	}	 
 		 
 	void StaticMesh::CreateIndexBuffer()
 	{	 
-		S2DE_ASSERT(m_indexBuffer->Create());
+		Assert(m_indexBuffer->Create(), "Failed to create index buffer");
 		m_indexBuffer->Update();
 	}	 
 		 

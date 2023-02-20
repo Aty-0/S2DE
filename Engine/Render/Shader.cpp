@@ -139,7 +139,7 @@ namespace S2DE::Render
 
 			//Create basic constant buffer
 			m_const_buffer = new ConstantBuffer<CB::CB_Main>();
-			S2DE_ASSERT(m_const_buffer->Create());
+			Assert(m_const_buffer->Create(), "Failed to create constant buffer");
 		}
 
 		return true;

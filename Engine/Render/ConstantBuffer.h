@@ -40,7 +40,7 @@ namespace S2DE::Render
 			subResource.SysMemPitch = 0;
 			subResource.SysMemSlicePitch = 0;
 
-			S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subResource, &m_buffer), "Can't create constant buffer");
+			Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subResource, &m_buffer), "Can't create constant buffer");
 
 			return true;
 		}
@@ -50,7 +50,7 @@ namespace S2DE::Render
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 			{
 				D3D11_MAPPED_SUBRESOURCE mappedResource = { };
-				S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in constant buffer");
+				Verify_HR(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in constant buffer");
 				m_data = reinterpret_cast<T*>(mappedResource.pData);
 			}
 

@@ -12,7 +12,7 @@ namespace S2DE::Render
 		{
 			// Create constant buffer 
 			LightConstantBuffer = new Render::ConstantBuffer<Render::CB::CB_Light>();
-			S2DE_ASSERT(LightConstantBuffer->Create());
+			Assert(LightConstantBuffer->Create(), "Failed to create light buffer");
 
 			LightConstantBuffer->GetData()->ambient_light = Render::CB::PS_AmbientLight_Structure();
 

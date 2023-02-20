@@ -75,7 +75,7 @@ namespace S2DE::GameObjects::Components
 		}
 		//Set texture if texture is exist
 		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>(name));
-		S2DE_ASSERT(m_texture != nullptr);	
+		Assert(m_texture != nullptr, "Failed to load texture");
 		return true;
 	}
 
@@ -175,7 +175,7 @@ namespace S2DE::GameObjects::Components
 			{ DirectX::SimpleMath::Vector3(1.0f,  -1.0f,   0.0f),    DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, m_color.a),  DirectX::SimpleMath::Vector2(1.0f, 1.0f) }, // Bottom right.
 		};
 
-		S2DE_ASSERT(m_vertexBuffer->Create());
+		Assert(m_vertexBuffer->Create(), "Failed to create vertex buffer");
 		m_vertexBuffer->Update();
 	}	 
 		 
@@ -187,7 +187,7 @@ namespace S2DE::GameObjects::Components
 				0, 2, 3,
 		};
 
-		S2DE_ASSERT(m_indexBuffer->Create());
+		Assert(m_indexBuffer->Create(), "Failed to create index buffer");
 		m_indexBuffer->Update();
 	}	 
 		 
@@ -209,7 +209,7 @@ namespace S2DE::GameObjects::Components
 		}
 
 		m_texture = new Render::Texture(*new_texture);
-		S2DE_ASSERT(m_texture != nullptr);
+		Assert(m_shader != nullptr, "Failed to load new texture");
 	}
 	 
 	void Sprite::UpdateShader()
@@ -230,7 +230,7 @@ namespace S2DE::GameObjects::Components
 		}
 
 		m_shader = new Render::Shader(*new_shader);
-		S2DE_ASSERT(m_shader != nullptr);		
+		Assert(m_shader != nullptr, "Failed to load new shader");
 	}
 
 	void Sprite::OnCreate()
@@ -242,7 +242,7 @@ namespace S2DE::GameObjects::Components
 	{	 
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Sprite"));
 		m_spriteCB = new Render::ConstantBuffer<Render::CB::CB_Sprite>();
-		S2DE_ASSERT(m_spriteCB->Create());
+		Assert(m_spriteCB->Create(), "Failed to create sprite constant buffer");
 	}	 
 		 
 	inline DirectX::SimpleMath::Vector3 Sprite::CalcScaleFactor()
