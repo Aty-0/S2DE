@@ -22,9 +22,9 @@ namespace S2DE::GameObjects::Components
 		Camera();
 		~Camera();
 
-		virtual void							Walk(float side);
-		virtual void							Fly(float side);
-		virtual void							Strafe(float side);
+		virtual void							Walk(float side, float delta);
+		virtual void							Fly(float side, float delta);
+		virtual void							Strafe(float side, float delta);
 
 
 		void									SetFov(float fov);
@@ -48,7 +48,7 @@ namespace S2DE::GameObjects::Components
 	protected:
 		virtual void							OnRender() override;
 		virtual void							OnUpdate(float DeltaTime) override;
-		virtual void							UpdateCameraControls();
+		virtual void							UpdateCameraControls(float delta);
 	private:
 		DirectX::SimpleMath::Matrix				m_viewMatrix;
 		DirectX::SimpleMath::Matrix				m_projectionMatrix;

@@ -6,13 +6,13 @@
 
 #include "GameObjects/Base/GameObject.h"
 
-#define CAMERA_DEFAULT_FOV 100.0f
+#define CAMERA_DEFAULT_FOV 90.0f
 #define CAMERA_DEFAULT_ZOOM 0.009f
 #define CAMERA_DEFAULT_SPEED 0.02f
 #define CAMERA_DEFAULT_ZNEAR 0.01f
 #define CAMERA_DEFAULT_ZFAR 1000.0f
 #define CAMERA_DEFAULT_ORTHO_ZOOM 0.15f
-#define CAMERA_DEFAULT_SENSITIVITY 0.0037f 
+#define CAMERA_DEFAULT_SENSITIVITY 0.34f 
 #define CAMERA_MAX_SPEED_BOOST 10.0f 
 #define CAMERA_MIN_SPEED_BOOST 0.001f
 
@@ -57,10 +57,28 @@ namespace S2DE::GameObjects::Components
 			break;
 		case Camera::CameraProjectionMode::Perspective:
 			m_projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView((m_fov / 360.0f) * DirectX::XM_2PI,
-				(float)Core::Engine::GetGameWindow()->GetWidth() / (float)Core::Engine::GetGameWindow()->GetHeight(), m_zNear, m_zFar);
+				static_cast<float>(Core::Engine::GetGameWindow()->GetWidth() / Core::Engine::GetGameWindow()->GetHeight()), m_zNear, m_zFar);
 
-			m_rotationMatrix = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(-transform->GetRotation().z, -transform->GetRotation().y, 0);
+			// Create the rotation matrix 
+			const auto x = transform->GetRotation().x;
+			const auto y = transform->GetRotation().y;
+			const auto z = transform->GetRotation().z;
+
+			m_rotationMatrix = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(
+				-DirectX::XMConvertToRadians(z), 
+				-DirectX::XMConvertToRadians(y),
+				-DirectX::XMConvertToRadians(x));
+		
+			// Use transform to make target vector from rotation matrix 
 			m_target = DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Forward, m_rotationMatrix);
+
+			// Just simple check on Y angle to avoid breaking view
+			if (y > 89.0f)
+				transform->SetRotation_Y(89.0f);
+			if (y < -89.0f)
+				transform->SetRotation_Y(-89.0f);
+
+			// Calculate movement vectors
 			m_right = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Right, m_rotationMatrix);
 			m_forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Forward, m_rotationMatrix);
 
@@ -87,13 +105,13 @@ namespace S2DE::GameObjects::Components
 
 	void Camera::OnUpdate(float DeltaTime)
 	{
-		UpdateCameraControls();
+		UpdateCameraControls(DeltaTime);
 	}
 
-	void Camera::UpdateCameraControls()
+	void Camera::UpdateCameraControls(float delta)
 	{
-		auto transform = GetOwner()->GetTransform();
-		auto position = transform->GetPosition();
+		const auto transform = GetOwner()->GetTransform();
+		const auto position = transform->GetPosition();
 
 		switch (m_mode)
 		{
@@ -102,8 +120,8 @@ namespace S2DE::GameObjects::Components
 			{
 				if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_LEFT_SHIFT))
 				{
-					transform->SetRotation_Z(transform->GetRotation().z + Core::Engine::GetInputManager()->GetMousePositionRelative().x * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime());
-					transform->SetRotation_Y(transform->GetRotation().y + Core::Engine::GetInputManager()->GetMousePositionRelative().y * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime());
+					transform->SetRotation_Z(transform->GetRotation().z + Core::Engine::GetInputManager()->GetMousePositionRelative().x * m_sensitivity * delta);
+					transform->SetRotation_Y(transform->GetRotation().y + Core::Engine::GetInputManager()->GetMousePositionRelative().y * m_sensitivity * delta);
 					Core::Engine::GetGameWindow()->SetMouseVisible(false);
 				}
 				else
@@ -144,43 +162,43 @@ namespace S2DE::GameObjects::Components
 			}
 			else
 			{
-				transform->SetRotation_Z(transform->GetRotation().z + Core::Engine::GetInputManager()->GetMousePositionRelative().x * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime());
-				transform->SetRotation_Y(transform->GetRotation().y + Core::Engine::GetInputManager()->GetMousePositionRelative().y * m_sensitivity * Core::Engine::GetGameTime().GetDeltaTime());
+				transform->SetRotation_Z(transform->GetRotation().z + Core::Engine::GetInputManager()->GetMousePositionRelative().x * m_sensitivity * delta);
+				transform->SetRotation_Y(transform->GetRotation().y + Core::Engine::GetInputManager()->GetMousePositionRelative().y * m_sensitivity * delta);
 			}
 
 			
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
 			{
-				position += m_speed * m_speedBoost * Core::Engine::GetGameTime().GetDeltaTime() * m_forward;
+				position += m_speed * m_speedBoost * delta * m_forward;
 				transform->SetPosition(position);
 			}
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_S))
 			{
-				position -= m_speed * m_speedBoost * Core::Engine::GetGameTime().GetDeltaTime() * m_forward;
+				position -= m_speed * m_speedBoost * delta * m_forward;
 				transform->SetPosition(position);
 			}
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_D))
 			{
-				position += m_speed * m_speedBoost * Core::Engine::GetGameTime().GetDeltaTime() * m_right;
+				position += m_speed * m_speedBoost * delta * m_right;
 				transform->SetPosition(position);
 			}
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_A))
 			{
-				position -= m_speed * m_speedBoost * Core::Engine::GetGameTime().GetDeltaTime() * m_right;
+				position -= m_speed * m_speedBoost * delta * m_right;
 				transform->SetPosition(position);
 			}
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_SPACE))
 			{
-				Fly(1.0f);
+				Fly(1.0f, delta);
 			}
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_C))
 			{
-				Fly(-1.0f);
+				Fly(-1.0f, delta);
 			}
 
 			break;
@@ -208,41 +226,41 @@ namespace S2DE::GameObjects::Components
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
 			{
-				Fly(1.0f);
+				Fly(1.0f, delta);
 			}
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_S))
 			{
-				Fly(-1.0f);
+				Fly(-1.0f, delta);
 			}
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_D))
 			{
-				Strafe(1.0f);
+				Strafe(1.0f, delta);
 			}
 
 			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_A))
 			{
-				Strafe(-1.0f);
+				Strafe(-1.0f, delta);
 			}
 			break;
 		}
 
 	}
 
-	void Camera::Strafe(float side)
+	void Camera::Strafe(float side, float delta)
 	{
 		auto transform = GetOwner()->GetTransform();
 		transform->SetPosition_X(transform->GetPosition().x + side * m_speedBoost * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
 	}
 
-	void Camera::Fly(float side)
+	void Camera::Fly(float side, float delta)
 	{
 		auto transform = GetOwner()->GetTransform();
 		transform->SetPosition_Y(transform->GetPosition().y + side * m_speedBoost * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
 	}
 
-	void Camera::Walk(float side)
+	void Camera::Walk(float side, float delta)
 	{
 		auto transform = GetOwner()->GetTransform();
 		transform->SetPosition_Z(transform->GetPosition().z + side * m_speedBoost * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
