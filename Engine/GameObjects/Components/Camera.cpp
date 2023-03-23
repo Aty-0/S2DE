@@ -111,7 +111,7 @@ namespace S2DE::GameObjects::Components
 	void Camera::UpdateCameraControls(float delta)
 	{
 		const auto transform = GetOwner()->GetTransform();
-		const auto position = transform->GetPosition();
+		auto position = transform->GetPosition();
 
 		switch (m_mode)
 		{
