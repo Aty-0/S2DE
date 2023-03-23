@@ -93,9 +93,12 @@ namespace S2DE::GameObjects::Components::Light
 	void Light::SetColor(Math::Color<float> color)
 	{
 		m_color = color; 
-		
-		if (m_iconSprite) // TODO: Multiply to strength
+
+		if (Core::Engine::isEditor())
+		{
+			// TODO: Multiply to strength
 			m_iconSprite->SetColor(color);
+		}
 
 		onColorChanged.RunAllCallbacks();
 	}
