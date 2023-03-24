@@ -1,5 +1,6 @@
 #include "Mesh.h"
 #include "Render/FBX_Importer.h"
+#include "Render/Texture.h"
 
 namespace S2DE::Render
 {
@@ -17,6 +18,7 @@ namespace S2DE::Render
 	{
 		m_indices.clear();
 		m_vertices.clear();
+		m_textures.clear();
 	}
 
 	bool Mesh::Load(std::string name)
@@ -31,18 +33,20 @@ namespace S2DE::Render
 
 		std::string format = Core::Utils::GetFileExtension(path);
 
-		// TODO: Material
 		if (format == "fbx")
 		{
-			if (!FBX_Importer::Import(path, m_vertices, m_indices))
+			if (!FBX_Importer::Import(path, m_vertices, m_indices, m_textures))
+			{
 				return false;
-		}
-		else if (format == "obj")
-		{
-			
+			}
 		}
 
 		return true;
+	}
+
+	inline std::vector<Texture*> Mesh::GetTextures()  const
+	{		
+		return m_textures;
 	}
 
 	inline std::vector<Vertex> Mesh::GetVertices() const

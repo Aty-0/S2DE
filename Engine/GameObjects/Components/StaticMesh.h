@@ -6,6 +6,7 @@
 #include "Render/Texture.h"
 #include "Render/Shader.h"
 #include "Render/Mesh.h"
+#include "Render/CB.h"
 
 namespace S2DE::GameObjects::Components
 {
@@ -38,11 +39,15 @@ namespace S2DE::GameObjects::Components
 	private:
 		Render::Mesh*	 m_mesh;
 		Render::Texture* m_texture;
+		std::vector<Render::Texture*> m_textures;
 		Render::Texture* m_textureCube;
 		bool			 m_unload_texture;
 		Render::Shader* m_shader;
+
 		Render::VertexBuffer<Render::Vertex>* m_vertexBuffer;
 		Render::IndexBuffer<std::uint32_t>* m_indexBuffer;
+		Render::ConstantBuffer<Render::CB::CB_Geom>* m_constGeomBuffer;
+
 		Math::Color<float> m_color;
 		bool				m_useIndices;
 	};

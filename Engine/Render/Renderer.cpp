@@ -47,7 +47,7 @@ namespace S2DE::Render
 							m_editorCenterCursor(nullptr),
 							m_d3dDebug(nullptr),
 							m_d3dInfoQueue(nullptr),
-							m_vsync(true),
+							m_vsync(false),
 							m_showImguiWindows(true),
 							m_showImguiDemoWindow(false),
 							m_deviceFlags(0),

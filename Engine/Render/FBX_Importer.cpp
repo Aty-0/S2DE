@@ -1,6 +1,11 @@
 #include "FBX_Importer.h"
 #include "Base/Engine.h"
+
+#include "Render/Texture.h"
 #include "Scene/SceneManager.h"
+#include "GameObjects/Base/GameObject.h"
+#include "GameObjects/Components/Light/SpotLight.h"
+#include "GameObjects/Components/Light/PointLight.h"
 
 namespace S2DE::Render
 {
@@ -172,12 +177,13 @@ namespace S2DE::Render
 
     void FBX_Importer::PrintNodeInfo(FbxNode* node)
     {
+        const char* nodeTypeName = node->GetTypeName();
         const char* nodeName = node->GetName();
         FbxDouble3 translation = node->LclTranslation.Get();
         FbxDouble3 rotation = node->LclRotation.Get();
         FbxDouble3 scaling = node->LclScaling.Get();					
-        Core::Utils::Logger::Log("[FBX_Importer] [Node] Name: %s Translation: (%f, %f, %f) Rotation: (%f, %f, %f) Scale: (%f, %f, %f)",
-        	nodeName,
+        Core::Utils::Logger::Log("[FBX_Importer] [Node] Name: %s TypeName %s Translation: (%f, %f, %f) Rotation: (%f, %f, %f) Scale: (%f, %f, %f)",
+        	nodeName, nodeTypeName,
         	translation[0], translation[1], translation[2],
         	rotation[0], rotation[1], rotation[2],
         	scaling[0], scaling[1], scaling[2]);
@@ -188,7 +194,54 @@ namespace S2DE::Render
         m_manager->Destroy();
     }
 
-	bool FBX_Importer::Import(std::string path, std::vector<Vertex>& meshVertices, std::vector<std::uint32_t>& meshIndices)
+    void FBX_Importer::GetMaterialIndices(FbxMesh* mesh, std::vector<std::int32_t>& meshMatIndices)
+    {
+        std::int32_t triangleCount = mesh->GetPolygonCount();
+
+        fbxsdk::FbxLayerElementArrayTemplate<int>* materialIndices;
+        FbxGeometryElement::EMappingMode materialMappingMode = FbxGeometryElement::eNone;
+
+        if (mesh->GetElementMaterialCount() > 0)
+        {
+            materialIndices = &mesh->GetElementMaterial()->GetIndexArray();
+            materialMappingMode = mesh->GetElementMaterial()->GetMappingMode();
+            if (materialIndices)
+            {
+                switch (materialMappingMode)
+                {
+
+                case fbxsdk::FbxLayerElement::eByPolygon:
+                {
+                    if (materialIndices->GetCount() == triangleCount)
+                    {
+                        for (std::int32_t triangleIndex = 0; triangleIndex <  triangleCount; triangleIndex++)
+                        {
+                            std::int32_t materialIndex = materialIndices->GetAt(triangleIndex);
+                            meshMatIndices.push_back(materialIndex);
+                        }
+                    }
+                }
+                break;
+
+                case fbxsdk::FbxLayerElement::eAllSame:
+                {
+                    std::int32_t materialIndex = materialIndices->GetAt(0);
+                    for (std::int32_t triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
+                    {
+                        meshMatIndices.push_back(materialIndex);
+                    }
+                }
+                break;
+
+                default:
+                    // TODO: Add error maybe ?
+                    break;
+                }
+            }
+        }
+    }
+
+	bool FBX_Importer::Import(std::string path, std::vector<Vertex>& meshVertices, std::vector<std::uint32_t>& meshIndices, std::vector<Texture*>& meshTextures)
 	{
         FbxImporter* importer = FbxImporter::Create(m_manager, "");
 
@@ -247,14 +300,28 @@ namespace S2DE::Render
 
                 FbxNodeAttribute::EType attributeType = node->GetNodeAttribute()->GetAttributeType();
                 FBX_Importer::PrintNodeInfo(node);
-
                 if (attributeType == FbxNodeAttribute::EType::eLight)
                 {
-	                
+	                // TODO: Spawn by type 
+                    //       We need attach it to model object
+
+                    FbxDouble3 translation = node->LclTranslation.Get();
+                    FbxDouble3 rotation = node->LclRotation.Get();
+                    
+                    auto lightgo = Scene::CreateGameObject<GameObjects::GameObject>(node->GetName(), "Light", 1,
+                        DirectX::SimpleMath::Vector3(translation[0], translation[1], translation[2]));
+
+                    lightgo->GetTransform()->SetRotation(DirectX::SimpleMath::Vector3(rotation[0], rotation[1], rotation[2]));
+
+                    auto lightc = lightgo->CreateComponent<GameObjects::Components::Light::PointLight>();
+
+                    
+
                 }
                 else if (attributeType == FbxNodeAttribute::EType::eMesh)
                 {
                     FbxMesh* mesh = node->GetMesh();
+  
                     std::uint32_t vertexCount = 0;
                     std::uint32_t indexCount = 0;
                     std::uint32_t polyCount = mesh->GetPolygonCount();
@@ -262,10 +329,11 @@ namespace S2DE::Render
                     if (vertices == nullptr)
                         continue;
 
+                    // 1. Load model stage 
                     for (std::uint32_t poly = 0; poly < polyCount; poly++)
                     {
                         std::int32_t polySize = mesh->GetPolygonSize(poly);
-                        S2DE_ASSERT(polySize == 3);
+                        Assert(polySize == 3, "");
                         for (std::int32_t polyVert = 0; polyVert < polySize; polyVert++)
                         {
                             // Get vertex index
@@ -278,29 +346,31 @@ namespace S2DE::Render
 
                             // Create new vertex
                             Vertex vertex = Vertex();
+
                             // Get vertex position
                             FbxVector4 currentVecPos = vertices[index];
                             vertex.position = DirectX::SimpleMath::Vector3(static_cast<float>(currentVecPos.mData[0]),
                                 static_cast<float>(currentVecPos.mData[1]), static_cast<float>(currentVecPos.mData[2]));
+
                             // Get uv position
                             FBX_Importer::GetUV(mesh, index, mesh->GetTextureUVIndex(poly, polyVert), 0, vertex.uv);
+
                             // Get normal position
                             FBX_Importer::GetNormal(mesh, index, vertexCount, vertex.normal);
 
-                            // TODO: We need to rework this
+                            
+
+                            // Set color for vertex
                             FbxSurfaceMaterial* surfaceMaterial = node->GetMaterial(i);
-                            bool isHasDiffColor = false;
                             if (surfaceMaterial != nullptr)
                             {
                                 if (surfaceMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
                                 {
                                     FbxDouble3 diffuse = ((FbxSurfacePhong*)surfaceMaterial)->Diffuse;
                                     vertex.color = DirectX::SimpleMath::Vector4(diffuse[0], diffuse[1], diffuse[2], 1);
-                                    isHasDiffColor = true;
-                                }
+                                }                              
                             }
-
-                            if (isHasDiffColor == false)
+                            else
                             {
                                 vertex.color = DirectX::SimpleMath::Vector4(1, 1, 1, 1);
                             }
@@ -310,8 +380,72 @@ namespace S2DE::Render
                             vertexCount++;
                         }
                     }
-                }
 
+                    // 2. Load texture, material stage 
+                    FbxLayerElementMaterial* layerElement;
+
+                    //FBX_Importer::GetMaterialIndices(mesh, meshMatIndices);
+
+                    std::int32_t numMaterials = node->GetMaterialCount();
+                    for (std::int32_t matId = 0; matId < numMaterials; matId++)
+                    {
+                        FbxSurfaceMaterial* surfaceMaterial = node->GetMaterial(matId);
+
+                        if (surfaceMaterial != nullptr)
+                        {
+                            FbxProperty prop = surfaceMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+                            std::int32_t layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
+
+                            if (layeredTextureCount > 0)
+                            {
+                                //Logger::Log("[FBX_Importer] Load layeredTexture %d", layeredTextureCount);
+                                for (std::int32_t currentLTextureCount = 0; currentLTextureCount < layeredTextureCount; currentLTextureCount++)
+                                {
+                                    FbxFileTexture* texture = FbxCast<FbxFileTexture>(prop.GetSrcObject<FbxTexture>(currentLTextureCount));
+
+                                    std::string textureName = texture->GetRelativeFileName();
+                                    Core::Utils::StringAllReplace(textureName, "\\", "/");
+                                    textureName.erase(textureName.rfind("."), textureName.length());
+
+                                    if (Core::Engine::GetResourceManager().IsExists<Render::Texture>(textureName) == false)
+                                    {
+                                        Core::Engine::GetResourceManager().Load<Render::Texture>(textureName);
+
+                                        auto texture = Core::Engine::GetResourceManager().Get<Render::Texture>(textureName);
+                                        texture->index = matId;
+                                    }
+                                    
+                                    meshTextures.push_back(Core::Engine::GetResourceManager().Get<Render::Texture>(textureName));
+                                }
+                            }
+                            else
+                            {
+                                // Directly get textures
+                                std::int32_t textureCount = prop.GetSrcObjectCount<FbxTexture>();
+                                //Logger::Log("[FBX_Importer] Load texture %d", textureCount);
+                                for (std::int32_t currentTextureCount = 0; currentTextureCount < textureCount; currentTextureCount++)
+                                {
+                                    FbxFileTexture* texture = FbxCast<FbxFileTexture>(prop.GetSrcObject<FbxTexture>(currentTextureCount));
+
+                                    std::string textureName = texture->GetRelativeFileName();
+                                    Core::Utils::StringAllReplace(textureName, "\\", "/");
+                                    textureName.erase(textureName.rfind("."), textureName.length());
+
+                                    if (Core::Engine::GetResourceManager().IsExists<Render::Texture>(textureName) == false)
+                                    {
+                                        Core::Engine::GetResourceManager().Load<Render::Texture>(textureName);
+
+                                        auto texture = Core::Engine::GetResourceManager().Get<Render::Texture>(textureName);
+                                        texture->index = matId;
+                                    }
+                                    
+                                    meshTextures.push_back(Core::Engine::GetResourceManager().Get<Render::Texture>(textureName));
+
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         scene->Destroy();

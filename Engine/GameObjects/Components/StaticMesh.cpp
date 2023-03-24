@@ -41,21 +41,26 @@ namespace S2DE::GameObjects::Components
 
 		m_vertexBuffer = new Render::VertexBuffer<Render::Vertex>();
 		m_indexBuffer = new Render::IndexBuffer<std::uint32_t>();
+		m_constGeomBuffer = new Render::ConstantBuffer<Render::CB::CB_Geom>();
+		m_constGeomBuffer->Create();
+		
 		m_vertexBuffer->GetArray() = m_mesh->GetVertices();
 		m_indexBuffer->GetArray() = m_mesh->GetIndices();
-
+		// TODO: Assert 
 		if (m_vertexBuffer->GetArray().size() == 0 || m_indexBuffer->GetArray().size() == 0)
 		{
 			m_vertexBuffer = nullptr;
 			m_indexBuffer = nullptr;
 			return false;
 		}
-
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 		SetDefaultShader();
 		SetDefaultTexture();
 
+		m_textures = m_mesh->GetTextures();
+		
+		// FIX ME: 
 		m_textureCube = new Render::Texture();
 		const auto cubePath = Core::Engine::GetResourceManager().GetFilePath("cubemap", m_textureCube);
 		m_textureCube->CreateCubeMapTexture(cubePath);
@@ -117,7 +122,7 @@ namespace S2DE::GameObjects::Components
 		// Try to get texture by name from resource manager
 		auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
 
-		//If texture not found
+		// If texture not found
 		if (new_texture == Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"))
 		{
 			Logger::Error("%s Can't update texture!", GetName().c_str());
@@ -133,7 +138,6 @@ namespace S2DE::GameObjects::Components
 		if (m_vertexBuffer != nullptr)
 		{
 			m_color = color;
-			//Update vertex buffer
 			CreateVertexBuffer();
 		}
 	}	 
@@ -145,56 +149,52 @@ namespace S2DE::GameObjects::Components
 
 	void StaticMesh::OnRender()
 	{	 
+		// FIX ME: remove m_useIndices, when load mesh will be fixed
 		if (m_vertexBuffer && m_indexBuffer)
 		{
+			// Bind and update variables in const buffer
+			m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
+
+			// Bind shader and texture 
+			m_shader->Bind();
+			m_textureCube->Bind(1);
+			for (std::uint32_t i = 0; i < m_textures.size(); i++)
+			{
+				m_textures[i]->Bind(3);
+			}
+
+			//m_texture->Bind(3);
+
+			// Bind buffers
+			m_vertexBuffer->Bind();
 			if (m_useIndices)
 			{
-				// Bind and update variables in const buffer
-				m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
-
-				// Bind shader and texture 
-				m_shader->Bind();
-				m_textureCube->Bind(1);
-				m_texture->Bind();
-
-				// Bind buffers
-				m_vertexBuffer->Bind();
 				m_indexBuffer->Bind();
+			}
 
-				// Draw poly 		
-				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+			// Draw poly 		
+			Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+
+			if (m_useIndices)
+			{
 				Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				
-				// Unbind 
-				m_shader->Unbind();
-				m_textureCube->Unbind();
-				m_texture->Unbind();
-				m_vertexBuffer->Unbind();
-				m_indexBuffer->Unbind();
 			}
 			else
 			{
-				// Bind and update variables in const buffer
-				m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
-
-				// Bind shader and texture 
-				m_shader->Bind();
-				m_textureCube->Bind(1);
-				m_texture->Bind();
-
-				// Bind buffers
-				m_vertexBuffer->Bind();
-				
-				// Draw poly 		
-				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
 				Core::Engine::GetRenderer()->Draw(m_vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-				// Unbind 
-				m_shader->Unbind();
-				m_textureCube->Unbind();
-				m_texture->Unbind();
-				m_vertexBuffer->Unbind();				
 			}
+
+			// Unbind 
+			m_shader->Unbind();
+			m_textureCube->Unbind();
+			//m_texture->Unbind();
+
+			m_vertexBuffer->Unbind();
+
+			if (m_useIndices)
+			{
+				m_indexBuffer->Unbind();
+			}	
 		}
 	}	 
 		 
