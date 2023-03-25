@@ -410,9 +410,6 @@ namespace S2DE::Render
                                     if (Core::Engine::GetResourceManager().IsExists<Render::Texture>(textureName) == false)
                                     {
                                         Core::Engine::GetResourceManager().Load<Render::Texture>(textureName);
-
-                                        auto texture = Core::Engine::GetResourceManager().Get<Render::Texture>(textureName);
-                                        texture->index = matId;
                                     }
                                     
                                     meshTextures.push_back(Core::Engine::GetResourceManager().Get<Render::Texture>(textureName));
@@ -434,9 +431,6 @@ namespace S2DE::Render
                                     if (Core::Engine::GetResourceManager().IsExists<Render::Texture>(textureName) == false)
                                     {
                                         Core::Engine::GetResourceManager().Load<Render::Texture>(textureName);
-
-                                        auto texture = Core::Engine::GetResourceManager().Get<Render::Texture>(textureName);
-                                        texture->index = matId;
                                     }
                                     
                                     meshTextures.push_back(Core::Engine::GetResourceManager().Get<Render::Texture>(textureName));

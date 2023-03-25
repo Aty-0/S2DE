@@ -46,8 +46,7 @@ namespace S2DE::GameObjects::Components
 
 		Render::VertexBuffer<Render::Vertex>* m_vertexBuffer;
 		Render::IndexBuffer<std::uint32_t>* m_indexBuffer;
-		Render::ConstantBuffer<Render::CB::CB_Geom>* m_constGeomBuffer;
-
+		
 		Math::Color<float> m_color;
 		bool				m_useIndices;
 	};

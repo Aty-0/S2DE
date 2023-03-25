@@ -41,9 +41,7 @@ namespace S2DE::GameObjects::Components
 
 		m_vertexBuffer = new Render::VertexBuffer<Render::Vertex>();
 		m_indexBuffer = new Render::IndexBuffer<std::uint32_t>();
-		m_constGeomBuffer = new Render::ConstantBuffer<Render::CB::CB_Geom>();
-		m_constGeomBuffer->Create();
-		
+	
 		m_vertexBuffer->GetArray() = m_mesh->GetVertices();
 		m_indexBuffer->GetArray() = m_mesh->GetIndices();
 		// TODO: Assert 
