@@ -26,6 +26,22 @@ namespace S2DE::Core::Resources
 		}
 	}
 	
+	void ResourceManager::DumpAllResources()
+	{
+		for (const auto& p : m_storage)
+		{
+			Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "RMn: %s Rn: %s T:" , p.first.first.c_str(), p.second->m_name.c_str(), p.second->GetType().c_str());
+			
+			std::string types_str = std::string();
+			for (const auto n : p.second->GetExtensions())
+			{
+				types_str += " " + n;
+			}
+
+			Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "%s" , types_str.c_str());
+		}
+	}
+
 	void ResourceManager::ReloadTextures()
 	{
 		Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "[ResourceManager] Reload textures...");

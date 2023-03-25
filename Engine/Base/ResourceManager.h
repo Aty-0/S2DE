@@ -37,6 +37,8 @@ namespace S2DE::Core::Resources
 		// Reload texture in storage, this function not reload textures in objects
 		void				ReloadTextures();
 
+		void				DumpAllResources();
+
 	private:
 		bool				ConstructPath(std::string filename, std::string type, std::string ex, std::string& resultpath);
 
@@ -45,6 +47,51 @@ namespace S2DE::Core::Resources
 		std::string m_dataFolderName;
 
 	public:
+		// Create blank resource 
+		template <typename T>
+		T* Create(std::string name = std::string(), bool cantDelete = false)
+		{
+			if (Core::Utils::isStringEmpty(name))
+			{
+				Core::Utils::Logger::Error("[ResourceManager] Resource name is empty!");
+				return nullptr;
+			}
+
+			auto resource = new T();
+			resource->m_cantDelete = cantDelete;
+			auto key = std::make_pair(Core::Utils::isStringEmpty(name) ? resource->m_name : name, std::type_index(typeid(T)));
+
+			return (m_storage[key] = resource); // Return resource pointer
+		}
+
+		template <typename T>
+		bool Add(T* resource, std::string name = std::string(), bool cantDelete = false)
+		{
+			if (resource == nullptr)
+			{
+				Core::Utils::Logger::Error("[ResourceManager] Resource is null!");
+				return false;
+			}
+
+			// Check resource name 
+			// If we have invalid both vars, in resource and custom name
+			if (Core::Utils::isStringEmpty(resource->m_name) && Core::Utils::isStringEmpty(name))
+			{
+				Core::Utils::Logger::Error("[ResourceManager] Resource name is empty!");
+				return false;
+			}
+			else if(Core::Utils::isStringEmpty(resource->m_name))
+			{
+				resource->m_name = name;
+			}
+
+			resource->m_cantDelete = cantDelete;
+			auto key = std::make_pair(Core::Utils::isStringEmpty(name) ? resource->m_name : name, std::type_index(typeid(T)));
+			m_storage[key] = resource;
+
+			return true;
+		}
+
 		// Load resource from data folder
 		template <typename T>
 		bool Load(std::string filename, std::string name = std::string(), bool cantDelete = false)

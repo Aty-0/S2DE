@@ -31,6 +31,10 @@ Application::~Application()
 
 void Application::OnStart()
 {
+	Texture* texture = new Texture();
+	texture->CreateEmptyTexture();
+	Assert(Engine::GetResourceManager().Add(texture) == true, "");
+
 	auto lightambientgo = CreateGameObject<GameObject>("lightambientgo", "GameObject", 1, Vector3(0, 0, 0));
 	auto lightambientc = lightambientgo->CreateComponent<GameObjects::Components::Light::AmbientLight>();
 
@@ -70,6 +74,11 @@ void Application::OnRender()
 }
 void Application::InputEvents()
 {
+	if (Engine::GetInputManager()->IsKeyPressed(KeyCode::KEY_F3))
+	{
+		Engine::GetResourceManager().DumpAllResources();
+	}
+
 	if (Engine::GetInputManager()->IsKeyPressed(KeyCode::KEY_T))
 	{
 		if (main_go != nullptr)
