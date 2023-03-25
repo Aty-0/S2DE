@@ -103,7 +103,10 @@ namespace S2DE::Core
 		SplashScreen::SetLoadState("Load engine resources...", sp);
 		
 		if (!LoadEngineResources())
+		{
+			S2DE_FATAL_ERROR("Failed to load engine resources!");
 			return;
+		}
 
 		SplashScreen::SetLoadState("Initialize scene...", sp);
 		m_scene_manager = new SceneManager();
@@ -112,7 +115,7 @@ namespace S2DE::Core
 		SplashScreen::SetLoadState("Load game resources...", sp);
 		if (!m_app_handle->LoadResources())
 		{
-			S2DE_FATAL_ERROR("Failed to load application resources");
+			S2DE_FATAL_ERROR("Failed to load application resources!");
 			return;
 		}
 
@@ -217,10 +220,10 @@ namespace S2DE::Core
 
 	bool Engine::LoadEngineResources()
 	{
-		Assert(m_resource_manager.Load<Texture>("DefaultTexture"), "Can't load default texture");
-		Assert(m_resource_manager.Load<Shader>("Sprite"), "Can't load sprite shader");
-		Assert(m_resource_manager.Load<Shader>("Line"), "Can't load line shader");
-		Assert(m_resource_manager.Load<Shader>("Mesh"), "Can't load mesh shader");
+		Verify(m_resource_manager.Load<Texture>("DefaultTexture"), "Can't load default texture");
+		Verify(m_resource_manager.Load<Shader>("Sprite"), "Can't load sprite shader");
+		Verify(m_resource_manager.Load<Shader>("Line"), "Can't load line shader");
+		Verify(m_resource_manager.Load<Shader>("Mesh"), "Can't load mesh shader");
 
 		return true;
 	}
