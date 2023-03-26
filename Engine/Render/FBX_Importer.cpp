@@ -242,9 +242,9 @@ namespace S2DE::Render
     }
 
 	bool FBX_Importer::Import(std::string path, 
-        std::vector<Vertex>& meshVertices, 
-        std::vector<std::uint32_t>& meshIndices, 
-        std::vector<Texture*>& meshTextures,
+        std::vector<Render::VertexBuffer<Render::Vertex>*>& vertexBuffers,
+        std::vector<Render::IndexBuffer<std::uint32_t>*>& indexBuffers,
+        std::vector<Render::Texture*>& meshTextures,
         std::uint32_t& mCount)
 	{
         FbxImporter* importer = FbxImporter::Create(m_manager, "");
@@ -332,12 +332,20 @@ namespace S2DE::Render
                     if (vertices == nullptr)
                         continue;
 
-                    mCount += 1;
+                    // FIX ME: Memory is not cleaning up on fail
+                    indexBuffers.push_back(new Render::IndexBuffer<std::uint32_t>());
+                    auto indexBuffer = indexBuffers[mCount];
+
+                    vertexBuffers.push_back(new Render::VertexBuffer<Render::Vertex>());
+                    auto vertexBuffer = vertexBuffers[mCount];
+
                     // 1. Load model stage 
                     for (std::uint32_t poly = 0; poly < polyCount; poly++)
                     {
                         std::int32_t polySize = mesh->GetPolygonSize(poly);
                         Assert(polySize == 3, "");
+
+
                         for (std::int32_t polyVert = 0; polyVert < polySize; polyVert++)
                         {
                             // Get vertex index
@@ -345,8 +353,10 @@ namespace S2DE::Render
 
                             // FIXME: This cycle add more details for model but still is not fully loads
                             for (std::int32_t j = 0; j < 3; j++)
-                                meshIndices.push_back(indexCount++);
-    
+                            {
+                                indexBuffer->GetArray().push_back(indexCount++);
+                            }
+
 
                             // Create new vertex
                             Vertex vertex = Vertex();
@@ -380,10 +390,16 @@ namespace S2DE::Render
                             }
 
                             // Push created vertex to list 
-                            meshVertices.push_back(vertex);
+                            vertexBuffer->GetArray().push_back(vertex);
                             vertexCount++;
                         }
                     }
+
+                    Assert(indexBuffer->Create(), "Failed to create index buffer for mesh");
+                    Assert(vertexBuffer->Create(), "Failed to create vertex buffer for mesh");
+
+                    // Increase mesh count 
+                    mCount += 1;
 
                     // 2. Load texture, material stage 
                     FbxLayerElementMaterial* layerElement;

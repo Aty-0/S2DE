@@ -1,6 +1,7 @@
 #pragma once
 #include "Base/Main/Common.h"
 #include "Base/Resource.h"
+#include "Render/Buffers.h"
 
 namespace S2DE::Render
 {
@@ -14,14 +15,13 @@ namespace S2DE::Render
 
 		bool					  Load(std::string path) final;
 										  
-		[[nodiscard]] inline std::vector<Vertex>		GetVertices() const;
-		[[nodiscard]] inline std::vector<std::uint32_t> GetIndices()  const;
 		[[nodiscard]] inline std::vector<class Texture*> GetTextures()  const;
-		[[nodiscard]] inline std::uint32_t 			GetCountMeshes()  const;
-
+		[[nodiscard]] inline std::uint32_t 				 GetCountMeshes()  const;
+		[[nodiscard]] inline std::vector<Render::VertexBuffer<Render::Vertex>*> GetVertexBuffers()  const;
+		[[nodiscard]] inline std::vector<Render::IndexBuffer<std::uint32_t>*>	GetIndexBuffers()  const;
 	private:		
-		std::vector<Vertex>				m_vertices;
-		std::vector<std::uint32_t>		m_indices;
+		std::vector<Render::VertexBuffer<Render::Vertex>*>	m_vertexBuffers;
+		std::vector<Render::IndexBuffer<std::uint32_t>*>	m_indexBuffers;
 		std::vector<class Texture*>		m_textures;
 		std::uint32_t					m_countMeshes;
 	};
