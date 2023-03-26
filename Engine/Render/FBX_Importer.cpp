@@ -241,10 +241,14 @@ namespace S2DE::Render
         }
     }
 
-	bool FBX_Importer::Import(std::string path, std::vector<Vertex>& meshVertices, std::vector<std::uint32_t>& meshIndices, std::vector<Texture*>& meshTextures)
+	bool FBX_Importer::Import(std::string path, 
+        std::vector<Vertex>& meshVertices, 
+        std::vector<std::uint32_t>& meshIndices, 
+        std::vector<Texture*>& meshTextures,
+        std::uint32_t& mCount)
 	{
         FbxImporter* importer = FbxImporter::Create(m_manager, "");
-
+       // mCount = 0;
 	    Core::Utils::Logger::Log("[FBX_Importer] Import %s", path.c_str());
 
         // Initialize Fbx importer
@@ -321,7 +325,6 @@ namespace S2DE::Render
                 else if (attributeType == FbxNodeAttribute::EType::eMesh)
                 {
                     FbxMesh* mesh = node->GetMesh();
-  
                     std::uint32_t vertexCount = 0;
                     std::uint32_t indexCount = 0;
                     std::uint32_t polyCount = mesh->GetPolygonCount();
@@ -329,6 +332,7 @@ namespace S2DE::Render
                     if (vertices == nullptr)
                         continue;
 
+                    mCount += 1;
                     // 1. Load model stage 
                     for (std::uint32_t poly = 0; poly < polyCount; poly++)
                     {

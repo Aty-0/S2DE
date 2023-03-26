@@ -12,10 +12,12 @@ namespace S2DE::Render
 			".fbx",
 			".obj",
 		};
+		m_countMeshes = 0;
 	}
 
 	Mesh::~Mesh()
 	{
+		m_countMeshes = 0;
 		m_indices.clear();
 		m_vertices.clear();
 		m_textures.clear();
@@ -35,13 +37,18 @@ namespace S2DE::Render
 
 		if (format == "fbx")
 		{
-			if (!FBX_Importer::Import(path, m_vertices, m_indices, m_textures))
+			if (!FBX_Importer::Import(path, m_vertices, m_indices, m_textures, m_countMeshes))
 			{
 				return false;
 			}
 		}
 
 		return true;
+	}
+
+	inline std::uint32_t Mesh::GetCountMeshes()  const
+	{
+		return m_countMeshes;
 	}
 
 	inline std::vector<Texture*> Mesh::GetTextures()  const

@@ -184,10 +184,12 @@ namespace S2DE::Render
 		return true;
 	}
 
-	void Texture::Unbind()
+	void Texture::Unbind(std::uint32_t startSlot, std::uint32_t numViews)
 	{
-		Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(0, 0, nullptr);
-		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, 0, nullptr);
+		ID3D11ShaderResourceView* nullSRV = { nullptr };
+
+		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(startSlot, numViews, &nullSRV);
+		//Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(startSlot, numViews, nullptr);
 	}
 
 	void Texture::Bind(std::uint32_t startSlot, std::uint32_t numViews)
@@ -195,12 +197,13 @@ namespace S2DE::Render
 		if (m_resourceView != nullptr)
 		{
 			Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(startSlot, numViews, &m_resourceView);
+
+			if (m_textureSamplerState != nullptr)
+			{
+				Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(startSlot, numViews, &m_textureSamplerState);
+			}
 		}
 
-		if (m_textureSamplerState != nullptr)
-		{
-			Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(0, 1, &m_textureSamplerState);
-		}
 	}
 
 	inline ID3D11ShaderResourceView* Texture::GetResourceView() const

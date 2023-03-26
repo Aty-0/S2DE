@@ -150,49 +150,63 @@ namespace S2DE::GameObjects::Components
 		// FIX ME: remove m_useIndices, when load mesh will be fixed
 		if (m_vertexBuffer && m_indexBuffer)
 		{
-			// Bind and update variables in const buffer
-			m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
-
-			// Bind shader and texture 
-			m_shader->Bind();
-			m_textureCube->Bind(1);
-			for (std::uint32_t i = 0; i < m_textures.size(); i++)
+			for (std::uint32_t j = 0; j < m_mesh->GetCountMeshes(); j++)
 			{
-				m_textures[i]->Bind(3);
+				for (std::uint32_t i = 0; i < m_textures.size(); i++)
+				{
+					m_textures[i]->Bind(3);
+				}
+
+
+				// Bind and update variables in const buffer
+				m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
+
+				// Bind shader and texture 
+				m_shader->Bind();
+				//m_textureCube->Bind(1);
+				//Core::Utils::Logger::Log("%i %i", m_mesh->GetCountMeshes(), m_textures.size());
+
+				//m_texture->Bind(3);
+
+				// Bind buffers
+				m_vertexBuffer->Bind();
+				if (m_useIndices)
+				{
+					m_indexBuffer->Bind();
+				}
+
+				// Draw poly 		
+				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+
+				if (m_useIndices)
+				{
+					Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				}
+				else
+				{
+					Core::Engine::GetRenderer()->Draw(m_vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				}
+
+				// Unbind 
+				m_shader->Unbind();
+				//m_textureCube->Unbind();
+				//m_texture->Unbind();
+
+				/*for (std::uint32_t j = 0; j < m_mesh->GetCountMeshes(); j++)
+				{
+					for (std::uint32_t i = 0; i < m_textures.size(); i++)
+					{
+						m_textures[i]->Unbind(3);
+					}
+				}*/
+
+				m_vertexBuffer->Unbind();
+
+				if (m_useIndices)
+				{
+					m_indexBuffer->Unbind();
+				}
 			}
-
-			//m_texture->Bind(3);
-
-			// Bind buffers
-			m_vertexBuffer->Bind();
-			if (m_useIndices)
-			{
-				m_indexBuffer->Bind();
-			}
-
-			// Draw poly 		
-			Core::Engine::GetRenderer()->SetRasterizerState("fcc");
-
-			if (m_useIndices)
-			{
-				Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			}
-			else
-			{
-				Core::Engine::GetRenderer()->Draw(m_vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			}
-
-			// Unbind 
-			m_shader->Unbind();
-			m_textureCube->Unbind();
-			//m_texture->Unbind();
-
-			m_vertexBuffer->Unbind();
-
-			if (m_useIndices)
-			{
-				m_indexBuffer->Unbind();
-			}	
 		}
 	}	 
 		 

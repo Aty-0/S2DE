@@ -22,7 +22,7 @@ namespace S2DE::Render
 		bool							 SetSamplerState(D3D11_SAMPLER_DESC const& samplerDesc);
 		// Bind texture 
 		void							 Bind(std::uint32_t startSlot = 0, std::uint32_t numViews = 1);
-		void							 Unbind();
+		void							 Unbind(std::uint32_t startSlot = 0, std::uint32_t numViews = 1);
 		
 		[[nodiscard]] inline ID3D11ShaderResourceView* GetResourceView() const;
 		[[nodiscard]] inline ID3D11Texture2D* GetTexture2D() const;
