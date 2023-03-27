@@ -633,7 +633,7 @@ namespace S2DE::Render
 		{
 			UpdateFramebufferShaderResource();
 
-			if (Core::Engine::isEditor())
+			if (Core::Engine::isEditor() && m_showImguiWindows)
 			{
 				// Basic support of render window
 
