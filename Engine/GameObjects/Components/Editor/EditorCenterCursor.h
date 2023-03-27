@@ -1,10 +1,15 @@
 #pragma once
 #include "Base/Main/Common.h"
+#include "GameObjects/Components/UI/UIDrawableComponent.h"
+
+/*
 #include "Render/Renderer.h"
 #include "Render/Buffers.h"
 
 #include "Render/Shader.h"
-#include "GameObjects/Components/UI/UIDrawableComponent.h"
+*/
+
+#include "GameObjects/Components/Sprite.h"
 
 namespace S2DE::GameObjects::Components::Editor
 {
@@ -18,7 +23,11 @@ namespace S2DE::GameObjects::Components::Editor
 		virtual void OnCreate() override;
 
 	private:
+		/*
 		Render::VertexBuffer<Render::Vertex>* m_vertex_buffer;
 		Render::Shader* m_shader;
+		*/
+
+		Sprite* m_sprite;
 	};
 }

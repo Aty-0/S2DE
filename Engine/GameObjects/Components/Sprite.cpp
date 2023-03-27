@@ -89,10 +89,15 @@ namespace S2DE::GameObjects::Components
 		m_twoSided = mode;
 	}
 
+	void Sprite::SetUIMode(bool mode)
+	{
+		m_uiMode = mode;
+	}
+
 	void Sprite::OnRender()
 	{
 		//Bind and update variables in const buffer
-		m_shader->UpdateMainConstBuffer(UpdateTransformation());
+		m_shader->UpdateMainConstBuffer(UpdateTransformation(), m_uiMode);
 
 		m_spriteCB->Lock();
 		m_spriteCB->GetData()->tileFrame	= DirectX::SimpleMath::Vector2(m_tileFrame.x, m_tileFrame.y);

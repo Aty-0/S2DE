@@ -34,6 +34,8 @@ namespace S2DE::GameObjects::Components
 		// Set two sided mode
 		void											SetTwoSidedMode(bool mode);
 
+		void											SetUIMode(bool mode);
+
 		void											OnRender() override;
 
 		void											OnCreate() override;
@@ -58,5 +60,6 @@ namespace S2DE::GameObjects::Components
 		Render::ConstantBuffer<Render::CB::CB_Sprite>*	m_spriteCB;
 		bool											m_billboard;
 		bool											m_twoSided;
+		bool											m_uiMode;
 	};
 }
