@@ -15,14 +15,14 @@ namespace S2DE::Render
 
 		bool					  Load(std::string path) final;
 										  
-		[[nodiscard]] inline std::vector<class Texture*> GetTextures()  const;
+		[[nodiscard]] inline std::vector<struct texture_indexed> GetTextures()  const;
 		[[nodiscard]] inline std::uint32_t 				 GetCountMeshes()  const;
 		[[nodiscard]] inline std::vector<Render::VertexBuffer<Render::Vertex>*> GetVertexBuffers()  const;
 		[[nodiscard]] inline std::vector<Render::IndexBuffer<std::uint32_t>*>	GetIndexBuffers()  const;
 	private:		
 		std::vector<Render::VertexBuffer<Render::Vertex>*>	m_vertexBuffers;
 		std::vector<Render::IndexBuffer<std::uint32_t>*>	m_indexBuffers;
-		std::vector<class Texture*>		m_textures;
+		std::vector<struct texture_indexed>		m_textures;
 		std::uint32_t					m_countMeshes;
 	};
 }

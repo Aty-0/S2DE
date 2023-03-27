@@ -31,24 +31,18 @@ namespace S2DE::GameObjects::Components
 	protected:
 		void					OnUpdate(float deltaTime) override { }
 		void					OnRender() override;
-		void					CreateVertexBuffer()	override;
-		void					CreateIndexBuffer()	override;
-		void					SetDefaultShader()	override;
-		void					SetDefaultTexture()	override;
 
 	private:
-		Render::Mesh*	 m_mesh;
-		Render::Texture* m_texture;
-		std::vector<Render::Texture*> m_textures;
-		Render::Texture* m_textureCube;
-		bool			 m_unload_texture;
-		Render::Shader* m_shader;
+		Render::Mesh*		m_mesh;
 
-		Render::VertexBuffer<Render::Vertex>* m_vertexBuffer;
-		Render::IndexBuffer<std::uint32_t>* m_indexBuffer;
-		
-		Math::Color<float> m_color;
+		Render::Texture*	m_textureCube;
+		bool				m_unload_texture;
+		Render::Shader*		m_shader;
+
+
+		Math::Color<float>	m_color;
 		bool				m_useIndices;
+		bool				m_useSkyCube; // TODO: Shader sync
 	};
 }
 

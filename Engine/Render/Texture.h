@@ -42,4 +42,12 @@ namespace S2DE::Render
 		D3D11_TEXTURE2D_DESC			 m_textureDesc;
 		ID3D11SamplerState*				 m_textureSamplerState;
 	};
+
+	// FIX ME: maybe we should to put index in Texture class 
+	typedef struct texture_indexed
+	{
+		class Texture* texture;
+		std::uint32_t	index;
+	} texture_indexed_t;
+
 }

@@ -1,14 +1,23 @@
-Texture2D _texture;
-SamplerState sample_type;
-
-//TODO: Rename shader to geometry      
-
 #define TYPE_DEFAULT_LIGHT 0 // It's class without lighting type or just invalid
 #define TYPE_DIRECTIONAL_LIGHT 1
 #define TYPE_POINT_LIGHT 2
-#define TYPE_SPOT_LIGHT 3
 
+#define TYPE_SPOT_LIGHT 3
 #define MAX_LIGHTS 64 // TODO: Get number from engine
+
+// TODO: Rename shader to geometry      
+TextureCube _cube : register(t1);
+
+// TODO: We need to create material class
+Texture2D _texture : register(t3);
+SamplerState sample_type : register(s3);
+
+
+cbuffer CB_Geom : register(b3)
+{
+    int texturesArraySize;
+    int mat_index;
+}
 
 cbuffer CB_Main : register(b0)
 {
@@ -118,14 +127,14 @@ LightData DoSpotLight(PS_Light_Structure light, float4 P, float3 N)
     {
         result.diffuse = light.range * diffuseFactor * light.color;
     }
-
+    
     // Scale by spotlight factor and attenuate.
-    float spot = pow(max(dot(-lightVec, light.direction), 0.0f), light.spot);
+    float spot = pow(max(dot(-lightVec, radians(normalize(light.direction))), 0.0f), light.spot * 2);
     // Scale by spotlight factor and attenuate.
     float att = spot / dot(light.attenuation, float3(1.0f, d, d * d));
     result.diffuse *= att;
     result.diffuse = saturate(result.diffuse);
-    
+
     return result;
 }
 
@@ -155,6 +164,12 @@ LightData DoPointLight(PS_Light_Structure light, float4 P, float3 N)
     // the line of site of the light.
 
     float diffuseFactor = dot(lightVec, N);
+    
+    float refractiveIndex = 3.5f;
+    float4 RD = refract(normalize(float4(cameraRotation,1)), 
+               float4(N, 1), 1.0f / refractiveIndex);
+
+    float4 R =  reflect( normalize(light.position), float4(N, 1.0f));
 
     // Flatten to avoid dynamic branching.
     [flatten]
@@ -166,7 +181,7 @@ LightData DoPointLight(PS_Light_Structure light, float4 P, float3 N)
     // Attenuate
     float att = 1.0f / dot(light.attenuation, float3(1.0f, d, d * d)) * light.strength;
     result.diffuse *= att;
-    result.diffuse = saturate(result.diffuse);
+    result.diffuse = saturate(result.diffuse) + dot(-RD, result.diffuse);
     return result;
 }
 
@@ -197,21 +212,23 @@ LightData ComputeLight(float4 Pos, float3 Normal)
                 break;
         }
              
-        totalResult.diffuse = result.diffuse;        
+        totalResult.diffuse += result.diffuse;        
     }
 
     totalResult.diffuse = saturate(totalResult.diffuse);    
     return totalResult;
 }
 
-
-
 float4 main(PSINPUT input) : SV_TARGET
 {
     LightData lit = ComputeLight(float4(input.worldPos, 1), normalize(input.normal));
-      
-    float4 texColor = _texture.Sample(sample_type, input.uv);    
+    float4 texColor = _texture.Sample(sample_type, input.uv);
     float4 globalAmbient = ambient_light.color * ambient_light.strength;
-    float4 finalColor = (texColor * (lit.diffuse + saturate(globalAmbient)));
+    float ratio = 1.00 * min(length(lit.diffuse), 1) + (length(globalAmbient) * 0.1);
+    //float4 texColor = _texture.Sample(sample_type, float3(input.uv, mat_index));
+    float3 dir = refract(normalize(input.worldPos.xyz - cameraPosition), -normalize(input.normal), ratio);
+    float4 cube = _cube.Sample(sample_type, dir);
+    
+    float4 finalColor = (saturate(texColor) + (saturate(cube) + float4(0,0,0.2f,1) * 0.5)) * ((lit.diffuse + saturate(globalAmbient)));
     return finalColor;
 }

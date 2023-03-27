@@ -18,9 +18,10 @@ namespace S2DE::GameObjects::Components::Editor
 	protected:
 // FIX ME: 
 		virtual void				 OnRender()  override;
-		virtual void				 CreateVertexBuffer() override;
-		virtual void				 CreateIndexBuffer()  override;
-		virtual void				 SetDefaultShader()	 override;
+
+		virtual void				 CreateVertexBuffer();
+		virtual void				 CreateIndexBuffer();
+		virtual void				 SetDefaultShader();
 
 	private:
 		Render::Shader* m_shader;

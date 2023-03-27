@@ -14,8 +14,9 @@ namespace S2DE::GameObjects::Components
 	{
 		CreateVertexBuffer();
 		CreateIndexBuffer();
-		SetDefaultTexture();
-		SetDefaultShader();
+
+		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Skybox"));
+		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultSky"));
 	}
 
 	Skybox::~Skybox()
@@ -34,29 +35,36 @@ namespace S2DE::GameObjects::Components
 
 	bool Skybox::LoadTexture(std::string name)
 	{
-		const auto path = Core::Engine::GetResourceManager().GetFilePath(name, m_texture);
-		return m_texture->CreateCubeMapTexture(path);
+		// FIXME: Release old texture!
+
+		Render::Texture* skyTexture = new Render::Texture();
+		const auto skyPath = Core::Engine::GetResourceManager().GetFilePath(name, skyTexture);
+		Verify(skyTexture->CreateCubeMapTexture(skyPath), "Can't create default cubemap");
+		Core::Engine::GetResourceManager().Add(skyTexture, name);
+		m_texture = skyTexture;
+		return true;
 	}
 
 	void Skybox::OnRender()
 	{	 
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
-		//Bind shader and texture 
+		// Bind shader and texture 
 		m_shader->Bind();
 		m_texture->Bind();
 
-		//Bind buffers
+		// Bind buffers
 		m_vertexBuffer->Bind();
 		m_indexBuffer->Bind();
 
-		//Draw poly 
+		// Draw poly 
 		Core::Engine::GetRenderer()->TurnZBufferOff();
 		Core::Engine::GetRenderer()->SetRasterizerState("nocull");
 		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Core::Engine::GetRenderer()->SetRasterizerState();
 		Core::Engine::GetRenderer()->TurnZBufferOn();
-		//Unbind 
+
+		// Unbind 
 		m_shader->Unbind();
 		m_texture->Unbind();
 		m_vertexBuffer->Unbind();
@@ -116,18 +124,6 @@ namespace S2DE::GameObjects::Components
 		m_indexBuffer->Update();
 	}
 	 
-	void Skybox::SetDefaultShader()
-	{	 
-		Assert(Core::Engine::GetResourceManager().Load<Render::Shader>("Skybox"), "Failed to load sky shader");
-
-		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Skybox"));
-	}	 
-		 
-	void Skybox::SetDefaultTexture()
-	{
-		m_texture = new Render::Texture();
-		Assert(LoadTexture("sky"), "Failed to load default sky texture");
-	}
 
 	inline DirectX::SimpleMath::Matrix Skybox::UpdateTransformation()
 	{

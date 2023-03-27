@@ -1,67 +1,42 @@
 #include "StaticMesh.h"
 #include "GameObjects/Base/GameObject.h"
+#include "Render/Texture.h"
 
 namespace S2DE::GameObjects::Components
 {
 	StaticMesh::StaticMesh() : 
 		m_mesh(nullptr),
-		m_texture(nullptr),
-		m_indexBuffer(nullptr),
-		m_vertexBuffer(nullptr),
-		m_shader(nullptr)
+		m_shader(nullptr),
+		m_useSkyCube(true)
 	{
 
 	}
 
 	StaticMesh::~StaticMesh()
 	{
-		//TODO: Need to check count of using
-		if (m_unload_texture == true)
-			Core::Engine::GetResourceManager().Erase<Render::Texture>(m_texture->GetName());
-
-		Core::Delete(m_vertexBuffer);
-		Core::Delete(m_indexBuffer);
 		Core::Delete(m_shader);
-		Core::Delete(m_texture);
 		Core::Delete(m_mesh);
 	}
 	
+	// TODO: Change shader, skycube 
 	bool StaticMesh::LoadMesh(std::string name)
 	{	
-		//If mesh not found in resource manager storage we try to load it 
+		// If mesh not found in resource manager storage we try to load it 
 		if (!Core::Engine::GetResourceManager().IsExists<Render::Mesh>(name))
 		{
 			if (!Core::Engine::GetResourceManager().Load<Render::Mesh>(name))
 				return false;
 		}
 
-		//Set mesh if mesh is exist
+		// Set mesh if mesh is exist
 		m_mesh = new Render::Mesh(*Core::Engine::GetResourceManager().Get<Render::Mesh>(name));
 		Assert(m_mesh != nullptr, "Failed to load mesh!");
 
-		m_vertexBuffer = new Render::VertexBuffer<Render::Vertex>();
-		m_indexBuffer = new Render::IndexBuffer<std::uint32_t>();
-	
-		m_vertexBuffer->GetArray() = m_mesh->GetVertices();
-		m_indexBuffer->GetArray() = m_mesh->GetIndices();
-		// TODO: Assert 
-		if (m_vertexBuffer->GetArray().size() == 0 || m_indexBuffer->GetArray().size() == 0)
+		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Mesh"));
+		if (m_useSkyCube)
 		{
-			m_vertexBuffer = nullptr;
-			m_indexBuffer = nullptr;
-			return false;
+			m_textureCube = Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultCubemap");
 		}
-		CreateVertexBuffer();
-		CreateIndexBuffer();
-		SetDefaultShader();
-		SetDefaultTexture();
-
-		m_textures = m_mesh->GetTextures();
-		
-		// FIX ME: 
-		m_textureCube = new Render::Texture();
-		const auto cubePath = Core::Engine::GetResourceManager().GetFilePath("cubemap", m_textureCube);
-		m_textureCube->CreateCubeMapTexture(cubePath);
 
 		return true;
 	}	 
@@ -73,19 +48,7 @@ namespace S2DE::GameObjects::Components
 		 
 	bool StaticMesh::LoadTextureA(std::string name, bool unload_texture, bool auto_load_texture)
 	{	 
-		//Set unload state
-		m_unload_texture = unload_texture;
-
-		//If texture not found in resource manager storage we try to load it 
-		if (!Core::Engine::GetResourceManager().IsExists<Render::Texture>(name)
-			&& auto_load_texture == true)
-		{
-			if (!Core::Engine::GetResourceManager().Load<Render::Texture>(name))
-				return false;
-		}
-		//Set texture if texture is exist
-		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>(name));
-		Assert(m_texture != nullptr, "Failed to load texture");
+		S2DE_NO_IMPL();
 		return true;
 	}	 
 		 
@@ -112,6 +75,8 @@ namespace S2DE::GameObjects::Components
 		 
 	void StaticMesh::UpdateTexture()
 	{	 	 
+		S2DE_NO_IMPL();
+		/*
 		// Get texture name
 		std::string name = m_texture->GetName();
 		// Delete previous texture
@@ -129,15 +94,19 @@ namespace S2DE::GameObjects::Components
 
 		m_texture = new Render::Texture(*new_texture);
 		Assert(m_texture != nullptr, "Failed to load new texture");
+		*/
 	}	 
 
 	void StaticMesh::SetColor(Math::Color<float> color)
 	{	 
+		S2DE_NO_IMPL();
+		/*
 		if (m_vertexBuffer != nullptr)
 		{
 			m_color = color;
 			CreateVertexBuffer();
 		}
+		*/
 	}	 
 		 
 	void StaticMesh::UseIndices(bool use)
@@ -146,90 +115,87 @@ namespace S2DE::GameObjects::Components
 	}
 
 	void StaticMesh::OnRender()
-	{	 
+	{	
+		// Mesh is invalid, we can't continue...
+		if (m_mesh == nullptr)
+			return;
+
 		// FIX ME: remove m_useIndices, when load mesh will be fixed
-		if (m_vertexBuffer && m_indexBuffer)
+		for (std::uint32_t i = 0; i < m_mesh->GetCountMeshes(); i++)
 		{
-			for (std::uint32_t j = 0; j < m_mesh->GetCountMeshes(); j++)
+			auto vBuff = m_mesh->GetVertexBuffers()[i];
+			auto iBuff = m_mesh->GetIndexBuffers()[i];
+			auto tex = m_mesh->GetTextures();
+
+			if (tex.size() != 0)
 			{
-				for (std::uint32_t i = 0; i < m_textures.size(); i++)
+				for (std::uint32_t j = i; j < tex.size(); j++)
 				{
-					m_textures[i]->Bind(3);
-				}
-
-
-				// Bind and update variables in const buffer
-				m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
-
-				// Bind shader and texture 
-				m_shader->Bind();
-				//m_textureCube->Bind(1);
-				//Core::Utils::Logger::Log("%i %i", m_mesh->GetCountMeshes(), m_textures.size());
-
-				//m_texture->Bind(3);
-
-				// Bind buffers
-				m_vertexBuffer->Bind();
-				if (m_useIndices)
-				{
-					m_indexBuffer->Bind();
-				}
-
-				// Draw poly 		
-				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
-
-				if (m_useIndices)
-				{
-					Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				}
-				else
-				{
-					Core::Engine::GetRenderer()->Draw(m_vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				}
-
-				// Unbind 
-				m_shader->Unbind();
-				//m_textureCube->Unbind();
-				//m_texture->Unbind();
-
-				/*for (std::uint32_t j = 0; j < m_mesh->GetCountMeshes(); j++)
-				{
-					for (std::uint32_t i = 0; i < m_textures.size(); i++)
+					if (tex[j].index == i)
 					{
-						m_textures[i]->Unbind(3);
+						tex[j].texture->Bind(3);
+						break;
 					}
-				}*/
-
-				m_vertexBuffer->Unbind();
-
-				if (m_useIndices)
-				{
-					m_indexBuffer->Unbind();
 				}
 			}
-		}
-	}	 
-		 
-	void StaticMesh::CreateVertexBuffer()
-	{	 
-		Assert(m_vertexBuffer->Create(), "Failed to create vertex buffer");
-		m_vertexBuffer->Update();
-	}	 
-		 
-	void StaticMesh::CreateIndexBuffer()
-	{	 
-		Assert(m_indexBuffer->Create(), "Failed to create index buffer");
-		m_indexBuffer->Update();
-	}	 
-		 
-	void StaticMesh::SetDefaultShader()
-	{	 
-		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Mesh"));
-	}	 
-		 
-	void StaticMesh::SetDefaultTexture()
-	{
-		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"));
-	}
 
+			if (m_useSkyCube)
+			{
+				m_textureCube->Bind(1);
+			}
+
+			// Bind and update variables in const buffer
+			m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
+
+			// Bind shader and texture 
+			m_shader->Bind();
+
+			// Bind buffers
+			vBuff->Bind();
+			if (m_useIndices)
+			{
+				iBuff->Bind();
+			}
+
+			// Draw poly 		
+			Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+
+			if (m_useIndices)
+			{
+				Core::Engine::GetRenderer()->DrawIndexed(iBuff->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			}
+			else
+			{
+				Core::Engine::GetRenderer()->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			}
+
+			// Unbind 
+			if (tex.size() != 0)
+			{
+				for (std::uint32_t j = i; j < tex.size(); j++)
+				{
+					if (tex[j].index == i)
+					{
+						tex[j].texture->Unbind(3);
+						break;
+					}
+				}
+			}
+
+			if (m_useSkyCube)
+			{
+				m_textureCube->Unbind(1);
+			}
+
+			m_shader->Unbind();
+
+			vBuff->Unbind();
+
+			if (m_useIndices)
+			{
+				iBuff->Unbind();
+			}
+		}
+		
+	}	 	
 }

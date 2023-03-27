@@ -37,11 +37,12 @@ namespace S2DE::GameObjects::Components
 		void											OnRender() override;
 
 		void											OnCreate() override;
+
 	protected:
-		void											CreateVertexBuffer() override;
-		void											CreateIndexBuffer() override;
-		void											SetDefaultShader() override;
-		void											SetDefaultTexture() override;
+		void											CreateVertexBuffer();
+		void											CreateIndexBuffer();
+		void											SetDefaultShader();
+		void											SetDefaultTexture();
 
 		[[nodiscard]] virtual inline DirectX::SimpleMath::Vector3		CalcScaleFactor();
 		[[nodiscard]] inline DirectX::SimpleMath::Matrix				UpdateTransformation();

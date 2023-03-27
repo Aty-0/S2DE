@@ -64,7 +64,7 @@ namespace S2DE::Render
 		return m_countMeshes;
 	}
 
-	inline std::vector<Texture*> Mesh::GetTextures()  const
+	inline std::vector<texture_indexed> Mesh::GetTextures()  const
 	{		
 		return m_textures;
 	}

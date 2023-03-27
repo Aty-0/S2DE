@@ -244,7 +244,7 @@ namespace S2DE::Render
 	bool FBX_Importer::Import(std::string path, 
         std::vector<Render::VertexBuffer<Render::Vertex>*>& vertexBuffers,
         std::vector<Render::IndexBuffer<std::uint32_t>*>& indexBuffers,
-        std::vector<Render::Texture*>& meshTextures,
+        std::vector<Render::texture_indexed>& meshTextures,
         std::uint32_t& mCount)
 	{
         FbxImporter* importer = FbxImporter::Create(m_manager, "");
@@ -398,6 +398,10 @@ namespace S2DE::Render
                     Assert(indexBuffer->Create(), "Failed to create index buffer for mesh");
                     Assert(vertexBuffer->Create(), "Failed to create vertex buffer for mesh");
 
+                    texture_indexed_t tex = { };
+                    // Save current index 
+                    tex.index = mCount;
+
                     // Increase mesh count 
                     mCount += 1;
 
@@ -431,8 +435,9 @@ namespace S2DE::Render
                                     {
                                         Core::Engine::GetResourceManager().Load<Render::Texture>(textureName);
                                     }
-                                    
-                                    meshTextures.push_back(Core::Engine::GetResourceManager().Get<Render::Texture>(textureName));
+
+                                    tex.texture = Core::Engine::GetResourceManager().Get<Render::Texture>(textureName);
+                                    meshTextures.push_back(tex);
                                 }
                             }
                             else
@@ -452,8 +457,9 @@ namespace S2DE::Render
                                     {
                                         Core::Engine::GetResourceManager().Load<Render::Texture>(textureName);
                                     }
-                                    
-                                    meshTextures.push_back(Core::Engine::GetResourceManager().Get<Render::Texture>(textureName));
+
+                                    tex.texture = Core::Engine::GetResourceManager().Get<Render::Texture>(textureName);
+                                    meshTextures.push_back(tex);
 
                                 }
                             }

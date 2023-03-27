@@ -25,10 +25,7 @@ namespace S2DE::GameObjects::Components::Editor
 		Assert(m_vertex_buffer->Create(), "Failed to create vertex buffer!");
 		m_vertex_buffer->Update();
 
-
-		Assert(Core::Engine::GetResourceManager().Load<Render::Shader>("editor_cursor"), "Cursor shader is not loaded!");
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("editor_cursor"));
-
 	}
 
 	EditorCenterCursor::~EditorCenterCursor()

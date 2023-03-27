@@ -19,10 +19,9 @@ namespace S2DE::GameObjects::Components
 
 	protected:
 		void			OnRender() override;
-		void			CreateVertexBuffer() override;
-		void			CreateIndexBuffer() override;
-		void			SetDefaultShader() override;
-		void			SetDefaultTexture() override;
+		void			CreateVertexBuffer();
+		void			CreateIndexBuffer();
+
 
 		[[nodiscard]] inline DirectX::SimpleMath::Matrix	UpdateTransformation();
 
