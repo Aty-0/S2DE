@@ -157,12 +157,20 @@ namespace S2DE::Scene
 				if (gameObject == nullptr)
 					continue;
 
+				auto alphaComponent = gameObject->GetComponent<GameObjects::Components::AlphaComponent>();
+
+				if (alphaComponent != nullptr)
+					Core::Engine::GetRenderer()->TurnOnAlphaBlending();
+
 				auto uiComponent = gameObject->GetComponent<GameObjects::Components::UI::UIDrawableComponent>();
 
 				if (uiComponent != nullptr)
 				{
 					gameObject->Render();
 				}
+
+				if (alphaComponent != nullptr)
+					Core::Engine::GetRenderer()->TurnOffAlphaBlending();
 			}
 			Core::Engine::GetRenderer()->TurnZBufferOn();
 		}

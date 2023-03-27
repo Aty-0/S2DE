@@ -17,17 +17,21 @@ namespace S2DE::Scene
 		SceneManager();
 		~SceneManager();
 
-		//Create new scene 
+		// Create new scene 
 		void		   CreateNewScene();
-		//Load scene from file 
+		// Load scene from file 
 		bool		   LoadScene(std::string name);
-		//Save current scene
+		// Save current scene
 		bool		   SaveScene();
+
 		void		   RenderScene();
 		void		   UpdateScene(float DeltaTime);
 		void		   UpdateShaders();
 		void		   UpdateTextures();
+
 		void		   Clear();
+
+		// TODO: Remove
 		void		   ToggleGameObjectVisibility();
 		void		   ToggleGameObjectUpdating();
 
@@ -41,7 +45,7 @@ namespace S2DE::Scene
 		std::stringstream m_os;
 	};
 
-	//FIX ME: Need to replace this functions 
+	//FIX ME: Need to relocate this functions, where ?
 
 	//Get game object from scene by name
 	template<typename T = GameObjects::GameObject>
