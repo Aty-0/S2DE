@@ -232,8 +232,9 @@ namespace S2DE::Core
 		// Load editor resources 
 		if (Engine::isEditor())
 		{
+			Verify(m_resource_manager.Load<Render::Texture>("Engine/cursor", "cursor"), "Can't load cursor");
 			Verify(m_resource_manager.Load<Render::Texture>("Engine/engine_light_icon", "engine_light_icon"), "Can't load light icon");
-			Verify(m_resource_manager.Load<Render::Shader>("editor_cursor"), "Can't load cursor shader");
+			//Verify(m_resource_manager.Load<Render::Shader>("editor_cursor"), "Can't load cursor shader");
 		}
 
 
