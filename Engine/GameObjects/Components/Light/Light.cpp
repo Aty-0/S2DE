@@ -15,24 +15,20 @@ namespace S2DE::GameObjects::Components::Light
 
 	void Light::InitLight()
 	{
-		Logger::Warning("[Light] InitLight is not override %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
+		Logger::Warning("InitLight is empty %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
 	}
 
 	void Light::UpdateCB()
 	{
-		Logger::Warning("[Light] UpdateCB is not override %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
+		Logger::Warning("UpdateCB is empty %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
 	}
 
 	void Light::CreateIcon()
 	{
 		if (Core::Engine::isEditor())
 		{
-			m_iconSprite = GetOwner()->CreateComponent<Sprite>();
-			m_iconSprite->SetBillboard(true);
-			m_iconSprite->LoadTexture("engine_light_icon");
-			m_iconSprite->GetOwner()->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(0.6f, 0.6f, 0.6f));
-			m_alpha = GetOwner()->CreateComponent<Components::AlphaComponent>();
-			m_alpha->SetAlpha(true);
+			// Change icon from default to light 
+			GetOwner()->GetIcon()->LoadTexture("engine_light_icon");			
 		}
 	}
 
@@ -97,7 +93,7 @@ namespace S2DE::GameObjects::Components::Light
 		if (Core::Engine::isEditor())
 		{
 			// TODO: Multiply to strength
-			m_iconSprite->SetColor(color);
+			GetOwner()->GetIcon()->SetColor(color);
 		}
 
 		onColorChanged.RunAllCallbacks();

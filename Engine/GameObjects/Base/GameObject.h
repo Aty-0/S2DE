@@ -16,6 +16,11 @@
 
 namespace S2DE::GameObjects
 {
+	namespace Components
+	{
+		class Sprite;
+	}
+
 	typedef std::vector<std::pair<std::pair<boost::uuids::uuid, std::type_index>, Components::Component*>> ComponentsList;
 	class S2DE_API GameObject : public Core::Utils::UUID
 	{
@@ -36,6 +41,8 @@ namespace S2DE::GameObjects
 		virtual void				 Unselect() { m_isSelected = false; }
 
 
+
+
 		[[nodiscard]] inline std::string            GetName()   const;
 		[[nodiscard]] inline std::int32_t			GetPrefix() const;
 		[[nodiscard]] inline std::string            GetType()   const;
@@ -44,6 +51,9 @@ namespace S2DE::GameObjects
 		[[nodiscard]] inline bool                   isSelected() const;
 		[[nodiscard]] inline Components::Transform* GetTransform() const;
 		[[nodiscard]] inline ComponentsList			GetComponentsList() const;
+
+		[[nodiscard]] inline Components::Sprite*	GetIcon()   const;
+
 	private:
 		std::string					 m_name; 
 		std::int32_t				 m_prefix;
@@ -52,6 +62,8 @@ namespace S2DE::GameObjects
 		bool						 m_visible;
 		bool						 m_isSelected;
 		Components::Transform*		 m_transform;
+		Components::Sprite*			 m_objectIconSprite;
+
 	public:
 		template<typename T>
 		T* AddComponent(T* component, std::uint32_t priority = 0)
@@ -77,10 +89,31 @@ namespace S2DE::GameObjects
 			static_assert(!std::is_base_of<T, Components::Component>::value || std::is_same<T, Components::Component>::value,
 				"This is not Component or Component based class");
 
-			auto component = GetComponent<T>();
-			component->OnDestroy();
+			std::type_index type = typeid(T);
 
-			m_components.erase(component);
+			ComponentsList::iterator it = std::find_if(m_components.begin(), m_components.end(), [&type](std::pair<std::pair<boost::uuids::uuid,
+				std::type_index>, Components::Component*> const& elem)
+				{
+					// If we try to get object based on component type
+					// Example: We try to get DrawableComponent but that object 
+					//			is currently is Sprite(Based on DrawableComponent)
+					if (dynamic_cast<T*>(elem.second) != nullptr)
+					{
+						return true;
+					}
+
+					return elem.first.second == type;
+				});
+
+			if (it == m_components.end())
+			{
+				Core::Utils::Logger::Error("%s Can't delete %s component is not found in game object!", GetName().c_str(), typeid(T).name());
+				return;
+			}
+			
+			it->second->OnDestroy();
+
+			m_components.erase(it);
 		}
 
 		template<typename T = Components::Component>

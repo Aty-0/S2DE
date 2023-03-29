@@ -45,7 +45,7 @@ namespace S2DE::GameObjects::Components::Editor
 		m_sprite->LoadTexture("cursor");
 		auto alpha = GetOwner()->CreateComponent<Components::AlphaComponent>();
 		alpha->SetAlpha(true);
-		GetOwner()->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(5, 5, 5));
+		GetOwner()->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(7, 7, 1));
 	}
 
 	void EditorCenterCursor::OnRender()

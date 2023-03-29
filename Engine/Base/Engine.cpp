@@ -234,6 +234,7 @@ namespace S2DE::Core
 		{
 			Verify(m_resource_manager.Load<Render::Texture>("Engine/cursor", "cursor"), "Can't load cursor");
 			Verify(m_resource_manager.Load<Render::Texture>("Engine/engine_light_icon", "engine_light_icon"), "Can't load light icon");
+			Verify(m_resource_manager.Load<Render::Texture>("Engine/engine_game_object", "engine_game_object"), "Can't load game object icon");
 			//Verify(m_resource_manager.Load<Render::Shader>("editor_cursor"), "Can't load cursor shader");
 		}
 

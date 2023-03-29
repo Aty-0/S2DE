@@ -56,8 +56,6 @@ namespace S2DE::GameObjects::Components::Light
 		float										  m_pad;
 		float										  m_range;
 		DirectX::SimpleMath::Vector3				  m_attenuation;
-		Components::AlphaComponent*					  m_alpha;
-		Sprite*										  m_iconSprite;
 		Render::CB::PS_Light_Structure				  m_lightStructure;	
 	};
 }

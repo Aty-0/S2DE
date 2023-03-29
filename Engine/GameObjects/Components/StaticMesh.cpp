@@ -4,10 +4,11 @@
 
 namespace S2DE::GameObjects::Components
 {
-	StaticMesh::StaticMesh() : 
+	StaticMesh::StaticMesh() :
 		m_mesh(nullptr),
 		m_shader(nullptr),
-		m_useSkyCube(true)
+		m_useSkyCube(true),
+		m_useIndices(true)
 	{
 
 	}
@@ -166,7 +167,7 @@ namespace S2DE::GameObjects::Components
 			}
 			else
 			{
-				Core::Engine::GetRenderer()->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				Core::Engine::GetRenderer()->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			}
 
 			// Unbind 
