@@ -11,7 +11,9 @@
 #include "Render/ImGuiS2DETheme.h"
 #include "Render/FBX_Importer.h"
 #include "Render/LightGlobals.h"
+#include "Render/Buffers.h"
 
+#include "GameObjects/Components/Transform.h"
 
 #include "Base/DebugTools/Debug_Info.h"
 
@@ -882,5 +884,173 @@ namespace S2DE::Render
 	inline bool Renderer::GetVsync() const
 	{
 		return m_vsync;
+	}
+	void Renderer::DebugDrawCube(DirectX::SimpleMath::Vector3 pos,
+		DirectX::SimpleMath::Vector3 rot,
+		DirectX::SimpleMath::Vector3 scale,
+		DirectX::SimpleMath::Color color)
+	{
+		VertexBuffer<Vertex>* vertexBuffer = nullptr;
+
+		if (vertexBuffer == nullptr)
+		{
+			vertexBuffer = new VertexBuffer<Vertex>();
+
+			vertexBuffer->GetArray() =
+			{
+				{ { -1.f, -1.f, -1.f },  { color.x,color.y,color.z,color.w }  },
+				{ {  1.f, -1.f, -1.f },  { color.x,color.y,color.z,color.w }  },
+				{ {  1.f, -1.f,  1.f },  { color.x,color.y,color.z,color.w }  },
+				{ { -1.f, -1.f,  1.f },  { color.x,color.y,color.z,color.w }  },
+				{ { -1.f,  1.f, -1.f },  { color.x,color.y,color.z,color.w }  },
+				{ {  1.f,  1.f, -1.f },  { color.x,color.y,color.z,color.w }  },
+				{ {  1.f,  1.f,  1.f },  { color.x,color.y,color.z,color.w }  },
+				{ { -1.f,  1.f,  1.f },  { color.x,color.y,color.z,color.w }  }
+			};
+
+			Assert(vertexBuffer->Create(), "Can't create vertex buffer for debug cube");
+			vertexBuffer->Update();
+		}
+
+		IndexBuffer<std::int32_t>* indexBuffer = nullptr;
+
+		if (indexBuffer == nullptr)
+		{
+			indexBuffer = new IndexBuffer<std::int32_t>();
+
+			indexBuffer->GetArray() =
+			{
+				0, 1,
+				1, 2,
+				2, 3,
+				3, 0,
+				4, 5,
+				5, 6,
+				6, 7,
+				7, 4,
+				0, 4,
+				1, 5,
+				2, 6,
+				3, 7
+			};
+
+			Assert(indexBuffer->Create(), "Can't create index buffer for debug cube");
+			indexBuffer->Update();
+		}
+
+		GameObjects::Components::Transform* transform = nullptr;
+		if (transform == nullptr)
+		{
+			transform = new GameObjects::Components::Transform();
+
+			transform->SetPosition(pos);
+			transform->SetRotation(rot);
+			transform->SetScale(scale);
+		}
+
+		vertexBuffer->Bind();
+		indexBuffer->Bind();
+
+		Shader* shader = Core::Engine::GetResourceManager().Get<Shader>("Line");
+
+		shader->UpdateMainConstBuffer(transform->UpdateTransformation());
+		shader->Bind();
+
+		DrawIndexed(indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		Core::Delete(vertexBuffer);
+		Core::Delete(transform);
+		Core::Delete(indexBuffer);
+	}
+
+	void Renderer::DebugDrawRing(DirectX::SimpleMath::Vector3 pos,
+		DirectX::SimpleMath::Vector3 majorAxis,
+		DirectX::SimpleMath::Vector3 minorAxis,
+		DirectX::SimpleMath::Color color)
+	{
+		VertexBuffer<Vertex>* vertexBuffer = nullptr;
+
+		if (vertexBuffer == nullptr)
+		{
+			vertexBuffer = new VertexBuffer<Vertex>();
+
+			static const std::int8_t ringSegments = 32;
+			static const DirectX::SimpleMath::Vector4 initialCos = { 1.f, 1.f, 1.f, 1.f };
+
+			float angleDelta = DirectX::XM_2PI / float(ringSegments);
+
+			DirectX::SimpleMath::Vector4 cosDelta = DirectX::XMVectorReplicate(std::cos(angleDelta));
+			DirectX::SimpleMath::Vector4 sinDelta = DirectX::XMVectorReplicate(std::sin(angleDelta));
+			DirectX::SimpleMath::Vector4 incrementalSin = DirectX::XMVectorZero();
+
+			DirectX::SimpleMath::Vector4 incrementalCos = initialCos;
+			for (std::uint32_t i = 0; i < ringSegments; i++)
+			{
+				DirectX::SimpleMath::Vector3  _pos = DirectX::XMVectorMultiplyAdd(majorAxis, incrementalCos, pos);
+				_pos = DirectX::XMVectorMultiplyAdd(minorAxis, incrementalSin, _pos);
+				vertexBuffer->GetArray().push_back({ _pos , color });
+
+				// Standard formula to rotate a vector.
+				DirectX::SimpleMath::Vector4 newCos = incrementalCos * cosDelta - incrementalSin * sinDelta;
+				DirectX::SimpleMath::Vector4 newSin = incrementalCos * sinDelta + incrementalSin * cosDelta;
+				incrementalCos = newCos;
+				incrementalSin = newSin;
+			}
+
+			vertexBuffer->GetArray().push_back(vertexBuffer->GetArray()[0]);
+			Assert(vertexBuffer->Create(), "Can't create index buffer for ring line");
+			vertexBuffer->Update();
+		}
+
+		Shader* shader = Core::Engine::GetResourceManager().Get<Shader>("Line");
+
+		vertexBuffer->Bind();
+		shader->Bind();
+
+		Draw(vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+		
+		Core::Delete(vertexBuffer);
+	}
+
+	void Renderer::DebugDrawSphere(DirectX::SimpleMath::Vector3 pos,
+			float radius,
+			DirectX::SimpleMath::Color color)
+	{
+		const DirectX::SimpleMath::Vector3 xaxis = DirectX::g_XMIdentityR0 * radius;
+		const DirectX::SimpleMath::Vector3 yaxis = DirectX::g_XMIdentityR1 * radius;
+		const DirectX::SimpleMath::Vector3 zaxis = DirectX::g_XMIdentityR2 * radius;
+
+		DebugDrawRing(pos, xaxis, zaxis, color);
+		DebugDrawRing(pos, xaxis, yaxis, color);
+		DebugDrawRing(pos, yaxis, zaxis, color);
+	}
+
+	void Renderer::DebugDrawLine(DirectX::SimpleMath::Vector3 begin,
+		DirectX::SimpleMath::Vector3 end,
+		DirectX::SimpleMath::Color color)
+	{
+		VertexBuffer<Vertex>* vertexBuffer = nullptr;
+		Shader* shader = Core::Engine::GetResourceManager().Get<Shader>("Line");
+
+		if (vertexBuffer == nullptr)
+		{
+			vertexBuffer = new VertexBuffer<Vertex>();
+
+			vertexBuffer->GetArray() =
+			{
+				{ begin, { color.x,color.y,color.z,color.w } },
+				{ end,	 { color.x,color.y,color.z,color.w } },
+			};
+
+			Assert(vertexBuffer->Create(), "Can't create index buffer for debug line");
+			vertexBuffer->Update();
+		}
+
+		vertexBuffer->Bind();
+		shader->Bind();
+
+		Draw(vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		Core::Delete(vertexBuffer);
 	}
 }

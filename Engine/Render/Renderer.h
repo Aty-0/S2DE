@@ -45,7 +45,7 @@ namespace S2DE::Render
 		/* DepthClipEnable 			*/	true,
 		/* ScissorEnable 			*/	false,
 		/* MultisampleEnable 		*/	false,
-		/* AntialiasedLineEnable	*/	false,
+		/* AntialiasedLineEnable	*/	true,
 	};
 
 	class S2DE_API Renderer
@@ -192,5 +192,27 @@ namespace S2DE::Render
 
 		ImGui_Window*				AddImGuiWindow(std::string name, ImGui_Window* wnd, bool visible = false);
 		void						DeleteImGuiWindow(std::string name);
-	};
-}
+
+
+
+		void						DebugDrawLine(DirectX::SimpleMath::Vector3 begin,
+												  DirectX::SimpleMath::Vector3 end,
+												  DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
+
+		void						DebugDrawCube(DirectX::SimpleMath::Vector3 pos, 
+												DirectX::SimpleMath::Vector3 rot = DirectX::SimpleMath::Vector3(0,0,0),
+												DirectX::SimpleMath::Vector3 scale = DirectX::SimpleMath::Vector3(1, 1, 1),
+												DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1,1,1,1));
+
+		void						DebugDrawRing(DirectX::SimpleMath::Vector3 pos, 			
+												  DirectX::SimpleMath::Vector3 majorAxis,
+												  DirectX::SimpleMath::Vector3 minorAxis,
+												  DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
+
+		void						DebugDrawSphere(DirectX::SimpleMath::Vector3 pos,
+													float radius,
+													DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
+
+
+	};											  
+}												  
