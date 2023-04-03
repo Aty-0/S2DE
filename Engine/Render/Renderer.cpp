@@ -469,8 +469,28 @@ namespace S2DE::Render
 
 	void Renderer::UpdateViewport()
 	{
-		m_viewport.Width = static_cast<float>(Core::Engine::GetGameWindow()->GetWidth());
-		m_viewport.Height = static_cast<float>(Core::Engine::GetGameWindow()->GetHeight());
+		if (Core::Engine::isEditor())
+		{
+			m_viewport.Width = static_cast<float>(Core::Engine::GetGameWindow()->GetWidth());
+			m_viewport.Height = static_cast<float>(Core::Engine::GetGameWindow()->GetHeight());
+		}
+		else
+		{
+			const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
+
+			float rwW = 0.0f;
+			float rwH = 0.0f;
+
+			if (renderWindow != nullptr)
+			{
+				rwW = renderWindow->GetWindowWidth();
+				rwH = renderWindow->GetWindowHeight();
+			}
+
+			m_viewport.Width = static_cast<float>(Core::Engine::GetGameWindow()->GetWidth()) - rwW;
+			m_viewport.Height = static_cast<float>(Core::Engine::GetGameWindow()->GetHeight()) - rwH;
+		}
+
 		m_viewport.MinDepth = 0.0f;
 		m_viewport.MaxDepth = 1.0f;
 		m_viewport.TopLeftX = 0.0f;
