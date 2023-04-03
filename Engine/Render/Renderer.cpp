@@ -259,15 +259,13 @@ namespace S2DE::Render
 
 	bool Renderer::CreateDeviceAndSwapChain()
 	{
-		D3D_FEATURE_LEVEL featureLevels[] = 
+		const D3D_FEATURE_LEVEL featureLevels[] = 
 		{
 			D3D_FEATURE_LEVEL_11_1,
 			D3D_FEATURE_LEVEL_11_0,
-			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0
 		};
 
-		D3D_DRIVER_TYPE driverTypes[] =
+		const D3D_DRIVER_TYPE driverTypes[] =
 		{
 			D3D_DRIVER_TYPE_HARDWARE,
 			D3D_DRIVER_TYPE_WARP,
@@ -275,55 +273,62 @@ namespace S2DE::Render
 			D3D_DRIVER_TYPE_UNKNOWN,
 		};
 
-		//If defined S2DE_DEBUG_RENDER_MODE macro and if it's debug build, we are add D3D11_CREATE_DEVICE_DEBUG flag to device
+		// Add debug device flag if debug render mode is defined...
 #if defined(S2DE_DEBUG_RENDER_MODE)
 		m_deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-
-
-		DXGI_SWAP_CHAIN_DESC sd = { };
-		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidth();
-		sd.BufferDesc.Height = Core::Engine::GetGameWindow()->GetHeight();
-		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		sd.BufferDesc.RefreshRate.Numerator = 0;
-		sd.BufferDesc.RefreshRate.Denominator = 1;
-		sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-		sd.BufferCount = 1;
-		sd.SampleDesc.Count = 1;
-		sd.SampleDesc.Quality = 0;
-		sd.Windowed = !Core::Engine::GetGameWindow()->isFullscreen();
-		sd.OutputWindow = Core::Engine::GetGameWindow()->GetHWND();
-		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		// Try to create device with correct driver type 
 		HRESULT device_hr = S_OK;
 		std::uint32_t driver_types_size = ARRAYSIZE(driverTypes);
 		for (std::uint32_t driverTypeIndex = 0; driverTypeIndex < driver_types_size; driverTypeIndex++)
 		{
-			D3D_DRIVER_TYPE driverType = driverTypes[driverTypeIndex];
-			device_hr = D3D11CreateDeviceAndSwapChain(nullptr, driverType, nullptr, m_deviceFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &sd, &m_swapChain, &m_device, nullptr, &m_context);
+			const auto driverType = driverTypes[driverTypeIndex];
 
-			//If we get E_INVALIDARG probably we are need to use D3D_FEATURE_LEVEL_11_0 
-			if (device_hr == E_INVALIDARG)
-			{
-				device_hr = D3D11CreateDeviceAndSwapChain(nullptr, driverType, nullptr, m_deviceFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &sd, &m_swapChain, &m_device, nullptr, &m_context);
-			}
+			device_hr = D3D11CreateDevice(nullptr, driverType, nullptr, m_deviceFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &m_device, nullptr, &m_context);
 
-			// If creation device succeeded we are break that loop
 			if (SUCCEEDED(device_hr))
 			{
 				break;
 			}
 		}
+		
+		Verify(m_device != nullptr, "Render Error: Can't create device and swap chain!");
 
-		//If device not created we are get fatal error 
-		if (m_device == nullptr)
-		{
-			S2DE_FATAL_ERROR("Render Error: Can't create device and swap chain!");
-		}
+		IDXGIDevice* dxgiDevice = nullptr;
+		Verify_HR(m_device->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice), "Can't get DXGI Device...");
+
+		IDXGIAdapter* dxgiAdapter = nullptr;
+		Verify_HR(dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter), "Can't get DXGI Adapter...");
+
+		IDXGIFactory* dxgiFactory = nullptr;
+		Verify_HR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory), "Can't get DXGI Factory...");
+
+		DXGI_SWAP_CHAIN_DESC sd = { };
+
+		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidth();
+		sd.BufferDesc.Height = Core::Engine::GetGameWindow()->GetHeight();
+		sd.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+		sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		sd.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
+		sd.BufferDesc.RefreshRate.Numerator = m_vsync == true ? 60 : 0;
+		sd.BufferDesc.RefreshRate.Denominator = 1;
+		sd.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		sd.BufferCount = 2;
+		sd.Windowed = !Core::Engine::GetGameWindow()->isFullscreen();
+		sd.OutputWindow = Core::Engine::GetGameWindow()->GetHWND();
+		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+		sd.SampleDesc.Count = 1;
+		sd.SampleDesc.Quality = 0;
+
+		Verify_HR(dxgiFactory->CreateSwapChain(m_device, &sd, &m_swapChain),
+			"Cannot create swap chain...");
+
+		// Release because it's not longer needed...
+		Core::Release(dxgiDevice);
+		Core::Release(dxgiAdapter);
+		Core::Release(dxgiFactory);
 
 		return true;
 	}
