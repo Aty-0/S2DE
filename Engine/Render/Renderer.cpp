@@ -910,6 +910,7 @@ namespace S2DE::Render
 	{
 		return m_vsync;
 	}
+
 	void Renderer::DebugDrawCube(DirectX::SimpleMath::Vector3 pos,
 		DirectX::SimpleMath::Vector3 rot,
 		DirectX::SimpleMath::Vector3 scale,
@@ -1011,7 +1012,7 @@ namespace S2DE::Render
 			DirectX::SimpleMath::Vector4 incrementalCos = initialCos;
 			for (std::uint32_t i = 0; i < ringSegments; i++)
 			{
-				DirectX::SimpleMath::Vector3  _pos = DirectX::XMVectorMultiplyAdd(majorAxis, incrementalCos, pos);
+				DirectX::SimpleMath::Vector3  _pos = DirectX::XMVectorMultiplyAdd(majorAxis, incrementalCos, {0,0,0});
 				_pos = DirectX::XMVectorMultiplyAdd(minorAxis, incrementalSin, _pos);
 				vertexBuffer->GetArray().push_back({ _pos , color });
 
@@ -1028,13 +1029,22 @@ namespace S2DE::Render
 		}
 
 		Shader* shader = Core::Engine::GetResourceManager().Get<Shader>("Line");
+		GameObjects::Components::Transform* transform = nullptr;
+
+		if (transform == nullptr)
+		{
+			transform = new GameObjects::Components::Transform();
+			transform->SetPosition(pos);
+		}
 
 		vertexBuffer->Bind();
+		shader->UpdateMainConstBuffer(transform->UpdateTransformation());
 		shader->Bind();
 
 		Draw(vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 		
 		Core::Delete(vertexBuffer);
+		Core::Delete(transform);
 	}
 
 	void Renderer::DebugDrawSphere(DirectX::SimpleMath::Vector3 pos,
