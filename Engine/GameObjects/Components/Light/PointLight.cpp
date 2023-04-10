@@ -1,5 +1,6 @@
 #include "PointLight.h"
 #include "GameObjects/Base/GameObject.h"
+#include "Render/Renderer.h"
 
 namespace S2DE::GameObjects::Components::Light
 {
@@ -12,6 +13,16 @@ namespace S2DE::GameObjects::Components::Light
 	{
 		onColorChanged.Clear();
 		onStrengthChanged.Clear();
+	}
+
+	void PointLight::OnRender()
+	{
+		if (GetOwner()->isEnabled() && Core::Engine::isEditor())
+		{
+			const auto transform = GetOwner()->GetTransform();
+			Core::Engine::GetEngine()->GetRenderer()->DebugDrawSphere({ transform->GetPosition().x - (m_range / 32), transform->GetPosition().y, transform->GetPosition().z - (m_range / 32) }, m_range,
+				{ m_color.r, m_color.g, m_color.b, m_color.a });
+		}
 	}
 
 	void PointLight::InitLight()

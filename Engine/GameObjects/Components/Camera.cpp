@@ -8,11 +8,12 @@
 
 #define CAMERA_DEFAULT_FOV 90.0f
 #define CAMERA_DEFAULT_ZOOM 0.009f
-#define CAMERA_DEFAULT_SPEED 0.02f
+#define CAMERA_DEFAULT_SPEED 20.0f
 #define CAMERA_DEFAULT_ZNEAR 0.01f
 #define CAMERA_DEFAULT_ZFAR 1000.0f
 #define CAMERA_DEFAULT_ORTHO_ZOOM 0.15f
-#define CAMERA_DEFAULT_SENSITIVITY 0.34f 
+//#define CAMERA_DEFAULT_SENSITIVITY 0.34f 
+#define CAMERA_DEFAULT_SENSITIVITY 34.0f
 #define CAMERA_MAX_SPEED_BOOST 10.0f 
 #define CAMERA_MIN_SPEED_BOOST 0.001f
 
@@ -63,6 +64,15 @@ namespace S2DE::GameObjects::Components
 			const auto x = transform->GetRotation().x;
 			const auto y = transform->GetRotation().y;
 			const auto z = transform->GetRotation().z;
+			// Just simple check on Y angle to avoid breaking view
+			if (y > 85.0f)
+			{
+				transform->SetRotation_Y(85.0f);
+			}
+			else if (y < -85.0f)
+			{
+				transform->SetRotation_Y(-85.0f);
+			}
 
 			m_rotationMatrix = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(
 				-DirectX::XMConvertToRadians(z), 
@@ -72,11 +82,6 @@ namespace S2DE::GameObjects::Components
 			// Use transform to make target vector from rotation matrix 
 			m_target = DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Forward, m_rotationMatrix);
 
-			// Just simple check on Y angle to avoid breaking view
-			if (y > 89.0f)
-				transform->SetRotation_Y(89.0f);
-			if (y < -89.0f)
-				transform->SetRotation_Y(-89.0f);
 
 			// Calculate movement vectors
 			m_right = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Right, m_rotationMatrix);
@@ -84,7 +89,6 @@ namespace S2DE::GameObjects::Components
 
 			m_up.Cross(m_forward, m_up);
 			m_up.Cross(m_right, m_up);
-
 
 			m_target = transform->GetPosition() + m_target;
 
@@ -251,19 +255,19 @@ namespace S2DE::GameObjects::Components
 	void Camera::Strafe(float side, float delta)
 	{
 		auto transform = GetOwner()->GetTransform();
-		transform->SetPosition_X(transform->GetPosition().x + side * m_speedBoost * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
+		transform->SetPosition_X(transform->GetPosition().x + side * m_speedBoost * m_speed * delta);
 	}
 
 	void Camera::Fly(float side, float delta)
 	{
 		auto transform = GetOwner()->GetTransform();
-		transform->SetPosition_Y(transform->GetPosition().y + side * m_speedBoost * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
+		transform->SetPosition_Y(transform->GetPosition().y + side * m_speedBoost * m_speed * delta);
 	}
 
 	void Camera::Walk(float side, float delta)
 	{
 		auto transform = GetOwner()->GetTransform();
-		transform->SetPosition_Z(transform->GetPosition().z + side * m_speedBoost * m_speed * Core::Engine::GetGameTime().GetDeltaTime());
+		transform->SetPosition_Z(transform->GetPosition().z + side * m_speedBoost * m_speed * delta);
 	}
 
 	void Camera::SetProjectionMode(CameraProjectionMode mode)

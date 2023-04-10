@@ -1,6 +1,8 @@
 #include "Shader.h"
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
+#include "Base/GameTime.h"
+
 #include "Render/Renderer.h"
 #include "Scene/SceneManager.h"
 
@@ -230,28 +232,34 @@ namespace S2DE::Render
 	{
 		m_const_buffer->Lock();
 
-		m_const_buffer->GetData()->deltatime = Core::Engine::GetGameTime().GetDeltaTime();
-		m_const_buffer->GetData()->time = Core::Engine::GetGameTime().GetTime();
-		m_const_buffer->GetData()->resoultion = DirectX::SimpleMath::Vector2((float)Core::Engine::GetGameWindow()->GetWidth(), (float)Core::Engine::GetGameWindow()->GetHeight());
-		m_const_buffer->GetData()->world = world;
+		const auto time = Core::Engine::GetGameTime();
+		const auto gameWindow = Core::Engine::GetGameWindow();
+		const auto data = m_const_buffer->GetData();
 
-		auto camera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
+		data->deltatime = time.GetDeltaTime();
+		data->time = time.GetTime();
+		data->resoultion = DirectX::SimpleMath::Vector2(static_cast<float>(gameWindow->GetWidth()),
+			static_cast<float>(gameWindow->GetHeight()));
+		data->world = world;
+
+		static auto camera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
 
 		if (camera != nullptr)
 		{
 			if (isUI)
 			{
-				m_const_buffer->GetData()->projection = camera->GetOrthoMatrix();
-				m_const_buffer->GetData()->view = DirectX::SimpleMath::Matrix::Identity;
+				data->projection = camera->GetOrthoMatrix();
+				data->view = DirectX::SimpleMath::Matrix::Identity;
 			}
 			else
 			{
-				m_const_buffer->GetData()->projection = camera->GetProjectionMatrix();
-				m_const_buffer->GetData()->view = camera->GetViewMatrix();
+				data->projection = camera->GetProjectionMatrix();
+				data->view = camera->GetViewMatrix();
 			}
+			const auto camTrasnform = camera->GetOwner()->GetTransform();
 
-			m_const_buffer->GetData()->cameraPosition = camera->GetOwner()->GetTransform()->GetPosition();
-			m_const_buffer->GetData()->cameraRotation = camera->GetOwner()->GetTransform()->GetRotation();
+			data->cameraPosition = camTrasnform->GetPosition();
+			data->cameraRotation = camTrasnform->GetRotation();
 		}
 
 		m_const_buffer->Unlock();

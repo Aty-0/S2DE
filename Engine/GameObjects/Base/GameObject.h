@@ -14,6 +14,11 @@
 #define S2DE_DEFAULT_GAMEOBJECT_PREFIX 0
 #define	S2DE_ENGINE_GAMEOBJECT_TYPE "_Engine_"
 
+namespace S2DE::Editor
+{
+	class EditorObjectInspector;
+}
+
 namespace S2DE::GameObjects
 {
 	namespace Components
@@ -25,6 +30,8 @@ namespace S2DE::GameObjects
 	class S2DE_API GameObject : public Core::Utils::UUID
 	{
 	public:
+		friend class S2DE::Editor::EditorObjectInspector;
+
 		GameObject();
 		explicit GameObject(std::string name, std::string type, std::int32_t prefix, std::string id = std::string());
 		virtual ~GameObject();

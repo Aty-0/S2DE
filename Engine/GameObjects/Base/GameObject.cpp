@@ -5,6 +5,8 @@
 #include "GameObjects/Components/DrawableComponent.h"
 #include "GameObjects/Components/AlphaComponent.h"
 
+#include "Editor/EditorObjectInspector.h"
+
 namespace S2DE::GameObjects
 {
 	GameObject::GameObject() :
@@ -15,7 +17,7 @@ namespace S2DE::GameObjects
 		m_enabled(true),
 		m_isSelected(false)
 	{		
-		// This is the basic initialize for game object 
+		// This is the basic setup for game object 
 		RegenerateUUID();
 		m_transform = CreateComponent<Components::Transform>();
 	}

@@ -16,6 +16,8 @@ namespace S2DE::GameObjects::Components
 		StaticMesh();
 		~StaticMesh();
 
+		void					CutMeshToParts();
+
 		bool					LoadMesh(std::string name) override;
 		bool					LoadTexture(std::string name) override;
 		bool					LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = true) override;
@@ -31,7 +33,6 @@ namespace S2DE::GameObjects::Components
 	protected:
 		void					OnUpdate(float deltaTime) override { }
 		void					OnRender() override;
-
 	private:
 		Render::Mesh*		m_mesh;
 
@@ -43,6 +44,10 @@ namespace S2DE::GameObjects::Components
 		Math::Color<float>	m_color;
 		bool				m_useIndices;
 		bool				m_useSkyCube; // TODO: Shader sync
+		bool				m_isMeshPart;
+
+		// if we want to use partinal models
+		std::int32_t							m_savedIndex;
 	};
 }
 

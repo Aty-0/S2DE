@@ -2,7 +2,6 @@
 #include "Render/Renderer.h"
 
 // For testing
-//#define USE_IMGUI_FRAMERATE_CALC
 
 namespace S2DE::Core
 {
@@ -10,11 +9,11 @@ namespace S2DE::Core
 		m_tickEnd(std::chrono::high_resolution_clock::now()),
 		m_now(std::chrono::high_resolution_clock::now()),
 		m_then(std::chrono::high_resolution_clock::now()),
+		m_timerDuration(),
 		m_fps(0),
 		m_frameCount(0),
 		m_deltaTime(0.0f),
-		m_timer(0.0f),
-		m_timerDuration()
+		m_timer(0.0f)
 	{
 
 	}
@@ -35,13 +34,8 @@ namespace S2DE::Core
 
 	void GameTime::End()
 	{
-#ifndef USE_IMGUI_FRAMERATE_CALC
 		m_deltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(m_now - m_then).count()) / 1000.0f;
-		m_fps = (1.0f / m_deltaTime) * 1000.0f;
-#else
-		m_fps = ImGui::GetIO().Framerate;
-		m_deltaTime = 1000.0f / ImGui::GetIO().Framerate;
-#endif
+		//m_fps = (1.0f / m_deltaTime) * 1000.0f;
 
 		m_then = m_now;
 
@@ -51,11 +45,13 @@ namespace S2DE::Core
 		m_timer += m_timerDuration.count() / 10;
 		if (m_now - m_tickEnd >= std::chrono::seconds{ 1 })
 		{
-			//m_fps = m_frameCount;
+			m_fps = m_frameCount;
 			m_tickEnd = m_now;
 			m_frameCount = 0;
 		}
 
+		// Time in Seconds
+		m_deltaTime /= 1000.0f;
 	}
 
 	inline float GameTime::GetTime() const

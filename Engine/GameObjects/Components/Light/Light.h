@@ -37,6 +37,7 @@ namespace S2DE::GameObjects::Components::Light
 		void										  SetStrength(float strength);
 		void										  OnCreate() override;
 		void										  OnDestroy() override;
+		void										  OnRender() override { }
 
 		[[nodiscard]] inline Math::Color<float>	GetColor() const;
 		[[nodiscard]] inline float GetStrength()  const;

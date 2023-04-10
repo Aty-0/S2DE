@@ -333,6 +333,7 @@ namespace S2DE::Render
 		return true;
 	}
 
+	// TODO: Remove
 	void Renderer::SwitchFillMode(RenderFillMode mode)
 	{
 		Logger::Log("[Renderer] Switch fill mode to %s", mode == RenderFillMode::Solid ? "Solid" : "Wireframe");
@@ -469,26 +470,18 @@ namespace S2DE::Render
 
 	void Renderer::UpdateViewport()
 	{
+		const auto window = Core::Engine::GetGameWindow();
+		m_viewport.Width = static_cast<float>(window->GetWidth());
+		m_viewport.Height = static_cast<float>(window->GetHeight());
+
 		if (Core::Engine::isEditor())
 		{
-			m_viewport.Width = static_cast<float>(Core::Engine::GetGameWindow()->GetWidth());
-			m_viewport.Height = static_cast<float>(Core::Engine::GetGameWindow()->GetHeight());
-		}
-		else
-		{
 			const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
-
-			float rwW = 0.0f;
-			float rwH = 0.0f;
-
 			if (renderWindow != nullptr)
 			{
-				rwW = renderWindow->GetWindowWidth();
-				rwH = renderWindow->GetWindowHeight();
+				m_viewport.Width = static_cast<float>(renderWindow->GetWindowWidth());
+				m_viewport.Height = static_cast<float>(renderWindow->GetWindowHeight());
 			}
-
-			m_viewport.Width = static_cast<float>(Core::Engine::GetGameWindow()->GetWidth()) - rwW;
-			m_viewport.Height = static_cast<float>(Core::Engine::GetGameWindow()->GetHeight()) - rwH;
 		}
 
 		m_viewport.MinDepth = 0.0f;
@@ -572,7 +565,8 @@ namespace S2DE::Render
 		if (Core::Engine::isEditor())
 		{
 			ImGui::SetNextWindowPos(ImVec2(0, 0));
-			ImGui::SetNextWindowSize(ImVec2(static_cast<float>(Core::Engine::GetGameWindow()->GetWidth()), static_cast<float>(Core::Engine::GetGameWindow()->GetHeight())));
+			ImGui::SetNextWindowSize(ImVec2(static_cast<float>(Core::Engine::GetGameWindow()->GetWidth()), 
+				static_cast<float>(Core::Engine::GetGameWindow()->GetHeight())));
 			const auto windowFlags = ImGuiWindowFlags_NoBringToFrontOnFocus |
 				ImGuiWindowFlags_NoNavFocus |
 				ImGuiWindowFlags_NoDocking |
@@ -737,7 +731,9 @@ namespace S2DE::Render
 	{
 		D3D11_TEXTURE2D_DESC td = { };
 		sw_buff->GetDesc(&td);
+
 		td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
 		Verify_HR(m_device->CreateTexture2D(&td, NULL, &m_frameBufferData), "Can't create framebuffer texture data");
 
 		const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");

@@ -1,4 +1,5 @@
 #include "StaticMesh.h"
+#include "Scene/SceneManager.h"
 #include "GameObjects/Base/GameObject.h"
 #include "Render/Texture.h"
 
@@ -8,7 +9,9 @@ namespace S2DE::GameObjects::Components
 		m_mesh(nullptr),
 		m_shader(nullptr),
 		m_useSkyCube(true),
-		m_useIndices(true)
+		m_useIndices(true),
+		m_isMeshPart (false),
+		m_savedIndex(0)
 	{
 
 	}
@@ -18,7 +21,43 @@ namespace S2DE::GameObjects::Components
 		Core::Delete(m_shader);
 		Core::Delete(m_mesh);
 	}
-	
+
+	void StaticMesh::CutMeshToParts()
+	{
+		if (m_mesh != nullptr)
+		{
+			// Current object is a head 
+			m_isMeshPart = true;
+			m_savedIndex = 0;
+
+			auto transform = GetOwner()->GetTransform();
+
+			for (std::uint32_t i = 0; i < m_mesh->GetCountMeshes(); i++)
+			{
+				static GameObject* prMeshPartObject = nullptr;
+
+				// TODO: Name of node
+				auto meshPartObject = Scene::CreateGameObject<GameObjects::GameObject>(GetName() + std::to_string(i));
+
+
+				meshPartObject->GetTransform()->SetPosition(transform->GetPosition());
+				meshPartObject->GetTransform()->SetRotation(transform->GetRotation());
+				meshPartObject->GetTransform()->SetParent(GetOwner());
+				
+				
+				auto meshPartSMComponent = meshPartObject->CreateComponent<StaticMesh>();
+				meshPartSMComponent->m_isMeshPart = true;
+				meshPartSMComponent->m_mesh = m_mesh;
+				meshPartSMComponent->m_shader = m_shader;
+				meshPartSMComponent->m_textureCube = m_textureCube;
+				meshPartSMComponent->m_useSkyCube = true;
+				meshPartSMComponent->m_savedIndex = i;
+
+				prMeshPartObject = meshPartObject;
+			}
+		}
+	}
+
 	// TODO: Change shader, skycube 
 	bool StaticMesh::LoadMesh(std::string name)
 	{	
@@ -39,6 +78,11 @@ namespace S2DE::GameObjects::Components
 			m_textureCube = Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultCubemap");
 		}
 
+		if (m_mesh->GetCountMeshes() > 1)
+		{
+			CutMeshToParts();
+		}
+
 		return true;
 	}	 
 		 
@@ -55,6 +99,11 @@ namespace S2DE::GameObjects::Components
 		 
 	void StaticMesh::UpdateShader()
 	{	 
+		if (m_shader == nullptr)
+		{
+			return;
+		}
+
 		// Get shader name
 		std::string name = m_shader->GetName();
 		// Delete previous shader 
@@ -76,26 +125,47 @@ namespace S2DE::GameObjects::Components
 		 
 	void StaticMesh::UpdateTexture()
 	{	 	 
-		S2DE_NO_IMPL();
-		/*
-		// Get texture name
-		std::string name = m_texture->GetName();
-		// Delete previous texture
-		//Core::Delete(m_texture);
-
-		// Try to get texture by name from resource manager
-		auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
-
-		// If texture not found
-		if (new_texture == Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"))
+		if (m_mesh == nullptr)
 		{
-			Logger::Error("%s Can't update texture!", GetName().c_str());
 			return;
 		}
 
-		m_texture = new Render::Texture(*new_texture);
-		Assert(m_texture != nullptr, "Failed to load new texture");
-		*/
+		if (m_isMeshPart)
+		{
+			auto tex = m_mesh->GetTextures();
+
+			if (tex.size() != 0)
+			{
+				for (std::uint32_t j = m_savedIndex; j < tex.size(); j++)
+				{
+					auto currentTexture = tex[j];
+					if (currentTexture.index == m_savedIndex)
+					{
+						// Get texture name
+						std::string name = currentTexture.texture->GetName();
+						// Delete previous texture
+						//Core::Delete(m_texture);
+
+						// Try to get texture by name from resource manager
+						auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
+
+						// If texture not found
+						if (new_texture == Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"))
+						{
+							Logger::Error("%s Can't update texture!", GetName().c_str());
+							return;
+						}
+
+						currentTexture.texture = new Render::Texture(*new_texture);
+						Assert(currentTexture.texture != nullptr, "Failed to load new texture");
+					}
+				}
+			}
+		}
+		else
+		{
+			S2DE_NO_IMPL();
+		}
 	}	 
 
 	void StaticMesh::SetColor(Math::Color<float> color)
@@ -121,18 +191,20 @@ namespace S2DE::GameObjects::Components
 		if (m_mesh == nullptr)
 			return;
 
-		// FIX ME: remove m_useIndices, when load mesh will be fixed
-		for (std::uint32_t i = 0; i < m_mesh->GetCountMeshes(); i++)
+		auto transform = GetOwner()->GetTransform();
+		Core::Engine::GetRenderer()->DebugDrawLineCross(transform->GetPosition(), transform->GetRotation(), transform->GetScale());
+
+		if (m_isMeshPart)
 		{
-			auto vBuff = m_mesh->GetVertexBuffers()[i];
-			auto iBuff = m_mesh->GetIndexBuffers()[i];
+			auto vBuff = m_mesh->GetVertexBuffers()[m_savedIndex];
+			auto iBuff = m_mesh->GetIndexBuffers()[m_savedIndex];
 			auto tex = m_mesh->GetTextures();
 
 			if (tex.size() != 0)
 			{
-				for (std::uint32_t j = i; j < tex.size(); j++)
+				for (std::uint32_t j = m_savedIndex; j < tex.size(); j++)
 				{
-					if (tex[j].index == i)
+					if (tex[j].index == m_savedIndex)
 					{
 						tex[j].texture->Bind(3);
 						break;
@@ -173,9 +245,9 @@ namespace S2DE::GameObjects::Components
 			// Unbind 
 			if (tex.size() != 0)
 			{
-				for (std::uint32_t j = i; j < tex.size(); j++)
+				for (std::uint32_t j = m_savedIndex; j < tex.size(); j++)
 				{
-					if (tex[j].index == i)
+					if (tex[j].index == m_savedIndex)
 					{
 						tex[j].texture->Unbind(3);
 						break;
@@ -195,6 +267,86 @@ namespace S2DE::GameObjects::Components
 			if (m_useIndices)
 			{
 				iBuff->Unbind();
+			}
+			
+		}
+		else
+		{
+			// FIX ME: remove m_useIndices, when load mesh will be fixed
+			for (std::uint32_t i = 0; i < m_mesh->GetCountMeshes(); i++)
+			{
+				auto vBuff = m_mesh->GetVertexBuffers()[i];
+				auto iBuff = m_mesh->GetIndexBuffers()[i];
+				auto tex = m_mesh->GetTextures();
+
+				if (tex.size() != 0)
+				{
+					for (std::uint32_t j = i; j < tex.size(); j++)
+					{
+						if (tex[j].index == i)
+						{
+							tex[j].texture->Bind(3);
+							break;
+						}
+					}
+				}
+
+				if (m_useSkyCube)
+				{
+					m_textureCube->Bind(1);
+				}
+
+				// Bind and update variables in const buffer
+				m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
+
+				// Bind shader and texture 
+				m_shader->Bind();
+
+				// Bind buffers
+				vBuff->Bind();
+				if (m_useIndices)
+				{
+					iBuff->Bind();
+				}
+
+				// Draw poly 		
+				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+
+				if (m_useIndices)
+				{
+					Core::Engine::GetRenderer()->DrawIndexed(iBuff->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				}
+				else
+				{
+					Core::Engine::GetRenderer()->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				}
+
+				// Unbind 
+				if (tex.size() != 0)
+				{
+					for (std::uint32_t j = i; j < tex.size(); j++)
+					{
+						if (tex[j].index == i)
+						{
+							tex[j].texture->Unbind(3);
+							break;
+						}
+					}
+				}
+
+				if (m_useSkyCube)
+				{
+					m_textureCube->Unbind(1);
+				}
+
+				m_shader->Unbind();
+
+				vBuff->Unbind();
+
+				if (m_useIndices)
+				{
+					iBuff->Unbind();
+				}
 			}
 		}
 		

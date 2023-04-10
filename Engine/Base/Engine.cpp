@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "Base/GameTime.h"
 #include "Base/Other/SplashScreen.h"
 #include "Base/ApplicationHandle.h"
 #include "Base/GameWindow.h"
@@ -152,7 +153,7 @@ namespace S2DE::Core
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_GRAVE))
 		{
-			m_render->GetImGui_Window<Render::ImGui_Window*>("EngineConsole")->ToggleDraw();
+			m_render->GetImGui_Window<Render::ImGui_Window*>("Console")->ToggleDraw();
 		}
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_F11))
@@ -221,20 +222,20 @@ namespace S2DE::Core
 	bool Engine::LoadEngineResources()
 	{
 		// Load default texture
-		Verify(m_resource_manager.Load<Render::Texture>("Engine/DefaultTexture", "DefaultTexture"), "Can't load default texture");
-		Verify(m_resource_manager.Load<Render::Texture>("Engine/DefaultSky", "DefaultSky"), "Can't load default sky texture");
+		Verify(m_resource_manager.Load<Render::Texture>("Engine/DefaultTexture", "DefaultTexture", true), "Can't load default texture");
+		Verify(m_resource_manager.Load<Render::Texture>("Engine/DefaultSky", "DefaultSky", true), "Can't load default sky texture");
 		// Load shaders 
-		Verify(m_resource_manager.Load<Render::Shader>("Sprite"), "Can't load sprite shader");
-		Verify(m_resource_manager.Load<Render::Shader>("Line"), "Can't load line shader");
-		Verify(m_resource_manager.Load<Render::Shader>("Mesh"), "Can't load mesh shader");
-		Verify(m_resource_manager.Load<Render::Shader>("Skybox"), "Can't load skybox shader");
+		Verify(m_resource_manager.Load<Render::Shader>("Sprite", std::string(), true), "Can't load sprite shader");
+		Verify(m_resource_manager.Load<Render::Shader>("Line", std::string(), true), "Can't load line shader");
+		Verify(m_resource_manager.Load<Render::Shader>("Mesh", std::string(), true), "Can't load mesh shader");
+		Verify(m_resource_manager.Load<Render::Shader>("Skybox", std::string(), true), "Can't load skybox shader");
 
 		// Load editor resources 
 		if (Engine::isEditor())
 		{
-			Verify(m_resource_manager.Load<Render::Texture>("Engine/cursor", "cursor"), "Can't load cursor");
-			Verify(m_resource_manager.Load<Render::Texture>("Engine/engine_light_icon", "engine_light_icon"), "Can't load light icon");
-			Verify(m_resource_manager.Load<Render::Texture>("Engine/engine_game_object", "engine_game_object"), "Can't load game object icon");
+			Verify(m_resource_manager.Load<Render::Texture>("Engine/cursor", "cursor", true), "Can't load cursor");
+			Verify(m_resource_manager.Load<Render::Texture>("Engine/engine_light_icon", "engine_light_icon", true), "Can't load light icon");
+			Verify(m_resource_manager.Load<Render::Texture>("Engine/engine_game_object", "engine_game_object", true), "Can't load game object icon");
 			//Verify(m_resource_manager.Load<Render::Shader>("editor_cursor"), "Can't load cursor shader");
 		}
 
@@ -243,7 +244,7 @@ namespace S2DE::Core
 		Render::Texture* defaultCubeMapTexture = new Render::Texture();
 		const auto cubePath = m_resource_manager.GetFilePath("Engine/cubemap", defaultCubeMapTexture);
 		Verify(defaultCubeMapTexture->CreateCubeMapTexture(cubePath), "Can't create default cubemap");
-		m_resource_manager.Add(defaultCubeMapTexture, "DefaultCubemap");
+		m_resource_manager.Add(defaultCubeMapTexture, "DefaultCubemap", true);
 
 
 		return true;

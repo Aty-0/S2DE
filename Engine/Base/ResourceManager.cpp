@@ -28,6 +28,15 @@ namespace S2DE::Core::Resources
 	
 	void ResourceManager::DumpAllResources()
 	{
+		Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), " ! ! ! DumpAllResources ! ! !");
+
+		if (m_storage.size() == 0)
+		{
+			Logger::Log("Storage is empty!");
+			return;
+		}
+
+
 		for (const auto& p : m_storage)
 		{
 			Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "RMn: %s Rn: %s T:" , p.first.first.c_str(), p.second->m_name.c_str(), p.second->GetType().c_str());
@@ -58,10 +67,23 @@ namespace S2DE::Core::Resources
 
 	void ResourceManager::ClearAll()
 	{
-		// TODO: Clear resources without m_cantDelete flag
-		//Logger::Log("[ResourceManager] Clear all resources");
-		//
-		//m_storage.clear();
+		Logger::Log("[ResourceManager] Clear all resources");
+		for (std::map<std::pair<std::string, std::type_index>, Resource*>::iterator it = m_storage.begin(); it != m_storage.end();)
+		{
+			if (it->second->m_cantDelete == false)
+			{
+				it = m_storage.erase(it);
+			}
+			else
+			{
+				it++;
+			}
+		}
+
+// check clear func 
+#ifdef _DEBUG
+		DumpAllResources();
+#endif
 	}
 
 	bool ResourceManager::ConstructPath(std::string filename, std::string type, std::string ex, std::string& resultpath)

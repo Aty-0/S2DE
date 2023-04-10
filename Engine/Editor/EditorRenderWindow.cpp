@@ -53,7 +53,8 @@ namespace S2DE::Editor
 
 	void EditorRenderWindow::SetDefaultResolution()
 	{
-		ImGui::SetWindowSize("EditorRenderWindow", ImVec2(float(Core::Engine::GetGameWindow()->GetWidth() / 2), float(Core::Engine::GetGameWindow()->GetHeight() / 2)));
+		ImGui::SetWindowSize("Render Window", ImVec2(float(Core::Engine::GetGameWindow()->GetWidth() / 2), 
+			float(Core::Engine::GetGameWindow()->GetHeight() / 2)));
 	}
 
 	void EditorRenderWindow::PushRenderTexture(void* texture)
@@ -70,17 +71,21 @@ namespace S2DE::Editor
 	{
 		if (m_draw)
 		{
-			ImGui::Begin("EditorRenderWindow");
-			m_width = ImGui::GetWindowWidth();
+			ImGui::Begin("Render Window");
+
+			m_width  = ImGui::GetWindowWidth();
 			m_height = ImGui::GetWindowHeight();
+
 			if(!HandleWindowResize())
 			{
 				ImGui::End();
+				return; 
 			}
 
 			if (m_bufferdata != nullptr)
-			{
-				ImGui::Image(m_bufferdata, ImVec2(m_width, m_height));
+			{				
+				const auto window = Core::Engine::GetGameWindow();
+				ImGui::Image(m_bufferdata, ImVec2(window->GetWidth(), window->GetHeight()));
 			}
 
 			ImGui::End();

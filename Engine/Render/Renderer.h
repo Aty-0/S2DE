@@ -34,7 +34,7 @@ namespace S2DE::Render
 		Wireframe = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME,
 	};
 
-	const D3D11_RASTERIZER_DESC defaultRasterDesc =
+	static D3D11_RASTERIZER_DESC defaultRasterDesc =
 	{
 		/* FillMode 				*/	static_cast<D3D11_FILL_MODE>(RenderFillMode::Solid),
 		/* CullMode 				*/	D3D11_CULL_BACK,
@@ -156,6 +156,7 @@ namespace S2DE::Render
 		ID3D11DepthStencilView*		m_depthStencilView;
 		ID3D11DepthStencilState*	m_depthStateEnabled;
 		ID3D11DepthStencilState*	m_depthStateDisabled;
+
 		bool						m_vsync;
 		std::uint32_t				m_deviceFlags;
 		Math::Color<float>			m_clearColor;
@@ -166,7 +167,7 @@ namespace S2DE::Render
 	
 		std::vector<std::pair<std::string, CComPtr<ID3D11RasterizerState>>> m_rasterizerVariants;
 
-		ID3D11BlendState*			m_blendStateOn; //TODO: Many modes, and use not like this
+		ID3D11BlendState*			m_blendStateOn; // TODO: Many modes, and use not like this
 		ID3D11BlendState*			m_blendStateOff; 
 
 		bool						m_showImguiWindows;
@@ -175,6 +176,7 @@ namespace S2DE::Render
 		class Editor::EditorCenterCursor*				m_editorCenterCursor;
 		class ImGui_Window*								m_editorToolStrip;
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windowsStorage;
+
 	public:  
 		template<typename T>
 		T GetImGui_Window(std::string name) const
@@ -195,6 +197,11 @@ namespace S2DE::Render
 
 
 
+		void						DebugDrawLineCross(DirectX::SimpleMath::Vector3 pos,
+													DirectX::SimpleMath::Vector3 rot,
+													DirectX::SimpleMath::Vector3 scale,
+													DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
+
 		void						DebugDrawLine(DirectX::SimpleMath::Vector3 begin,
 												  DirectX::SimpleMath::Vector3 end,
 												  DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
@@ -212,7 +219,6 @@ namespace S2DE::Render
 		void						DebugDrawSphere(DirectX::SimpleMath::Vector3 pos,
 													float radius,
 													DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
-
 
 	};											  
 }												  

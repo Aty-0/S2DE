@@ -41,9 +41,11 @@ namespace S2DE::Editor
 
 	void EditorObjectInspector::Render()
 	{
+		if (!m_draw)
+			return;
+
 		// Save inspector focus 
 		static bool isFocused = false;
-		static std::vector<GameObjects::GameObject*> listOfChilds;
 
 		Scene::SceneManager* sceneManager = Core::Engine::GetSceneManager();
 
@@ -51,9 +53,6 @@ namespace S2DE::Editor
 		Core::Engine::GetInputManager()->LockKeyboardControl(isFocused && m_draw);
 		Core::Engine::GetInputManager()->LockMouseControl(isFocused && m_draw);
 		Core::Engine::GetInputManager()->LockWheel(isFocused && m_draw);
-
-		if (!m_draw)
-			return;
 
 		ImGui::SetNextWindowSizeConstraints(ImVec2(300, 300), ImVec2(800, Core::Engine::GetGameWindow()->GetHeight()));
 
@@ -69,67 +68,53 @@ namespace S2DE::Editor
 
 			if (ImGui::ListBoxHeader("Objects", ImVec2(ImGui::GetWindowSize().x, 300)))
 			{
-				static GameObjects::GameObject* withChild = nullptr;
-
 				for (const auto& object : Core::Engine::GetSceneManager()->GetScene()->GetStorage())
 				{
+					auto gameObject = object.second.get();
+
 					// If iterator is empty we skip it
-					if (object.second == nullptr)
+					if (gameObject == nullptr)
 						continue;
 
 					// If we don't need to show objects with ENGINE prefix we skip that object
-					if (m_showEngineGameObjects == false && object.second->GetPrefix() == -1)
+					if (m_showEngineGameObjects == false && gameObject->GetPrefix() == -1)
 						continue;
 
 					if (object.second->GetTransform()->GetParent() == nullptr)
 					{
-						// TODO: Get it from object 
-						bool visible = true;
 						ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1, m_uiElementsHeight));
-						ImGui::Checkbox("##", &visible);
-						ImGui::SameLine();
-						if (ImGui::Selectable(object.first.first.c_str(), object.second->isSelected()))
+						if (m_selectedGameObject == gameObject)
 						{
-							withChild = nullptr;
-							listOfChilds.clear();
-							listOfChilds.shrink_to_fit();
-
-							if (object.second->GetTransform()->GetChild() != nullptr)
+							if (ImGui::Checkbox("##", &m_selectedGameObject->m_visible))
 							{
-								withChild = object.second.get();
-
-								GameObjects::GameObject* current = withChild->GetTransform()->GetChild();
-
-								while (current != nullptr)
+								const auto child = m_selectedGameObject->GetTransform()->GetChild();
+								if (child != nullptr)
 								{
-									listOfChilds.push_back(current);
-
-									if (current != nullptr)
-									{
-										Logger::Log("[EditorObjectInspector] Save: %s", current->GetName().c_str());
-									}
-
-									current = current->GetTransform()->GetChild();
+									child->SetVisible(m_selectedGameObject->m_visible);
 								}
 							}
+							ImGui::SameLine();
+						}
 
+						if (ImGui::Selectable(gameObject->GetName().c_str(), gameObject->m_isSelected))
+						{
 							if (m_selectedGameObject == nullptr)
 							{
-								m_selectedGameObject = object.second.get();
+								m_selectedGameObject = gameObject;
 								m_selectedGameObject->Select();
-								Logger::Log("[EditorObjectInspector] New object have been selected! %s", m_selectedGameObject->GetName().c_str());
+								//Logger::Log("[EditorObjectInspector] New object have been selected! %s", m_selectedGameObject->GetName().c_str());
 							}
-							else if (m_selectedGameObject != object.second.get())
+							else if (m_selectedGameObject != gameObject)
 							{
 								//Unselect previous object and select new object
 								m_selectedGameObject->Unselect();
-								m_selectedGameObject = object.second.get();
+								m_selectedGameObject = gameObject;
 								m_selectedGameObject->Select();
-								Logger::Log("[EditorObjectInspector] Previous object was unselected, selected new: %s", m_selectedGameObject->GetName().c_str());
+								//Logger::Log("[EditorObjectInspector] Previous object was unselected, selected new: %s", m_selectedGameObject->GetName().c_str());
 							}
-							else if (m_selectedGameObject == object.second.get())
+							else if (m_selectedGameObject == gameObject) // We are just clicked at the same object, so it's mean we are want to unselect
 							{
-								Logger::Log("[EditorObjectInspector] It's same object, reset all %s", m_selectedGameObject->GetName().c_str());
+								//Logger::Log("[EditorObjectInspector] It's same object, reset all %s", m_selectedGameObject->GetName().c_str());
 								Reset();
 							}
 
@@ -138,38 +123,7 @@ namespace S2DE::Editor
 						ImGui::PopStyleVar();
 					}
 
-
-					if (m_selectedGameObject == object.second.get())
-					{
-						if (m_selectedGameObject == withChild
-							&& withChild != nullptr)
-						{
-							float posX = 5.0f;
-							for (auto go : listOfChilds)
-							{
-								ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(posX, m_uiElementsHeight));
-								if (ImGui::TreeNode(go->GetName().c_str()))
-								{
-									posX += 10.0f;
-
-									// TODO: Select child
-									if (ImGui::Selectable(go->GetName().c_str(),
-										go->isSelected()))
-									{
-
-									}
-
-									ImGui::PopStyleVar();
-									ImGui::TreePop();
-								}
-								else
-								{
-									ImGui::PopStyleVar();
-									break;
-								}
-							}
-						}
-					}
+				
 				}
 
 				ImGui::ListBoxFooter();
@@ -180,7 +134,10 @@ namespace S2DE::Editor
 			// TODO: Move all of this to details window
 			if (m_selectedGameObject != nullptr)
 			{
-				ImGui::Text("Selected:%s %s", m_selectedGameObject->GetName().c_str(), m_selectedGameObject->GetUUIDString().c_str());
+				ImGui::Text("Selected:");
+				ImGui::Text("Name:%s ", m_selectedGameObject->GetName().c_str());
+				ImGui::Text("UUID:%s ", m_selectedGameObject->GetUUIDString().c_str());
+
 				ImGui::Text("Components:");
 
 				if (ImGui::ListBoxHeader("Components", ImVec2(ImGui::GetWindowSize().x, 300)))
@@ -213,9 +170,9 @@ namespace S2DE::Editor
 				if (m_selectedComponent != nullptr)
 				{
 					ImGui::Text("Details:");
-					ImGui::Text("Selected:%s %s", m_selectedComponent->GetName().c_str(), m_selectedComponent->GetUUIDString().c_str());
-					ImGui::Text("No details for you, son.");
-					ImGui::Text("TODO: Draw it");
+					ImGui::Text("Selected:");
+					ImGui::Text("Name:%s ",	m_selectedComponent->GetName().c_str());
+					ImGui::Text("UUID:%s ",	m_selectedComponent->GetUUIDString().c_str());
 				}
 			}
 

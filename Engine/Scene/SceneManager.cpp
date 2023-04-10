@@ -141,9 +141,11 @@ namespace S2DE::Scene
 				if (gameObject == nullptr)
 					continue;
 
-				GameObjects::Components::AlphaComponent* alphaComponent = gameObject->GetComponent<GameObjects::Components::AlphaComponent>();
+				auto drawComponent = gameObject->GetComponent<GameObjects::Components::DrawableComponent>();
+				auto alphaComponent = gameObject->GetComponent<GameObjects::Components::AlphaComponent>();
 
-				if (alphaComponent != nullptr)
+				if (drawComponent != nullptr && 
+					alphaComponent != nullptr)
 				{
 					gameObject->Render();
 				}
