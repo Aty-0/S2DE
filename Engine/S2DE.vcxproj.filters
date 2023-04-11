@@ -18,7 +18,7 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Base\DebugTools\VisualConsole.h">
+    <ClInclude Include="Base\DebugTools\Console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Base\Main\BuildDate.h">
@@ -259,7 +259,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Base\DebugTools\VisualConsole.cpp">
+    <ClCompile Include="Base\DebugTools\Console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Base\Other\SplashScreen.cpp">
