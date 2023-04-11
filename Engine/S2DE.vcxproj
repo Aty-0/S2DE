@@ -50,7 +50,7 @@
     <ClInclude Include="Render\ConstantBuffer.h" />
     <ClInclude Include="Render\ImGuiS2DETheme.h" />
     <ClInclude Include="Render\ImGui_Window.h" />
-    <ClInclude Include="Base\DebugTools\VisualConsole.h" />
+    <ClInclude Include="Base\DebugTools\Console.h" />
     <ClInclude Include="Base\Engine.h" />
     <ClInclude Include="Base\GameTime.h" />
     <ClInclude Include="Base\GameWindow.h" />
@@ -124,7 +124,7 @@
     <ClCompile Include="Render\LightGlobals.cpp" />
     <ClCompile Include="Render\Mesh.cpp" />
     <ClCompile Include="Render\ImGui_Window.cpp" />
-    <ClCompile Include="Base\DebugTools\VisualConsole.cpp" />
+    <ClCompile Include="Base\DebugTools\Console.cpp" />
     <ClCompile Include="Base\Engine.cpp" />
     <ClCompile Include="Base\GameTime.cpp" />
     <ClCompile Include="Base\GameWindow.cpp" />
