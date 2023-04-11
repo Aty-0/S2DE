@@ -428,7 +428,10 @@ namespace S2DE::Render
                                     FbxFileTexture* texture = FbxCast<FbxFileTexture>(prop.GetSrcObject<FbxTexture>(currentLTextureCount));
 
                                     std::string textureName = texture->GetRelativeFileName();
-                                    Core::Utils::StringAllReplace(textureName, "\\", "/");
+                                    bool replace = Core::Utils::StringAllReplace(textureName, "\\", "/");
+                                    if (replace == false)
+                                        continue;
+
                                     textureName.erase(textureName.rfind("."), textureName.length());
 
                                     if (Core::Engine::GetResourceManager().IsExists<Render::Texture>(textureName) == false)
@@ -450,7 +453,10 @@ namespace S2DE::Render
                                     FbxFileTexture* texture = FbxCast<FbxFileTexture>(prop.GetSrcObject<FbxTexture>(currentTextureCount));
 
                                     std::string textureName = texture->GetRelativeFileName();
-                                    Core::Utils::StringAllReplace(textureName, "\\", "/");
+                                    bool replace = Core::Utils::StringAllReplace(textureName, "\\", "/");
+                                    if (replace == false)
+                                        continue;
+
                                     textureName.erase(textureName.rfind("."), textureName.length());
 
                                     if (Core::Engine::GetResourceManager().IsExists<Render::Texture>(textureName) == false)
