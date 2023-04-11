@@ -2,7 +2,7 @@
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
 #include "Base/Main/BuildDate.h"
-#include "Base/DebugTools/VisualConsole.h"
+#include "Base/DebugTools/Console.h"
 
 #include <filesystem>
 
@@ -154,7 +154,7 @@ namespace S2DE::Core::Utils
 		object.text = line;
 		object.color = color;
 
-		Debug::VisualConsole::ConsoleBuffer.push_back(object);
+		Debug::Console::ConsoleBuffer.push_back(object);
 
 		// Add line 
 		m_lineCount++;

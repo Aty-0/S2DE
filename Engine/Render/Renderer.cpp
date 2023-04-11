@@ -1,7 +1,7 @@
 ﻿#include "Renderer.h"
 
 #include "Base/Engine.h"
-#include "Base/DebugTools/VisualConsole.h"
+#include "Base/DebugTools/Console.h"
 #include "Base/ApplicationHandle.h"
 #include "Base/GameWindow.h"
 
@@ -86,6 +86,7 @@ namespace S2DE::Render
 		UpdateViewport();
 
 		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Create default rasterizer state...");
+
 		if (!CreateRasterizerState())
 			return false;
 
@@ -124,7 +125,7 @@ namespace S2DE::Render
 
 	void Renderer::CreateEngineWindowsAndEditorUI()
 	{
-		AddImGuiWindow("EngineConsole", new Core::Debug::VisualConsole());
+		AddImGuiWindow("Console", new Core::Debug::Console());
 		AddImGuiWindow("DebugInfoWindow", new Core::Debug::Debug_Info());
 
 		if (Core::Engine::isEditor())
