@@ -13,7 +13,7 @@ namespace S2DE::Render
 		static void	Init();
 		static void	PrintNodeInfo(FbxNode* node);
 		static bool	Import(std::string path, 
-			std::vector<Render::VertexBuffer<class Vertex>*>& vertexBuffers,
+			std::vector<Render::VertexBuffer<struct Vertex>*>& vertexBuffers,
 			std::vector<Render::IndexBuffer<std::uint32_t>*>& indexBuffers,
 			std::vector<struct texture_indexed>& meshTextures,
 			std::uint32_t& mCount);	
