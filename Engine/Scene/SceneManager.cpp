@@ -108,7 +108,7 @@ namespace S2DE::Scene
 		}
 	}
 		 	 
-	void SceneManager::RenderScene()
+	void SceneManager::RenderScene(Render::Renderer* renderer)
 	{
 		if (m_render_enabled && m_scene)
 		{
@@ -130,7 +130,7 @@ namespace S2DE::Scene
 
 				if (alphaComponent == nullptr)
 				{
-					gameObject->Render();
+					gameObject->Render(renderer);
 				}
 			}
 
@@ -147,7 +147,7 @@ namespace S2DE::Scene
 				if (drawComponent != nullptr && 
 					alphaComponent != nullptr)
 				{
-					gameObject->Render();
+					gameObject->Render(renderer);
 				}
 			}
 			Core::Engine::GetRenderer()->TurnOffAlphaBlending();
@@ -168,7 +168,7 @@ namespace S2DE::Scene
 
 				if (uiComponent != nullptr)
 				{
-					gameObject->Render();
+					gameObject->Render(renderer);
 				}
 
 				if (alphaComponent != nullptr)

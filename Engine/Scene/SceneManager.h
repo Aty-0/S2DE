@@ -4,6 +4,11 @@
 #include "Base/ResourceManager.h"
 #include "Scene/Scene.h"
 
+namespace S2DE::Render
+{
+	class Renderer;
+}
+
 namespace S2DE::GameObjects
 {
 	class GameObject;
@@ -24,7 +29,7 @@ namespace S2DE::Scene
 		// Save current scene
 		bool		   SaveScene();
 
-		void		   RenderScene();
+		void		   RenderScene(Render::Renderer* renderer);
 		void		   UpdateScene(float DeltaTime);
 		void		   UpdateShaders();
 		void		   UpdateTextures();

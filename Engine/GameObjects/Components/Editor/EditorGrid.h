@@ -1,11 +1,18 @@
 #pragma once
 #include "GameObjects/Components/DrawableComponent.h"
 
-#include "Base/ResourceManager.h"
-#include "Render/Renderer.h"
-#include "Render/Buffers.h"
-
 #define GRID_CELLS 128
+
+namespace S2DE::Render
+{
+	class Shader;
+
+	template<typename T>
+	class VertexBuffer;
+
+	template<typename T>
+	class IndexBuffer;
+}
 
 namespace S2DE::GameObjects::Components::Editor
 {
@@ -16,8 +23,7 @@ namespace S2DE::GameObjects::Components::Editor
 		virtual ~EditorGrid();
 
 	protected:
-// FIX ME: 
-		virtual void				 OnRender()  override;
+		virtual void				 OnRender(Render::Renderer* renderer)  override;
 
 		virtual void				 CreateVertexBuffer();
 		virtual void				 CreateIndexBuffer();

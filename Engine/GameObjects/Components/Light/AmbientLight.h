@@ -14,6 +14,6 @@ namespace S2DE::GameObjects::Components::Light
 	protected:
 		void		 UpdateCB() override;
 		void		 InitLight() override;
-		void		 OnRender() override;
+		void		 OnRender(Render::Renderer* renderer) override;
 	};
 }

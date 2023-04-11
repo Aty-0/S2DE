@@ -1,6 +1,12 @@
 #include "Skybox.h"
 #include "Scene/SceneManager.h"
 
+#include "Base/ResourceManager.h"
+#include "Render/Renderer.h"
+#include "Render/Buffers.h"
+#include "Render/Texture.h"
+#include "Render/Shader.h"
+
 #include "GameObjects/Base/GameObject.h"
 #include "GameObjects/Components/Camera.h"
 
@@ -45,7 +51,7 @@ namespace S2DE::GameObjects::Components
 		return true;
 	}
 
-	void Skybox::OnRender()
+	void Skybox::OnRender(Render::Renderer* renderer)
 	{	 
 		m_shader->UpdateMainConstBuffer(UpdateTransformation());
 
@@ -58,11 +64,11 @@ namespace S2DE::GameObjects::Components
 		m_indexBuffer->Bind();
 
 		// Draw poly 
-		Core::Engine::GetRenderer()->TurnZBufferOff();
-		Core::Engine::GetRenderer()->SetRasterizerState("nocull");
-		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Core::Engine::GetRenderer()->SetRasterizerState();
-		Core::Engine::GetRenderer()->TurnZBufferOn();
+		renderer->TurnZBufferOff();
+		renderer->SetRasterizerState("nocull");
+		renderer->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		renderer->SetRasterizerState();
+		renderer->TurnZBufferOn();
 
 		// Unbind 
 		m_shader->Unbind();

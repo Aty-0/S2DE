@@ -1,6 +1,7 @@
 #include "Component.h"
 #include "Base/Utils/StringUtils.h"
 #include "Base/Engine.h"
+#include "Render/Renderer.h"
 
 namespace S2DE::GameObjects::Components
 {

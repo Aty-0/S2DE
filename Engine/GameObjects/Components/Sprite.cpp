@@ -4,6 +4,11 @@
 #include "GameObjects\Components\Camera.h"
 #include "GameObjects\Components\AlphaComponent.h"
 
+#include "Base/ResourceManager.h"
+#include "Render/Renderer.h"
+#include "Render/Buffers.h"
+#include "Render/Texture.h"
+#include "Render/Shader.h"
 
 namespace S2DE::GameObjects::Components
 {
@@ -94,7 +99,7 @@ namespace S2DE::GameObjects::Components
 		m_uiMode = mode;
 	}
 
-	void Sprite::OnRender()
+	void Sprite::OnRender(Render::Renderer* renderer)
 	{
 		//Bind and update variables in const buffer
 		m_shader->UpdateMainConstBuffer(UpdateTransformation(), m_uiMode);
@@ -118,12 +123,12 @@ namespace S2DE::GameObjects::Components
 		//Draw poly 
 		if (m_twoSided)
 		{
-			Core::Engine::GetRenderer()->SetRasterizerState("fcc");
-			Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			renderer->SetRasterizerState("fcc");
+			renderer->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		}
 
-		Core::Engine::GetRenderer()->SetRasterizerState();
-		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		renderer->SetRasterizerState();
+		renderer->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		
 		//Unbind 
 		m_shader->Unbind();

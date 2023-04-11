@@ -5,7 +5,12 @@
 
 namespace S2DE::GameObjects
 {
-	class S2DE_API GameObject;
+	class GameObject;
+}
+
+namespace S2DE::Render
+{
+	class Renderer;
 }
 
 namespace S2DE::GameObjects::Components
@@ -26,7 +31,7 @@ namespace S2DE::GameObjects::Components
 
 		virtual void				 OnCreate() { }
 		virtual void				 OnDestroy() { }
-		virtual void				 OnRender() { }
+		virtual void				 OnRender(Render::Renderer* renderer) { }
 		virtual void				 OnUpdate(float deltaTime) { }
 
 		void						 SetPriority(std::uint32_t priority);

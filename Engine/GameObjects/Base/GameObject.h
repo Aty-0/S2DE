@@ -14,6 +14,11 @@
 #define S2DE_DEFAULT_GAMEOBJECT_PREFIX 0
 #define	S2DE_ENGINE_GAMEOBJECT_TYPE "_Engine_"
 
+namespace S2DE::Render
+{
+	class Renderer;
+}
+
 namespace S2DE::Editor
 {
 	class EditorObjectInspector;
@@ -36,7 +41,7 @@ namespace S2DE::GameObjects
 		explicit GameObject(std::string name, std::string type, std::int32_t prefix, std::string id = std::string());
 		virtual ~GameObject();
 
-		void						 Render();
+		void						 Render(Render::Renderer* renderer);
 		void						 Update(float deltaTime);
 		void						 SetName(std::string name);
 		void						 SetPrefix(std::int32_t prefix);

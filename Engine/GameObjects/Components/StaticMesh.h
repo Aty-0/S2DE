@@ -1,12 +1,14 @@
 #pragma once
 #include "GameObjects/Components/DrawableComponent.h"
-#include "Base/ResourceManager.h"
-#include "Render/Renderer.h"
-#include "Render/Buffers.h"
-#include "Render/Texture.h"
-#include "Render/Shader.h"
-#include "Render/Mesh.h"
-#include "Render/CB.h"
+#include "Math/Color.h"
+
+namespace S2DE::Render
+{
+	class Mesh;
+	class Texture;
+	class Shader;
+}
+
 
 namespace S2DE::GameObjects::Components
 {
@@ -32,7 +34,7 @@ namespace S2DE::GameObjects::Components
 		void					UseIndices(bool use);
 	protected:
 		void					OnUpdate(float deltaTime) override { }
-		void					OnRender() override;
+		void					OnRender(Render::Renderer* renderer) override;
 	private:
 		Render::Mesh*		m_mesh;
 

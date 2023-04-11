@@ -1,5 +1,8 @@
 #include "EditorGrid.h"
 #include "GameObjects/Base/GameObject.h"
+#include "Render/Renderer.h"
+#include "Render/Buffers.h"
+#include "Base/ResourceManager.h"
 
 namespace S2DE::GameObjects::Components::Editor
 {
@@ -20,7 +23,7 @@ namespace S2DE::GameObjects::Components::Editor
 		Core::Delete(m_vertexBuffer);
 	}
 
-	void EditorGrid::OnRender()
+	void EditorGrid::OnRender(Render::Renderer* renderer)
 	{
 		//Bind and update variables in const buffer
 		m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
@@ -33,7 +36,7 @@ namespace S2DE::GameObjects::Components::Editor
 		m_indexBuffer->Bind();
 
 		//Draw poly 
-		Core::Engine::GetRenderer()->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+		renderer->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 		//Unbind 
 		m_shader->Unbind();

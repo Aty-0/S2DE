@@ -1,7 +1,18 @@
 #include "StaticMesh.h"
+
 #include "Scene/SceneManager.h"
 #include "GameObjects/Base/GameObject.h"
+
+#include "Base/ResourceManager.h"
+
+#include "Render/Renderer.h"
+#include "Render/Buffers.h"
 #include "Render/Texture.h"
+#include "Render/Shader.h"
+#include "Render/Mesh.h"
+#include "Render/CB.h"
+
+#include "Math/Color.h"
 
 namespace S2DE::GameObjects::Components
 {
@@ -185,14 +196,14 @@ namespace S2DE::GameObjects::Components
 		m_useIndices = use;
 	}
 
-	void StaticMesh::OnRender()
+	void StaticMesh::OnRender(Render::Renderer* renderer)
 	{	
 		// Mesh is invalid, we can't continue...
 		if (m_mesh == nullptr)
 			return;
 
 		auto transform = GetOwner()->GetTransform();
-		Core::Engine::GetRenderer()->DebugDrawLineCross(transform->GetPosition(), transform->GetRotation(), transform->GetScale());
+		renderer->DebugDrawLineCross(transform->GetPosition(), transform->GetRotation(), transform->GetScale());
 
 		if (m_isMeshPart)
 		{
@@ -231,15 +242,15 @@ namespace S2DE::GameObjects::Components
 			}
 
 			// Draw poly 		
-			Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+			renderer->SetRasterizerState("fcc");
 
 			if (m_useIndices)
 			{
-				Core::Engine::GetRenderer()->DrawIndexed(iBuff->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				renderer->DrawIndexed(iBuff->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			}
 			else
 			{
-				Core::Engine::GetRenderer()->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				renderer->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			}
 
 			// Unbind 
@@ -310,15 +321,15 @@ namespace S2DE::GameObjects::Components
 				}
 
 				// Draw poly 		
-				Core::Engine::GetRenderer()->SetRasterizerState("fcc");
+				renderer->SetRasterizerState("fcc");
 
 				if (m_useIndices)
 				{
-					Core::Engine::GetRenderer()->DrawIndexed(iBuff->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+					renderer->DrawIndexed(iBuff->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				}
 				else
 				{
-					Core::Engine::GetRenderer()->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+					renderer->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				}
 
 				// Unbind 

@@ -21,12 +21,13 @@ namespace S2DE::GameObjects::Components::Light
 		onStrengthChanged.AddCallback(std::bind(&AmbientLight::UpdateCB, this));
 	}
 
-	void AmbientLight::OnRender()
+	void AmbientLight::OnRender(Render::Renderer* renderer)
 	{
-		if (GetOwner()->isEnabled() && Core::Engine::isEditor())
+		const auto owner = GetOwner();
+		if (owner->isEnabled() && Core::Engine::isEditor())
 		{
-			const auto transform = GetOwner()->GetTransform();
-			Core::Engine::GetEngine()->GetRenderer()->DebugDrawCube(transform->GetPosition(), { 0,0,0 } , transform->GetScale(),
+			const auto transform = owner->GetTransform();
+			renderer->DebugDrawCube(transform->GetPosition(), { 0,0,0 } , transform->GetScale(),
 				{ m_color.r, m_color.g, m_color.b, m_color.a });
 		}
 	}

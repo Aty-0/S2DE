@@ -1,6 +1,9 @@
 #include "GameObject.h"
 
 #include "Scene/SceneManager.h"
+
+#include "Render/Renderer.h"
+
 #include "GameObjects/Components/Sprite.h"
 #include "GameObjects/Components/DrawableComponent.h"
 #include "GameObjects/Components/AlphaComponent.h"
@@ -101,7 +104,7 @@ namespace S2DE::GameObjects
 		}
 	}
 
-	void GameObject::Render()
+	void GameObject::Render(Render::Renderer* renderer)
 	{
 		if (m_visible == true)
 		{
@@ -109,7 +112,7 @@ namespace S2DE::GameObjects
 			{
 				if (component.second != nullptr)
 				{
-					component.second->OnRender();
+					component.second->OnRender(renderer);
 				}
 			}
 		}
@@ -128,11 +131,23 @@ namespace S2DE::GameObjects
 	void GameObject::SetVisible(bool visible)
 	{
 		m_visible = visible;
+
+		const auto child = GetTransform()->GetChild();
+		if (child != nullptr)
+		{
+			child->SetVisible(visible);
+		}
 	}
 
 	void GameObject::SetEnabled(bool enabled)
 	{
 		m_enabled = enabled;
+
+		const auto child = GetTransform()->GetChild();
+		if (child != nullptr)
+		{
+			child->SetEnabled(enabled);
+		}
 	}
 
 	void GameObject::SetPrefix(std::int32_t prefix)

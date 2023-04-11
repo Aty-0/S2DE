@@ -663,7 +663,7 @@ namespace S2DE::Render
 				{
 					m_context->OMSetRenderTargets(1, &m_frameRenderTarget, m_depthStencilView);
 					Core::Engine::GetApplicationHandle()->OnRender();
-					Core::Engine::GetSceneManager()->RenderScene();
+					Core::Engine::GetSceneManager()->RenderScene(this);
 				}
 
 				m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
@@ -684,7 +684,7 @@ namespace S2DE::Render
 			else
 			{
 				Core::Engine::GetApplicationHandle()->OnRender();
-				Core::Engine::GetSceneManager()->RenderScene();
+				Core::Engine::GetSceneManager()->RenderScene(this);
 			}
 
 			RenderImGui();

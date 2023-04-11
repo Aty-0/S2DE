@@ -1,15 +1,13 @@
 #pragma once
 #include "GameObjects/Components/Component.h"
 
-#include "Base/Main/Common.h"
 
-//If we need to get main camera in scene 
 #define S2DE_MAIN_CAMERA_NAME "_MainCamera"
+
+// TODO: Make EditorCamera 
 
 namespace S2DE::GameObjects::Components
 {
-	// TODO: Make EditorCamera 
-
 	class S2DE_API Camera : public Component
 	{
 	public:
@@ -46,7 +44,7 @@ namespace S2DE::GameObjects::Components
 		[[nodiscard]] inline float								GetFov() const;
 		[[nodiscard]] inline float								GetSpeedBoost() const;
 	protected:
-		virtual void							OnRender() override;
+		virtual void							OnRender(Render::Renderer* renderer) override;
 		virtual void							OnUpdate(float DeltaTime) override;
 		virtual void							UpdateCameraControls(float delta);
 	private:

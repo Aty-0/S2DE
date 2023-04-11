@@ -40,16 +40,17 @@ namespace S2DE::GameObjects::Components
 
 	}
 
-	void Camera::OnRender()
+	void Camera::OnRender(Render::Renderer* renderer)
 	{
-		auto transform = GetOwner()->GetTransform();
+		const auto transform = GetOwner()->GetTransform();
+		const auto gameWindow = Core::Engine::GetGameWindow();
 
 		switch (m_mode)
 		{
 		case Camera::CameraProjectionMode::Orthographics:
 			m_projectionMatrix = DirectX::SimpleMath::Matrix::CreateOrthographic(
-				(float)Core::Engine::GetGameWindow()->GetWidth() * m_zoom,
-				(float)Core::Engine::GetGameWindow()->GetHeight() * m_zoom,
+				static_cast<float>(gameWindow->GetWidth())  * m_zoom,
+				static_cast<float>(gameWindow->GetHeight()) * m_zoom,
 				m_zNear, m_zFar);
 
 			m_target = DirectX::SimpleMath::Vector3(transform->GetPosition().x, transform->GetPosition().y, -1);
@@ -58,7 +59,7 @@ namespace S2DE::GameObjects::Components
 			break;
 		case Camera::CameraProjectionMode::Perspective:
 			m_projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView((m_fov / 360.0f) * DirectX::XM_2PI,
-				static_cast<float>(Core::Engine::GetGameWindow()->GetWidth() / Core::Engine::GetGameWindow()->GetHeight()), m_zNear, m_zFar);
+				static_cast<float>(gameWindow->GetWidth() / gameWindow->GetHeight()), m_zNear, m_zFar);
 
 			// Create the rotation matrix 
 			const auto x = transform->GetRotation().x;
@@ -98,8 +99,8 @@ namespace S2DE::GameObjects::Components
 
 
 		m_ortho_Matrix = DirectX::SimpleMath::Matrix::CreateOrthographic(
-			(float)Core::Engine::GetGameWindow()->GetWidth() * CAMERA_DEFAULT_ORTHO_ZOOM,
-			(float)Core::Engine::GetGameWindow()->GetHeight() * CAMERA_DEFAULT_ORTHO_ZOOM,
+			static_cast<float>(gameWindow->GetWidth()) * CAMERA_DEFAULT_ORTHO_ZOOM,
+			static_cast<float>(gameWindow->GetHeight()) * CAMERA_DEFAULT_ORTHO_ZOOM,
 			0.0f, 10.0f);
 
 		m_projectionMatrix.Transpose(m_projectionMatrix);

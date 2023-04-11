@@ -1,11 +1,26 @@
 #pragma once
 #include "GameObjects/Components/DrawableComponent.h"
+#include "Math/Color.h"
 
-#include "Base/ResourceManager.h"
-#include "Render/Renderer.h"
-#include "Render/Buffers.h"
-#include "Render/Texture.h"
-#include "Render/Shader.h"
+namespace S2DE::Render::CB
+{
+	struct CB_Sprite;
+}
+
+namespace S2DE::Render
+{
+	class Texture;
+	class Shader;
+
+	template<typename T>
+	class VertexBuffer;
+
+	template<typename T>
+	class IndexBuffer;
+
+	template<typename T>
+	class ConstantBuffer;
+}
 
 namespace S2DE::GameObjects::Components
 {	
@@ -36,7 +51,7 @@ namespace S2DE::GameObjects::Components
 
 		void											SetUIMode(bool mode);
 
-		void											OnRender() override;
+		void											OnRender(Render::Renderer* renderer) override;
 
 		void											OnCreate() override;
 
@@ -57,7 +72,7 @@ namespace S2DE::GameObjects::Components
 		Render::IndexBuffer<std::int32_t>*				m_indexBuffer;
 		DirectX::SimpleMath::Vector4					m_tileFrame;
 		Math::Color<float>								m_color;
-		Render::ConstantBuffer<Render::CB::CB_Sprite>*	m_spriteCB;
+		Render::ConstantBuffer<struct Render::CB::CB_Sprite>*	m_spriteCB;
 		bool											m_billboard;
 		bool											m_twoSided;
 		bool											m_uiMode;
