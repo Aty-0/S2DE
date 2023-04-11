@@ -38,22 +38,31 @@ namespace S2DE::Core::Utils
 		m_lineCount = 0;
 	}
 
+	const char* Logger::ParseArgsToString(const char* text, ...)
+	{
+		char buffer[2048];
+		VA_LIST_OUTPUT(buffer);
+		return buffer;
+	}
+
 	std::string Logger::GetTime(bool printMinAndSec)
 	{
 		m_time = time(0);
 		m_localTime = localtime(&m_time);
-		std::string minSec = printMinAndSec == true ? "." + std::to_string(m_localTime->tm_sec) + "." + std::to_string(m_localTime->tm_min) : std::string();
-		return std::to_string(1900 + m_localTime->tm_year) + "." + std::to_string(1 + m_localTime->tm_mon) + "." + std::to_string(m_localTime->tm_mday) + minSec;
+
+		const char* textparsed = printMinAndSec == true ? 
+			ParseArgsToString("%i.%i.%i.%i.%i", (1900 + m_localTime->tm_year), (1 + m_localTime->tm_mon), m_localTime->tm_mday,m_localTime->tm_sec, m_localTime->tm_min) :
+			ParseArgsToString("%i.%i.%i", (1900 + m_localTime->tm_year), (1 + m_localTime->tm_mon), m_localTime->tm_mday);
+
+		return textparsed;
 	}
 
 	std::string Logger::GetCorrentTime()
 	{
 		m_time = time(0);
 		m_localTime = localtime(&m_time);
-
-		return std::to_string(1900 + m_localTime->tm_year) + "." + std::to_string(1 + m_localTime->tm_mon) + "." +
-			std::to_string(m_localTime->tm_mday) + " " + std::to_string(m_localTime->tm_hour) +
-			":" + std::to_string(m_localTime->tm_min) + ":" + std::to_string(m_localTime->tm_sec);
+		const char* textparsed = ParseArgsToString("%i.%i.%i:%i:%i", (1900 + m_localTime->tm_year), (1 + m_localTime->tm_mon), m_localTime->tm_mday, m_localTime->tm_sec, m_localTime->tm_min);
+		return textparsed;
 	}
 
 	void Logger::Fatal(const char* text, ...)
@@ -108,7 +117,9 @@ namespace S2DE::Core::Utils
 		}
 
 		// Set log name
-		m_logFileName = "S2DE-Log-" + GetTime(true) + ".log";
+		m_logFileName.append("S2DE-Log-");
+		m_logFileName.append(GetTime(true)); 
+		m_logFileName.append(".log");
 
 		// Create log file 
 		m_logFile = std::ofstream("Logs/" + m_logFileName, std::ios_base::out);

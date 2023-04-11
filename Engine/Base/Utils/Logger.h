@@ -26,6 +26,7 @@ namespace S2DE::Core::Utils
 		[[nodiscard]] static std::string			GetHRCodeDetails(HRESULT hr);
 		[[nodiscard]] static bool					CheckHR(HRESULT hr, bool printCode = false);
 
+		static const char*			ParseArgsToString(const char* text, ...);
 	private:
 		static std::uint32_t		m_lineCount;
 		static time_t				m_time;
