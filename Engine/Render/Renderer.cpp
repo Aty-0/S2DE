@@ -1057,6 +1057,54 @@ namespace S2DE::Render
 		DebugDrawRing(pos, yaxis, zaxis, color);
 	}
 
+	void Renderer::DebugDrawLineCross(DirectX::SimpleMath::Vector3 pos,
+		DirectX::SimpleMath::Vector3 rot,
+		DirectX::SimpleMath::Vector3 scale,
+		DirectX::SimpleMath::Color color)
+	{
+		VertexBuffer<Vertex>* vertexBuffer = nullptr;
+		Shader* shader = Core::Engine::GetResourceManager().Get<Shader>("Line");
+
+		if (vertexBuffer == nullptr)
+		{
+			vertexBuffer = new VertexBuffer<Vertex>();
+
+			vertexBuffer->GetArray() =
+			{
+				{ DirectX::SimpleMath::Vector3(-1.0f, -1.0f, 0.0f),    color },
+				{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), color },
+				{ DirectX::SimpleMath::Vector3(1.0f,   -1.0f,	0.0f), color },
+				{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,	0.0f), color },
+				{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), color },
+				{ DirectX::SimpleMath::Vector3(1.0f,   1.0f,	0.0f), color },
+			};
+
+			Assert(vertexBuffer->Create(), "Can't create index buffer for debug line");
+			vertexBuffer->Update();
+		}
+
+		GameObjects::Components::Transform* transform = nullptr;
+
+		if (transform == nullptr)
+		{
+			transform = new GameObjects::Components::Transform();
+
+			transform->SetPosition(pos);
+			transform->SetRotation(rot);
+			transform->SetScale(scale);
+		}
+
+		vertexBuffer->Bind();
+		shader->UpdateMainConstBuffer(transform->UpdateTransformation());
+		shader->Bind();
+
+		Draw(vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		Core::Delete(vertexBuffer);
+		Core::Delete(transform);
+
+	}
+
 	void Renderer::DebugDrawLine(DirectX::SimpleMath::Vector3 begin,
 		DirectX::SimpleMath::Vector3 end,
 		DirectX::SimpleMath::Color color)
