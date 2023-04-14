@@ -3,7 +3,7 @@
 
 namespace S2DE::Math
 {
-	template<typename T = std::int32_t>
+	template<typename T>
     class S2DE_API Color
 	{
 	public:

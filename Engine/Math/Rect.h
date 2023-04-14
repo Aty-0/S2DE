@@ -16,12 +16,12 @@ namespace S2DE::Math
 			this->width = width;
 		}
 
-		inline bool operator !=(const Rect& r) const noexcept
+		bool operator !=(const Rect& r) const noexcept
 		{
 			return !(left == r.left && top == r.top && height == r.height && width == r.width);
 		}
 
-		inline bool operator ==(const Rect& r) const noexcept
+		bool operator ==(const Rect& r) const noexcept
 		{
 			return (left == r.left && top == r.top && height == r.height && width == r.width);
 		}
@@ -29,13 +29,14 @@ namespace S2DE::Math
 		
 		static RECT ToWinRect(Rect rect) noexcept
 		{
-			RECT r;
-			r.bottom = (LONG)rect.height;
-			r.right =  (LONG)rect.width;
-			r.left =   (LONG)rect.left;
-			r.top =    (LONG)rect.top;
+			RECT winRect = 
+			{ static_cast<long>(rect.left),
+				static_cast<long>(rect.top),
+				static_cast<long>(rect.width),
+				static_cast<long>(rect.height)
+			};
 
-			return r;
+			return winRect;
 		}
 
 		T left = 0;

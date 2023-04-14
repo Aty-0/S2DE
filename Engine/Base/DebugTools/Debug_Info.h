@@ -10,7 +10,7 @@ namespace S2DE::Core::Debug
 		Debug_Info();
 		~Debug_Info();
 
-		virtual void Render() final;
+		void Render() final;
 
 	};
 

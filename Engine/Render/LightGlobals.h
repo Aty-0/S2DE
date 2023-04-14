@@ -1,37 +1,36 @@
 #pragma once
+#include "Base/Main/Common.h"
+#include "Base/Utils/UUID.h"
 #include "Render/Buffers.h"
 #include "Render/CB.h"
 
 namespace S2DE::Render
 {
-	typedef ConstantBuffer<CB::CB_Light>* LightConstBuff;
-
-	enum LightTypes
-	{
-		Default = 0,
-		Directional = 1,
-		Point = 2,
-		Spot = 3,
-	};
-
 	class LightGlobals
 	{
 	public:
-		static LightConstBuff	GlobalLightConstBuffer;
-		static std::int32_t	    LightCount;
+		static ConstantBuffer<CB::CB_Light>*  LightConstantBuffer;
 
-		static void CreateLightConstantBuffer()
+
+		// Creates light constant buffer etc
+		static void Initialize();
+		// Adding light to CB Light array and our vector
+		static std::int32_t AddLight(Render::CB::PS_Light_Structure light, boost::uuids::uuid uuid);
+		// Remove light from CB Light array and our vector 
+		static void RemoveLight(boost::uuids::uuid uuid);
+		// Updating structure for existing light
+		static void SetNewLightStructure(Render::CB::PS_Light_Structure light, boost::uuids::uuid uuid);
+		// Writes current lights structures to CB Light array 
+		static void UpdateLights();
+
+		[[nodiscard]] static std::int32_t GetLightCount() 
 		{
-			// Create global light constant buffer 
-			GlobalLightConstBuffer = new Render::ConstantBuffer<Render::CB::CB_Light>();
-			S2DE_ASSERT(GlobalLightConstBuffer->Create());
-			GlobalLightConstBuffer->GetData()->ambient_light = Render::CB::PS_AmbientLight_Structure();
-			std::fill_n(GlobalLightConstBuffer->GetData()->lights, MAX_LIGHTS, Render::CB::PS_Light_Structure());
+			return static_cast<std::int32_t>(m_parsedLights.size());
 		}
 
-		static void DeleteLightConstantBuffer()
-		{
-			Core::Delete(GlobalLightConstBuffer);
-		}
+	private:
+		static std::vector<std::pair<boost::uuids::uuid, 
+			Render::CB::PS_Light_Structure>> m_parsedLights;
+
 	};
 }

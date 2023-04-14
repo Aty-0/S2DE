@@ -1,7 +1,7 @@
 ﻿#include "Renderer.h"
 
 #include "Base/Engine.h"
-#include "Base/DebugTools/VisualConsole.h"
+#include "Base/DebugTools/Console.h"
 #include "Base/ApplicationHandle.h"
 #include "Base/GameWindow.h"
 
@@ -11,27 +11,23 @@
 #include "Render/ImGuiS2DETheme.h"
 #include "Render/FBX_Importer.h"
 #include "Render/LightGlobals.h"
+#include "Render/Buffers.h"
+
+#include "GameObjects/Components/Transform.h"
 
 #include "Base/DebugTools/Debug_Info.h"
-#include "Base/DebugTools/Debug_ObjectInspector.h"
 
-#include "Editor/EditorModelExporterWindow.h"
 #include "Editor/EditorToolstrip.h"
 #include "Editor/EditorObjectInspector.h"
 #include "Editor/EditorRenderWindow.h"
 #include "Editor/EditorColorPicker.h"
+#include "Editor/EditorModelExporterWindow.h"
 
 #include <dxgidebug.h>
 
 #define S2DE_IMGUI_NEW_FRAME()  ImGui_ImplDX11_NewFrame(); \
 								ImGui_ImplSDL2_NewFrame(); \
 								ImGui::NewFrame(); \
-
-using namespace S2DE::Core;
-using namespace S2DE::Core::Utils;
-using namespace S2DE::Core::Debug;
-using namespace S2DE::Math;
-using namespace S2DE::Editor;
 
 namespace S2DE::Render
 {
@@ -44,13 +40,22 @@ namespace S2DE::Render
 							m_depthStateDisabled(nullptr),
 							m_depthStencilView(nullptr),
 							m_blendStateOn(nullptr),
-							m_blendStateOff(nullptr),	
+							m_blendStateOff(nullptr),
+							m_frameBufferShaderResourceView(nullptr),
+							m_frameRenderTarget(nullptr),
+							m_frameBufferData(nullptr),
+							m_backBuffer(nullptr),
+							m_editorToolStrip(nullptr),
+							m_editorCenterCursor(nullptr),
+							m_d3dDebug(nullptr),
+							m_d3dInfoQueue(nullptr),
 							m_vsync(false),
 							m_showImguiWindows(true),
 							m_showImguiDemoWindow(false),
 							m_deviceFlags(0),
+							m_viewport(),
 							m_fillMode(RenderFillMode::Solid),
-							m_clearColor(Color<float>(0.0f, 0.0f, 0.0f, 1.0f))
+							m_clearColor(Math::Color<float>(0.0f, 0.0f, 0.0f, 1.0f))
 
 	{
 
@@ -70,7 +75,7 @@ namespace S2DE::Render
 			return false;
 		}
 
-		Logger::Log("[Renderer] [Create Render] Create device and swapchain...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Create device and swapchain...");
 		if (!CreateDeviceAndSwapChain())
 			return false;
 
@@ -80,7 +85,8 @@ namespace S2DE::Render
 
 		UpdateViewport();
 
-		Logger::Log("[Renderer] [Create Render] Create default rasterizer state...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Create default rasterizer state...");
+
 		if (!CreateRasterizerState())
 			return false;
 
@@ -96,42 +102,41 @@ namespace S2DE::Render
 
 		SetRasterizerState();
 
-		Logger::Log("[Renderer] [Create Render] Create depth stencil and render target...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Create depth stencil and render target...");
 		if (!CreateDepthStencil())
 			return false;
 
-		Logger::Log("[Renderer] [Create Render] Create blend state...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Create blend state...");
 		if (!CreateBlendState())
 			return false;
 
-		Logger::Log("[Renderer] [Create Render] Initialize ImGui...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] [Create Render] Initialize ImGui...");
 		if (!InitImGui())
 			return false;
 
-		Logger::Log("[Renderer] Initialize fbx sdk...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] Initialize fbx sdk...");
 		FBX_Importer::Init();
 
-		LightGlobals::CreateLightConstantBuffer();
 		CreateEngineWindowsAndEditorUI();
-
+		LightGlobals::Initialize();
 
 		return true;
 	}
 
 	void Renderer::CreateEngineWindowsAndEditorUI()
 	{
-		AddImGuiWindow("EngineConsole", new Debug::VisualConsole());
-		AddImGuiWindow("DebugInfoWindow", new Debug_Info());
+		AddImGuiWindow("Console", new Core::Debug::Console());
+		AddImGuiWindow("DebugInfoWindow", new Core::Debug::Debug_Info());
 
-		if (Engine::isEditor())
+		if (Core::Engine::isEditor())
 		{
-			//AddImGuiWindow("EditorRenderWindow", new EditorRenderWindow(), true);
-			AddImGuiWindow("EditorObjectInspector", new EditorObjectInspector(), false);
-			AddImGuiWindow("EditorBgColorPicker", new EditorColorPicker(), false);
-			AddImGuiWindow("EditorModelExporterWindow", new EditorModelExporterWindow(), true);
+			AddImGuiWindow("EditorRenderWindow", new Editor::EditorRenderWindow(), true);
+			AddImGuiWindow("EditorObjectInspector", new Editor::EditorObjectInspector(), true);
+			AddImGuiWindow("EditorBgColorPicker", new Editor::EditorColorPicker(), false);
+			AddImGuiWindow("EditorModelExporterWindow", new Editor::EditorModelExporterWindow(), true);
 
 
-			m_editorToolStrip = new EditorToolStrip();
+			m_editorToolStrip = new Editor::EditorToolStrip();
 			m_editorToolStrip->SetDrawState(true);
 		}
 	}
@@ -139,13 +144,17 @@ namespace S2DE::Render
 	bool Renderer::Reset()
 	{
 		m_context->OMSetRenderTargets(0, nullptr, nullptr);
-		Release(m_targetView);
+		Core::Release(m_targetView);
+		Core::Release(m_frameRenderTarget);
 
-		Release(m_backBuffer);			
-		Release(m_depthStencilView);			
-		Release(m_depthStateEnabled);
-		Release(m_depthStencilBuffer);
-		Release(m_depthStateDisabled);
+		Core::Release(m_backBuffer);			
+		Core::Release(m_depthStencilView);			
+		Core::Release(m_depthStateEnabled);
+		Core::Release(m_depthStencilBuffer);
+		Core::Release(m_depthStateDisabled);
+
+		Core::Release(m_frameBufferData);
+		m_frameBufferData = nullptr;
 
 		m_context->Flush();
 		
@@ -153,7 +162,7 @@ namespace S2DE::Render
 		
 		if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 		{
-			//TODO: What's we need to do with device in this case ?
+			// TODO: What's we need to do with device in this case ?
 			S2DE_FATAL_ERROR("hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET");
 			return false;
 		}	
@@ -164,8 +173,7 @@ namespace S2DE::Render
 		}
 
 		CreateDepthStencil();
-		UpdateViewport();
-
+		
 		return true;
 	}
 
@@ -179,13 +187,13 @@ namespace S2DE::Render
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
-		ImGuiIO& io = ImGui::GetIO(); 
-		io.ConfigFlags = Engine::isEditor() ? ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange 
+		auto& io = ImGui::GetIO(); 
+		io.ConfigFlags = Core::Engine::isEditor() ? ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange
 			: ImGuiConfigFlags_NoMouseCursorChange;
 
 		// Search custom font
-		std::string path = std::string();
-		if (Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
+		auto path = std::string();
+		if (Core::Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
 			io.Fonts->AddFontFromFileTTF(path.c_str(), 16);
 		
 		LoadCustomImguiTheme();
@@ -201,19 +209,20 @@ namespace S2DE::Render
 	{
 		if (SUCCEEDED(m_device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&m_d3dDebug))))
 		{
-			HMODULE hDll = LoadLibraryA("dxgidebug.dll");
+			const auto hDll = LoadLibraryA("dxgidebug.dll");
 
-			if (hDll == 0)
+			if (hDll == nullptr)
 			{
 				Logger::Warning("Can't create debug layer because could not load library dxgidebug.dll... ");
 				return;
 			}
 
-			typedef HRESULT(__stdcall* fPtr)(const IID&, void**);
-			fPtr DXGIGetDebugInterface = (fPtr)GetProcAddress(hDll, "DXGIGetDebugInterface");
+			typedef HRESULT (__stdcall* fPtr)(const IID&, void**);
+
+			const auto DXGIGetDebugInterface = reinterpret_cast<fPtr>(GetProcAddress(hDll, "DXGIGetDebugInterface"));
 
 			IDXGIDebug* debugDev = nullptr;
-			DXGIGetDebugInterface(__uuidof(IDXGIDebug), (void**)&debugDev);
+			DXGIGetDebugInterface(__uuidof(IDXGIDebug), reinterpret_cast<void**>(&debugDev));
 			debugDev->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
 
 			if (SUCCEEDED(m_device->QueryInterface(__uuidof(ID3D11InfoQueue), reinterpret_cast<void**>(&m_d3dInfoQueue))))
@@ -224,7 +233,7 @@ namespace S2DE::Render
 					D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
 				};
 
-				D3D11_INFO_QUEUE_FILTER filter = {};
+				D3D11_INFO_QUEUE_FILTER filter = { };
 				filter.DenyList.NumIDs = _countof(hide);
 				filter.DenyList.pIDList = hide;
 
@@ -238,22 +247,26 @@ namespace S2DE::Render
 	bool Renderer::CreateRenderTarget()
 	{
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&m_backBuffer);
-		S2DE_CHECK(m_device->CreateRenderTargetView(m_backBuffer, NULL, &m_targetView), "Render Error: Cannot create render target view");
-		//CreateFramebufferTexture(m_backBuffer);
+		Verify_HR(m_device->CreateRenderTargetView(m_backBuffer, nullptr, &m_targetView), "Render Error: Cannot create render target view");
+		CreateFramebufferTexture(m_backBuffer);
+
+		if (m_frameBufferData != nullptr)
+		{
+			Verify_HR(m_device->CreateRenderTargetView(m_frameBufferData, nullptr, &m_frameRenderTarget), "[Renderer] frame render target creation failed!");
+		}
+
 		return true;
 	}
 
 	bool Renderer::CreateDeviceAndSwapChain()
 	{
-		D3D_FEATURE_LEVEL FeatureLevels[] = 
+		const D3D_FEATURE_LEVEL featureLevels[] = 
 		{
 			D3D_FEATURE_LEVEL_11_1,
 			D3D_FEATURE_LEVEL_11_0,
-			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0
 		};
 
-		D3D_DRIVER_TYPE driverTypes[] =
+		const D3D_DRIVER_TYPE driverTypes[] =
 		{
 			D3D_DRIVER_TYPE_HARDWARE,
 			D3D_DRIVER_TYPE_WARP,
@@ -261,65 +274,80 @@ namespace S2DE::Render
 			D3D_DRIVER_TYPE_UNKNOWN,
 		};
 
-		//If defined S2DE_DEBUG_RENDER_MODE macro and if it's debug build, we are add D3D11_CREATE_DEVICE_DEBUG flag to device
+		// Add debug device flag if debug render mode is defined...
 #if defined(S2DE_DEBUG_RENDER_MODE)
 		m_deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-		std::uint32_t driver_types_size = ARRAYSIZE(driverTypes);
+		// Try to create device with correct driver type 
 		HRESULT device_hr = S_OK;
-
-		DXGI_SWAP_CHAIN_DESC sd = { };
-		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidth();
-		sd.BufferDesc.Height = Core::Engine::GetGameWindow()->GetHeight();
-		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		sd.BufferDesc.RefreshRate.Numerator = 0;
-		sd.BufferDesc.RefreshRate.Denominator = 1;
-		sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-		sd.BufferCount = 1;
-		sd.SampleDesc.Count = 1;
-		sd.SampleDesc.Quality = 0;
-		sd.Windowed = !Engine::GetGameWindow()->isFullscreen();
-		sd.OutputWindow = Engine::GetGameWindow()->GetHWND();
-		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-		//Try to create device with correct driver type 
+		std::uint32_t driver_types_size = ARRAYSIZE(driverTypes);
 		for (std::uint32_t driverTypeIndex = 0; driverTypeIndex < driver_types_size; driverTypeIndex++)
 		{
-			D3D_DRIVER_TYPE driverType = driverTypes[driverTypeIndex];
-			device_hr = D3D11CreateDeviceAndSwapChain(nullptr, driverType, nullptr, m_deviceFlags, FeatureLevels, ARRAYSIZE(FeatureLevels), D3D11_SDK_VERSION, &sd, &m_swapChain, &m_device, nullptr, &m_context);
+			const auto driverType = driverTypes[driverTypeIndex];
 
-			//If we get E_INVALIDARG probably we are need to use D3D_FEATURE_LEVEL_11_0 
-			if (device_hr == E_INVALIDARG)
-				device_hr = D3D11CreateDeviceAndSwapChain(nullptr, driverType, nullptr, m_deviceFlags, FeatureLevels, ARRAYSIZE(FeatureLevels), D3D11_SDK_VERSION, &sd, &m_swapChain, &m_device, nullptr, &m_context);
+			device_hr = D3D11CreateDevice(nullptr, driverType, nullptr, m_deviceFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &m_device, nullptr, &m_context);
 
-			if (SUCCEEDED(device_hr)) //If creation device succeeded we are break that loop
+			if (SUCCEEDED(device_hr))
+			{
 				break;
+			}
 		}
+		
+		Verify(m_device != nullptr, "Render Error: Can't create device and swap chain!");
 
-		//If device not created we are get fatal error 
-		if (m_device == nullptr)
-			S2DE_FATAL_ERROR("Render Error: Can't create device and swap chain!");
+		IDXGIDevice* dxgiDevice = nullptr;
+		Verify_HR(m_device->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice), "Can't get DXGI Device...");
+
+		IDXGIAdapter* dxgiAdapter = nullptr;
+		Verify_HR(dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter), "Can't get DXGI Adapter...");
+
+		IDXGIFactory* dxgiFactory = nullptr;
+		Verify_HR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory), "Can't get DXGI Factory...");
+
+		DXGI_SWAP_CHAIN_DESC sd = { };
+
+		sd.BufferDesc.Width = Core::Engine::GetGameWindow()->GetWidth();
+		sd.BufferDesc.Height = Core::Engine::GetGameWindow()->GetHeight();
+		sd.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+		sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		sd.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
+		sd.BufferDesc.RefreshRate.Numerator = m_vsync == true ? 60 : 0;
+		sd.BufferDesc.RefreshRate.Denominator = 1;
+		sd.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		sd.BufferCount = 2;
+		sd.Windowed = !Core::Engine::GetGameWindow()->isFullscreen();
+		sd.OutputWindow = Core::Engine::GetGameWindow()->GetHWND();
+		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+		sd.SampleDesc.Count = 1;
+		sd.SampleDesc.Quality = 0;
+
+		Verify_HR(dxgiFactory->CreateSwapChain(m_device, &sd, &m_swapChain),
+			"Cannot create swap chain...");
+
+		// Release because it's not longer needed...
+		Core::Release(dxgiDevice);
+		Core::Release(dxgiAdapter);
+		Core::Release(dxgiFactory);
 
 		return true;
 	}
 
+	// TODO: Remove
 	void Renderer::SwitchFillMode(RenderFillMode mode)
 	{
 		Logger::Log("[Renderer] Switch fill mode to %s", mode == RenderFillMode::Solid ? "Solid" : "Wireframe");
 		m_fillMode = mode;
 
-		for (const auto& r : m_rasterizerVariants)
+		for (const auto& variant : m_rasterizerVariants)
 		{
-			if (r.second != nullptr)
+			if (variant.second != nullptr)
 			{
 				D3D11_RASTERIZER_DESC desc = {  };
-				r.second->GetDesc(&desc);
+				variant.second->GetDesc(&desc);
 				desc.FillMode = static_cast<D3D11_FILL_MODE>(m_fillMode);
-				CreateRasterizerState(desc, r.first);
+				CreateRasterizerState(desc, variant.first);
 			}
 		}
 	}
@@ -336,10 +364,10 @@ namespace S2DE::Render
 		bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 		bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA; //D3D11_BLEND_ONE;
 
-		S2DE_CHECK(m_device->CreateBlendState(&bd, &m_blendStateOn), "Render Error: Can't create blend state on");
+		Verify_HR(m_device->CreateBlendState(&bd, &m_blendStateOn), "Render Error: Can't create blend state on");
 
 		bd.RenderTarget[0].BlendEnable = false;
-		S2DE_CHECK(m_device->CreateBlendState(&bd, &m_blendStateOff), "Render Error: Can't create blend state off");
+		Verify_HR(m_device->CreateBlendState(&bd, &m_blendStateOff), "Render Error: Can't create blend state off");
 
 		return true;
 	}
@@ -369,7 +397,7 @@ namespace S2DE::Render
 		ID3D11RasterizerState* newRasterizer = nullptr;
 
 		// Create the rasterizer state from the description we just filled out.		
-		S2DE_CHECK_SAFE(m_device->CreateRasterizerState(&desc, &newRasterizer), "Render Error: Cannot create rasterizer state");
+		Verify_HR(m_device->CreateRasterizerState(&desc, &newRasterizer), "Render Error: Cannot create rasterizer state");
 
 		// Push new rasterizer variant to storage
 		m_rasterizerVariants.push_back(std::make_pair(name, newRasterizer));
@@ -397,7 +425,7 @@ namespace S2DE::Render
 		depthBufferDesc.CPUAccessFlags = 0;
 		depthBufferDesc.MiscFlags = 0;
 
-		S2DE_CHECK(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer), "Render Error: Cannot create depth buffer");
+		Verify_HR(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer), "Render Error: Cannot create depth buffer");
 
 		// Set up the description of the stencil state.
 		D3D11_DEPTH_STENCIL_DESC depthStencilDesc = { };
@@ -422,10 +450,10 @@ namespace S2DE::Render
 		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 		
-		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateEnabled), "Render Error: Cannot create enabled depth stencil state");
+		Verify_HR(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateEnabled), "Render Error: Cannot create enabled depth stencil state");
 
 		depthStencilDesc.DepthEnable = false;
-		S2DE_CHECK(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateDisabled), "Render Error: Cannot create disabled depth stencil state");
+		Verify_HR(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStateDisabled), "Render Error: Cannot create disabled depth stencil state");
 
 		// Set up the depth stencil view description.
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = { };
@@ -434,7 +462,7 @@ namespace S2DE::Render
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 		// Create the depth stencil view.
-		S2DE_CHECK(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView), "Render Error: Cannot create depth stencil view");
+		Verify_HR(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView), "Render Error: Cannot create depth stencil view");
 
 		// Set render target
 		m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
@@ -443,14 +471,25 @@ namespace S2DE::Render
 
 	void Renderer::UpdateViewport()
 	{
-		//TODO: I need get it from swap chain or from window ?
-		m_viewport.Width	= (float)Core::Engine::GetGameWindow()->GetWidth();
-		m_viewport.Height	= (float)Core::Engine::GetGameWindow()->GetHeight();
+		const auto window = Core::Engine::GetGameWindow();
+		m_viewport.Width = static_cast<float>(window->GetWidth());
+		m_viewport.Height = static_cast<float>(window->GetHeight());
+
+		if (Core::Engine::isEditor())
+		{
+			const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
+			if (renderWindow != nullptr)
+			{
+				m_viewport.Width = static_cast<float>(renderWindow->GetWindowWidth());
+				m_viewport.Height = static_cast<float>(renderWindow->GetWindowHeight());
+			}
+		}
+
 		m_viewport.MinDepth = 0.0f;
 		m_viewport.MaxDepth = 1.0f;
 		m_viewport.TopLeftX = 0.0f;
 		m_viewport.TopLeftY = 0.0f;
-
+		
 		m_context->RSSetViewports(1, &m_viewport);
 	}
 
@@ -458,12 +497,14 @@ namespace S2DE::Render
 	{
 		Logger::Log("[Renderer] Destroy...");
 
-		LightGlobals::DeleteLightConstantBuffer();
 		FBX_Importer::Destroy();
 
 		if (Core::Engine::isEditor())
-			Delete(m_editorToolStrip);
-		
+		{
+			Core::Delete(m_editorToolStrip);
+			Core::Delete(m_editorCenterCursor);
+		}
+
 		m_windowsStorage.clear();
 		m_windowsStorage.shrink_to_fit();
 
@@ -472,21 +513,22 @@ namespace S2DE::Render
 		m_rasterizerVariants.clear();
 		m_rasterizerVariants.shrink_to_fit();
 
-		Release(m_swapChain);
-		Release(m_device);
-		Release(m_context);
-		Release(m_targetView);
-		Release(m_depthStencilBuffer);
-		Release(m_depthStateEnabled);
-		Release(m_depthStateDisabled);
-		Release(m_depthStencilView);
-		Release(m_frameBufferData);
-		Release(m_frameBufferShaderResourceView);
+		Core::Release(m_swapChain);
+		Core::Release(m_device);
+		Core::Release(m_context);
+		Core::Release(m_targetView);
+		Core::Release(m_frameRenderTarget);
+		Core::Release(m_depthStencilBuffer);
+		Core::Release(m_depthStateEnabled);
+		Core::Release(m_depthStateDisabled);
+		Core::Release(m_depthStencilView);
+		Core::Release(m_frameBufferData);
+		Core::Release(m_frameBufferShaderResourceView);
 
 #if defined(S2DE_DEBUG_RENDER_MODE)
 		m_d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
-		Release(m_d3dInfoQueue);
-		Release(m_d3dDebug);
+		Core::Release(m_d3dInfoQueue);
+		Core::Release(m_d3dDebug);
 #endif
 
 	}
@@ -521,13 +563,12 @@ namespace S2DE::Render
 	{
 		S2DE_IMGUI_NEW_FRAME();
 
-		if (Engine::isEditor())
+		if (Core::Engine::isEditor())
 		{
 			ImGui::SetNextWindowPos(ImVec2(0, 0));
-
-			ImGui::SetNextWindowSize(ImVec2(float(Engine::GetGameWindow()->GetWidth()), float(Engine::GetGameWindow()->GetHeight())));
-
-			ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoBringToFrontOnFocus |
+			ImGui::SetNextWindowSize(ImVec2(static_cast<float>(Core::Engine::GetGameWindow()->GetWidth()), 
+				static_cast<float>(Core::Engine::GetGameWindow()->GetHeight())));
+			const auto windowFlags = ImGuiWindowFlags_NoBringToFrontOnFocus |
 				ImGuiWindowFlags_NoNavFocus |
 				ImGuiWindowFlags_NoDocking |
 				ImGuiWindowFlags_NoTitleBar |
@@ -540,17 +581,22 @@ namespace S2DE::Render
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-			bool show = ImGui::Begin("Dockspace", NULL, windowFlags);
+			const auto show = ImGui::Begin("Dockspace", NULL, windowFlags);
 
 			ImGui::PopStyleVar();
 			ImGui::DockSpace(ImGui::GetID("Dockspace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);	
 
 			if (m_showImguiWindows)
+			{
 				for (const auto& it : m_windowsStorage)
+				{
 					it.second->Render();
-
+				}
+			}
 			m_editorToolStrip->SetDrawState(show);
 			m_editorToolStrip->Render();
+
+
 
 			ImGui::End();
 			
@@ -558,15 +604,13 @@ namespace S2DE::Render
 		else
 		{
 			for (const auto& it : m_windowsStorage)
+			{
 				it.second->Render();
+			}
 		}
 
-
-
-		Engine::GetSceneManager()->RenderImGUI();
-
 		#if defined(S2DE_DEBUG_RENDER_MODE)
-				if (Engine::isEditor() && m_showImguiDemoWindow)
+				if (Core::Engine::isEditor() && m_showImguiDemoWindow)
 					ImGui::ShowDemoWindow(&m_showImguiDemoWindow);
 		#endif
 		
@@ -609,20 +653,43 @@ namespace S2DE::Render
 
 		Clear();
 		{
-			Engine::GetApplicationHandle()->OnRender();
-			Engine::GetSceneManager()->RenderScene();
+			UpdateFramebufferShaderResource();
 
-			//UpdateFramebufferShaderResource();
+			if (Core::Engine::isEditor() && m_showImguiWindows)
+			{
+				// Basic support of render window
+
+				// TODO: We need array of targets to make more render windows
+				if (m_frameRenderTarget != nullptr)
+				{
+					m_context->OMSetRenderTargets(1, &m_frameRenderTarget, m_depthStencilView);
+					Core::Engine::GetApplicationHandle()->OnRender();
+					Core::Engine::GetSceneManager()->RenderScene(this);
+				}
+
+				m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
+
+				const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
+				if (renderWindow != nullptr
+					&& m_frameBufferShaderResourceView != nullptr)
+				{
+					renderWindow->PushRenderTexture(m_frameBufferShaderResourceView);
+				}
+
+				const auto colorPicker = GetImGui_Window<Editor::EditorColorPicker*>("EditorBgColorPicker");
+				if (colorPicker != nullptr)
+				{
+					colorPicker->SetColor(m_clearColor);
+				}
+			}
+			else
+			{
+				Core::Engine::GetApplicationHandle()->OnRender();
+				Core::Engine::GetSceneManager()->RenderScene(this);
+			}
 
 			RenderImGui();
-
-			if (Engine::isEditor())
-			{
-				EditorColorPicker* colorPicker = GetImGui_Window<EditorColorPicker*>("EditorBgColorPicker");
-
-				if (colorPicker != nullptr)
-					colorPicker->SetColor(m_clearColor);
-			}
+			
 		}
 
 		End();
@@ -656,7 +723,7 @@ namespace S2DE::Render
 		Logger::Log("[Renderer] Removed window %s", name.c_str());
 	}
 
-	void Renderer::SetBackColor(Color<float> color)
+	void Renderer::SetBackColor(Math::Color<float> color)
 	{
 		m_clearColor = color;
 	}
@@ -665,8 +732,20 @@ namespace S2DE::Render
 	{
 		D3D11_TEXTURE2D_DESC td = { };
 		sw_buff->GetDesc(&td);
+
 		td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-		S2DE_CHECK(m_device->CreateTexture2D(&td, NULL, &m_frameBufferData), "Can't create framebuffer texture data");
+
+		Verify_HR(m_device->CreateTexture2D(&td, NULL, &m_frameBufferData), "Can't create framebuffer texture data");
+
+		const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
+		if(renderWindow != nullptr)
+		{
+			renderWindow->Reset();
+		}
+
+		Core::Release(m_frameBufferShaderResourceView);
+		m_frameBufferShaderResourceView = nullptr;
+
 		return true;
 	}
 
@@ -674,25 +753,35 @@ namespace S2DE::Render
 	{
 		ID3D11Texture2D* pBuffer = nullptr;
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
+
 		if (pBuffer == nullptr)
+		{
+			CreateFramebufferTexture(m_frameBufferData);
 			return;
+		}
 		
 		m_context->CopyResource(m_frameBufferData, pBuffer);
-		Release(pBuffer);
+		Core::Release(pBuffer);
 
 		if (m_frameBufferData == nullptr)
+		{
+			Core::Utils::Logger::Warning("[Renderer] Error: Framebuffer data is null!");
 			return;
+		}
 
-		D3D11_TEXTURE2D_DESC textureDesc = { };
-		m_frameBufferData->GetDesc(&textureDesc);
-		
-		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = { };
-		shaderResourceViewDesc.Format = textureDesc.Format;
-		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		shaderResourceViewDesc.Texture2D.MipLevels = 1;
+		if (m_frameBufferShaderResourceView == nullptr)
+		{
+			D3D11_TEXTURE2D_DESC textureDesc = { };
+			m_frameBufferData->GetDesc(&textureDesc);
 
-		m_device->CreateShaderResourceView(m_frameBufferData, &shaderResourceViewDesc, &m_frameBufferShaderResourceView);
+			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = { };
+			shaderResourceViewDesc.Format = textureDesc.Format;
+			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+			shaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+			m_device->CreateShaderResourceView(m_frameBufferData, &shaderResourceViewDesc, &m_frameBufferShaderResourceView);
+		}
 	}
 
 	void Renderer::SetVsync(bool vsync)
@@ -709,9 +798,9 @@ namespace S2DE::Render
 			SIZE_T message_size = 0;
 			m_d3dInfoQueue->GetMessage(i, nullptr, &message_size); 
 			D3D11_MESSAGE* message = (D3D11_MESSAGE*)malloc(message_size);
-			if (message == nullptr) //If malloc failed
+			if (message == nullptr)
 				return false;
-			S2DE_CHECK_SAFE(m_d3dInfoQueue->GetMessageA(i, message, &message_size), "Can't get message");
+			Verify_HR(m_d3dInfoQueue->GetMessageA(i, message, &message_size), "Can't get message from queue!");
 
 			switch (message->Severity)
 			{
@@ -725,7 +814,7 @@ namespace S2DE::Render
 					Logger::Warning("[D3D11] WARNING %.*s", message->DescriptionByteLength, message->pDescription);
 					break;
 				default:
-					Logger::Log("[D3D11] %.*s", message->DescriptionByteLength, message->pDescription);
+					Logger::LogColored(DirectX::SimpleMath::Color(0.5f, 0, 0.2f, 1),"[D3D11] %.*s", message->DescriptionByteLength, message->pDescription);
 					break;
 			}
 
@@ -760,12 +849,288 @@ namespace S2DE::Render
 	void Renderer::DrawIndexed(std::uint64_t indexCount, std::uint32_t startIndexLocation, std::uint32_t baseVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)
 	{
 		m_context->IASetPrimitiveTopology(topology);
-		m_context->DrawIndexed(indexCount, startIndexLocation, baseVertexLocation);
+		m_context->DrawIndexed(static_cast<std::uint32_t>(indexCount), startIndexLocation, baseVertexLocation);
 	}
 
 	void Renderer::Draw(std::uint64_t vertexCount, std::uint32_t startVertexLocation, D3D11_PRIMITIVE_TOPOLOGY topology)
 	{
 		m_context->IASetPrimitiveTopology(topology);
-		m_context->Draw((std::uint32_t)vertexCount, startVertexLocation);
+		m_context->Draw(static_cast<std::uint32_t>(vertexCount), startVertexLocation);
+	}
+
+	inline ID3D11Device* Renderer::GetDevice()
+	{
+		return m_device;
+	}
+
+	inline ID3D11DeviceContext* Renderer::GetContext()
+	{
+		return m_context;
+	}
+
+	inline IDXGISwapChain* Renderer::GetSwapChain()
+	{
+		return m_swapChain;
+	}
+
+	inline ID3D11RenderTargetView* Renderer::GetRenderTargetView()
+	{
+		return m_targetView;
+	}
+
+	inline D3D11_VIEWPORT Renderer::GetViewport() const
+	{
+		return m_viewport;
+	}
+
+	inline ID3D11Texture2D* Renderer::GetDepthStencilBuffer()
+	{
+		return m_depthStencilBuffer;
+	}
+
+	inline ID3D11DepthStencilView* Renderer::GetDepthStencilView()
+	{
+		return m_depthStencilView;
+	}
+
+	inline ID3D11ShaderResourceView* Renderer::GetFramebufferShaderResource() const
+	{
+		return m_frameBufferShaderResourceView;
+	}
+
+	inline ID3D11Texture2D* Renderer::GetFramebufferTextureData() const
+	{
+		return m_frameBufferData;
+	}
+
+	inline bool Renderer::GetVsync() const
+	{
+		return m_vsync;
+	}
+
+	void Renderer::DebugDrawCube(DirectX::SimpleMath::Vector3 pos,
+		DirectX::SimpleMath::Vector3 rot,
+		DirectX::SimpleMath::Vector3 scale,
+		DirectX::SimpleMath::Color color)
+	{
+		VertexBuffer<Vertex>* vertexBuffer = nullptr;
+
+		if (vertexBuffer == nullptr)
+		{
+			vertexBuffer = new VertexBuffer<Vertex>();
+
+			vertexBuffer->GetArray() =
+			{
+				{ { -1.f, -1.f, -1.f },  { color.x,color.y,color.z,color.w }  },
+				{ {  1.f, -1.f, -1.f },  { color.x,color.y,color.z,color.w }  },
+				{ {  1.f, -1.f,  1.f },  { color.x,color.y,color.z,color.w }  },
+				{ { -1.f, -1.f,  1.f },  { color.x,color.y,color.z,color.w }  },
+				{ { -1.f,  1.f, -1.f },  { color.x,color.y,color.z,color.w }  },
+				{ {  1.f,  1.f, -1.f },  { color.x,color.y,color.z,color.w }  },
+				{ {  1.f,  1.f,  1.f },  { color.x,color.y,color.z,color.w }  },
+				{ { -1.f,  1.f,  1.f },  { color.x,color.y,color.z,color.w }  }
+			};
+
+			Assert(vertexBuffer->Create(), "Can't create vertex buffer for debug cube");
+			vertexBuffer->Update();
+		}
+
+		IndexBuffer<std::int32_t>* indexBuffer = nullptr;
+
+		if (indexBuffer == nullptr)
+		{
+			indexBuffer = new IndexBuffer<std::int32_t>();
+
+			indexBuffer->GetArray() =
+			{
+				0, 1,
+				1, 2,
+				2, 3,
+				3, 0,
+				4, 5,
+				5, 6,
+				6, 7,
+				7, 4,
+				0, 4,
+				1, 5,
+				2, 6,
+				3, 7
+			};
+
+			Assert(indexBuffer->Create(), "Can't create index buffer for debug cube");
+			indexBuffer->Update();
+		}
+
+		GameObjects::Components::Transform* transform = nullptr;
+		if (transform == nullptr)
+		{
+			transform = new GameObjects::Components::Transform();
+
+			transform->SetPosition(pos);
+			transform->SetRotation(rot);
+			transform->SetScale(scale);
+		}
+
+		vertexBuffer->Bind();
+		indexBuffer->Bind();
+
+		Shader* shader = Core::Engine::GetResourceManager().Get<Shader>("Line");
+
+		shader->UpdateMainConstBuffer(transform->UpdateTransformation());
+		shader->Bind();
+
+		DrawIndexed(indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		Core::Delete(vertexBuffer);
+		Core::Delete(transform);
+		Core::Delete(indexBuffer);
+	}
+
+	void Renderer::DebugDrawRing(DirectX::SimpleMath::Vector3 pos,
+		DirectX::SimpleMath::Vector3 majorAxis,
+		DirectX::SimpleMath::Vector3 minorAxis,
+		DirectX::SimpleMath::Color color)
+	{
+		VertexBuffer<Vertex>* vertexBuffer = nullptr;
+
+		if (vertexBuffer == nullptr)
+		{
+			vertexBuffer = new VertexBuffer<Vertex>();
+
+			static const std::int8_t ringSegments = 32;
+			static const DirectX::SimpleMath::Vector4 initialCos = { 1.f, 1.f, 1.f, 1.f };
+
+			float angleDelta = DirectX::XM_2PI / float(ringSegments);
+
+			DirectX::SimpleMath::Vector4 cosDelta = DirectX::XMVectorReplicate(std::cos(angleDelta));
+			DirectX::SimpleMath::Vector4 sinDelta = DirectX::XMVectorReplicate(std::sin(angleDelta));
+			DirectX::SimpleMath::Vector4 incrementalSin = DirectX::XMVectorZero();
+
+			DirectX::SimpleMath::Vector4 incrementalCos = initialCos;
+			for (std::uint32_t i = 0; i < ringSegments; i++)
+			{
+				DirectX::SimpleMath::Vector3  _pos = DirectX::XMVectorMultiplyAdd(majorAxis, incrementalCos, {0,0,0});
+				_pos = DirectX::XMVectorMultiplyAdd(minorAxis, incrementalSin, _pos);
+				vertexBuffer->GetArray().push_back({ _pos , color });
+
+				// Standard formula to rotate a vector.
+				DirectX::SimpleMath::Vector4 newCos = incrementalCos * cosDelta - incrementalSin * sinDelta;
+				DirectX::SimpleMath::Vector4 newSin = incrementalCos * sinDelta + incrementalSin * cosDelta;
+				incrementalCos = newCos;
+				incrementalSin = newSin;
+			}
+
+			vertexBuffer->GetArray().push_back(vertexBuffer->GetArray()[0]);
+			Assert(vertexBuffer->Create(), "Can't create index buffer for ring line");
+			vertexBuffer->Update();
+		}
+
+		Shader* shader = Core::Engine::GetResourceManager().Get<Shader>("Line");
+		GameObjects::Components::Transform* transform = nullptr;
+
+		if (transform == nullptr)
+		{
+			transform = new GameObjects::Components::Transform();
+			transform->SetPosition(pos);
+		}
+
+		vertexBuffer->Bind();
+		shader->UpdateMainConstBuffer(transform->UpdateTransformation());
+		shader->Bind();
+
+		Draw(vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+		
+		Core::Delete(vertexBuffer);
+		Core::Delete(transform);
+	}
+
+	void Renderer::DebugDrawSphere(DirectX::SimpleMath::Vector3 pos,
+			float radius,
+			DirectX::SimpleMath::Color color)
+	{
+		const DirectX::SimpleMath::Vector3 xaxis = DirectX::g_XMIdentityR0 * radius;
+		const DirectX::SimpleMath::Vector3 yaxis = DirectX::g_XMIdentityR1 * radius;
+		const DirectX::SimpleMath::Vector3 zaxis = DirectX::g_XMIdentityR2 * radius;
+
+		DebugDrawRing(pos, xaxis, zaxis, color);
+		DebugDrawRing(pos, xaxis, yaxis, color);
+		DebugDrawRing(pos, yaxis, zaxis, color);
+	}
+
+	void Renderer::DebugDrawLineCross(DirectX::SimpleMath::Vector3 pos,
+		DirectX::SimpleMath::Vector3 rot,
+		DirectX::SimpleMath::Vector3 scale,
+		DirectX::SimpleMath::Color color)
+	{
+		VertexBuffer<Vertex>* vertexBuffer = nullptr;
+		Shader* shader = Core::Engine::GetResourceManager().Get<Shader>("Line");
+
+		if (vertexBuffer == nullptr)
+		{
+			vertexBuffer = new VertexBuffer<Vertex>();
+
+			vertexBuffer->GetArray() =
+			{
+				{ DirectX::SimpleMath::Vector3(-1.0f, -1.0f, 0.0f),    color },
+				{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), color },
+				{ DirectX::SimpleMath::Vector3(1.0f,   -1.0f,	0.0f), color },
+				{ DirectX::SimpleMath::Vector3(-1.0f,   1.0f,	0.0f), color },
+				{ DirectX::SimpleMath::Vector3(0.0f,   0.0f,	0.0f), color },
+				{ DirectX::SimpleMath::Vector3(1.0f,   1.0f,	0.0f), color },
+			};
+
+			Assert(vertexBuffer->Create(), "Can't create index buffer for debug line");
+			vertexBuffer->Update();
+		}
+
+		GameObjects::Components::Transform* transform = nullptr;
+
+		if (transform == nullptr)
+		{
+			transform = new GameObjects::Components::Transform();
+
+			transform->SetPosition(pos);
+			transform->SetRotation(rot);
+			transform->SetScale(scale);
+		}
+
+		vertexBuffer->Bind();
+		shader->UpdateMainConstBuffer(transform->UpdateTransformation());
+		shader->Bind();
+
+		Draw(vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		Core::Delete(vertexBuffer);
+		Core::Delete(transform);
+
+	}
+
+	void Renderer::DebugDrawLine(DirectX::SimpleMath::Vector3 begin,
+		DirectX::SimpleMath::Vector3 end,
+		DirectX::SimpleMath::Color color)
+	{
+		VertexBuffer<Vertex>* vertexBuffer = nullptr;
+		Shader* shader = Core::Engine::GetResourceManager().Get<Shader>("Line");
+
+		if (vertexBuffer == nullptr)
+		{
+			vertexBuffer = new VertexBuffer<Vertex>();
+
+			vertexBuffer->GetArray() =
+			{
+				{ begin, { color.x,color.y,color.z,color.w } },
+				{ end,	 { color.x,color.y,color.z,color.w } },
+			};
+
+			Assert(vertexBuffer->Create(), "Can't create index buffer for debug line");
+			vertexBuffer->Update();
+		}
+
+		vertexBuffer->Bind();
+		shader->Bind();
+
+		Draw(vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		Core::Delete(vertexBuffer);
 	}
 }

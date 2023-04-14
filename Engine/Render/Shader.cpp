@@ -1,9 +1,12 @@
 #include "Shader.h"
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
+#include "Base/GameTime.h"
+
 #include "Render/Renderer.h"
 #include "Scene/SceneManager.h"
-#include "GameObjects/Camera.h"
+
+#include "GameObjects/Components/Camera.h"
 
 #include <d3dcompiler.h>
 #include <fstream>
@@ -14,7 +17,7 @@ namespace S2DE::Render
 	Shader::Shader()
 	{
 		m_type = "Shader";
-		m_ex = { ".hlsl", ".shader", ".fx" };
+		m_extensions = { ".hlsl", ".shader", ".fx" };
 
 		m_flags |= D3DCOMPILE_ENABLE_STRICTNESS;
 
@@ -26,15 +29,11 @@ namespace S2DE::Render
 
 	Shader::~Shader()
 	{
-
-	}
-
-	void Shader::Cleanup()
-	{
 		Core::Release(m_vertexShader);
 		Core::Release(m_pixelShader);
 		Core::Release(m_layout);
 	}
+
 
 	void Shader::Unbind()
 	{
@@ -71,7 +70,11 @@ namespace S2DE::Render
 	bool Shader::Compile(bool compileVs, bool compilePs)
 	{
 		if (!compileVs && !compilePs)
-			return false; 
+		{
+			Logger::Error("[Shader] %s is not modified!", m_name.c_str());
+			return false;
+		}
+
 		Logger::Log("[Shader] Compile: %s | Vs: %s Ps: %s", m_name.c_str(), compileVs == true ? "true" : "false", compilePs == true ? "true" : "false");
 
 		ID3D10Blob* code_buffer = nullptr;
@@ -139,7 +142,7 @@ namespace S2DE::Render
 
 			//Create basic constant buffer
 			m_const_buffer = new ConstantBuffer<CB::CB_Main>();
-			S2DE_ASSERT(m_const_buffer->Create());
+			Assert(m_const_buffer->Create(), "Failed to create constant buffer");
 		}
 
 		return true;
@@ -147,120 +150,140 @@ namespace S2DE::Render
 
 	bool Shader::Reload()
 	{
-		return SetPaths(m_path_vs, m_path_ps);
+		return Load(m_name);
 	}
 
-	bool Shader::SetPaths(std::string vs_path, std::string ps_path)
+	bool Shader::Load(std::string name)
 	{
-		if ((Core::Utils::isStringEmpty(m_path_vs = vs_path) || Core::Utils::isStringEmpty(m_path_ps = ps_path)))
+		const auto paths = FindPath({ name + "_vs", name + "_ps" });
+		if (m_notLoaded == true)
+		{
 			return false;
-		
-		std::ifstream fileVs = std::ifstream();
-		std::ifstream filePs = std::ifstream();
-		bool compileVs = false;
-		bool compilePs = false;
+		}
 
-		fileVs.exceptions(std::ios_base::badbit | std::ios_base::failbit);
-		filePs.exceptions(std::ios_base::badbit | std::ios_base::failbit);
+		m_path_vs = paths[0];
+		m_path_ps = paths[1];
+
+		bool compileVs = false;
+		if(!CheckShadersOnModify(m_path_vs, m_fileDataVs, compileVs))
+		{
+			return false;
+		}
+
+		bool compilePs = false;
+		if(!CheckShadersOnModify(m_path_ps, m_fileDataPs, compilePs))
+		{
+			return false;
+		}
+
+		return Compile(compileVs, compilePs);
+	}
+
+	bool Shader::CheckShadersOnModify(std::string path, std::string& fileData, bool& modify)
+	{
+		std::ifstream file = std::ifstream();		
+		file.exceptions(std::ios_base::badbit | std::ios_base::failbit);
 		
 		try
 		{
-			fileVs.open(m_path_vs.c_str(), std::ios::in);
+			file.open(path.c_str(), std::ios::in);
 			bool modifyOrEmpty = true;
 
 			std::stringstream stream = std::stringstream();
-			stream << fileVs.rdbuf();
-			fileVs.close();
+			stream << file.rdbuf();
+			file.close();
 
-			if (!Core::Utils::isStringEmpty(m_fileDataVs))
+			if (!Core::Utils::isStringEmpty(fileData))
 			{
-				if (m_fileDataVs.length() == stream.str().length())
+				if (fileData.length() == stream.str().length())
 				{
 					modifyOrEmpty = false;
 				}
 				else
 				{
-					m_fileDataVs.clear();
+					fileData.clear();
 				}
 			}
 
 			if (modifyOrEmpty)
 			{
-				m_fileDataVs = stream.str();				
-				compileVs = true;
+				fileData = stream.str();
+				modify = true;
 			}
 
 			modifyOrEmpty = true;
 
-			stream.clear();
-			stream = std::stringstream();
-
-			filePs.open(m_path_ps.c_str(), std::ios::in);
-			stream << filePs.rdbuf();
-			filePs.close();
-
-			if (!Core::Utils::isStringEmpty(m_fileDataPs))
-			{
-				if (m_fileDataPs.length() == stream.str().length())
-				{
-					modifyOrEmpty = false;
-				}
-				else
-				{
-					m_fileDataPs.clear();
-				}
-			}
-
-			if (modifyOrEmpty)
-			{
-				m_fileDataPs = stream.str();
-				compilePs = true;
-			}	
 
 			stream.clear();
 
 		}
 		catch (std::ifstream::failure e)
 		{
-			Logger::Error("Something wrong with shader files \n%s \n%s \n%s ", vs_path.c_str(), ps_path.c_str(), e.what());
+			Logger::Error("Something wrong with shader \n%s \n%s ", path.c_str(), e.what());
 
-			fileVs.close();
-			filePs.close();
+			file.close();
+			return false;
 		}
 
-		return Compile(compileVs, compilePs);
+		return true;
 	}
 
 	void Shader::UpdateMainConstBuffer(DirectX::SimpleMath::Matrix world, bool isUI)
 	{
 		m_const_buffer->Lock();
 
-		m_const_buffer->GetData()->deltatime = Core::Engine::GetGameTime().GetDeltaTime();
-		m_const_buffer->GetData()->time = Core::Engine::GetGameTime().GetTime();
-		m_const_buffer->GetData()->resoultion = DirectX::SimpleMath::Vector2((float)Core::Engine::GetGameWindow()->GetWidth(), (float)Core::Engine::GetGameWindow()->GetHeight());
-		m_const_buffer->GetData()->world = world;
+		const auto time = Core::Engine::GetGameTime();
+		const auto gameWindow = Core::Engine::GetGameWindow();
+		const auto data = m_const_buffer->GetData();
 
-		GameObjects::Camera* camera = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
+		data->deltatime = time.GetDeltaTime();
+		data->time = time.GetTime();
+		data->resoultion = DirectX::SimpleMath::Vector2(static_cast<float>(gameWindow->GetWidth()),
+			static_cast<float>(gameWindow->GetHeight()));
+		data->world = world;
+
+		static auto camera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
 
 		if (camera != nullptr)
 		{
 			if (isUI)
 			{
-				m_const_buffer->GetData()->projection = camera->GetOrthoMatrix();
-				m_const_buffer->GetData()->view = DirectX::SimpleMath::Matrix::Identity;
+				data->projection = camera->GetOrthoMatrix();
+				data->view = DirectX::SimpleMath::Matrix::Identity;
 			}
 			else
 			{
-				m_const_buffer->GetData()->projection = camera->GetProjectionMatrix();
-				m_const_buffer->GetData()->view = camera->GetViewMatrix();
+				data->projection = camera->GetProjectionMatrix();
+				data->view = camera->GetViewMatrix();
 			}
+			const auto camTrasnform = camera->GetOwner()->GetTransform();
 
-			m_const_buffer->GetData()->cameraPosition = camera->GetPosition();
-			m_const_buffer->GetData()->cameraRotation = camera->GetRotation();
+			data->cameraPosition = camTrasnform->GetPosition();
+			data->cameraRotation = camTrasnform->GetRotation();
 		}
 
 		m_const_buffer->Unlock();
 		m_const_buffer->Bind();
 		m_const_buffer->Unbind();
+	}
+
+	inline ID3D11VertexShader* Shader::GetVertexShader()	 const
+	{
+		return m_vertexShader;
+	}
+
+	inline ID3D11PixelShader* Shader::GetPixelShader()	 const
+	{
+		return m_pixelShader;
+	}
+
+	inline ID3D11InputLayout* Shader::GetLayout()		 const
+	{
+		return m_layout;
+	}
+
+	inline ConstantBuffer<CB::CB_Main>* Shader::GetConstBuffer()	 const
+	{
+		return m_const_buffer;
 	}
 }

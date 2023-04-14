@@ -1,33 +1,37 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "IO/IO_File.h"
-#include "IO/IO_Disposible.h"
+#include "Base/Resource.h"
 #include "Render/Renderer.h"
 
 namespace S2DE::Render
 {
-	class S2DE_API Texture : public IO::IO_File, public IO::IO_Disposible
+	class S2DE_API Texture : public Core::Resources::Resource
 	{
 	public:
 		Texture();
 		~Texture();
 		
-		virtual void					 Cleanup() override;
-		virtual bool					 Load(std::string path) override;
+		bool							 Load(std::string name) final;
+
+		// Create cubemap texture from path 
 		bool							 CreateCubeMapTexture(std::string path);
+		// Create 1x1 blank texture 
 		bool							 CreateEmptyTexture(Math::Color<std::uint32_t> color = Math::Color<std::uint32_t>(208, 0, 255, 255));
-		bool							 CreateSamplerState();
-		void							 Bind(std::uint32_t NumViews = 1);
-		void							 Unbind();
+		// Create default sampler state 
+		bool							 CreateDefaultSamplerState();
+		bool							 SetSamplerState(D3D11_SAMPLER_DESC const& samplerDesc);
+		// Bind texture 
+		void							 Bind(std::uint32_t startSlot = 0, std::uint32_t numViews = 1);
+		void							 Unbind(std::uint32_t startSlot = 0, std::uint32_t numViews = 1);
 		
-		inline ID3D11ShaderResourceView* GetResourceView() const { return m_resourceView; }
-		inline ID3D11Texture2D*			 GetTexture2D() const { return m_textureHandle; }
-		inline std::uint32_t			 GetWidth() const { return m_textureDesc.Width; }
-		inline std::uint32_t			 GetHeight() const { return m_textureDesc.Height; }
-		inline std::uint32_t			 GetMipLevels() const { return m_textureDesc.MipLevels; }
-		inline DXGI_FORMAT				 GetFormat() const { return m_textureDesc.Format; }
-		inline DXGI_SAMPLE_DESC			 GetSampleDesc() const { return m_textureDesc.SampleDesc; }
-		inline D3D11_USAGE				 GetUsage() const { return m_textureDesc.Usage; }
+		[[nodiscard]] inline ID3D11ShaderResourceView* GetResourceView() const;
+		[[nodiscard]] inline ID3D11Texture2D* GetTexture2D() const;
+		[[nodiscard]] inline std::uint32_t GetWidth() const;
+		[[nodiscard]] inline std::uint32_t GetHeight() const;
+		[[nodiscard]] inline std::uint32_t GetMipLevels() const;
+		[[nodiscard]] inline DXGI_FORMAT GetFormat() const;
+		[[nodiscard]] inline DXGI_SAMPLE_DESC GetSampleDesc() const;
+		[[nodiscard]] inline D3D11_USAGE GetUsage() const;
 
 	private:
 		void							 UpdateTextureDesc();
@@ -38,4 +42,12 @@ namespace S2DE::Render
 		D3D11_TEXTURE2D_DESC			 m_textureDesc;
 		ID3D11SamplerState*				 m_textureSamplerState;
 	};
+
+	// FIX ME: maybe we should to put index in Texture class 
+	typedef struct texture_indexed
+	{
+		class Texture* texture;
+		std::uint32_t	index;
+	} texture_indexed_t;
+
 }

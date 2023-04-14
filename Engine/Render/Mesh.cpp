@@ -1,52 +1,81 @@
 #include "Mesh.h"
-#include "FBX_Importer.h"
+#include "Render/FBX_Importer.h"
+#include "Render/Texture.h"
 
 namespace S2DE::Render
 {
 	Mesh::Mesh()
 	{
 		m_type = "Model";
-		m_ex =
+		m_extensions =
 		{
 			".fbx",
 			".obj",
 		};
+		m_countMeshes = 0;
 	}
 
 	Mesh::~Mesh()
 	{
+		m_countMeshes = 0;
 
+		m_vertexBuffers.clear();
+		m_vertexBuffers.shrink_to_fit();
+
+		m_indexBuffers.clear();
+		m_indexBuffers.shrink_to_fit();
+
+		m_textures.clear();
+		m_textures.shrink_to_fit();
 	}
 
-	void Mesh::Cleanup()
+	bool Mesh::Load(std::string name)
 	{
-		m_indices.clear();
-		m_vertices.clear();
-	}
-
-	bool Mesh::Load(std::string path)
-	{
-		//If path is empty 
-		if (Core::Utils::isStringEmpty(path))
+		const auto paths = FindPath({ name });
+		if (m_notLoaded == true)
 		{
-			Core::Utils::Logger::Error("Path string is empty, can't load mesh!");
 			return false;
 		}
 
+		const auto path = paths[0];
+
 		std::string format = Core::Utils::GetFileExtension(path);
 
-		// TODO: Material
 		if (format == "fbx")
 		{
-			if (!FBX_Importer::Import(path, m_vertices, m_indices))
+			if (!FBX_Importer::Import(path, 
+				m_vertexBuffers, 
+				m_indexBuffers, 
+				m_textures, 
+				m_countMeshes))
+			{
 				return false;
+			}
 		}
-		else if (format == "obj")
-		{
-			S2DE_NO_IMPL();
-		}
+
+		Assert(m_vertexBuffers.size() == m_countMeshes, "WTF");
+		Assert(m_indexBuffers.size() == m_countMeshes, "WTF");
 
 		return true;
 	}
 
+	inline std::uint32_t Mesh::GetCountMeshes()  const
+	{
+		return m_countMeshes;
+	}
+
+	inline std::vector<texture_indexed> Mesh::GetTextures()  const
+	{		
+		return m_textures;
+	}
+
+	inline std::vector<Render::VertexBuffer<Render::Vertex>*> Mesh::GetVertexBuffers()  const
+	{
+		return m_vertexBuffers;
+	}
+
+	inline std::vector<Render::IndexBuffer<std::uint32_t>*>	Mesh::GetIndexBuffers()  const
+	{
+		return m_indexBuffers;
+	}
 }

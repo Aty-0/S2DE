@@ -1,9 +1,10 @@
 #include "GameWindow.h"
 #include "Base/Engine.h"
-#include "Base/ApplicationHandle.h"
 #include "Base/InputManager.h"
 #include "Base/Main/BuildDate.h"
+
 #include "Render/Renderer.h"
+#include "Editor/EditorRenderWindow.h"
 
 namespace S2DE::Core
 {
@@ -73,6 +74,10 @@ namespace S2DE::Core
 			case SDL_WindowEventID::SDL_WINDOWEVENT_SIZE_CHANGED:
 			case SDL_WindowEventID::SDL_WINDOWEVENT_MAXIMIZED:
 				Core::Engine::GetRenderer()->Reset();
+				if (Engine::isEditor() == false)
+				{
+					Core::Engine::GetRenderer()->UpdateViewport();
+				}
 				break;			
 		}
 	}
@@ -162,13 +167,15 @@ namespace S2DE::Core
 		if (setClientRes)
 		{
 			SDL_DisplayMode displayMode = { };
-			S2DE_ASSERT(SDL_GetCurrentDisplayMode(0, &displayMode) == 0);
+			Assert(SDL_GetCurrentDisplayMode(0, &displayMode) == 0, "");
 			SDL_SetWindowSize(m_window, displayMode.w, displayMode.h);
 		}
 
 		std::uint32_t flags = fullscreen == true ? SDL_WINDOW_FULLSCREEN : false;
 		SDL_SetWindowFullscreen(m_window, flags);
+
 		Core::Engine::GetRenderer()->Reset();
+		Core::Engine::GetRenderer()->UpdateViewport();
 	}
 
 	void GameWindow::SetMouseVisible(bool visible)
@@ -191,12 +198,6 @@ namespace S2DE::Core
 		SDL_Quit();
 	}
 
-	DirectX::SimpleMath::Vector2 GameWindow::GetResolution() const 
-	{ 
-		std::int32_t w = 0, h = 0; 
-		SDL_GetWindowSize(m_window, &w, &h); 
-		return DirectX::SimpleMath::Vector2(static_cast<float>(w), static_cast<float>(h));
-	}
 
 	DirectX::SimpleMath::Vector2 GameWindow::GetWindowPosition() const 
 	{ 
@@ -205,13 +206,48 @@ namespace S2DE::Core
 		return DirectX::SimpleMath::Vector2(static_cast<float>(x), static_cast<float>(y)); 
 	}
 
+	DirectX::SimpleMath::Vector2 GameWindow::GetResolution() const 
+	{
+		std::int32_t w = 0, h = 0;
+		SDL_GetWindowSize(m_window, &w, &h);
+		return DirectX::SimpleMath::Vector2(static_cast<float>(w), static_cast<float>(h));
+	}
+
 	std::int32_t GameWindow::GetWidth()  const 
 	{
-		return static_cast<std::int32_t>(GetResolution().x); 
+		return static_cast<std::int32_t>(GetResolution().x);
 	}
 
 	std::int32_t GameWindow::GetHeight() const 
 	{
+		return static_cast<std::int32_t>(GetResolution().y);
+	}
+
+	std::int32_t GameWindow::GetViewportWidth()  const
+	{
+		if (Engine::isEditor())
+		{
+			const auto renderWindow = Engine::GetRenderer()->GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
+			if (renderWindow != nullptr)
+			{
+				return static_cast<std::int32_t>(renderWindow->GetWindowWidth());
+			}
+		}
+
+		return static_cast<std::int32_t>(GetResolution().x);
+	}
+
+	std::int32_t GameWindow::GetViewportHeight() const
+	{
+		if (Engine::isEditor())
+		{
+			const auto renderWindow = Engine::GetRenderer()->GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
+			if (renderWindow != nullptr)
+			{
+				return static_cast<std::int32_t>(renderWindow->GetWindowHeight());
+			}
+		}
+
 		return static_cast<std::int32_t>(GetResolution().y);
 	}
 
@@ -247,8 +283,9 @@ namespace S2DE::Core
 		return GetModuleHandle(NULL); 
 	}
 
+#pragma warning(default : 4172)
 	HWND& GameWindow::GetHWND() 
-	{ 
+	{
 		SDL_SysWMinfo sysWMInfo = { }; 
 		SDL_VERSION(&sysWMInfo.version); 
 		SDL_GetWindowWMInfo(m_window, &sysWMInfo); 

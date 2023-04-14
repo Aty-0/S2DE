@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #define NOMINMAX
 #include <windows.h>

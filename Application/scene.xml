@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="19">
+<_MainCamera>
+	<m_name>_MainCamera</m_name>
+	<m_prefix>-1</m_prefix>
+	<m_type>_Engine_</m_type>
+	<m_enabled>1</m_enabled>
+	<m_visible>1</m_visible>
+	<m_isSelected>0</m_isSelected>
+	<m_uuidInStringFIXME>1f5921c1-ee31-4e13-a8d5-e25199fbba36</m_uuidInStringFIXME>
+	<m_transform class_id="1" tracking_level="1" version="0" object_id="_0">
+		<m_position.x>0.000000000e+00</m_position.x>
+		<m_position.y>0.000000000e+00</m_position.y>
+		<m_position.z>0.000000000e+00</m_position.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+	</m_transform>
+</_MainCamera>
+<Sky>
+	<m_name>Sky</m_name>
+	<m_prefix>-1</m_prefix>
+	<m_type>_Engine_</m_type>
+	<m_enabled>1</m_enabled>
+	<m_visible>1</m_visible>
+	<m_isSelected>0</m_isSelected>
+	<m_uuidInStringFIXME>bbb8132d-5982-4645-b2c0-e1d0ab27d754</m_uuidInStringFIXME>
+	<m_transform class_id_reference="1" object_id="_1">
+		<m_position.x>0.000000000e+00</m_position.x>
+		<m_position.y>0.000000000e+00</m_position.y>
+		<m_position.z>0.000000000e+00</m_position.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+	</m_transform>
+</Sky>
+<_EditorGrid>
+	<m_name>_EditorGrid</m_name>
+	<m_prefix>-1</m_prefix>
+	<m_type>_Engine_</m_type>
+	<m_enabled>1</m_enabled>
+	<m_visible>1</m_visible>
+	<m_isSelected>0</m_isSelected>
+	<m_uuidInStringFIXME>a90048d0-f3c2-4551-b64c-0308930a77f3</m_uuidInStringFIXME>
+	<m_transform class_id_reference="1" object_id="_2">
+		<m_position.x>6.400000000e+01</m_position.x>
+		<m_position.y>-1.000000000e+00</m_position.y>
+		<m_position.z>6.400000000e+01</m_position.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+	</m_transform>
+</_EditorGrid>
+<_EditorCenterCursor>
+	<m_name>_EditorCenterCursor</m_name>
+	<m_prefix>-1</m_prefix>
+	<m_type>_Engine_</m_type>
+	<m_enabled>1</m_enabled>
+	<m_visible>1</m_visible>
+	<m_isSelected>0</m_isSelected>
+	<m_uuidInStringFIXME>39b97152-35e4-4f62-862f-7da097be9d8f</m_uuidInStringFIXME>
+	<m_transform class_id_reference="1" object_id="_3">
+		<m_position.x>0.000000000e+00</m_position.x>
+		<m_position.y>0.000000000e+00</m_position.y>
+		<m_position.z>0.000000000e+00</m_position.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+		<m_scale.z>1.000000000e+00</m_scale.z>
+	</m_transform>
+</_EditorCenterCursor>
+<lightambientgo>
+	<m_name>lightambientgo</m_name>
+	<m_prefix>1</m_prefix>
+	<m_type>GameObject</m_type>
+	<m_enabled>1</m_enabled>
+	<m_visible>1</m_visible>
+	<m_isSelected>0</m_isSelected>
+	<m_uuidInStringFIXME>9c8cd41b-cc23-474f-8640-cc88b2b08e92</m_uuidInStringFIXME>
+	<m_transform class_id_reference="1" object_id="_4">
+		<m_position.x>0.000000000e+00</m_position.x>
+		<m_position.y>0.000000000e+00</m_position.y>
+		<m_position.z>0.000000000e+00</m_position.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_scale.z>6.000000238e-01</m_scale.z>
+		<m_scale.z>6.000000238e-01</m_scale.z>
+		<m_scale.z>6.000000238e-01</m_scale.z>
+	</m_transform>
+</lightambientgo>
+<PointLight>
+	<m_name>PointLight</m_name>
+	<m_prefix>1</m_prefix>
+	<m_type>GameObject</m_type>
+	<m_enabled>1</m_enabled>
+	<m_visible>1</m_visible>
+	<m_isSelected>0</m_isSelected>
+	<m_uuidInStringFIXME>ab8328b0-0b1e-4302-b179-bcdf3b278511</m_uuidInStringFIXME>
+	<m_transform class_id_reference="1" object_id="_5">
+		<m_position.x>0.000000000e+00</m_position.x>
+		<m_position.y>0.000000000e+00</m_position.y>
+		<m_position.z>0.000000000e+00</m_position.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_rotation.z>0.000000000e+00</m_rotation.z>
+		<m_scale.z>6.000000238e-01</m_scale.z>
+		<m_scale.z>6.000000238e-01</m_scale.z>
+		<m_scale.z>6.000000238e-01</m_scale.z>
+	</m_transform>
+</PointLight>

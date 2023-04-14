@@ -34,7 +34,7 @@ namespace S2DE::Render
 		Wireframe = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME,
 	};
 
-	const D3D11_RASTERIZER_DESC defaultRasterDesc =
+	static D3D11_RASTERIZER_DESC defaultRasterDesc =
 	{
 		/* FillMode 				*/	static_cast<D3D11_FILL_MODE>(RenderFillMode::Solid),
 		/* CullMode 				*/	D3D11_CULL_BACK,
@@ -45,7 +45,7 @@ namespace S2DE::Render
 		/* DepthClipEnable 			*/	true,
 		/* ScissorEnable 			*/	false,
 		/* MultisampleEnable 		*/	false,
-		/* AntialiasedLineEnable	*/	false,
+		/* AntialiasedLineEnable	*/	true,
 	};
 
 	class S2DE_API Renderer
@@ -84,22 +84,27 @@ namespace S2DE::Render
 		void								SetRasterizerState(std::string name = "default");
 		// Set rasterize state by rasterizer state pointer
 		void								SetRasterizerState(ID3D11RasterizerState* raster);
-		// Get rasterize state by name from rasterizerVariants storage
-		inline ID3D11RasterizerState*		GetRasterizerState(std::string name);
 
-		inline ID3D11Device*				GetDevice() { return m_device; }
-		inline ID3D11DeviceContext*			GetContext() { return m_context; }
-		inline IDXGISwapChain*				GetSwapChain() { return m_swapChain; }
-		inline ID3D11RenderTargetView*		GetRenderTargetView() { return m_targetView; }
-		inline bool							GetVsync() const { return m_vsync; }
-		inline D3D11_VIEWPORT				GetViewport() const { return m_viewport; }
-		inline ID3D11Texture2D*				GetDepthStencilBuffer() { return m_depthStencilBuffer; }
-		inline ID3D11DepthStencilView*		GetDepthStencilView() { return    m_depthStencilView; }
-		inline ID3D11ShaderResourceView*	GetFramebufferShaderResource() const { return m_frameBufferShaderResourceView; }
-		inline ID3D11Texture2D*				GetFramebufferTextureData() const { return m_frameBufferData; }
+		// Get rasterize state by name from rasterizerVariants storage
+		[[nodiscard]] inline ID3D11RasterizerState*		GetRasterizerState(std::string name);
+
+		[[nodiscard]] inline ID3D11Device* GetDevice();
+		[[nodiscard]] inline ID3D11DeviceContext* GetContext();
+		[[nodiscard]] inline IDXGISwapChain* GetSwapChain();
+		[[nodiscard]] inline ID3D11RenderTargetView* GetRenderTargetView();
+		[[nodiscard]] inline D3D11_VIEWPORT				GetViewport() const;
+		[[nodiscard]] inline ID3D11Texture2D* GetDepthStencilBuffer();
+		[[nodiscard]] inline ID3D11DepthStencilView* GetDepthStencilView();
+		[[nodiscard]] inline ID3D11ShaderResourceView* GetFramebufferShaderResource() const;
+		[[nodiscard]] inline ID3D11Texture2D* GetFramebufferTextureData() const;
+		[[nodiscard]] inline bool GetVsync() const;
 		
 		void								DrawIndexed(std::uint64_t indexCount, std::uint32_t startIndexLocation = 0, std::uint32_t baseVertexLocation = 0, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		void								Draw(std::uint64_t vertexCount, std::uint32_t startVertexLocation = 0, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		// Update viewport 
+		void								UpdateViewport();
+
 	private:
 		// Initialize ImGui Library
 		bool								InitImGui();
@@ -117,8 +122,6 @@ namespace S2DE::Render
 		bool								CreateDepthStencil();
 		// Create RenderTarget and frame buffer
 		bool								CreateRenderTarget();
-		// Update viewport 
-		void								UpdateViewport();
 		// Clear 
 		void								Clear();
 		// Presents a rendered image to the user.
@@ -138,6 +141,12 @@ namespace S2DE::Render
 		// Create engine window and editor ui if it's we are have editor flag
 		void								CreateEngineWindowsAndEditorUI();
 
+		D3D11_VIEWPORT				m_viewport;
+		ID3D11Texture2D*			m_frameBufferData;
+		ID3D11ShaderResourceView*	m_frameBufferShaderResourceView;
+		ID3D11RenderTargetView*		m_frameRenderTarget;
+
+
 		IDXGISwapChain*				m_swapChain;
 		ID3D11Device*				m_device;
 		ID3D11DeviceContext*		m_context;
@@ -147,21 +156,18 @@ namespace S2DE::Render
 		ID3D11DepthStencilView*		m_depthStencilView;
 		ID3D11DepthStencilState*	m_depthStateEnabled;
 		ID3D11DepthStencilState*	m_depthStateDisabled;
+
 		bool						m_vsync;
-		D3D11_VIEWPORT				m_viewport;
 		std::uint32_t				m_deviceFlags;
 		Math::Color<float>			m_clearColor;
 		RenderFillMode				m_fillMode;
 
-		ID3D11Texture2D*			m_frameBufferData;
-		ID3D11ShaderResourceView*	m_frameBufferShaderResourceView;
-		
 		ID3D11Debug*				m_d3dDebug;
 		ID3D11InfoQueue*			m_d3dInfoQueue;
 	
 		std::vector<std::pair<std::string, CComPtr<ID3D11RasterizerState>>> m_rasterizerVariants;
 
-		ID3D11BlendState*			m_blendStateOn; //TODO: Many modes, and use not like this
+		ID3D11BlendState*			m_blendStateOn; // TODO: Many modes, and use not like this
 		ID3D11BlendState*			m_blendStateOff; 
 
 		bool						m_showImguiWindows;
@@ -170,9 +176,10 @@ namespace S2DE::Render
 		class Editor::EditorCenterCursor*				m_editorCenterCursor;
 		class ImGui_Window*								m_editorToolStrip;
 		std::vector<std::pair<std::string, class ImGui_Window*>>	m_windowsStorage;
+
 	public:  
 		template<typename T>
-		inline T GetImGui_Window(std::string name) const
+		T GetImGui_Window(std::string name) const
 		{
 			std::vector<std::pair<std::string, ImGui_Window*>>::const_iterator it = std::find_if(m_windowsStorage.begin(),
 				m_windowsStorage.end(), [&name](std::pair<std::string, ImGui_Window*> const& elem) {
@@ -187,5 +194,31 @@ namespace S2DE::Render
 
 		ImGui_Window*				AddImGuiWindow(std::string name, ImGui_Window* wnd, bool visible = false);
 		void						DeleteImGuiWindow(std::string name);
-	};
-}
+
+
+
+		void						DebugDrawLineCross(DirectX::SimpleMath::Vector3 pos,
+													DirectX::SimpleMath::Vector3 rot,
+													DirectX::SimpleMath::Vector3 scale,
+													DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
+
+		void						DebugDrawLine(DirectX::SimpleMath::Vector3 begin,
+												  DirectX::SimpleMath::Vector3 end,
+												  DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
+
+		void						DebugDrawCube(DirectX::SimpleMath::Vector3 pos, 
+												DirectX::SimpleMath::Vector3 rot = DirectX::SimpleMath::Vector3(0,0,0),
+												DirectX::SimpleMath::Vector3 scale = DirectX::SimpleMath::Vector3(1, 1, 1),
+												DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1,1,1,1));
+
+		void						DebugDrawRing(DirectX::SimpleMath::Vector3 pos, 			
+												  DirectX::SimpleMath::Vector3 majorAxis,
+												  DirectX::SimpleMath::Vector3 minorAxis,
+												  DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
+
+		void						DebugDrawSphere(DirectX::SimpleMath::Vector3 pos,
+													float radius,
+													DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
+
+	};											  
+}												  

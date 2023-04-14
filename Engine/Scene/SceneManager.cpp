@@ -2,23 +2,29 @@
 
 #include "Render/Renderer.h"
 
-#include "GameObjects/Skybox.h"
-#include "GameObjects/Camera.h"
-#include "GameObjects/UI/UI_Drawable.h"
-#include "GameObjects/Base/Drawable.h"
-
-#include "GameObjects/Editor/EditorGrid.h"
-#include "GameObjects/Editor/EditorCenterCursor.h"
+#include "GameObjects/Base/GameObject.h"
+#include "GameObjects/Components/Skybox.h"
+#include "GameObjects/Components/Camera.h"
+#include "GameObjects/Components/UI/UIDrawableComponent.h"
+#include "GameObjects/Components/DrawableComponent.h"
+#include "GameObjects/Components/AlphaComponent.h"
+#include "GameObjects/Components/Editor/EditorGrid.h"
+#include "GameObjects/Components/Editor/EditorCenterCursor.h"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <sstream>
+#include <fstream>
+
+#include "Base/Utils/SerializeUtils.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 
 namespace S2DE::Scene
 {
 	SceneManager::SceneManager() : 
 		m_scene(nullptr),
 		m_update_enabled(true),
-		m_render_enabled(true),
-		m_render_imgui_enabled(true)
+		m_render_enabled(true)
 	{
 
 	}
@@ -31,14 +37,21 @@ namespace S2DE::Scene
 	void SceneManager::CreateNewScene()
 	{	 
 		m_scene = new Scene();
-		CreateGameObject<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
-		CreateGameObject<GameObjects::Skybox>("Skybox", "");
+		const auto camera = CreateGameObject<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+		camera->CreateComponent<GameObjects::Components::Camera>();
+		const auto sky = CreateGameObject<GameObjects::GameObject>("Sky", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+		sky->CreateComponent<GameObjects::Components::Skybox>();
 		
 		if (Core::Engine::isEditor())
 		{
-			CreateGameObject<GameObjects::Editor::EditorGrid>("_EditorGrid", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, DirectX::SimpleMath::Vector3(GRID_CELLS / 2, -1, GRID_CELLS / 2));
-			CreateGameObject<GameObjects::Editor::EditorCenterCursor>("_EditorCenterCursor", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+			const auto editorGrid = CreateGameObject<GameObjects::GameObject>("_EditorGrid", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, DirectX::SimpleMath::Vector3(GRID_CELLS / 2, -1, GRID_CELLS / 2));
+			editorGrid->CreateComponent<GameObjects::Components::Editor::EditorGrid>();
+
+			const auto editorCenterCursor = CreateGameObject<GameObjects::GameObject>("_EditorCenterCursor", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
+			editorCenterCursor->CreateComponent<GameObjects::Components::Editor::EditorCenterCursor>();
 		}
+
+		// TODO: Callbacks
 	}	 
 		 
 	bool SceneManager::LoadScene(std::string name)
@@ -46,55 +59,95 @@ namespace S2DE::Scene
 		S2DE_NO_IMPL();
 		return true;
 	}	 
-		 
+
 	bool SceneManager::SaveScene()
 	{	 
-		S2DE_NO_IMPL();
+		Logger::Log("[SceneManager] Save scene");
+		boost::archive::xml_oarchive oa(m_os);
+
+		for (const auto& object : m_scene->GetStorage())
+		{
+			oa << boost::serialization::make_nvp(object.first.first.c_str(), static_cast<GameObjects::GameObject&>(*object.second.get()));
+		}	
+
+		//PrintSerializedObjects();
+		
+		std::ofstream file;
+
+		file.open("scene.xml");
+		file << m_os.str();
+		file.close();
+
 		return true;
 	}	 
 
 	void SceneManager::UpdateShaders()
 	{
 		for (const auto& object : m_scene->GetStorage())
-			if(object.second.get() == dynamic_cast<GameObjects::Drawable*>(object.second.get()))
-				reinterpret_cast<GameObjects::Drawable*>(object.second.get())->UpdateShader();
+		{
+			auto components = object.second.get()->GetComponent<GameObjects::Components::DrawableComponent>();
+
+			if (components != nullptr)
+			{
+				Logger::Log("Update shader for %s", object.first.first.c_str());
+				components->UpdateShader();
+			}
+		}
 	}
 
 	void SceneManager::UpdateTextures()
 	{
 		for (const auto& object : m_scene->GetStorage())
-			if (object.second.get() == dynamic_cast<GameObjects::Drawable*>(object.second.get()))
-				reinterpret_cast<GameObjects::Drawable*>(object.second.get())->UpdateTexture();	
+		{
+			auto components = object.second.get()->GetComponent<GameObjects::Components::DrawableComponent>();
+
+			if (components != nullptr)
+			{
+				components->UpdateTexture();
+			}
+		}
 	}
 		 	 
-	void SceneManager::RenderImGUI()
-	{
-		if (m_render_imgui_enabled && m_scene)
-			for (const auto& object : m_scene->GetStorage())
-				object.second.get()->RenderImGUI();
-
-	}
-
-	void SceneManager::RenderScene()
+	void SceneManager::RenderScene(Render::Renderer* renderer)
 	{
 		if (m_render_enabled && m_scene)
 		{
+			//for (const auto& object : m_scene->GetStorage())
+			//{
+			//	auto gameObject = object.second.get();
+			//	if (gameObject == nullptr)
+			//		continue;
+			//	gameObject->Render();
+			//}
+
 			for (const auto& object : m_scene->GetStorage())
 			{
 				auto gameObject = object.second.get();
-				if (!gameObject->Alpha && gameObject != dynamic_cast<GameObjects::UI::UI_Drawable*>(gameObject))
+				if (gameObject == nullptr)
+					continue;
+
+				GameObjects::Components::AlphaComponent* alphaComponent = gameObject->GetComponent<GameObjects::Components::AlphaComponent>();
+
+				if (alphaComponent == nullptr)
 				{
-					gameObject->Render();
+					gameObject->Render(renderer);
 				}
 			}
-		
+
 			Core::Engine::GetRenderer()->TurnOnAlphaBlending();
 			for (const auto& object : boost::adaptors::reverse(m_scene->GetStorage()))
 			{
 				auto gameObject = object.second.get();
-				if (gameObject->Alpha && gameObject != dynamic_cast<GameObjects::UI::UI_Drawable*>(gameObject))
+				if (gameObject == nullptr)
+					continue;
+
+				auto drawComponent = gameObject->GetComponent<GameObjects::Components::DrawableComponent>();
+				auto alphaComponent = gameObject->GetComponent<GameObjects::Components::AlphaComponent>();
+
+				if (drawComponent != nullptr && 
+					alphaComponent != nullptr)
 				{
-					gameObject->Render();
+					gameObject->Render(renderer);
 				}
 			}
 			Core::Engine::GetRenderer()->TurnOffAlphaBlending();
@@ -103,10 +156,23 @@ namespace S2DE::Scene
 			for (const auto& object : m_scene->GetStorage())
 			{
 				auto gameObject = object.second.get();
-				if (gameObject == dynamic_cast<GameObjects::UI::UI_Drawable*>(gameObject))
+				if (gameObject == nullptr)
+					continue;
+
+				auto alphaComponent = gameObject->GetComponent<GameObjects::Components::AlphaComponent>();
+
+				if (alphaComponent != nullptr)
+					Core::Engine::GetRenderer()->TurnOnAlphaBlending();
+
+				auto uiComponent = gameObject->GetComponent<GameObjects::Components::UI::UIDrawableComponent>();
+
+				if (uiComponent != nullptr)
 				{
-					gameObject->Render();
+					gameObject->Render(renderer);
 				}
+
+				if (alphaComponent != nullptr)
+					Core::Engine::GetRenderer()->TurnOffAlphaBlending();
 			}
 			Core::Engine::GetRenderer()->TurnZBufferOn();
 		}
@@ -115,8 +181,12 @@ namespace S2DE::Scene
 	void SceneManager::UpdateScene(float DeltaTime)
 	{
 		if (m_update_enabled && m_scene)
+		{
 			for (const auto& object : m_scene->GetStorage())
+			{
 				object.second.get()->Update(DeltaTime);
+			}
+		}
 	}
 
 	void SceneManager::ToggleGameObjectVisibility()
@@ -124,14 +194,14 @@ namespace S2DE::Scene
 		m_render_enabled =! m_render_enabled;
 	}
 
-	void SceneManager::ToggleImGUIVisibility()
-	{
-		m_render_imgui_enabled =! m_render_imgui_enabled;
-	}
-
-	void SceneManager::ToggleGameObjectUpdate()
+	void SceneManager::ToggleGameObjectUpdating()
 	{
 		m_update_enabled =! m_update_enabled;
+	}
+
+	inline Scene* SceneManager::GetScene() const
+	{
+		return m_scene;
 	}
 
 	void SceneManager::Clear()

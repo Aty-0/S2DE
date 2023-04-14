@@ -2,7 +2,7 @@
 #include "Base/Engine.h"
 #include "Base/GameWindow.h"
 #include "Base/Main/BuildDate.h"
-#include "Base/DebugTools/VisualConsole.h"
+#include "Base/DebugTools/Console.h"
 
 #include <filesystem>
 
@@ -38,30 +38,46 @@ namespace S2DE::Core::Utils
 		m_lineCount = 0;
 	}
 
+	const char* Logger::ParseArgsToString(const char* text, ...)
+	{
+		char buffer[2048];
+		VA_LIST_OUTPUT(buffer);
+		return buffer;
+	}
+
 	std::string Logger::GetTime(bool printMinAndSec)
 	{
 		m_time = time(0);
 		m_localTime = localtime(&m_time);
-		std::string minSec = printMinAndSec == true ? "." + std::to_string(m_localTime->tm_sec) + "." + std::to_string(m_localTime->tm_min) : std::string();
-		return std::to_string(1900 + m_localTime->tm_year) + "." + std::to_string(1 + m_localTime->tm_mon) + "." + std::to_string(m_localTime->tm_mday) + minSec;
+
+		const char* textparsed = printMinAndSec == true ? 
+			ParseArgsToString("%i.%i.%i.%i.%i", (1900 + m_localTime->tm_year), (1 + m_localTime->tm_mon), m_localTime->tm_mday,m_localTime->tm_sec, m_localTime->tm_min) :
+			ParseArgsToString("%i.%i.%i", (1900 + m_localTime->tm_year), (1 + m_localTime->tm_mon), m_localTime->tm_mday);
+
+		return textparsed;
 	}
 
 	std::string Logger::GetCorrentTime()
 	{
 		m_time = time(0);
 		m_localTime = localtime(&m_time);
-
-		return std::to_string(1900 + m_localTime->tm_year) + "." + std::to_string(1 + m_localTime->tm_mon) + "." +
-			std::to_string(m_localTime->tm_mday) + " " + std::to_string(m_localTime->tm_hour) +
-			":" + std::to_string(m_localTime->tm_min) + ":" + std::to_string(m_localTime->tm_sec);
+		const char* textparsed = ParseArgsToString("%i.%i.%i:%i:%i", (1900 + m_localTime->tm_year), (1 + m_localTime->tm_mon), m_localTime->tm_mday, m_localTime->tm_sec, m_localTime->tm_min);
+		return textparsed;
 	}
 
 	void Logger::Fatal(const char* text, ...)
 	{
 		char buffer[1024];
 		VA_LIST_OUTPUT(buffer);
-		Print("Fatal", std::string(buffer).c_str());
-		throw std::runtime_error(std::string(buffer));
+		Print(DirectX::SimpleMath::Color(1.0f, 0.0f, 0.0f, 1.0f), "Error", std::string(buffer).c_str());
+		memset(buffer, 0, sizeof(buffer));
+	}
+
+	void Logger::LogColored(DirectX::SimpleMath::Color color, const char* text, ...)
+	{
+		char buffer[1024];
+		VA_LIST_OUTPUT(buffer);
+		Print(color, "Log", std::string(buffer).c_str());
 		memset(buffer, 0, sizeof(buffer));
 	}
 
@@ -69,7 +85,7 @@ namespace S2DE::Core::Utils
 	{
 		char buffer[1024];
 		VA_LIST_OUTPUT(buffer);
-		Print("Log", std::string(buffer).c_str());
+		Print(DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 1.0f), "Log", std::string(buffer).c_str());
 		memset(buffer, 0, sizeof(buffer));
 	}
 
@@ -77,7 +93,7 @@ namespace S2DE::Core::Utils
 	{
 		char buffer[1024];
 		VA_LIST_OUTPUT(buffer);
-		Print("Warning", std::string(buffer).c_str());
+		Print(DirectX::SimpleMath::Color(0.8f, 0.8f, 0.0f, 1.0f), "Warning", std::string(buffer).c_str());
 		memset(buffer, 0, sizeof(buffer));
 	}
 
@@ -85,7 +101,7 @@ namespace S2DE::Core::Utils
 	{
 		char buffer[1024];
 		VA_LIST_OUTPUT(buffer);
-		Print("Error", std::string(buffer).c_str());
+		Print(DirectX::SimpleMath::Color(1.0f, 0.4f, 0.4f, 1.0f), "Error", std::string(buffer).c_str());
 		memset(buffer, 0, sizeof(buffer));
 	}
 
@@ -93,11 +109,17 @@ namespace S2DE::Core::Utils
 	{
 		// Create folder "Logs" if it's not exist
 		if (!std::filesystem::is_directory("Logs") || !std::filesystem::exists("Logs"))
-			if(!std::filesystem::create_directory("Logs"))
+		{
+			if (!std::filesystem::create_directory("Logs"))
+			{
 				throw std::runtime_error("Can't create directory");
+			}
+		}
 
 		// Set log name
-		m_logFileName = "S2DE-Log-" + GetTime(true) + ".log";
+		m_logFileName.append("S2DE-Log-");
+		m_logFileName.append(GetTime(true)); 
+		m_logFileName.append(".log");
 
 		// Create log file 
 		m_logFile = std::ofstream("Logs/" + m_logFileName, std::ios_base::out);
@@ -110,30 +132,42 @@ namespace S2DE::Core::Utils
 			"\n\n";
 	}
 
-	void Logger::Print(const char* type, const char* text)
+	void Logger::Print(DirectX::SimpleMath::Color color, const char* type, const char* text)
 	{
 		std::string line = std::string();
-
+		// Print line count
 		line.append("[" + std::to_string(m_lineCount) + "] ");
 
-		//Add to line corrent time
+		// Add to line corrent time
 		line.append(GetCorrentTime());
-		//Add type and text from buffer
+
+		// Add type and text from buffer
 		line.append(" [" + std::string(type) + "]  " + std::string(text) + "\n");
 
-		//print to vs console
+		// If we are have debuging output
 		OutputDebugString(line.c_str());
 
-		//Add text to log file
+		// Add text to log file
 		m_logFile << line;
-		Debug::VisualConsole::ConsoleBuffer.push_back(line);
 
-		//Add line 
+		Debug::ConsoleBufferObject object = Debug::ConsoleBufferObject();
+		object.text = line;
+		object.color = color;
+
+		Debug::Console::ConsoleBuffer.push_back(object);
+
+		// Add line 
 		m_lineCount++;
 
+		// Run callbacks
 		for (const auto& func : onPrintCallbacks)
-			func();
-	
+		{
+			if (func != nullptr)
+			{
+				func();
+			}
+		}
+
 		line.clear();
 	}
 
@@ -148,7 +182,10 @@ namespace S2DE::Core::Utils
 		if (FAILED(hr))
 		{
 			if (printCode == true)
+			{
 				Logger::Error("Error Code: 0x%08X Details: %s ", hr, GetHRCodeDetails(hr).c_str());
+			}
+
 			return false;
 		}
 		return true;

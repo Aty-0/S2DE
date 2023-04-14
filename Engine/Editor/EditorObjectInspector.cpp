@@ -5,13 +5,18 @@
 #include "Scene/SceneManager.h"
 #include "Base/GameWindow.h"
 
+#include "GameObjects/Base/GameObject.h"
+#include "GameObjects/Components/Component.h"
+
 #include <boost/range/adaptor/reversed.hpp>
 
 namespace S2DE::Editor
 {
 	EditorObjectInspector::EditorObjectInspector() : 
-		m_handle(nullptr),
-		m_show_engine_object(false)
+		m_selectedGameObject(nullptr),
+		m_selectedComponent(nullptr),
+		m_showEngineGameObjects(false),
+		m_uiElementsHeight(0.25f)
 	{
 
 	}
@@ -23,11 +28,15 @@ namespace S2DE::Editor
 
 	void EditorObjectInspector::Reset()
 	{
-		if(m_handle != nullptr)
-			m_handle->Unselect();
+		if (m_selectedComponent != nullptr)
+			m_selectedComponent->Unselect();
 
-		m_handle = nullptr;
-		m_select_object_name.clear();
+		m_selectedComponent = nullptr;
+
+		if(m_selectedGameObject != nullptr)
+			m_selectedGameObject->Unselect();
+
+		m_selectedGameObject = nullptr;
 	}
 
 	void EditorObjectInspector::Render()
@@ -35,102 +44,150 @@ namespace S2DE::Editor
 		if (!m_draw)
 			return;
 
+		// Save inspector focus 
+		static bool isFocused = false;
+
+		Scene::SceneManager* sceneManager = Core::Engine::GetSceneManager();
+
+		// Lock all control stuff if window is active
+		Core::Engine::GetInputManager()->LockKeyboardControl(isFocused && m_draw);
+		Core::Engine::GetInputManager()->LockMouseControl(isFocused && m_draw);
+		Core::Engine::GetInputManager()->LockWheel(isFocused && m_draw);
+
 		ImGui::SetNextWindowSizeConstraints(ImVec2(300, 300), ImVec2(800, Core::Engine::GetGameWindow()->GetHeight()));
 
-		ImGui::Begin("Scene object inspector", &m_draw, ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar);
-
-		//Lock all control stuff if window is active
-		Core::Engine::GetInputManager()->LockKeyboardControl(ImGui::IsWindowFocused(ImGuiFocusedFlags_::ImGuiFocusedFlags_ChildWindows));
-		Core::Engine::GetInputManager()->LockMouseControl(ImGui::IsWindowFocused(ImGuiFocusedFlags_::ImGuiFocusedFlags_ChildWindows));
-
+		ImGui::Begin("Inspector", &m_draw, ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar);
+		isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_::ImGuiFocusedFlags_ChildWindows);
 
 		if (Core::Engine::GetSceneManager()->GetScene() != nullptr)
 		{
-			if (ImGui::Checkbox("Show Engine Objects", &m_show_engine_object))
-				Reset();
-
-			if (m_handle != nullptr)
-				ImGui::Text("Selected:%s", m_handle->GetName().c_str());
-
-			ImGui::Spacing();
-
-			if (ImGui::ListBoxHeader("1", ImVec2(ImGui::GetWindowSize().x, 300)))
+			if (ImGui::Checkbox("Show Engine Objects", &m_showEngineGameObjects))
 			{
-				for (const auto& object : boost::adaptors::reverse(Core::Engine::GetSceneManager()->GetScene()->GetStorage()))
-				{
-					//If iterator is empty we skip it
-					if (object.second == nullptr)
-						continue;
-					if (object.second->Alpha == false)
-						continue;
-
-					//If we don't need to show objects with ENGINE prefix we skip that object
-					if (m_show_engine_object == false && object.second->GetPrefix() == -1)
-						continue;
-
-					if (ImGui::Selectable(object.first.first.c_str(), object.second->isSelected()))
-					{
-						if (m_handle == nullptr)
-						{
-							m_select_object_name = object.first.first;
-							m_handle = object.second.get();
-							m_handle->Select();
-						}
-						else if (m_handle != object.second.get())
-						{
-							//Unselect previous object and select new object
-							m_handle->Unselect();
-							m_select_object_name = object.first.first;
-							m_handle = object.second.get();
-							m_handle->Select();
-						}
-					}
-				}
-
-				ImGui::ListBoxFooter();
+				Reset();
 			}
 
-			ImGui::Spacing();
-			ImGui::Separator();
-
-			if (ImGui::ListBoxHeader("2", ImVec2(ImGui::GetWindowSize().x, 300)))
+			if (ImGui::ListBoxHeader("Objects", ImVec2(ImGui::GetWindowSize().x, 300)))
 			{
 				for (const auto& object : Core::Engine::GetSceneManager()->GetScene()->GetStorage())
 				{
-					//If iterator is empty we skip it
-					if (object.second == nullptr)
+					auto gameObject = object.second.get();
+
+					// If iterator is empty we skip it
+					if (gameObject == nullptr)
 						continue;
 
-					if (object.second->Alpha  == true)
+					// If we don't need to show objects with ENGINE prefix we skip that object
+					if (m_showEngineGameObjects == false && gameObject->GetPrefix() == -1)
 						continue;
 
-					//If we don't need to show objects with ENGINE prefix we skip that object
-					if (m_show_engine_object == false && object.second->GetPrefix() == -1)
-						continue;
-
-					if (ImGui::Selectable(object.first.first.c_str(), object.second->isSelected()))
+					if (object.second->GetTransform()->GetParent() == nullptr)
 					{
-						if (m_handle == nullptr)
+						ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1, m_uiElementsHeight));
+						if (m_selectedGameObject == gameObject)
 						{
-							m_select_object_name = object.first.first;
-							m_handle = object.second.get();
-							m_handle->Select();
+							if (ImGui::Checkbox("##", &m_selectedGameObject->m_visible))
+							{
+								const auto child = m_selectedGameObject->GetTransform()->GetChild();
+								if (child != nullptr)
+								{
+									child->SetVisible(m_selectedGameObject->m_visible);
+								}
+							}
+							ImGui::SameLine();
 						}
-						else if (m_handle != object.second.get())
+
+						if (ImGui::Selectable(gameObject->GetName().c_str(), gameObject->m_isSelected))
 						{
-							//Unselect previous object and select new object
-							m_handle->Unselect();
-							m_select_object_name = object.first.first;
-							m_handle = object.second.get();
-							m_handle->Select();
+							if (m_selectedGameObject == nullptr)
+							{
+								m_selectedGameObject = gameObject;
+								m_selectedGameObject->Select();
+								//Logger::Log("[EditorObjectInspector] New object have been selected! %s", m_selectedGameObject->GetName().c_str());
+							}
+							else if (m_selectedGameObject != gameObject)
+							{
+								//Unselect previous object and select new object
+								m_selectedGameObject->Unselect();
+								m_selectedGameObject = gameObject;
+								m_selectedGameObject->Select();
+								//Logger::Log("[EditorObjectInspector] Previous object was unselected, selected new: %s", m_selectedGameObject->GetName().c_str());
+							}
+							else if (m_selectedGameObject == gameObject) // We are just clicked at the same object, so it's mean we are want to unselect
+							{
+								//Logger::Log("[EditorObjectInspector] It's same object, reset all %s", m_selectedGameObject->GetName().c_str());
+								Reset();
+							}
+
 						}
+
+						ImGui::PopStyleVar();
 					}
 
+				
 				}
+
 				ImGui::ListBoxFooter();
 			}
 
+			ImGui::Spacing();
+
+			// TODO: Move all of this to details window
+			if (m_selectedGameObject != nullptr)
+			{
+				ImGui::Text("Selected:");
+				ImGui::Text("Name:%s ", m_selectedGameObject->GetName().c_str());
+				ImGui::Text("UUID:%s ", m_selectedGameObject->GetUUIDString().c_str());
+
+				ImGui::Text("Components:");
+
+				if (ImGui::ListBoxHeader("Components", ImVec2(ImGui::GetWindowSize().x, 300)))
+				{
+					for (const auto& component : m_selectedGameObject->GetComponentsList())
+					{
+						if (component.second == nullptr)
+							continue;
+
+						if (ImGui::Selectable(component.second->GetName().c_str(), component.second->isSelected()))
+						{
+							if (m_selectedComponent == nullptr)
+							{
+								m_selectedComponent = component.second;
+								m_selectedComponent->Select();
+							}
+							else if (m_selectedComponent != component.second)
+							{
+								// Unselect previous component and select new object
+								m_selectedComponent->Unselect();
+								m_selectedComponent = component.second;
+								m_selectedComponent->Select();
+							}
+						}
+					}
+
+					ImGui::ListBoxFooter();
+				}
+
+				if (m_selectedComponent != nullptr)
+				{
+					ImGui::Text("Details:");
+					ImGui::Text("Selected:");
+					ImGui::Text("Name:%s ",	m_selectedComponent->GetName().c_str());
+					ImGui::Text("UUID:%s ",	m_selectedComponent->GetUUIDString().c_str());
+				}
+			}
+
+
 			ImGui::End();
 		}
+	}
+
+	inline GameObjects::GameObject* EditorObjectInspector::GetSeletectedGameObject()
+	{
+		return m_selectedGameObject;
+	}
+
+	inline GameObjects::Components::Component* EditorObjectInspector::GetSeletectedComponent()
+	{
+		return m_selectedComponent;
 	}
 }

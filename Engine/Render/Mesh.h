@@ -1,24 +1,28 @@
 #pragma once
 #include "Base/Main/Common.h"
-#include "IO/IO_File.h"
-#include "IO/IO_Disposible.h"
+#include "Base/Resource.h"
+#include "Render/Buffers.h"
 
 namespace S2DE::Render
 {
-	class S2DE_API Mesh : public IO::IO_File, public IO::IO_Disposible
+	class S2DE_API Mesh : public Core::Resources::Resource
 	{
 	public:
+		friend class FbxImporter;
+
 		Mesh();
 		virtual ~Mesh();
 
-		virtual void					  Cleanup() override;
-		virtual bool					  Load(std::string path) override;
+		bool					  Load(std::string path) final;
 										  
-		inline std::vector<Vertex>		  GetVertices() const { return m_vertices; }
-		inline std::vector<std::uint32_t> GetIndices()  const { return m_indices; }
-
-	private:
-		std::vector<Vertex>				  m_vertices;
-		std::vector<std::uint32_t>		  m_indices;
+		[[nodiscard]] inline std::vector<struct texture_indexed> GetTextures()  const;
+		[[nodiscard]] inline std::uint32_t 				 GetCountMeshes()  const;
+		[[nodiscard]] inline std::vector<Render::VertexBuffer<Render::Vertex>*> GetVertexBuffers()  const;
+		[[nodiscard]] inline std::vector<Render::IndexBuffer<std::uint32_t>*>	GetIndexBuffers()  const;
+	private:		
+		std::vector<Render::VertexBuffer<Render::Vertex>*>	m_vertexBuffers;
+		std::vector<Render::IndexBuffer<std::uint32_t>*>	m_indexBuffers;
+		std::vector<struct texture_indexed>		m_textures;
+		std::uint32_t					m_countMeshes;
 	};
 }

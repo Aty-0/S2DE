@@ -2,7 +2,7 @@
 #include "Base/Main/Common.h"
 #include "Base/Engine.h"
 #include "GameObjects/Base/GameObject.h"
-#include "GameObjects/Base/GameObjectIDGenerator.h"
+#include "Base/Utils/UUID.h"
 
 namespace S2DE::Scene
 {
@@ -15,35 +15,34 @@ namespace S2DE::Scene
 		Scene();
 		~Scene();
 		
-		//Rename object (by name)
+		// Rename object (by name)
 		void							Rename(std::string object_name, std::string new_object_name);
-		//Rename object (by id)
+		// Rename object (by uuid)
 		void							Rename(boost::uuids::uuid object_id, std::string new_object_name);
 
-		//Delete game object (by name)
+		// Delete game object (by name)
 		void							Delete(std::string object_name);
-		//Delete game object (by id)
+		// Delete game object (by uuid)
 		void							Delete(boost::uuids::uuid object_id);
 
-		//Replace game object (by name)
+		// Replace game object (by name)
 		void							Replace(std::string object_name, GameObjects::GameObject* object);
-		//Replace game object (by id)
+		// Replace game object (by uuid)
 		void							Replace(boost::uuids::uuid object_id, GameObjects::GameObject* object);
 
-		//Clear all scene
-		//NOTE: Object with engine prefix (-1) will not been deleted
+		// Clear all scene
+		// NOTE: Object with engine prefix (-1) will not been deleted
 		void							Clear();
-		//Destroy scene
+		// Destroy scene
 		void							Destroy();
 
-		//Check object name on exist
-		//if name existing we add number of same object
+		// Check object name on exist, if we found object with same name we are add num prefix 
 		void							CheckNameOnExist(std::string& name);
 
-		inline SceneObjectStorage&		GetStorage() { return m_storage; }
-		inline std::string				GetName() const { return m_name; }
+		[[nodiscard]] inline SceneObjectStorage& GetStorage();
+		[[nodiscard]] inline std::string				GetName() const;
 
-		//Add game object to scene
+		// Add game object to scene
 		template<typename T>
 		T*							Add(T* g)
 		{
@@ -66,10 +65,10 @@ namespace S2DE::Scene
 			CheckNameOnExist(name);
 			g->SetName(name); //It will be renamed if we are found same name
 
-			Logger::Log("[Scene] [%s] Added [%s] Name: %s UUID: %s at Position (%f %f %f)",
+			Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Added [%s] Name: %s UUID: %s at Position (%f %f %f)",
 				m_name.c_str(), Core::Utils::GetClassNameInString(g).c_str(),
 				name.c_str(), g->GetUUIDString().c_str(),
-				g->GetPosition().x, g->GetPosition().y, g->GetPosition().z);
+				g->GetTransform()->GetPosition().x, g->GetTransform()->GetPosition().y, g->GetTransform()->GetPosition().z);
 
 			//Add object to storage
 			std::shared_ptr<T> objectShared = std::make_shared<T>(*g);
@@ -79,13 +78,13 @@ namespace S2DE::Scene
 		}
 
 
-		//Clone game object (by name)
+		// Clone game object (by name)
 		template<typename T>
 		T* Clone(std::string object_name, std::string new_name = std::string())
 		{
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
-			Logger::Log("[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), object_name.c_str(),
+			Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), object_name.c_str(),
 				Core::Utils::isStringEmpty(new_name) ? "No" : new_name.c_str());
 
 			SceneObjectStorage::iterator it = std::find_if(m_storage.begin(), m_storage.end(),
@@ -112,13 +111,13 @@ namespace S2DE::Scene
 			return Add<T>(new_obj);
 		}
 
-		//Clone game object (by id)
+		// Clone game object (by id)
 		template<typename T>
 		T* Clone(boost::uuids::uuid object_id, std::string new_name = std::string())
 		{
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
-			Logger::Log("[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), GameObjects::GameObjectIDGenerator::ConvertUUIDToString(object_id).c_str(),
+			Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), Core::Utils::UUID::ConvertUUIDToString(object_id).c_str(),
 				Core::Utils::isStringEmpty(new_name) ? "No" : new_name.c_str());
 
 			SceneObjectStorage::iterator it = std::find_if(m_storage.begin(), m_storage.end(),

@@ -5,18 +5,54 @@
 
 namespace S2DE::Core::Utils
 {
-	inline static bool isStringEmpty(std::string str)
+	[[nodiscard]] static bool isStringEmpty(std::string str)
 	{
 		return str == "" || str.empty();
 	}
 
-	inline static bool isWStringEmpty(std::wstring str)
+	[[nodiscard]] static bool isWStringEmpty(std::wstring str)
 	{
 		return str == L"" || str.empty();
 	}
 
+	[[nodiscard]] static bool StringAllReplace(std::string& str, const std::string& from, const std::string& to)
+	{
+		if (from.empty())
+		{
+			return false;
+		}
+
+		std::size_t start_pos = 0;
+
+		while ((start_pos = str.find(from, start_pos)) != std::string::npos) 
+		{
+			str.replace(start_pos, from.length(), to);
+			start_pos += to.length(); 
+		}
+
+		return true;
+	}
+
+	[[nodiscard]] static bool StringReplace(std::string& str, const std::string& from, const std::string& to)
+	{
+		if (from.empty())
+		{
+			return false;
+		}
+
+		std::size_t start_pos = str.find(from);
+
+		if (start_pos == std::string::npos)
+		{
+			return false;
+		}
+
+		str.replace(start_pos, from.length(), to);
+		return true;
+	}
+
 	template<typename T>
-	inline std::string GetClassNameInString(T obj)
+	[[nodiscard]] static std::string GetClassNameInString(T obj)
 	{
 		//Get class name by typeid function
 		std::string class_name = typeid(obj).name();
@@ -25,7 +61,7 @@ namespace S2DE::Core::Utils
 		std::uint64_t pos = 0;
 		while (pos != std::string::npos)
 		{
-			class_name = class_name.substr(pos + 2);
+			class_name = class_name.substr(pos + 1);
 			pos = class_name.find(":", pos);
 		}
 
@@ -37,7 +73,7 @@ namespace S2DE::Core::Utils
 		return class_name;
 	}
 
-	inline std::string GetFileExtension(const std::string& filename)
+	[[nodiscard]] static std::string GetFileExtension(const std::string& filename)
 	{
 		size_t off = filename.find_last_of('.');
 
@@ -47,7 +83,7 @@ namespace S2DE::Core::Utils
 		return std::string(filename.substr(off + 1));
 	}
 
-	inline std::wstring StringToWString(std::string str)
+	[[nodiscard]] static std::wstring StringToWString(std::string str)
 	{
 		std::wstring wstr;
 #ifdef _MSC_VER
@@ -59,7 +95,7 @@ namespace S2DE::Core::Utils
 		return wstr;
 	}
 
-	inline std::string WStringToString(std::wstring wstr)
+	[[nodiscard]] static std::string WStringToString(std::wstring wstr)
 	{
 		std::string str;
 

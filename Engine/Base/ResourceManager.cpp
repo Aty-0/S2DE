@@ -1,7 +1,7 @@
 #include "ResourceManager.h"
 #include <fstream>
 
-namespace S2DE::Core
+namespace S2DE::Core::Resources
 {
 	ResourceManager::ResourceManager()
 	{
@@ -10,46 +10,80 @@ namespace S2DE::Core
 
 	ResourceManager::~ResourceManager()
 	{
-		m_defaultTexture.reset();
+		m_storage.clear();
 	}
 
 	void ResourceManager::ReloadShaders()
 	{
-		Logger::Log("[ResourceManager] Reload shaders...");
+		Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "[ResourceManager] Reload shaders...");
 
-		for (const auto& p : m_ResourceStorage)
+		for (const auto& p : m_storage)
 		{
 			if (p.first.second == std::type_index(typeid(Render::Shader)))
-				reinterpret_cast<RMResource<Render::Shader>*>(p.second.get())->Get()->Reload();
-		}
-	}
-	
-	void ResourceManager::ReloadTextures()
-	{
-		Logger::Log("[ResourceManager] Reload textures...");
-
-		for (const auto& p : m_ResourceStorage)
-		{
-			if (p.first.second == std::type_index(typeid(Render::Texture)))
 			{
-				Render::Texture* t = reinterpret_cast<RMResource<Render::Texture>*>(p.second.get())->Get();
-				t->Load(GetFilePath(t->GetName(), t));
+				reinterpret_cast<Render::Shader*>(p.second)->Reload();
 			}
 		}
 	}
-
-	bool ResourceManager::LoadDefaultTexture() 
+	
+	void ResourceManager::DumpAllResources()
 	{
-		m_defaultTexture = std::make_unique<Render::Texture>();
-		m_defaultTexture->SetFileName("default_texture");
-		return m_defaultTexture->Load(GetFilePath("default_texture", m_defaultTexture.get()));
+		Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), " ! ! ! DumpAllResources ! ! !");
+
+		if (m_storage.size() == 0)
+		{
+			Logger::Log("Storage is empty!");
+			return;
+		}
+
+
+		for (const auto& p : m_storage)
+		{
+			Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "RMn: %s Rn: %s T:" , p.first.first.c_str(), p.second->m_name.c_str(), p.second->GetType().c_str());
+			
+			std::string types_str = std::string();
+			for (const auto n : p.second->GetExtensions())
+			{
+				types_str += " " + n;
+			}
+
+			Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "%s" , types_str.c_str());
+		}
+	}
+
+	void ResourceManager::ReloadTextures()
+	{
+		Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "[ResourceManager] Reload textures...");
+
+		for (const auto& p : m_storage)
+		{
+			if (p.first.second == std::type_index(typeid(Render::Texture)))
+			{
+				const auto texture = reinterpret_cast<Render::Shader*>(p.second);
+				texture->Load(texture->GetName());
+			}
+		}
 	}
 
 	void ResourceManager::ClearAll()
 	{
 		Logger::Log("[ResourceManager] Clear all resources");
+		for (std::map<std::pair<std::string, std::type_index>, Resource*>::iterator it = m_storage.begin(); it != m_storage.end();)
+		{
+			if (it->second->m_cantDelete == false)
+			{
+				it = m_storage.erase(it);
+			}
+			else
+			{
+				it++;
+			}
+		}
 
-		m_ResourceStorage.clear();
+// check clear func 
+#ifdef _DEBUG
+		DumpAllResources();
+#endif
 	}
 
 	bool ResourceManager::ConstructPath(std::string filename, std::string type, std::string ex, std::string& resultpath)
@@ -61,7 +95,7 @@ namespace S2DE::Core
 		//Check on exist file by final path
 		if (file.is_open())
 		{
-			Logger::Log("[ResourceManager] %s found | %s", type.c_str(), res.c_str());
+			Logger::LogColored(DirectX::SimpleMath::Color(0.2f, 1.0f, 0.5f, 1.0f), "[ResourceManager] %s found | %s", type.c_str(), res.c_str());
      		resultpath = res;
 			file.close();
 			return true;
@@ -71,13 +105,11 @@ namespace S2DE::Core
 		return false;
 	}
 
-	bool ResourceManager::GetFilePath(std::string filename, IO_File* file, std::string& resultpath)
-	{
-		std::uint32_t size = (std::uint32_t)file->GetExtension().size();
-
-		for (std::uint32_t i = 0; i <= size - 1; i++)
+	bool ResourceManager::GetFilePath(std::string filename, Resource* file, std::string& resultpath)
+	{		
+		for(const auto extension : file->GetExtensions())
 		{
-			if (ConstructPath(filename, file->GetType(), file->GetExtension()[i], resultpath))
+			if (ConstructPath(filename, file->GetType(), extension, resultpath))
 				return true;			
 		}
 
@@ -85,14 +117,13 @@ namespace S2DE::Core
 		return false;
 	}
 
-	std::string  ResourceManager::GetFilePath(std::string filename, IO_File* file)
+	std::string  ResourceManager::GetFilePath(std::string filename, Resource* file)
 	{
 		std::string resultpath = std::string();
-		std::uint32_t size = (std::uint32_t)file->GetExtension().size();
 
-		for (std::uint32_t i = 0; i <= size - 1; i++)
+		for (const auto extension : file->GetExtensions())
 		{
-			if (ConstructPath(filename, file->GetType(), file->GetExtension()[i], resultpath))
+			if (ConstructPath(filename, file->GetType(), extension, resultpath))
 				return resultpath;
 		}
 
@@ -102,14 +133,20 @@ namespace S2DE::Core
 
 	bool ResourceManager::GetFilePath(std::string filename, std::string type, std::string ex[], std::string& resultpath)
 	{
-		IO_File* file = new IO_File(type, ex);
+		Resource* file = new Resource(type, ex);
 		return GetFilePath(filename, file, resultpath);
 	}
 
 	bool ResourceManager::GetFilePath(std::string filename, std::string type, std::string ex, std::string& resultpath)
 	{
-		IO_File* file = new IO_File(type, ex);
+		Resource* file = new Resource(type, ex);
 		return GetFilePath(filename, file, resultpath);
 	}
+
+	inline std::string ResourceManager::GetNameOfDataFolder() const
+	{
+		return m_dataFolderName;
+	}
+
 
 }

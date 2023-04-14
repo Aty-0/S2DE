@@ -1,11 +1,15 @@
 #include "GameTime.h"
-#include "Base/Utils/Logger.h"
+#include "Render/Renderer.h"
 
+// For testing
 
 namespace S2DE::Core
 {
 	GameTime::GameTime() :
 		m_tickEnd(std::chrono::high_resolution_clock::now()),
+		m_now(std::chrono::high_resolution_clock::now()),
+		m_then(std::chrono::high_resolution_clock::now()),
+		m_timerDuration(),
 		m_fps(0),
 		m_frameCount(0),
 		m_deltaTime(0.0f),
@@ -16,40 +20,56 @@ namespace S2DE::Core
 
 	GameTime::~GameTime()
 	{
-
+		m_fps = 0;
+		m_frameCount = 0;
+		m_deltaTime = 0.0f;
+		m_timer = 0.0f;
 	}
 
-	void GameTime::Tick()
+	void GameTime::Begin()
 	{
 		m_frameCount++;
-		m_then = m_start;
-		m_start = std::chrono::high_resolution_clock::now();
-		m_deltaTime = std::chrono::duration_cast<us>(m_start - m_then).count() / 1000000.0f;
+		m_now = std::chrono::high_resolution_clock::now();
+	}
 
-		m_timerDuration = m_start - m_tickEnd;
-		m_timerDuration = std::chrono::duration_cast<us>(m_timerDuration);
+	void GameTime::End()
+	{
+		m_deltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(m_now - m_then).count()) / 1000.0f;
+		//m_fps = (1.0f / m_deltaTime) * 1000.0f;
 
+		m_then = m_now;
+
+		m_timerDuration = m_now - m_tickEnd;
+		m_timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(m_timerDuration);
+		
 		m_timer += m_timerDuration.count() / 10;
-		if (m_start - m_tickEnd >= se{ 1 })
+		if (m_now - m_tickEnd >= std::chrono::seconds{ 1 })
 		{
 			m_fps = m_frameCount;
-			m_tickEnd = m_start;
+			m_tickEnd = m_now;
 			m_frameCount = 0;
 		}
 
+		// Time in Seconds
+		m_deltaTime /= 1000.0f;
 	}
 
-	float GameTime::GetTime() const
+	inline float GameTime::GetTime() const
 	{
 		return m_timer;
 	}
 
-	float GameTime::GetDeltaTime() const
-	{ 
-		return m_deltaTime;
+	inline float GameTime::GetDeltaTime() const
+	{
+		return  m_deltaTime; 
 	}
 
-	std::int32_t GameTime::GetFPS() const
+	inline std::int32_t GameTime::GetFrameCount() const
+	{
+		return m_frameCount;
+	}
+
+	inline std::int32_t GameTime::GetFPS() const
 	{ 
 		return m_fps;
 	}

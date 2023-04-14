@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "Base/GameTime.h"
 #include "Base/Other/SplashScreen.h"
 #include "Base/ApplicationHandle.h"
 #include "Base/GameWindow.h"
@@ -25,7 +26,7 @@ namespace S2DE::Core
 	bool Engine::m_isEditor;
 	Renderer* Engine::m_render;
 	InputManager* Engine::m_input_m;
-	ResourceManager Engine::m_resource_manager;
+	Resources::ResourceManager Engine::m_resource_manager;
 	SceneManager* Engine::m_scene_manager;
 	std::string Engine::m_params;
 
@@ -58,25 +59,27 @@ namespace S2DE::Core
 	{
 		m_isEditor = isEditor;
 
-		//Get params
+		// Get params
 		m_params = GetCommandLineA();
+
 		bool splash = !CheckAppParam("-nsplash");
+
 		SplashScreen* sp = nullptr;
 		SplashScreen::SetProjectName(pname);
 
 		if (splash)
 		{
 			sp = new SplashScreen();
-			S2DE_ASSERT(sp->ShowSplashScreen(GetModuleHandle(NULL)));
+			Assert(sp->ShowSplashScreen(GetModuleHandle(NULL)), "");
 		}
 
-		//Create log file 
+		// Create log file 
 		Logger::CreateLogFile();
 
 		Logger::Log("Starting engine...");
 		SplashScreen::SetLoadState("Starting engine...", sp);
 
-		//Check application handle
+		// Check application handle
 		if ((m_app_handle = app_handle) == nullptr)
 		{
 			S2DE_FATAL_ERROR("No application handle setted");
@@ -97,11 +100,14 @@ namespace S2DE::Core
 		if (!m_render->Create())
 			return;
 		
-		//Load engine resources, read main config, etc
+		// Load engine resources, read main config, etc
 		SplashScreen::SetLoadState("Load engine resources...", sp);
 		
 		if (!LoadEngineResources())
+		{
+			S2DE_FATAL_ERROR("Failed to load engine resources!");
 			return;
+		}
 
 		SplashScreen::SetLoadState("Initialize scene...", sp);
 		m_scene_manager = new SceneManager();
@@ -110,16 +116,16 @@ namespace S2DE::Core
 		SplashScreen::SetLoadState("Load game resources...", sp);
 		if (!m_app_handle->LoadResources())
 		{
-			S2DE_FATAL_ERROR("Failed to load application resources");
+			S2DE_FATAL_ERROR("Failed to load application resources!");
 			return;
 		}
 
-		//Application On start
+		// Application On start
 		Logger::Log("Application OnStart event");
 		m_app_handle->OnStart();
 
 
-		//Destroy splash screen and show game window
+		// Destroy splash screen and show game window
 		if (splash)
 		{
 			sp->Close();
@@ -127,7 +133,7 @@ namespace S2DE::Core
 		}
 		m_window->Restore();
 
-		//Run main game loop
+		// Run main game loop
 		RunLoop();
 
 	}
@@ -147,7 +153,7 @@ namespace S2DE::Core
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_GRAVE))
 		{
-			m_render->GetImGui_Window<Render::ImGui_Window*>("EngineConsole")->ToggleDraw();
+			m_render->GetImGui_Window<Render::ImGui_Window*>("Console")->ToggleDraw();
 		}
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_F11))
@@ -194,11 +200,11 @@ namespace S2DE::Core
 
 	void Engine::OnLoop()
 	{
+		m_time.Begin();
 		UpdateInput();
-		m_time.Tick();
-
 		OnGlobalUpdate(m_time.GetDeltaTime());
 		m_render->Render();
+		m_time.End();
 	}
 
 	void Engine::Destroy()
@@ -215,11 +221,82 @@ namespace S2DE::Core
 
 	bool Engine::LoadEngineResources()
 	{
-		S2DE_ASSERT(m_resource_manager.LoadDefaultTexture());
-		S2DE_ASSERT(m_resource_manager.Load<Shader>("Sprite"));
-		S2DE_ASSERT(m_resource_manager.Load<Shader>("Line"));
-		S2DE_ASSERT(m_resource_manager.Load<Shader>("Mesh"));
+		// Load default texture
+		Verify(m_resource_manager.Load<Render::Texture>("Engine/DefaultTexture", "DefaultTexture", true), "Can't load default texture");
+		Verify(m_resource_manager.Load<Render::Texture>("Engine/DefaultSky", "DefaultSky", true), "Can't load default sky texture");
+		// Load shaders 
+		Verify(m_resource_manager.Load<Render::Shader>("Sprite", std::string(), true), "Can't load sprite shader");
+		Verify(m_resource_manager.Load<Render::Shader>("Line", std::string(), true), "Can't load line shader");
+		Verify(m_resource_manager.Load<Render::Shader>("Mesh", std::string(), true), "Can't load mesh shader");
+		Verify(m_resource_manager.Load<Render::Shader>("Skybox", std::string(), true), "Can't load skybox shader");
+
+		// Load editor resources 
+		if (Engine::isEditor())
+		{
+			Verify(m_resource_manager.Load<Render::Texture>("Engine/cursor", "cursor", true), "Can't load cursor");
+			Verify(m_resource_manager.Load<Render::Texture>("Engine/engine_light_icon", "engine_light_icon", true), "Can't load light icon");
+			Verify(m_resource_manager.Load<Render::Texture>("Engine/engine_game_object", "engine_game_object", true), "Can't load game object icon");
+			//Verify(m_resource_manager.Load<Render::Shader>("editor_cursor"), "Can't load cursor shader");
+		}
+
+
+		// Add default cubemap to resources
+		Render::Texture* defaultCubeMapTexture = new Render::Texture();
+		const auto cubePath = m_resource_manager.GetFilePath("Engine/cubemap", defaultCubeMapTexture);
+		Verify(defaultCubeMapTexture->CreateCubeMapTexture(cubePath), "Can't create default cubemap");
+		m_resource_manager.Add(defaultCubeMapTexture, "DefaultCubemap", true);
+
 
 		return true;
+	}
+
+	inline Engine* Engine::GetEngine()
+	{
+		return m_engine;
+	}
+
+	inline ApplicationHandle* Engine::GetApplicationHandle()
+	{
+		return m_app_handle;
+	}
+
+	inline GameWindow* Engine::GetGameWindow()
+	{
+		return m_window;
+	}
+
+	inline GameTime Engine::GetGameTime()
+	{
+		return m_time;
+	}
+
+	inline Render::Renderer* Engine::GetRenderer()
+	{
+		return m_render;
+	}
+
+	inline InputManager* Engine::GetInputManager()
+	{
+		return m_input_m;
+	}
+
+	inline Scene::SceneManager* Engine::GetSceneManager()
+	{
+		return m_scene_manager;
+	}
+
+	inline Resources::ResourceManager& Engine::GetResourceManager()
+	{
+		return m_resource_manager;
+	}
+
+	inline bool Engine::isEditor()
+	{
+		return m_isEditor;
+	}
+
+	inline bool Engine::CheckAppParam(std::string param)
+	{
+		return m_params.find(param) != std::string::npos;
 	}
 }

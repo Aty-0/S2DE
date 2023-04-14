@@ -14,7 +14,7 @@ namespace S2DE::Render
 			m_textureSamplerState(nullptr)
 	{
 		m_type = "Texture";
-		m_ex = 
+		m_extensions = 
 		{ 
 			// DDS loader supports
 			".dds", 
@@ -30,15 +30,11 @@ namespace S2DE::Render
 
 	Texture::~Texture()
 	{
-		
-	}
-
-	void Texture::Cleanup()
-	{
 		Core::Release(m_resource);
 		Core::Release(m_resourceView);
 		Core::Release(m_textureHandle);
 		Core::Release(m_textureSamplerState);
+		
 	}
 
 	void Texture::UpdateTextureDesc()
@@ -48,7 +44,13 @@ namespace S2DE::Render
 		m_textureHandle->GetDesc(&m_textureDesc);
 	}
 
-	bool Texture::CreateSamplerState()
+	bool Texture::SetSamplerState(D3D11_SAMPLER_DESC const& samplerDesc)
+	{
+		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&samplerDesc, &m_textureSamplerState), "Can't create sampler state");
+		return true;
+	}
+
+	bool Texture::CreateDefaultSamplerState()
 	{
 		D3D11_SAMPLER_DESC sampler_desc = { };
 		sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -65,22 +67,22 @@ namespace S2DE::Render
 		sampler_desc.BorderColor[2] = 0;
 		sampler_desc.BorderColor[3] = 0;
 
-		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
+		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
 		return true;
 	}
 
-	bool Texture::Load(std::string path)
+	bool Texture::Load(std::string name)
 	{
-		//If path is empty 
-		if (Core::Utils::isStringEmpty(path))
+		const auto paths = FindPath({ name });
+		if (m_notLoaded == true)
 		{
-			Logger::Error("Path string is empty, can't load texture!");
 			return false;
 		}
 
+		const auto path = paths[0];
 		HRESULT hr = S_OK;
 
-		//Get file extension because for dds format we need to use special function
+		// Get file extension because for dds format we need to use special function
 		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
@@ -106,17 +108,17 @@ namespace S2DE::Render
 			}
 		}
 		
-		//Create sampler state for current texture
-		CreateSamplerState();
+		// Create sampler state for current texture
+		CreateDefaultSamplerState();
 
-		//Get and save texture description
+		// Get and save texture description
 		UpdateTextureDesc();
 		return true;
 	}
 
 	bool Texture::CreateCubeMapTexture(std::string path)
 	{
-		//If path is empty 
+		// If path is empty 
 		if (Core::Utils::isStringEmpty(path))
 		{
 			Logger::Error("Path string is empty, can't load texture!");
@@ -126,7 +128,7 @@ namespace S2DE::Render
 
 		HRESULT hr = S_OK;
 
-		//Get file extension because for dds format we need to use special function
+		// Get file extension because for dds format we need to use special function
 		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
@@ -147,13 +149,13 @@ namespace S2DE::Render
 			return false;
 		}
 
-		CreateSamplerState();
+		CreateDefaultSamplerState();
 		return true;
 	}
 
 	bool Texture::CreateEmptyTexture(Math::Color<std::uint32_t> color)
 	{
-		const uint32_t pixel = color.r | (color.g << 8) | (color.b << 16) | (color.a << 24); 
+		const std::uint32_t pixel = color.r | (color.g << 8) | (color.b << 16) | (color.a << 24); 
 		D3D11_SUBRESOURCE_DATA initData = { &pixel, sizeof(uint32_t), 0 };
 		D3D11_TEXTURE2D_DESC texture_desc = { };
 
@@ -178,22 +180,69 @@ namespace S2DE::Render
 		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for empty texture");
 
 		UpdateTextureDesc();
-		CreateSamplerState();
+		CreateDefaultSamplerState();
 		return true;
 	}
 
-	void Texture::Unbind()
+	void Texture::Unbind(std::uint32_t startSlot, std::uint32_t numViews)
 	{
-		Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(0, 0, nullptr);
-		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, 0, nullptr);
+		ID3D11ShaderResourceView* nullSRV = { nullptr };
+
+		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(startSlot, numViews, &nullSRV);
+		//Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(startSlot, numViews, nullptr);
 	}
 
-	void Texture::Bind(std::uint32_t NumViews)
+	void Texture::Bind(std::uint32_t startSlot, std::uint32_t numViews)
 	{
-		if(m_resourceView != nullptr)
-			Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(0, NumViews, &m_resourceView);
+		if (m_resourceView != nullptr)
+		{
+			Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(startSlot, numViews, &m_resourceView);
 
-		if(m_textureSamplerState != nullptr)
-			Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(0, 1, &m_textureSamplerState);
+			if (m_textureSamplerState != nullptr)
+			{
+				Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(startSlot, numViews, &m_textureSamplerState);
+			}
+		}
+
+	}
+
+	inline ID3D11ShaderResourceView* Texture::GetResourceView() const
+	{
+		return m_resourceView;
+	}
+
+	inline ID3D11Texture2D* Texture::GetTexture2D() const
+	{
+		return m_textureHandle;
+	}
+
+	inline std::uint32_t Texture::GetWidth() const
+	{
+		return m_textureDesc.Width;
+	}
+
+	inline std::uint32_t Texture::GetHeight() const
+	{
+		return m_textureDesc.Height;
+	}
+
+	inline std::uint32_t Texture::GetMipLevels() const
+	{
+		return m_textureDesc.MipLevels;
+	}
+
+	inline DXGI_FORMAT	Texture::GetFormat() const
+	{
+		return m_textureDesc.Format;
+	}
+
+	inline DXGI_SAMPLE_DESC	Texture::GetSampleDesc() const
+	{
+		return m_textureDesc.SampleDesc;
+	}
+
+	inline D3D11_USAGE	Texture::GetUsage() const
+	{
+		return m_textureDesc.Usage;
 	}
 }

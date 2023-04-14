@@ -14,14 +14,14 @@ namespace S2DE::Render
 
 		}
 
-		virtual ~IndexBuffer() override
+		~IndexBuffer() final
 		{
 			Core::Release(m_buffer);
 			m_array.clear();
 			m_array.shrink_to_fit();
 		}
 
-		virtual bool Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DEFAULT) override
+		bool Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DEFAULT) final
 		{
 			if (m_array.size() == 0)
 				return false;
@@ -39,34 +39,34 @@ namespace S2DE::Render
 			subData.SysMemPitch = 0;
 			subData.SysMemSlicePitch = 0;
 
-			S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subData, &m_buffer), "Can't create buffer!");
+			Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subData, &m_buffer), "Can't create buffer!");
 
 			return true;
 		}
 
-		virtual bool Lock()	 override
+		bool Lock() final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 			{
 				D3D11_MAPPED_SUBRESOURCE mappedResource = { };
-				S2DE_CHECK_SAFE(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in index buffer");
+				Verify_HR(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in index buffer");
 			}
 
 			return true;
 		}
 
-		virtual void Unlock() override
+		void Unlock() final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 				Core::Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
 		}
 
-		virtual void Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1)	 override
+		void Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1) final
 		{
 			Core::Engine::GetRenderer()->GetContext()->IASetIndexBuffer(m_buffer, DXGI_FORMAT_R32_UINT, 0);
 		}
 
-		virtual void Unbind()  override
+		void Unbind() final
 		{
 			Core::Engine::GetRenderer()->GetContext()->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
 		}

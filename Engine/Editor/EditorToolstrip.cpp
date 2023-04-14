@@ -5,12 +5,13 @@
 #include "Scene/SceneManager.h"
 #include "Render/Renderer.h"
 
-#include "GameObjects/Camera.h"
-#include "GameObjects/Sprite.h"
-#include "GameObjects/Test/TestObject.h"
-#include "GameObjects/Test/NoTextureTestObject.h"
+#include "GameObjects/Components/Camera.h"
+#include "GameObjects/Components/Sprite.h"
 
 #include "Editor/EditorColorPicker.h"
+#include "Base/Utils/SerializeUtils.h"
+
+#include <sstream>
 
 namespace S2DE::Editor
 {
@@ -29,20 +30,22 @@ namespace S2DE::Editor
 		if (!m_draw)
 			return;
 
+		//static std::stringstream ss;
+
 		if (ImGui::BeginMainMenuBar()) 
 		{
-			auto maincamera = Scene::GetObjectByName<GameObjects::Camera>(S2DE_MAIN_CAMERA_NAME);
-			
+			auto maincamera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
+
 			if (ImGui::BeginMenu("File")) 
 			{
-				if (ImGui::MenuItem("Open"))
+				if (ImGui::MenuItem("Open scene"))
 				{
-					Logger::Log("Not implemented");
+					Core::Engine::GetSceneManager()->LoadScene("");
 				}
 
-				if (ImGui::MenuItem("Save"))
+				if (ImGui::MenuItem("Save scene"))
 				{
-					Logger::Log("Not implemented");
+					Core::Engine::GetSceneManager()->SaveScene();
 				}
 
 				ImGui::EndMenu();
@@ -50,28 +53,22 @@ namespace S2DE::Editor
 
 			if (ImGui::BeginMenu("View"))
 			{
-				if (ImGui::MenuItem("Object inspector"))
+				if (ImGui::MenuItem("Draw object inspector"))
 				{
 					m_inspector = Core::Engine::GetRenderer()->GetImGui_Window<Editor::EditorObjectInspector*>("EditorObjectInspector");
 
 					m_inspector->ToggleDraw();
 				}
 
-				if (ImGui::MenuItem("Toggle objects visible"))
+				if (ImGui::MenuItem("Draw GameObject's"))
 				{
 					Core::Engine::GetSceneManager()->ToggleGameObjectVisibility();
 				}
 
-				if (ImGui::MenuItem("Toggle editor windows"))
+				if (ImGui::MenuItem("Draw editor windows"))
 				{
 					Core::Engine::GetRenderer()->ToggleImGuiWindowsVisible();
 				}
-
-				if (ImGui::MenuItem("Toggle debug (in objects) windows"))
-				{
-					Core::Engine::GetSceneManager()->ToggleImGUIVisibility();
-				}
-
 
 				if (ImGui::BeginMenu("Fill mode"))
 				{
@@ -107,10 +104,10 @@ namespace S2DE::Editor
 				{
 					m_inspector = Core::Engine::GetRenderer()->GetImGui_Window<Editor::EditorObjectInspector*>("EditorObjectInspector");
 
-					if (m_inspector->GetHandle() != nullptr)
+					if (m_inspector->GetSeletectedGameObject() != nullptr)
 					{
 						//Get object name from handle
-						std::string handle_name = m_inspector->GetHandle()->GetName();
+						std::string handle_name = m_inspector->GetSeletectedGameObject()->GetName();
 						//Reset handle in inspector 
 						m_inspector->Reset();
 						//Delete object
@@ -138,7 +135,7 @@ namespace S2DE::Editor
 					DirectX::SimpleMath::Vector3 spawn_vec = DirectX::SimpleMath::Vector3::Zero;
 
 					if (maincamera != nullptr)
-						spawn_vec = maincamera->GetPosition();
+						spawn_vec = maincamera->GetOwner()->GetTransform()->GetPosition();
 
 					if (ImGui::MenuItem("GameObject"))
 					{
@@ -146,21 +143,8 @@ namespace S2DE::Editor
 					}
 					if (ImGui::MenuItem("Sprite"))
 					{
-						Scene::CreateGameObject<GameObjects::Sprite>("Sprite", "GameObject", 1, spawn_vec);
-					}
-
-					if (ImGui::BeginMenu("Test's"))
-					{
-						if (ImGui::MenuItem("Basic Test object"))
-						{
-							Scene::CreateGameObject<GameObjects::TestObject>("TestObject", "GameObject", 1, spawn_vec);
-						}
-
-						if (ImGui::MenuItem("No texture test object"))
-						{
-							Scene::CreateGameObject<GameObjects::NoTextureTestObject>("NoTextureTestObject", "GameObject", 1, spawn_vec);
-						}
-						ImGui::EndMenu();
+						auto sprite = Scene::CreateGameObject<GameObjects::GameObject>("Sprite", "GameObject", 1, spawn_vec + DirectX::SimpleMath::Vector3(0,0,-1));
+						sprite->CreateComponent<GameObjects::Components::Sprite>();
 					}
 					ImGui::EndMenu();
 				}
@@ -187,7 +171,7 @@ namespace S2DE::Editor
 
 				if (ImGui::MenuItem("Toggle GameObject update"))
 				{
-					Core::Engine::GetSceneManager()->ToggleGameObjectUpdate();
+					Core::Engine::GetSceneManager()->ToggleGameObjectUpdating();
 				}
 
 				if (ImGui::BeginMenu("Render"))
@@ -209,17 +193,18 @@ namespace S2DE::Editor
 			if (maincamera != nullptr)
 			{
 				ImGui::SetCursorPos(ImVec2((Core::Engine::GetGameWindow()->GetWidth() / 2) - 100,0));
+				
 				if (ImGui::Button("2D"))
 				{
-					maincamera->SetProjectionMode(GameObjects::Camera::CameraProjectionMode::Orthographics);
+					maincamera->SetProjectionMode(GameObjects::Components::Camera::CameraProjectionMode::Orthographics);
 				}
 
 				if (ImGui::Button("3D"))
 				{
-					maincamera->SetProjectionMode(GameObjects::Camera::CameraProjectionMode::Perspective);
+					maincamera->SetProjectionMode(GameObjects::Components::Camera::CameraProjectionMode::Perspective);
 				}
 
-				if (maincamera->GetProjectionMode() == GameObjects::Camera::CameraProjectionMode::Perspective)
+				if (maincamera->GetProjectionMode() == GameObjects::Components::Camera::CameraProjectionMode::Perspective)
 				{
 					static float fov = maincamera->GetFov();
 					ImGui::PushItemWidth(100);
@@ -234,7 +219,7 @@ namespace S2DE::Editor
 				{
 					static float zoom = maincamera->GetZoom();
 					ImGui::PushItemWidth(100);
-					if (ImGui::SliderFloat("Zoom", &zoom, 0.0001f, 0.13f))
+					if (ImGui::SliderFloat("Zoom", &zoom, 0.01f, 0.13f))
 					{
 						maincamera->SetZoom(zoom);
 					}
@@ -243,6 +228,7 @@ namespace S2DE::Editor
 				}
 
 			}
+
 			ImGui::EndMainMenuBar();
 		}
 	}
