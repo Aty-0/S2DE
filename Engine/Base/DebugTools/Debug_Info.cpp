@@ -8,6 +8,7 @@
 #include "Render/CB.h"
 #include "Render/Texture.h"
 #include "Render/Shader.h"
+#include "Base/GameTime.h"
 
 namespace S2DE::Core::Debug
 {

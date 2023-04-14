@@ -1,9 +1,13 @@
 #include "Application.h"
 #include <Base\CoreMinimal.h>
+
+#include <Scene\SceneManager.h>
+
+#include <GameObjects\Base\GameObject.h>
 #include <GameObjects\Components\StaticMesh.h>
 #include <GameObjects\Components\Light\PointLight.h>
 #include <GameObjects\Components\Light\AmbientLight.h>
-#include <GameObjects\StaticMesh.h>
+#include <GameObjects\Components\StaticMesh.h>
 
 
 using namespace S2DE;
@@ -33,6 +37,9 @@ Application::~Application()
 
 void Application::OnStart()
 {
+	auto camera = S2DE::Scene::GetObjectByName<GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
+	camera->SetProjectionMode(S2DE::GameObjects::Components::Camera::CameraProjectionMode::Perspective);
+
 	Texture* texture = new Texture();
 	texture->CreateEmptyTexture();
 	Assert(Engine::GetResourceManager().Add(texture) == true, "");
@@ -58,10 +65,7 @@ bool Application::LoadResources()
 
 void Application::OnUpdate(float DeltaTime)
 {
-	if (first != nullptr)
-	{
-		first->GetTransform()->SetPosition(Vector3(DeltaTime * 10, 10, 0));
-	}
+
 }
 
 void Application::OnRender()
@@ -77,11 +81,6 @@ void Application::InputEvents()
 
 	if (Engine::GetInputManager()->IsKeyPressed(KeyCode::KEY_T))
 	{
-		if (main_go != nullptr)
-		{
-			main_go->GetTransform()->SetPosition(Vector3(0, 10, 0));
-		}
-
 		auto lightgo = GetObjectByName<GameObject>("PointLight");
 		if (lightgo != nullptr)
 		{
@@ -91,26 +90,6 @@ void Application::InputEvents()
 			lightc->SetColor(blue);
 		}
 
-	}
-
-	if (Engine::GetInputManager()->IsKeyPressed(KeyCode::KEY_U))
-	{
-		main_go = CreateGameObject<GameObject>("test_childs_main", "GameObject", 1, Vector3(Vector3(0, 0, 0)));
-
-		for (std::int32_t i = 0; i <= 5; i++)
-		{
-			cur = CreateGameObject<GameObject>("test_childs_", "GameObject", 1, Vector3(Vector3(0, 0, 0)));
-			cur->GetTransform()->SetPosition(Vector3(i * 5, 0, 0));
-			cur->CreateComponent<Components::Sprite>();
-			if (i == 0)
-				first = cur;
-
-			if (pr != nullptr)
-				cur->GetTransform()->SetParent(pr);
-
-			pr = cur;
-		}
-		cur->GetTransform()->SetParent(main_go);
 	}
 
 	if (Engine::GetInputManager()->IsKeyPressed(KeyCode::KEY_O))
