@@ -173,7 +173,8 @@ namespace S2DE::Render
 		}
 
 		CreateDepthStencil();
-		
+		UpdateViewport();
+
 		return true;
 	}
 
@@ -314,7 +315,7 @@ namespace S2DE::Render
 		sd.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
 		sd.BufferDesc.RefreshRate.Numerator = m_vsync == true ? 60 : 0;
 		sd.BufferDesc.RefreshRate.Denominator = 1;
-		sd.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		sd.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		sd.BufferCount = 2;
 		sd.Windowed = !Core::Engine::GetGameWindow()->isFullscreen();
 		sd.OutputWindow = Core::Engine::GetGameWindow()->GetHWND();
@@ -475,7 +476,7 @@ namespace S2DE::Render
 		m_viewport.Width = static_cast<float>(window->GetWidth());
 		m_viewport.Height = static_cast<float>(window->GetHeight());
 
-		if (Core::Engine::isEditor())
+		if (Core::Engine::isEditor() && m_showImguiWindows)
 		{
 			const auto renderWindow = GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
 			if (renderWindow != nullptr)
@@ -537,6 +538,7 @@ namespace S2DE::Render
 	{
 		float color_array[4] = { m_clearColor.r, m_clearColor.g, m_clearColor.b , 1 };
 
+		m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
 		m_context->OMSetDepthStencilState(m_depthStateEnabled, 0);
 		m_context->ClearRenderTargetView(m_targetView, color_array);
 		m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -610,7 +612,7 @@ namespace S2DE::Render
 		}
 
 		#if defined(S2DE_DEBUG_RENDER_MODE)
-				if (Core::Engine::isEditor() && m_showImguiDemoWindow)
+				if (m_showImguiDemoWindow)
 					ImGui::ShowDemoWindow(&m_showImguiDemoWindow);
 		#endif
 		
@@ -654,7 +656,6 @@ namespace S2DE::Render
 		Clear();
 		{
 			UpdateFramebufferShaderResource();
-
 			if (Core::Engine::isEditor() && m_showImguiWindows)
 			{
 				// Basic support of render window
@@ -688,7 +689,9 @@ namespace S2DE::Render
 				Core::Engine::GetSceneManager()->RenderScene(this);
 			}
 
+
 			RenderImGui();
+
 			
 		}
 
@@ -834,6 +837,11 @@ namespace S2DE::Render
 	void Renderer::ToggleImGuiWindowsVisible()
 	{
 		m_showImguiWindows =! m_showImguiWindows;
+
+		if (Core::Engine::isEditor())
+		{
+			UpdateViewport();
+		}
 	}
 
 	void Renderer::TurnZBufferOn()
