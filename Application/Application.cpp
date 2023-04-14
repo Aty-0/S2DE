@@ -3,6 +3,8 @@
 #include <GameObjects\Components\StaticMesh.h>
 #include <GameObjects\Components\Light\PointLight.h>
 #include <GameObjects\Components\Light\AmbientLight.h>
+#include <GameObjects\StaticMesh.h>
+
 
 using namespace S2DE;
 using namespace S2DE::GameObjects;
@@ -46,8 +48,6 @@ void Application::OnStart()
 	auto lightc = lightgo->CreateComponent<GameObjects::Components::Light::PointLight>();
 	lightc->SetColor(red);
 	lightgo->GetTransform()->SetParent(GetObjectByName<GameObject>(S2DE_MAIN_CAMERA_NAME));
-	
-	Engine::GetGameWindow()->SetMouseVisible(true);
 }
 
 bool Application::LoadResources()
@@ -55,10 +55,6 @@ bool Application::LoadResources()
 	return true;
 }
 
-GameObject* main_go;
-GameObject* cur;
-GameObject* pr;
-GameObject* first;
 
 void Application::OnUpdate(float DeltaTime)
 {
@@ -74,7 +70,7 @@ void Application::OnRender()
 }
 void Application::InputEvents()
 {
-	if (Engine::GetInputManager()->IsKeyPressed(KeyCode::KEY_F3))
+	if (Engine::GetInputManager()->IsKeyDown(KeyCode::KEY_O))
 	{
 		Engine::GetResourceManager().DumpAllResources();
 	}
