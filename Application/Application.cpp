@@ -63,15 +63,16 @@ bool Application::LoadResources()
 }
 
 
-void Application::OnUpdate(float DeltaTime)
+void Application::OnUpdate(float deltaTime)
 {
 
 }
 
-void Application::OnRender()
+void Application::OnRender(S2DE::Render::Renderer* renderer)
 {
 
 }
+
 void Application::InputEvents()
 {
 	if (Engine::GetInputManager()->IsKeyDown(KeyCode::KEY_O))

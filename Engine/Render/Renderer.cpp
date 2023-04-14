@@ -546,7 +546,7 @@ namespace S2DE::Render
 
 	void Renderer::End()
 	{
-		m_swapChain->Present((std::uint32_t)m_vsync, 0);
+		m_swapChain->Present(static_cast<std::uint32_t>(m_vsync), 0);
 	}
 
 	void Renderer::DestroyImGui()
@@ -664,8 +664,8 @@ namespace S2DE::Render
 				if (m_frameRenderTarget != nullptr)
 				{
 					m_context->OMSetRenderTargets(1, &m_frameRenderTarget, m_depthStencilView);
-					Core::Engine::GetApplicationHandle()->OnRender();
 					Core::Engine::GetSceneManager()->RenderScene(this);
+					Core::Engine::GetApplicationHandle()->OnRender(this);
 				}
 
 				m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
@@ -685,8 +685,8 @@ namespace S2DE::Render
 			}
 			else
 			{
-				Core::Engine::GetApplicationHandle()->OnRender();
 				Core::Engine::GetSceneManager()->RenderScene(this);
+				Core::Engine::GetApplicationHandle()->OnRender(this);
 			}
 
 

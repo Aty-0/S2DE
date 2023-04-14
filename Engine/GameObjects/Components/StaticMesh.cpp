@@ -203,8 +203,7 @@ namespace S2DE::GameObjects::Components
 			return;
 
 		auto transform = GetOwner()->GetTransform();
-		renderer->DebugDrawLineCross(transform->GetPosition(), transform->GetRotation(), transform->GetScale());
-
+		
 		if (m_isMeshPart)
 		{
 			auto vBuff = m_mesh->GetVertexBuffers()[m_savedIndex];
@@ -229,7 +228,7 @@ namespace S2DE::GameObjects::Components
 			}
 
 			// Bind and update variables in const buffer
-			m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
+			m_shader->UpdateMainConstBuffer(transform->UpdateTransformation());
 
 			// Bind shader and texture 
 			m_shader->Bind();
@@ -308,7 +307,7 @@ namespace S2DE::GameObjects::Components
 				}
 
 				// Bind and update variables in const buffer
-				m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
+				m_shader->UpdateMainConstBuffer(transform->UpdateTransformation());
 
 				// Bind shader and texture 
 				m_shader->Bind();
