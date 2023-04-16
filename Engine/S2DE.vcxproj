@@ -25,6 +25,7 @@
     <ClInclude Include="Base\Resource.h" />
     <ClInclude Include="Base\Utils\CallbackWrapper.h" />
     <ClInclude Include="Base\Utils\LoggerDebugTools.h" />
+    <ClInclude Include="Render\Font.h" />
     <ClInclude Include="GameObjects\Components\AlphaComponent.h" />
     <ClInclude Include="GameObjects\Components\DrawableComponent.h" />
     <ClInclude Include="GameObjects\Components\Component.h" />
@@ -105,6 +106,7 @@
   <ItemGroup>
     <ClCompile Include="Base\DebugTools\Debug_Info.cpp" />
     <ClCompile Include="Base\Resource.cpp" />
+    <ClCompile Include="Render\Font.cpp" />
     <ClCompile Include="GameObjects\Components\AlphaComponent.cpp" />
     <ClCompile Include="GameObjects\Components\DrawableComponent.cpp" />
     <ClCompile Include="GameObjects\Components\Component.cpp" />

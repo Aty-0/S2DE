@@ -153,6 +153,42 @@ namespace S2DE::Render
 		return true;
 	}
 
+	bool Texture::CreateFontTexture(std::int32_t w, std::int32_t h, std::uint8_t* data)
+	{
+		D3D11_SUBRESOURCE_DATA initData = { };
+
+		initData.pSysMem = (void*)data;
+		initData.SysMemPitch = w; // * sizeof(std::uint8_t*);
+		initData.SysMemSlicePitch = w * h;
+
+		D3D11_TEXTURE2D_DESC texture_desc = { };
+
+		texture_desc.Width = w;
+		texture_desc.Height = h;
+		texture_desc.MipLevels = 1;
+		texture_desc.ArraySize = 1;
+		texture_desc.Format = DXGI_FORMAT::DXGI_FORMAT_R8_UNORM;//DXGI_FORMAT_R32G32B8A2_UNORM;
+		texture_desc.SampleDesc.Count = 1;
+		texture_desc.SampleDesc.Quality = 0;
+		texture_desc.Usage = D3D11_USAGE_IMMUTABLE;
+		texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+		ID3D11Texture2D* texture = nullptr;
+		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateTexture2D(&texture_desc, &initData, &texture), "Can't create font texture");
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC shader_desc = { };
+
+		shader_desc.Format = DXGI_FORMAT::DXGI_FORMAT_R8_UNORM;
+		shader_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		shader_desc.Texture2D.MipLevels = 1;
+
+		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for font texture");
+
+		UpdateTextureDesc();
+		CreateDefaultSamplerState();
+		return true;
+	}
+
 	bool Texture::CreateEmptyTexture(Math::Color<std::uint32_t> color)
 	{
 		const std::uint32_t pixel = color.r | (color.g << 8) | (color.b << 16) | (color.a << 24); 
@@ -169,7 +205,7 @@ namespace S2DE::Render
 		texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
 		ID3D11Texture2D* texture = nullptr;
-		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateTexture2D(&texture_desc, &initData, &texture), "Can't create empty texture");
+		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateTexture2D(&texture_desc, &initData, &texture), "Can't create empty texture");
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC shader_desc = { };
 
@@ -177,7 +213,7 @@ namespace S2DE::Render
 		shader_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		shader_desc.Texture2D.MipLevels = 1;
 
-		S2DE_CHECK(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for empty texture");
+		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for empty texture");
 
 		UpdateTextureDesc();
 		CreateDefaultSamplerState();
