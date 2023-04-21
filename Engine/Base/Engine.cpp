@@ -167,7 +167,7 @@ namespace S2DE::Core
 		}
 
 #ifdef S2DE_DEBUG_RENDER_MODE
-		if (Engine::isEditor())
+		//if (Engine::isEditor())
 		{
 			if (m_input_m->IsKeyPressed(KeyCode::KEY_F9))
 			{
@@ -228,6 +228,7 @@ namespace S2DE::Core
 		Verify(m_resource_manager.Load<Render::Shader>("Sprite", std::string(), true), "Can't load sprite shader");
 		Verify(m_resource_manager.Load<Render::Shader>("Line", std::string(), true), "Can't load line shader");
 		Verify(m_resource_manager.Load<Render::Shader>("Mesh", std::string(), true), "Can't load mesh shader");
+		Verify(m_resource_manager.Load<Render::Shader>("Text", std::string(), true), "Can't load text shader");
 		Verify(m_resource_manager.Load<Render::Shader>("Skybox", std::string(), true), "Can't load skybox shader");
 
 		// Load editor resources 

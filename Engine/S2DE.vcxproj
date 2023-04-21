@@ -25,6 +25,7 @@
     <ClInclude Include="Base\Resource.h" />
     <ClInclude Include="Base\Utils\CallbackWrapper.h" />
     <ClInclude Include="Base\Utils\LoggerDebugTools.h" />
+    <ClInclude Include="Libs\stb_truetype.h" />
     <ClInclude Include="Render\Font.h" />
     <ClInclude Include="GameObjects\Components\AlphaComponent.h" />
     <ClInclude Include="GameObjects\Components\DrawableComponent.h" />
@@ -99,6 +100,7 @@
     <ClInclude Include="GameObjects\Components\Skybox.h" />
     <ClInclude Include="GameObjects\Components\StaticMesh.h" />
     <ClInclude Include="GameObjects\Components\Light\SpotLight.h" />
+    <ClInclude Include="GameObjects\Components\UI\UIText.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc" />
@@ -153,6 +155,7 @@
     <ClCompile Include="GameObjects\Components\Skybox.cpp" />
     <ClCompile Include="GameObjects\Components\StaticMesh.cpp" />
     <ClCompile Include="GameObjects\Components\Light\SpotLight.cpp" />
+    <ClCompile Include="GameObjects\Components\UI\UIText.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\splash.bmp" />

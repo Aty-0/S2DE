@@ -252,7 +252,13 @@
     <ClInclude Include="Base\Utils\LoggerDebugTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GameObjects\Components\UI\UIText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Render\Font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\stb_truetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -404,6 +410,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Render\LightGlobals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Components\UI\UIText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Render\Font.cpp">
