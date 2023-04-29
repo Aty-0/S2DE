@@ -23,13 +23,14 @@ namespace S2DE::Render
 
 		[[nodiscard]] inline std::uint16_t GetTextureWidth();
 		[[nodiscard]] inline std::uint16_t GetTextureHeight();
+		[[nodiscard]] inline std::uint8_t* GetTTFData();
 
 	private:
 		Texture*		m_fontTexture;
 		stbtt_bakedchar m_cdata[96];
 		stbtt_fontinfo	m_info;
 		
-		std::vector<char> m_ttf_buffer;
+		std::uint8_t*     m_ttf_buffer;
 		float			  m_height;
 		std::uint16_t	  m_tex_w;
 		std::uint16_t	  m_tex_h;

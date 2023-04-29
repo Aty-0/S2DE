@@ -2,29 +2,33 @@
 #include "UIText.h"
 
 #include "Base/Utils/Logger.h"
+#include "Base/ResourceManager.h"
 
-#include "Render/Font.h"
 #include "GameObjects/Base/GameObject.h"
 #include "GameObjects/Components/AlphaComponent.h"
 
-#include "Base/ResourceManager.h"
-
+#include "Render/Font.h"
 #include "Render/Renderer.h"
+#include "Render/Texture.h"
 #include "Render/Buffers.h"
 #include "Render/Shader.h"
 
 
 namespace S2DE::GameObjects::Components::UI
 {
-	UIText::UIText()
+	UIText::UIText() :
+		m_color({255,255,255,255}),
+		m_font(nullptr),
+		m_shader(new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Text"))),
+		m_text(),
+		m_vertexBuffer()
 	{
-		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Text"));
 	}
 
 	UIText::~UIText()
 	{
-		m_vertexBuffers.clear();
-		m_vertexBuffers.shrink_to_fit();
+		Core::Delete(m_vertexBuffer);
+		Core::Delete(m_font); // Delete our font copy 
 	}
 
 	void UIText::OnCreate()
@@ -32,74 +36,98 @@ namespace S2DE::GameObjects::Components::UI
 		GetOwner()->CreateComponent<GameObjects::Components::AlphaComponent>();
 	}
 
-	void UIText::SetFont(Render::Font* font)
+	void UIText::SetHeight(float height)
 	{
-		m_font = font;
+		// Recreate font...
+		m_font->Create(height);
 	}
 
-	void UIText::Rebuild()
+	void UIText::SetColor(Math::Color<float> color)
+	{
+		m_color = color;
+	}
+
+	void UIText::SetFont(std::string nameFont)
+	{
+		auto font = Core::Engine::GetResourceManager().Get<Render::Font>(nameFont);
+		if (font == nullptr)
+		{
+			bool result = Core::Engine::GetResourceManager().Load<Render::Font>(nameFont);
+			if (result)
+			{
+				Logger::Error("Font is not found in resources!");
+				return;
+			}
+
+			font = Core::Engine::GetResourceManager().Get<Render::Font>(nameFont);
+		}
+
+		m_font = new Render::Font(*font);
+	}
+
+	void UIText::SetFont(Render::Font* font)
+	{
+		if (font == nullptr)
+		{
+			Logger::Error("Font is null...");
+			return;
+		}
+
+		m_font = new Render::Font(*font);
+	}
+
+	bool UIText::Rebuild()
 	{
 		if (m_font == nullptr)
 		{
-			m_ready = false;
-			return;
+			return false;
 		}
 
 		if (m_text.empty())
 		{
-			m_ready = false;
-			return;
+			return false;
 		}
 
-		// recreate buffer 
-		for (auto vb : m_vertexBuffers)
-		{
-			Core::Delete(vb);
-		}
-		m_vertexBuffers.clear();
-		m_vertexBuffers.shrink_to_fit();
-
+		m_vertexBuffer = new Render::VertexBuffer<Render::Vertex>();
+		
 		const char* text = m_text.c_str();
+		
+		float x = 0;
+		float y = 0;
+		float y1 = 0;
 
-		float x = 0.0f, y = 0.0f; // text pos, not the gameobject 
-
+		auto info = m_font->GetFontInfo();
+		const float scale = stbtt_ScaleForPixelHeight(&info, m_font->GetTextureHeight());
 		while (*text)
 		{
-			if (*text >= 32 && (std::uint8_t)(*text) < 128)
+			if (static_cast<std::uint8_t>(*text) >= 32 && static_cast<std::uint8_t>(*text) < 128)
 			{
+				stbtt_bakedchar*   bc = m_font->GetBakedData();
 				stbtt_aligned_quad q = { };
-				stbtt_GetBakedQuad(m_font->GetBakedData(), m_font->GetTextureWidth(), m_font->GetTextureHeight(), 
-					*text - 32, &x, &y, &q, 1);
+				stbtt_GetBakedQuad(bc, m_font->GetTextureWidth(), m_font->GetTextureHeight(), 
+					*text - 32, &x, &y, &q, 0);
+			
+				float x1 = q.x0 * scale;
+				float x2 = q.x1 * scale;
+				float y2 = -q.y0 * scale;
+				float _y1 = q.y1 * scale;
+				y1 = std::min(y1, _y1);
+						
+				m_vertexBuffer->GetArray().push_back({ { x1, y2, 0 },  { m_color.r, m_color.g, m_color.b, m_color.a }, {  q.s0, q.t0 } });
+				m_vertexBuffer->GetArray().push_back({ { x2, y2, 0 },  { m_color.r, m_color.g, m_color.b, m_color.a }, {  q.s1, q.t0 } });
+				m_vertexBuffer->GetArray().push_back({ { x1, y1, 0 },  { m_color.r, m_color.g, m_color.b, m_color.a }, {  q.s0, q.t1 } });
+				m_vertexBuffer->GetArray().push_back({ { x2, y1, 0 },  { m_color.r, m_color.g, m_color.b, m_color.a }, {  q.s1, q.t1 } });
 
-				auto vertexBuffer = new Render::VertexBuffer<Render::Vertex>();
-
-
-				if (*(text + 1))
-				{
-					stbtt_fontinfo info = m_font->GetFontInfo();
-
-					float Scale = stbtt_ScaleForPixelHeight(&info, m_font->GetHeight());
-					x += Scale * stbtt_GetCodepointKernAdvance(&info, *(text)-32, *(text + 1) - 32);
-				}
-
-				vertexBuffer->GetArray().push_back( { {   q.x1,  q.y0 , 0 }, {1, 1, 1, 1}, {   q.s1, q.t1 } });
-				vertexBuffer->GetArray().push_back({ {    q.x0,  q.y0 , 0 }, {1, 1, 1, 1}, {   q.s0, q.t1 } });
-				vertexBuffer->GetArray().push_back({ {    q.x1,  q.y1 , 0 },  {1, 1, 1, 1}, {  q.s1, q.t0 } });
-				vertexBuffer->GetArray().push_back({ {    q.x0,  q.y1 , 0 },  {1, 1, 1, 1}, {  q.s0, q.t0 } } );
-
-
-				Assert(vertexBuffer->Create(), "Failed to create vertex buffer");
-				vertexBuffer->Update();
-
-				m_vertexBuffers.push_back(vertexBuffer);
 			}
 
 			text++;
 		}
 
 
+		Assert(m_vertexBuffer->Create(), "Failed to create vertex buffer");
+		//m_vertexBuffer->Update();
 
-		m_ready = true;
+		return true;
 	}
 
 	void UIText::SetText(const char* text, ...)
@@ -112,34 +140,29 @@ namespace S2DE::GameObjects::Components::UI
 		va_end(args);	
 
 		m_text = std::string(buffer);
-
-		Rebuild();
 	}
 
 	void UIText::SetText(std::string text)
 	{
 		m_text = text;
-		Rebuild();
 	}
 
 	void UIText::OnRender(Render::Renderer* renderer)
 	{
-		if (!m_ready)
-		{
+		if (!Rebuild())
 			return;
-		}
-		for (auto vb : m_vertexBuffers)
-		{
-			m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation(), true);
-			m_shader->Bind();
 
-			m_font->GetFontTexture()->Bind();
+		m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation(), true);
+		m_shader->Bind();
 
-			vb->Bind();
-			renderer->Draw(vb->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		m_font->GetFontTexture()->Bind();
 
-			vb->Unbind();
-			m_font->GetFontTexture()->Unbind();
-		}
+		m_vertexBuffer->Bind();
+		renderer->Draw(m_vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+		m_vertexBuffer->Unbind();
+		m_font->GetFontTexture()->Unbind();
+
+		Core::Delete(m_vertexBuffer);
 	}
 }

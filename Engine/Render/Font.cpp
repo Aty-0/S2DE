@@ -21,10 +21,8 @@ namespace S2DE::Render
 
 	Font::~Font()
 	{
-		m_ttf_buffer.clear();
-		m_ttf_buffer.shrink_to_fit();
-
 		Core::Delete(m_fontTexture);
+		Core::Delete(m_ttf_buffer);
 		delete[] m_cdata;
 	}
 
@@ -37,8 +35,7 @@ namespace S2DE::Render
 
 		// make font bitmap 
 		std::uint8_t* bitmap = new uint8_t[w * h];
-		// 96
-		stbtt_BakeFontBitmap(reinterpret_cast<std::uint8_t*>(m_ttf_buffer.data()), 0, height, bitmap, m_tex_w, m_tex_h, 32, 96, m_cdata);
+		stbtt_BakeFontBitmap(m_ttf_buffer, 0, height, bitmap, m_tex_w, m_tex_h, 32, 96, m_cdata);
 
 		// push data to texture 
 		m_fontTexture = new Texture();
@@ -58,16 +55,19 @@ namespace S2DE::Render
 		const auto path = paths[0];
 
 		// Create ttf buffer...
+		// Open out ttf file 
 		auto file = std::ifstream(path, std::ios::binary | std::ios::ate);
 		std::streamsize size = file.tellg();
 		file.seekg(0, std::ios::beg);
-		m_ttf_buffer = std::vector<char>(size);
-		Verify(file.read(m_ttf_buffer.data(), size), "Can't create ttf buffer!");
+
+		// All file data we are save to the ttf buffer
+		// So, we can use it for diffrent purposes 
+		m_ttf_buffer = reinterpret_cast<std::uint8_t*>(malloc(size));
+		Verify(file.read(reinterpret_cast<char*>(m_ttf_buffer), size), "Can't create ttf buffer!");
 		file.close();
 
-		// use stbtt lib for using our font data
-		// so, we are initialize font in this step...
-		Verify(stbtt_InitFont(&m_info, reinterpret_cast<std::uint8_t*>(m_ttf_buffer.data()), 0) == 1, "Can't initialize font!");
+		// Try to initialize font by parse our buffer to stbtt
+		Verify(stbtt_InitFont(&m_info, m_ttf_buffer, 0) == 1, "Can't initialize font!");
 
 		return true;
 	}
@@ -95,6 +95,11 @@ namespace S2DE::Render
 	[[nodiscard]] inline stbtt_bakedchar* Font::GetBakedData()
 	{
 		return m_cdata;
+	}
+
+	[[nodiscard]] inline std::uint8_t* Font::GetTTFData() 
+	{
+		return m_ttf_buffer;
 	}
 
 	[[nodiscard]] inline Texture* Font::GetFontTexture() const

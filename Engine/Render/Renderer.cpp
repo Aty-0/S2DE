@@ -12,10 +12,10 @@
 #include "Render/FBX_Importer.h"
 #include "Render/LightGlobals.h"
 #include "Render/Buffers.h"
+#include "Render/Shader.h"
+#include "Render/Font.h"
 
 #include "GameObjects/Components/Transform.h"
-
-#include "Base/DebugTools/Debug_Info.h"
 
 #include "Editor/EditorToolstrip.h"
 #include "Editor/EditorObjectInspector.h"
@@ -126,7 +126,6 @@ namespace S2DE::Render
 	void Renderer::CreateEngineWindowsAndEditorUI()
 	{
 		AddImGuiWindow("Console", new Core::Debug::Console());
-		AddImGuiWindow("DebugInfoWindow", new Core::Debug::Debug_Info());
 
 		if (Core::Engine::isEditor())
 		{
@@ -192,12 +191,16 @@ namespace S2DE::Render
 		io.ConfigFlags = Core::Engine::isEditor() ? ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange
 			: ImGuiConfigFlags_NoMouseCursorChange;
 
-		// Search custom font
-		auto path = std::string();
-		if (Core::Engine::GetResourceManager().GetFilePath(S2DE_DEFAULT_FONT_NAME, "Font", ".ttf", path))
-			io.Fonts->AddFontFromFileTTF(path.c_str(), 16);
+		Verify(Core::Engine::GetResourceManager().Load<Render::Font>(S2DE_DEFAULT_FONT_NAME, std::string(), true), "Can't load default font");
+
+		const auto defaultFont = Core::Engine::GetResourceManager().Get<Render::Font>(S2DE_DEFAULT_FONT_NAME);
+		if (defaultFont->Create(48.0f))
+		{
+			io.Fonts->AddFontFromMemoryTTF(defaultFont->GetTTFData(), 1, 24);
+		}
 		
-		LoadCustomImguiTheme();
+
+		//LoadCustomImguiTheme();
 
 		// Setup Platform/Renderer backends
 		ImGui_ImplSDL2_InitForD3D(Core::Engine::GetGameWindow()->GetSDLWindow());

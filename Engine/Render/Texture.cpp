@@ -158,7 +158,7 @@ namespace S2DE::Render
 		D3D11_SUBRESOURCE_DATA initData = { };
 
 		initData.pSysMem = (void*)data;
-		initData.SysMemPitch = w; // * sizeof(std::uint8_t*);
+		initData.SysMemPitch = w;
 		initData.SysMemSlicePitch = w * h;
 
 		D3D11_TEXTURE2D_DESC texture_desc = { };
@@ -167,7 +167,7 @@ namespace S2DE::Render
 		texture_desc.Height = h;
 		texture_desc.MipLevels = 1;
 		texture_desc.ArraySize = 1;
-		texture_desc.Format = DXGI_FORMAT::DXGI_FORMAT_R8_UNORM;//DXGI_FORMAT_R32G32B8A2_UNORM;
+		texture_desc.Format = DXGI_FORMAT::DXGI_FORMAT_R8_UNORM;
 		texture_desc.SampleDesc.Count = 1;
 		texture_desc.SampleDesc.Quality = 0;
 		texture_desc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -185,7 +185,18 @@ namespace S2DE::Render
 		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for font texture");
 
 		UpdateTextureDesc();
-		CreateDefaultSamplerState();
+		//CreateDefaultSamplerState();
+		D3D11_SAMPLER_DESC sampler_desc = { };
+		
+		sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampler_desc.MipLODBias = 0.f;
+		sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sampler_desc.MinLOD = 0.f;
+		sampler_desc.MaxLOD = 0.f;
+		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
 		return true;
 	}
 

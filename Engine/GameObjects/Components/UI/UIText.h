@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObjects/Components/UI/UIDrawableComponent.h"
+#include "Math/Color.h"
 
 namespace S2DE::GameObjects::Components
 {
@@ -27,24 +28,31 @@ namespace S2DE::GameObjects::Components::UI
 		UIText();
 		virtual ~UIText();
 
-		void OnRender(Render::Renderer* renderer) override;
 
 		void SetText(const char* text, ...);
 		void SetText(std::string text);
 
-		// Todo: load font
+		void SetFont(std::string fontName);
 		void SetFont(Render::Font* font);
 
-		void Rebuild();
+		void SetColor(Math::Color<float> color);
+
+		void SetHeight(float height);
+
 
 		void OnCreate() override;
+		void OnRender(Render::Renderer* renderer) override;
 
 	private:
 		Render::Shader* m_shader;
-		std::vector<Render::VertexBuffer<Render::Vertex>*> m_vertexBuffers;
-		std::string m_text;
+		Render::VertexBuffer<Render::Vertex>* m_vertexBuffer;
+		std::string   m_text;
 		Render::Font* m_font;
-		bool		m_ready;
+		Math::Color<float> m_color;
+		
+
+		// Make text's quads
+		bool Rebuild();
 	};
 }
 

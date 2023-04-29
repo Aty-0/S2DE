@@ -1,14 +1,23 @@
 #include "Engine.h"
 
 #include "Base/GameTime.h"
+#include "Base/DebugTools/Debug_Info.h"
 #include "Base/Other/SplashScreen.h"
 #include "Base/ApplicationHandle.h"
 #include "Base/GameWindow.h"
 #include "Base/InputManager.h"
 #include "Base/ResourceManager.h"
-#include "Scene/SceneManager.h"
+
 #include "Render/Renderer.h"
 #include "Render/ImGui_Window.h"
+
+// resources
+#include "Render/Shader.h"
+#include "Render/Texture.h"
+#include "Render/Mesh.h"
+#include "Render/Font.h"
+
+#include "Scene/SceneManager.h"
 
 using namespace S2DE::Scene;
 using namespace S2DE::Math;
@@ -133,6 +142,9 @@ namespace S2DE::Core
 		}
 		m_window->Restore();
 
+		// FIX ME: Move to scene ?
+		Core::Debug::Debug_Info::debugInfoTool.CreateDbgTexts();
+
 		// Run main game loop
 		RunLoop();
 
@@ -163,7 +175,7 @@ namespace S2DE::Core
 
 		if (m_input_m->IsKeyPressed(KeyCode::KEY_0))
 		{
-			m_render->GetImGui_Window<Render::ImGui_Window*>("DebugInfoWindow")->ToggleDraw();
+			Core::Debug::Debug_Info::debugInfoTool.ToggleDraw();
 		}
 
 #ifdef S2DE_DEBUG_RENDER_MODE
@@ -196,6 +208,9 @@ namespace S2DE::Core
 	{
 		m_scene_manager->UpdateScene(DeltaTime);
 		m_app_handle->OnUpdate(DeltaTime);
+
+
+		Core::Debug::Debug_Info::debugInfoTool.UpdateTexts();
 	}
 
 	void Engine::OnLoop()
@@ -219,6 +234,8 @@ namespace S2DE::Core
 		S2DE_EXIT_PROCESS();
 	}
 
+	// TODO: Make something like json file with resource name, type, etc, to load 
+
 	bool Engine::LoadEngineResources()
 	{
 		// Load default texture
@@ -230,7 +247,7 @@ namespace S2DE::Core
 		Verify(m_resource_manager.Load<Render::Shader>("Mesh", std::string(), true), "Can't load mesh shader");
 		Verify(m_resource_manager.Load<Render::Shader>("Text", std::string(), true), "Can't load text shader");
 		Verify(m_resource_manager.Load<Render::Shader>("Skybox", std::string(), true), "Can't load skybox shader");
-
+		
 		// Load editor resources 
 		if (Engine::isEditor())
 		{
