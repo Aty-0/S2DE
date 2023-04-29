@@ -4,10 +4,11 @@
 #include "Base/Resource.h"
 
 #define S2DE_DEFAULT_RESOURCE_DATA_NAME "Gamedata/"
-
-#include "Render/Shader.h"
-#include "Render/Texture.h"
-#include "Render/Mesh.h"
+#define S2DE_DEFAULT_FONT_NAME "default"
+namespace S2DE::Render
+{
+	class Texture;
+}
 
 namespace S2DE::Core::Resources
 {	

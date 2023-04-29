@@ -1,6 +1,7 @@
 #include "EditorGrid.h"
 #include "GameObjects/Base/GameObject.h"
 #include "Render/Renderer.h"
+#include "Render/Shader.h"
 #include "Render/Buffers.h"
 #include "Base/ResourceManager.h"
 

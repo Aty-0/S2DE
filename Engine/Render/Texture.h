@@ -13,6 +13,8 @@ namespace S2DE::Render
 		
 		bool							 Load(std::string name) final;
 
+		bool							 CreateFontTexture(std::int32_t w, std::int32_t h, std::uint8_t* data);
+
 		// Create cubemap texture from path 
 		bool							 CreateCubeMapTexture(std::string path);
 		// Create 1x1 blank texture 

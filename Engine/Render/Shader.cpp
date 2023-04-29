@@ -242,7 +242,7 @@ namespace S2DE::Render
 			static_cast<float>(gameWindow->GetHeight()));
 		data->world = world;
 
-		static auto camera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
+		static const auto camera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
 
 		if (camera != nullptr)
 		{
@@ -256,10 +256,11 @@ namespace S2DE::Render
 				data->projection = camera->GetProjectionMatrix();
 				data->view = camera->GetViewMatrix();
 			}
-			const auto camTrasnform = camera->GetOwner()->GetTransform();
 
-			data->cameraPosition = camTrasnform->GetPosition();
-			data->cameraRotation = camTrasnform->GetRotation();
+			const static auto camTransform = camera->GetOwner()->GetTransform();
+
+			data->cameraPosition = camTransform->GetPosition();
+			data->cameraRotation = camTransform->GetRotation();
 		}
 
 		m_const_buffer->Unlock();

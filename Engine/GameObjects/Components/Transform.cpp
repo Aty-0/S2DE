@@ -191,8 +191,9 @@ namespace S2DE::GameObjects::Components
 			DirectX::SimpleMath::Vector2::Zero, 0.0f, DirectX::SimpleMath::Vector2(m_scale.x * parentScale.x, m_scale.y * parentScale.y),
 			//Angle in radians
 			//Rotation center | Angle
-			DirectX::SimpleMath::Vector2(float(Core::Engine::GetGameWindow()->GetWidth() / 2),
-				float(Core::Engine::GetGameWindow()->GetHeight() / 2)), m_rotation.x + parentRotation.x,
+			DirectX::SimpleMath::Vector2(float(Core::Engine::GetGameWindow()->GetWidth() / 2), 
+				float(Core::Engine::GetGameWindow()->GetHeight() / 2)), 
+			m_rotation.x + parentRotation.x,
 			//Position 
 			DirectX::SimpleMath::Vector2(m_position.x + parentPosition.x, m_position.y + parentPosition.y));
 
@@ -207,9 +208,9 @@ namespace S2DE::GameObjects::Components
 		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
 		auto parentScale = DirectX::SimpleMath::Vector3::One;
 
-		if (GetParent() != nullptr)
+		if (m_parent != nullptr)
 		{
-			const auto transformParent = GetParent()->GetTransform();
+			const auto transformParent = m_parent->GetTransform();
 
 			if (transformParent != nullptr)
 			{

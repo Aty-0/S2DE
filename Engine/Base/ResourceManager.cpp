@@ -1,6 +1,7 @@
 #include "ResourceManager.h"
 #include <fstream>
-
+#include "Render/Shader.h"
+#include "Render/Texture.h"
 namespace S2DE::Core::Resources
 {
 	ResourceManager::ResourceManager()
