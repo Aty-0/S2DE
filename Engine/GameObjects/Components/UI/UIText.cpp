@@ -97,7 +97,7 @@ namespace S2DE::GameObjects::Components::UI
 		float y1 = 0;
 
 		auto info = m_font->GetFontInfo();
-		const float scale = stbtt_ScaleForPixelHeight(&info, m_font->GetTextureHeight());
+		const float scale = stbtt_ScaleForPixelHeight(&info, m_font->GetHeight()) * 4;
 		while (*text)
 		{
 			if (static_cast<std::uint8_t>(*text) >= 32 && static_cast<std::uint8_t>(*text) < 128)
