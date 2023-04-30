@@ -30,6 +30,7 @@ namespace S2DE::Core::Debug
 
 	public:
 		static Debug_Info debugInfoTool;
+		const float		  GlobalHeight = 38.0f;
 	};
 
 }
