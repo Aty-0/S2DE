@@ -53,7 +53,7 @@ namespace S2DE::GameObjects::Components
 				static_cast<float>(gameWindow->GetHeight()) * m_zoom,
 				m_zNear, m_zFar);
 
-			m_target = DirectX::SimpleMath::Vector3(transform->GetPosition().x, transform->GetPosition().y, -1);
+			m_target = DirectX::SimpleMath::Vector3(transform->GetPosition().x, transform->GetPosition().y, 1);
 
 			m_viewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(transform->GetPosition(), m_target, DirectX::SimpleMath::Vector3::UnitY);
 			break;
