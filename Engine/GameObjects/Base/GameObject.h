@@ -52,9 +52,6 @@ namespace S2DE::GameObjects
 		virtual void				 Select() { m_isSelected = true; }
 		virtual void				 Unselect() { m_isSelected = false; }
 
-
-
-
 		[[nodiscard]] inline std::string            GetName()   const;
 		[[nodiscard]] inline std::int32_t			GetPrefix() const;
 		[[nodiscard]] inline std::string            GetType()   const;

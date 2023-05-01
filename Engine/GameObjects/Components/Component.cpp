@@ -2,6 +2,8 @@
 #include "Base/Utils/StringUtils.h"
 #include "Base/Engine.h"
 #include "Render/Renderer.h"
+#include "GameObjects/Base/GameObject.h"
+#include "GameObjects/Components/Transform.h"
 
 namespace S2DE::GameObjects::Components
 {
@@ -20,6 +22,12 @@ namespace S2DE::GameObjects::Components
 		m_isSelected = false;
 		m_name = std::string();
 		m_priority = 0;
+	}
+
+	void Component::OnRenderSelected(Render::Renderer* renderer, Transform* transform)
+	{		
+		renderer->DebugDrawCube(transform->GetPosition(), { 0,0,0 }, DirectX::SimpleMath::Vector3(1, 1, 1) + transform->GetScale(),
+			{ 1, 1, 1, 1 });
 	}
 
 	void Component::SetName(std::string name)

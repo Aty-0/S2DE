@@ -64,7 +64,7 @@ namespace S2DE::GameObjects
 			// some problems with our basic render priority
 			
 			GameObject* go = Scene::CreateGameObjectNoInit<GameObject>();
-			go->SetName("__Icon__"); // Name is actualy not important for this
+			go->SetName("__Icon__"); // Name is actualy not important
 			go->GetTransform()->SetParent(this);
 
 			m_objectIconSprite = go->CreateComponent<Components::Sprite>();
@@ -110,6 +110,13 @@ namespace S2DE::GameObjects
 		{
 			for (const auto component : m_components)
 			{
+				if (m_isSelected && 
+					component.second->isSelected() 
+					&& Core::Engine::isEditor())
+				{					
+					component.second->OnRenderSelected(renderer, m_transform);
+				}
+
 				if (component.second != nullptr)
 				{
 					component.second->OnRender(renderer);
