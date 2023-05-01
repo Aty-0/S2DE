@@ -15,15 +15,10 @@ namespace S2DE::GameObjects::Components::Light
 		onStrengthChanged.Clear();
 	}
 
-	void PointLight::OnRender(Render::Renderer* renderer)
+	void PointLight::OnRenderSelected(Render::Renderer* renderer, Transform* transform)
 	{
-		const auto owner = GetOwner();
-		if (owner->isEnabled() && Core::Engine::isEditor())
-		{
-			const auto transform = owner->GetTransform();
-			renderer->DebugDrawSphere({ transform->GetPosition().x - (m_range / 32), transform->GetPosition().y, transform->GetPosition().z - (m_range / 32) }, m_range,
-				{ m_color.r, m_color.g, m_color.b, m_color.a });
-		}
+		renderer->DebugDrawSphere({ transform->GetPosition().x - (m_range / 32), transform->GetPosition().y, transform->GetPosition().z - (m_range / 32) }, m_range,
+			{ m_color.r, m_color.g, m_color.b, m_color.a });
 	}
 
 	void PointLight::InitLight()

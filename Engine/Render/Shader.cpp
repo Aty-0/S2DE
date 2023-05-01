@@ -232,14 +232,15 @@ namespace S2DE::Render
 	{
 		m_const_buffer->Lock();
 
-		const auto time = Core::Engine::GetGameTime();
-		const auto gameWindow = Core::Engine::GetGameWindow();
-		const auto data = m_const_buffer->GetData();
+		const static auto time = Core::Engine::GetGameTime();
+		const static auto gameWindow = Core::Engine::GetGameWindow();
 
+		const auto data = m_const_buffer->GetData();
 		data->deltatime = time.GetDeltaTime();
 		data->time = time.GetTime();
 		data->resoultion = DirectX::SimpleMath::Vector2(static_cast<float>(gameWindow->GetWidth()),
 			static_cast<float>(gameWindow->GetHeight()));
+
 		data->world = world;
 
 		static const auto camera = Scene::GetObjectByName<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<GameObjects::Components::Camera>();
@@ -249,7 +250,17 @@ namespace S2DE::Render
 			if (isUI)
 			{
 				data->projection = camera->GetOrthoMatrix();
-				data->view = DirectX::SimpleMath::Matrix::Identity;
+				
+				// Make UI view matrix
+				// TODO: Get default zoom of ortho matrix 
+				DirectX::SimpleMath::Vector3 screen = { static_cast<float>(gameWindow->GetWidth() / 2.0f) * 0.15f,
+					static_cast<float>(gameWindow->GetHeight() / 2.0f) * 0.15f, 0.0f };
+
+				DirectX::SimpleMath::Matrix tr = DirectX::SimpleMath::Matrix::Identity;
+				tr = DirectX::SimpleMath::Matrix::CreateLookAt({ screen.x,screen.y, 1.0f }, { screen.x,screen.y, -1.0f }, DirectX::SimpleMath::Vector3::UnitY);
+				tr.Transpose(tr);
+
+				data->view = tr;
 			}
 			else
 			{

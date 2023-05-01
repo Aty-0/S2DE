@@ -1,6 +1,7 @@
 #include "Mesh.h"
-#include "Render/FBX_Importer.h"
 #include "Render/Texture.h"
+#include "Render/FBX_Importer.h"
+#include "GameObjects/Base/GameObject.h"
 
 namespace S2DE::Render
 {
@@ -29,6 +30,12 @@ namespace S2DE::Render
 		m_textures.shrink_to_fit();
 	}
 
+	void Mesh::SetMeshGameObject(S2DE::GameObjects::GameObject* go)
+	{
+		m_meshGameObject = go;
+		Assert(m_meshGameObject != nullptr, "Can't go be null");
+	}
+
 	bool Mesh::Load(std::string name)
 	{
 		const auto paths = FindPath({ name });
@@ -43,11 +50,7 @@ namespace S2DE::Render
 
 		if (format == "fbx")
 		{
-			if (!FBX_Importer::Import(path, 
-				m_vertexBuffers, 
-				m_indexBuffers, 
-				m_textures, 
-				m_countMeshes))
+			if (!FBX_Importer::Importer.Import(path, this))
 			{
 				return false;
 			}

@@ -112,14 +112,6 @@ namespace S2DE::Scene
 	{
 		if (m_render_enabled && m_scene)
 		{
-			//for (const auto& object : m_scene->GetStorage())
-			//{
-			//	auto gameObject = object.second.get();
-			//	if (gameObject == nullptr)
-			//		continue;
-			//	gameObject->Render();
-			//}
-
 			for (const auto& object : m_scene->GetStorage())
 			{
 				auto gameObject = object.second.get();
@@ -134,7 +126,7 @@ namespace S2DE::Scene
 				}
 			}
 
-			Core::Engine::GetRenderer()->TurnOnAlphaBlending();
+			renderer->TurnOnAlphaBlending();
 			for (const auto& object : boost::adaptors::reverse(m_scene->GetStorage()))
 			{
 				auto gameObject = object.second.get();
@@ -150,9 +142,9 @@ namespace S2DE::Scene
 					gameObject->Render(renderer);
 				}
 			}
-			Core::Engine::GetRenderer()->TurnOffAlphaBlending();
+			renderer->TurnOffAlphaBlending();
 
-			Core::Engine::GetRenderer()->TurnZBufferOff();
+			renderer->TurnZBufferOff();
 			for (const auto& object : m_scene->GetStorage())
 			{
 				auto gameObject = object.second.get();
@@ -162,7 +154,7 @@ namespace S2DE::Scene
 				auto alphaComponent = gameObject->GetComponent<GameObjects::Components::AlphaComponent>();
 
 				if (alphaComponent != nullptr)
-					Core::Engine::GetRenderer()->TurnOnAlphaBlending();
+					renderer->TurnOnAlphaBlending();
 
 				auto uiComponent = gameObject->GetComponent<GameObjects::Components::UI::UIDrawableComponent>();
 
@@ -172,9 +164,9 @@ namespace S2DE::Scene
 				}
 
 				if (alphaComponent != nullptr)
-					Core::Engine::GetRenderer()->TurnOffAlphaBlending();
+					renderer->TurnOffAlphaBlending();
 			}
-			Core::Engine::GetRenderer()->TurnZBufferOn();
+			renderer->TurnZBufferOn();
 		}
 	}
 

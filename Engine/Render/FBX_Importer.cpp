@@ -2,14 +2,29 @@
 #include "Base/Engine.h"
 
 #include "Render/Texture.h"
+#include "Render/Mesh.h"
+
 #include "Scene/SceneManager.h"
+
 #include "GameObjects/Base/GameObject.h"
 #include "GameObjects/Components/Light/SpotLight.h"
 #include "GameObjects/Components/Light/PointLight.h"
+#include "GameObjects/Components/Light/DirectionalLight.h"
 
 namespace S2DE::Render
 {
-	FbxManager* FBX_Importer::m_manager;
+    FBX_Importer FBX_Importer::Importer;
+
+    FBX_Importer::FBX_Importer()
+        : m_manager()
+    {
+
+    }
+
+    FBX_Importer::~FBX_Importer()
+    {
+
+    }
 
 	void FBX_Importer::Init()
 	{
@@ -241,14 +256,10 @@ namespace S2DE::Render
         }
     }
 
-	bool FBX_Importer::Import(std::string path, 
-        std::vector<Render::VertexBuffer<Render::Vertex>*>& vertexBuffers,
-        std::vector<Render::IndexBuffer<std::uint32_t>*>& indexBuffers,
-        std::vector<Render::texture_indexed>& meshTextures,
-        std::uint32_t& mCount)
+	bool FBX_Importer::Import(std::string path, Render::Mesh* _mesh)
 	{
         FbxImporter* importer = FbxImporter::Create(m_manager, "");
-       // mCount = 0;
+        // mCount = 0;
 	    Core::Utils::Logger::Log("[FBX_Importer] Import %s", path.c_str());
 
         // Initialize Fbx importer
@@ -306,21 +317,48 @@ namespace S2DE::Render
                 FBX_Importer::PrintNodeInfo(node);
                 if (attributeType == FbxNodeAttribute::EType::eLight)
                 {
-	                // TODO: Spawn by type 
-                    //       We need attach it to model object
-
-                    FbxDouble3 translation = node->LclTranslation.Get();
-                    FbxDouble3 rotation = node->LclRotation.Get();
+                    const auto nodeTranslation = node->LclTranslation.Get();
+                    const auto nodeRotation = node->LclRotation.Get();
+                    const auto lightgo = Scene::CreateGameObject<GameObjects::GameObject>(node->GetName(), "Light", 1,
+                        DirectX::SimpleMath::Vector3(nodeTranslation[0], nodeTranslation[1], nodeTranslation[2]));
+                    lightgo->GetTransform()->SetRotation(DirectX::SimpleMath::Vector3(nodeRotation[0], nodeRotation[1], nodeRotation[2]));
                     
-                    auto lightgo = Scene::CreateGameObject<GameObjects::GameObject>(node->GetName(), "Light", 1,
-                        DirectX::SimpleMath::Vector3(translation[0], translation[1], translation[2]));
+                          
+                    GameObjects::Components::Light::Light* lightc = nullptr;
+                    const auto nodeLight = node->GetLight();
+                    switch (nodeLight->LightType)
+                    {
+                        case FbxLight::EType::eVolume:
+                            Logger::Error("FbxLight::EType::eVolume is not implemented!");
+                            lightc = lightgo->CreateComponent<GameObjects::Components::Light::Light>();
+                            break;
+                        case FbxLight::EType::eArea:
+                            Logger::Error("FbxLight::EType::eArea is not implemented!");
+                            lightc = lightgo->CreateComponent<GameObjects::Components::Light::Light>();
+                            break;
+                        case FbxLight::EType::ePoint:
+                            lightc = lightgo->CreateComponent<GameObjects::Components::Light::PointLight>();
+                            break;
+                        case FbxLight::EType::eDirectional:
+                            lightc = lightgo->CreateComponent<GameObjects::Components::Light::DirectionalLight>();
+                            break;
+                        case FbxLight::EType::eSpot:
+                            lightc = lightgo->CreateComponent<GameObjects::Components::Light::SpotLight>();
+                            break;
+                        default:
+                            Logger::Error("Unknown light type!");
+                            lightc = lightgo->CreateComponent<GameObjects::Components::Light::Light>();
+                            break;
+                    }
 
-                    lightgo->GetTransform()->SetRotation(DirectX::SimpleMath::Vector3(rotation[0], rotation[1], rotation[2]));
-
-                    auto lightc = lightgo->CreateComponent<GameObjects::Components::Light::PointLight>();
-
+           
+                    const auto color = nodeLight->Color.Get();
+                    lightc->SetColor({ (float)color[0], (float)color[1], (float)color[2], 1 });
                     
-
+                    if (_mesh->m_meshGameObject != nullptr)
+                    {
+                        lightgo->GetTransform()->SetParent(_mesh->m_meshGameObject);
+                    }
                 }
                 else if (attributeType == FbxNodeAttribute::EType::eMesh)
                 {
@@ -333,11 +371,12 @@ namespace S2DE::Render
                         continue;
 
                     // FIX ME: Memory is not cleaning up on fail
-                    indexBuffers.push_back(new Render::IndexBuffer<std::uint32_t>());
-                    auto indexBuffer = indexBuffers[mCount];
+                    
+                    _mesh->m_indexBuffers.push_back(new Render::IndexBuffer<std::uint32_t>());
+                    auto indexBuffer = _mesh->m_indexBuffers[_mesh->m_countMeshes];
 
-                    vertexBuffers.push_back(new Render::VertexBuffer<Render::Vertex>());
-                    auto vertexBuffer = vertexBuffers[mCount];
+                    _mesh->m_vertexBuffers.push_back(new Render::VertexBuffer<Render::Vertex>());
+                    auto vertexBuffer = _mesh->m_vertexBuffers[_mesh->m_countMeshes];
 
                     // 1. Load model stage 
                     for (std::uint32_t poly = 0; poly < polyCount; poly++)
@@ -400,10 +439,10 @@ namespace S2DE::Render
 
                     texture_indexed_t tex = { };
                     // Save current index 
-                    tex.index = mCount;
+                    tex.index = _mesh->m_countMeshes;
 
                     // Increase mesh count 
-                    mCount += 1;
+                    _mesh->m_countMeshes += 1;
 
                     // 2. Load texture, material stage 
                     FbxLayerElementMaterial* layerElement;
@@ -440,7 +479,7 @@ namespace S2DE::Render
                                     }
 
                                     tex.texture = Core::Engine::GetResourceManager().Get<Render::Texture>(textureName);
-                                    meshTextures.push_back(tex);
+                                    _mesh->m_textures.push_back(tex);
                                 }
                             }
                             else
@@ -465,8 +504,7 @@ namespace S2DE::Render
                                     }
 
                                     tex.texture = Core::Engine::GetResourceManager().Get<Render::Texture>(textureName);
-                                    meshTextures.push_back(tex);
-
+                                    _mesh->m_textures.push_back(tex);
                                 }
                             }
                         }

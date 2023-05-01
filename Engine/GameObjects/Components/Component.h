@@ -6,6 +6,10 @@
 namespace S2DE::GameObjects
 {
 	class GameObject;
+	namespace Components
+	{
+		class Transform;
+	}
 }
 
 namespace S2DE::Render
@@ -33,6 +37,9 @@ namespace S2DE::GameObjects::Components
 		virtual void				 OnDestroy() { }
 		virtual void				 OnRender(Render::Renderer* renderer) { }
 		virtual void				 OnUpdate(float deltaTime) { }
+
+		// What's we are render when we are select the game object
+		virtual void				 OnRenderSelected(Render::Renderer* renderer, Transform* transform);
 
 		void						 SetPriority(std::uint32_t priority);
 	private:
