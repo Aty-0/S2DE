@@ -115,7 +115,7 @@ namespace S2DE::Render
 			return false;
 
 		Logger::LogColored(DirectX::SimpleMath::Color(0, 0, 1, 1), "[Renderer] Initialize fbx sdk...");
-		FBX_Importer::Init();
+		FBX_Importer::Importer.Init();
 
 		CreateEngineWindowsAndEditorUI();
 		LightGlobals::Initialize();
@@ -501,7 +501,7 @@ namespace S2DE::Render
 	{
 		Logger::Log("[Renderer] Destroy...");
 
-		FBX_Importer::Destroy();
+		FBX_Importer::Importer.Destroy();
 
 		if (Core::Engine::isEditor())
 		{

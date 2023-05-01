@@ -21,7 +21,6 @@ namespace S2DE::GameObjects::Components
 		m_shader(nullptr),
 		m_useSkyCube(true),
 		m_useIndices(true),
-		m_isMeshPart (false),
 		m_savedIndex(0)
 	{
 
@@ -38,8 +37,11 @@ namespace S2DE::GameObjects::Components
 		if (m_mesh != nullptr)
 		{
 			// Current object is a head 
-			m_isMeshPart = true;
 			m_savedIndex = 0;
+
+			// Do not try to create sub objects if we are have 1 or less meshes
+			if (m_mesh->GetCountMeshes() <= 1)
+				return;
 
 			auto transform = GetOwner()->GetTransform();
 
@@ -47,7 +49,7 @@ namespace S2DE::GameObjects::Components
 			{
 				static GameObject* prMeshPartObject = nullptr;
 
-				// TODO: Name of node
+				// TODO: Get name of node
 				auto meshPartObject = Scene::CreateGameObject<GameObjects::GameObject>(GetName() + std::to_string(i));
 
 
@@ -57,7 +59,6 @@ namespace S2DE::GameObjects::Components
 				
 				
 				auto meshPartSMComponent = meshPartObject->CreateComponent<StaticMesh>();
-				meshPartSMComponent->m_isMeshPart = true;
 				meshPartSMComponent->m_mesh = m_mesh;
 				meshPartSMComponent->m_shader = m_shader;
 				meshPartSMComponent->m_textureCube = m_textureCube;
@@ -75,13 +76,19 @@ namespace S2DE::GameObjects::Components
 		// If mesh not found in resource manager storage we try to load it 
 		if (!Core::Engine::GetResourceManager().IsExists<Render::Mesh>(name))
 		{
-			if (!Core::Engine::GetResourceManager().Load<Render::Mesh>(name))
+			m_mesh = new Render::Mesh();
+			m_mesh->SetMeshGameObject(GetOwner());
+			m_mesh->Load(name);
+
+			if (!Core::Engine::GetResourceManager().Add<Render::Mesh>(m_mesh))
 				return false;
 		}
-
-		// Set mesh if mesh is exist
-		m_mesh = new Render::Mesh(*Core::Engine::GetResourceManager().Get<Render::Mesh>(name));
-		Assert(m_mesh != nullptr, "Failed to load mesh!");
+		else
+		{
+			// Set mesh if mesh is exist
+			m_mesh = new Render::Mesh(*Core::Engine::GetResourceManager().Get<Render::Mesh>(name));
+			Assert(m_mesh != nullptr, "Failed to load mesh!");
+		}
 
 		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Mesh"));
 		if (m_useSkyCube)
@@ -89,10 +96,8 @@ namespace S2DE::GameObjects::Components
 			m_textureCube = Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultCubemap");
 		}
 
-		if (m_mesh->GetCountMeshes() > 1)
-		{
-			CutMeshToParts();
-		}
+
+		CutMeshToParts();
 
 		return true;
 	}	 
@@ -114,14 +119,12 @@ namespace S2DE::GameObjects::Components
 		{
 			return;
 		}
-
+		
 		// Get shader name
-		std::string name = m_shader->GetName();
-		// Delete previous shader 
-		//Core::Delete(m_shader);
+		const auto name = m_shader->GetName();
 
 		// Try to get shader by name from resource manager
-		auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
+		const auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
 
 		// If shader not found
 		if (new_shader == nullptr)
@@ -141,42 +144,36 @@ namespace S2DE::GameObjects::Components
 			return;
 		}
 
-		if (m_isMeshPart)
+		auto tex = m_mesh->GetTextures();
+
+		if (tex.size() != 0)
 		{
-			auto tex = m_mesh->GetTextures();
-
-			if (tex.size() != 0)
+			for (std::uint32_t j = m_savedIndex; j < tex.size(); j++)
 			{
-				for (std::uint32_t j = m_savedIndex; j < tex.size(); j++)
+				auto currentTexture = tex[j];
+				if (currentTexture.index == m_savedIndex)
 				{
-					auto currentTexture = tex[j];
-					if (currentTexture.index == m_savedIndex)
+					// Get texture name
+					std::string name = currentTexture.texture->GetName();
+					// Delete previous texture
+					//Core::Delete(m_texture);
+
+					// Try to get texture by name from resource manager
+					auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
+
+					// If texture not found
+					if (new_texture == Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"))
 					{
-						// Get texture name
-						std::string name = currentTexture.texture->GetName();
-						// Delete previous texture
-						//Core::Delete(m_texture);
-
-						// Try to get texture by name from resource manager
-						auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
-
-						// If texture not found
-						if (new_texture == Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"))
-						{
-							Logger::Error("%s Can't update texture!", GetName().c_str());
-							return;
-						}
-
-						currentTexture.texture = new Render::Texture(*new_texture);
-						Assert(currentTexture.texture != nullptr, "Failed to load new texture");
+						Logger::Error("%s Can't update texture!", GetName().c_str());
+						return;
 					}
+
+					currentTexture.texture = new Render::Texture(*new_texture);
+					Assert(currentTexture.texture != nullptr, "Failed to load new texture");
 				}
 			}
 		}
-		else
-		{
-			S2DE_NO_IMPL();
-		}
+
 	}	 
 
 	void StaticMesh::SetColor(Math::Color<float> color)
@@ -203,162 +200,79 @@ namespace S2DE::GameObjects::Components
 			return;
 
 		auto transform = GetOwner()->GetTransform();
-		
-		if (m_isMeshPart)
+		auto vBuff = m_mesh->GetVertexBuffers()[m_savedIndex];
+		auto iBuff = m_mesh->GetIndexBuffers()[m_savedIndex];
+		auto tex = m_mesh->GetTextures();
+
+		if (tex.size() != 0)
 		{
-			auto vBuff = m_mesh->GetVertexBuffers()[m_savedIndex];
-			auto iBuff = m_mesh->GetIndexBuffers()[m_savedIndex];
-			auto tex = m_mesh->GetTextures();
-
-			if (tex.size() != 0)
+			for (std::uint32_t j = m_savedIndex; j < tex.size(); j++)
 			{
-				for (std::uint32_t j = m_savedIndex; j < tex.size(); j++)
+				if (tex[j].index == m_savedIndex)
 				{
-					if (tex[j].index == m_savedIndex)
-					{
-						tex[j].texture->Bind(3);
-						break;
-					}
+					tex[j].texture->Bind(3);
+					break;
 				}
 			}
+		}
 
-			if (m_useSkyCube)
-			{
-				m_textureCube->Bind(1);
-			}
+		if (m_useSkyCube)
+		{
+			m_textureCube->Bind(1);
+		}
 
-			// Bind and update variables in const buffer
-			m_shader->UpdateMainConstBuffer(transform->UpdateTransformation());
+		// Bind and update variables in const buffer
+		m_shader->UpdateMainConstBuffer(transform->UpdateTransformation());
 
-			// Bind shader and texture 
-			m_shader->Bind();
+		// Bind shader and texture 
+		m_shader->Bind();
 
-			// Bind buffers
-			vBuff->Bind();
-			if (m_useIndices)
-			{
-				iBuff->Bind();
-			}
+		// Bind buffers
+		vBuff->Bind();
+		if (m_useIndices)
+		{
+			iBuff->Bind();
+		}
 
-			// Draw poly 		
-			renderer->SetRasterizerState("fcc");
+		// Draw poly 		
+		renderer->SetRasterizerState("fcc");
 
-			if (m_useIndices)
-			{
-				renderer->DrawIndexed(iBuff->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			}
-			else
-			{
-				renderer->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			}
-
-			// Unbind 
-			if (tex.size() != 0)
-			{
-				for (std::uint32_t j = m_savedIndex; j < tex.size(); j++)
-				{
-					if (tex[j].index == m_savedIndex)
-					{
-						tex[j].texture->Unbind(3);
-						break;
-					}
-				}
-			}
-
-			if (m_useSkyCube)
-			{
-				m_textureCube->Unbind(1);
-			}
-
-			m_shader->Unbind();
-
-			vBuff->Unbind();
-
-			if (m_useIndices)
-			{
-				iBuff->Unbind();
-			}
-			
+		if (m_useIndices)
+		{
+			renderer->DrawIndexed(iBuff->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		}
 		else
 		{
-			// FIX ME: remove m_useIndices, when load mesh will be fixed
-			for (std::uint32_t i = 0; i < m_mesh->GetCountMeshes(); i++)
+			renderer->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		}
+
+		// Unbind 
+		if (tex.size() != 0)
+		{
+			for (std::uint32_t j = m_savedIndex; j < tex.size(); j++)
 			{
-				auto vBuff = m_mesh->GetVertexBuffers()[i];
-				auto iBuff = m_mesh->GetIndexBuffers()[i];
-				auto tex = m_mesh->GetTextures();
-
-				if (tex.size() != 0)
+				if (tex[j].index == m_savedIndex)
 				{
-					for (std::uint32_t j = i; j < tex.size(); j++)
-					{
-						if (tex[j].index == i)
-						{
-							tex[j].texture->Bind(3);
-							break;
-						}
-					}
-				}
-
-				if (m_useSkyCube)
-				{
-					m_textureCube->Bind(1);
-				}
-
-				// Bind and update variables in const buffer
-				m_shader->UpdateMainConstBuffer(transform->UpdateTransformation());
-
-				// Bind shader and texture 
-				m_shader->Bind();
-
-				// Bind buffers
-				vBuff->Bind();
-				if (m_useIndices)
-				{
-					iBuff->Bind();
-				}
-
-				// Draw poly 		
-				renderer->SetRasterizerState("fcc");
-
-				if (m_useIndices)
-				{
-					renderer->DrawIndexed(iBuff->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				}
-				else
-				{
-					renderer->Draw(vBuff->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				}
-
-				// Unbind 
-				if (tex.size() != 0)
-				{
-					for (std::uint32_t j = i; j < tex.size(); j++)
-					{
-						if (tex[j].index == i)
-						{
-							tex[j].texture->Unbind(3);
-							break;
-						}
-					}
-				}
-
-				if (m_useSkyCube)
-				{
-					m_textureCube->Unbind(1);
-				}
-
-				m_shader->Unbind();
-
-				vBuff->Unbind();
-
-				if (m_useIndices)
-				{
-					iBuff->Unbind();
+					tex[j].texture->Unbind(3);
+					break;
 				}
 			}
 		}
+
+		if (m_useSkyCube)
+		{
+			m_textureCube->Unbind(1);
+		}
+
+		m_shader->Unbind();
+
+		vBuff->Unbind();
+
+		if (m_useIndices)
+		{
+			iBuff->Unbind();
+		}
+
 		
 	}	 	
 }

@@ -1,27 +1,28 @@
 #pragma once
-#include "Base/Main/Common.h"
-#include "Render/Buffers.h"
-
 #include <fbxsdk.h>
+#include "Base/Main/Common.h"
 
 namespace S2DE::Render
 {
+	class Mesh;
 	class S2DE_API FBX_Importer
 	{
 	public:
-		static void	Destroy();
-		static void	Init();
-		static void	PrintNodeInfo(FbxNode* node);
-		static bool	Import(std::string path, 
-			std::vector<Render::VertexBuffer<struct Vertex>*>& vertexBuffers,
-			std::vector<Render::IndexBuffer<std::uint32_t>*>& indexBuffers,
-			std::vector<struct texture_indexed>& meshTextures,
-			std::uint32_t& mCount);	
-		static void GetUV(FbxMesh* mesh, std::int32_t vertexIndex, std::int32_t uvChannel, std::int32_t uvLayer, DirectX::SimpleMath::Vector2& uv);
-		static void GetNormal(FbxMesh* mesh, std::int32_t vertexIndex, std::int32_t vertexCount, DirectX::SimpleMath::Vector3& normal);
-		static void GetMaterialIndices(FbxMesh* mesh, std::vector<std::int32_t>& meshMatIndices);
-		static FbxManager* GetFbxManager() { return m_manager; }
+		FBX_Importer();
+		~FBX_Importer();
+
+		void		Destroy();
+		void		Init();
+		void		PrintNodeInfo(FbxNode* node);
+		bool		Import(std::string path, Mesh* _mesh);
+		void		GetUV(FbxMesh* mesh, std::int32_t vertexIndex, std::int32_t uvChannel, std::int32_t uvLayer, DirectX::SimpleMath::Vector2& uv);
+		void		GetNormal(FbxMesh* mesh, std::int32_t vertexIndex, std::int32_t vertexCount, DirectX::SimpleMath::Vector3& normal);
+		void		GetMaterialIndices(FbxMesh* mesh, std::vector<std::int32_t>& meshMatIndices);
+		FbxManager* GetFbxManager() { return m_manager; }
+
 	private:
-		static FbxManager*		m_manager;
+		FbxManager*		m_manager;
+	public:
+		static FBX_Importer		Importer;
 	};
 }

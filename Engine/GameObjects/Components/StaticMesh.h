@@ -46,8 +46,7 @@ namespace S2DE::GameObjects::Components
 		Math::Color<float>	m_color;
 		bool				m_useIndices;
 		bool				m_useSkyCube; // TODO: Shader sync
-		bool				m_isMeshPart;
-
+		
 		// if we want to use partinal models
 		std::int32_t							m_savedIndex;
 	};
