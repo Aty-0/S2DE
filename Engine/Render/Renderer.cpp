@@ -539,7 +539,7 @@ namespace S2DE::Render
 
 	void Renderer::Clear()
 	{
-		float color_array[4] = { m_clearColor.r, m_clearColor.g, m_clearColor.b , 1 };
+		const float color_array[4] = { m_clearColor.r, m_clearColor.g, m_clearColor.b , 1 };
 
 		m_context->OMSetRenderTargets(1, &m_targetView, m_depthStencilView);
 		m_context->OMSetDepthStencilState(m_depthStateEnabled, 0);
@@ -797,34 +797,39 @@ namespace S2DE::Render
 
 	bool Renderer::CaptureMessages()
 	{
-		std::int64_t message_count = m_d3dInfoQueue->GetNumStoredMessages();
+		const std::int64_t message_count = m_d3dInfoQueue->GetNumStoredMessages();
 
 		for (std::int64_t i = 0; i < message_count; i++)
 		{
-			SIZE_T message_size = 0;
-			m_d3dInfoQueue->GetMessage(i, nullptr, &message_size); 
-			D3D11_MESSAGE* message = (D3D11_MESSAGE*)malloc(message_size);
+			std::uint64_t message_size = 0;
+
+			m_d3dInfoQueue->GetMessageA(i, nullptr, &message_size); 
+
+			D3D11_MESSAGE* message = reinterpret_cast<D3D11_MESSAGE*>(malloc(message_size));
 			if (message == nullptr)
+			{
 				return false;
+			}
+
 			Verify_HR(m_d3dInfoQueue->GetMessageA(i, message, &message_size), "Can't get message from queue!");
 
 			switch (message->Severity)
 			{
 				case D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_ERROR:
-					Logger::Error("[D3D11] ERROR %.*s", message->DescriptionByteLength, message->pDescription);
+					Logger::Error("D3D11 ERROR %.*s", message->DescriptionByteLength, message->pDescription);
 					break;
 				case D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_CORRUPTION:
-					Logger::Error("[D3D11] CORRUPTION %.*s", message->DescriptionByteLength, message->pDescription);
+					Logger::Error("D3D11 CORRUPTION %.*s", message->DescriptionByteLength, message->pDescription);
 					break;
 				case D3D11_MESSAGE_SEVERITY::D3D11_MESSAGE_SEVERITY_WARNING:
-					Logger::Warning("[D3D11] WARNING %.*s", message->DescriptionByteLength, message->pDescription);
+					Logger::Warning("D3D11 WARNING %.*s", message->DescriptionByteLength, message->pDescription);
 					break;
 				default:
-					Logger::LogColored(DirectX::SimpleMath::Color(0.5f, 0, 0.2f, 1),"[D3D11] %.*s", message->DescriptionByteLength, message->pDescription);
+					Logger::LogColored(DirectX::SimpleMath::Color(0.5f, 0, 0.2f, 1),"D3D11 Info %.*s", message->DescriptionByteLength, message->pDescription);
 					break;
 			}
 
-			free(message);
+			delete message;
 		}
 
 		m_d3dInfoQueue->ClearStoredMessages();
