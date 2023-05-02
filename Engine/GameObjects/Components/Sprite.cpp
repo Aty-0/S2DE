@@ -101,8 +101,11 @@ namespace S2DE::GameObjects::Components
 
 	void Sprite::OnRender(Render::Renderer* renderer)
 	{
-		//Bind and update variables in const buffer
-		m_shader->UpdateMainConstBuffer(UpdateTransformation(), m_uiMode);
+		// Bind and update variables in const buffer
+		const auto transform = GetOwner()->GetTransform();
+		transform->SetScaleFactor(CalcScaleFactor());
+
+		m_shader->UpdateMainConstBuffer(m_uiMode ? transform->UpdateTransformation2D() : transform->UpdateTransformation(), m_uiMode);
 
 		m_spriteCB->Lock();
 		m_spriteCB->GetData()->tileFrame	= DirectX::SimpleMath::Vector2(m_tileFrame.x, m_tileFrame.y);
@@ -112,15 +115,15 @@ namespace S2DE::GameObjects::Components
 		m_spriteCB->Unlock();
 		m_spriteCB->Bind(2);
 
-		//Bind shader and texture 
+		// Bind shader and texture 
 		m_shader->Bind();
 		m_texture->Bind();
 
-		//Bind buffers
+		// Bind buffers
 		m_vertexBuffer->Bind();
 		m_indexBuffer->Bind();
 
-		//Draw poly 
+		// Draw quad
 		if (m_twoSided)
 		{
 			renderer->SetRasterizerState("fcc");
@@ -130,7 +133,7 @@ namespace S2DE::GameObjects::Components
 		renderer->SetRasterizerState();
 		renderer->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		
-		//Unbind 
+		// Unbind 
 		m_shader->Unbind();
 		m_texture->Unbind();
 		m_vertexBuffer->Unbind();
@@ -138,42 +141,6 @@ namespace S2DE::GameObjects::Components
 		m_spriteCB->Unbind();
 	}
 
-	inline DirectX::SimpleMath::Matrix Sprite::UpdateTransformation()
-	{			
-		auto transform = GetOwner()->GetTransform();
-		auto wMatrix = transform->GetWorldMatrix();
-		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
-		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
-		auto parentScale = DirectX::SimpleMath::Vector3::One;
-
-		// TODO: Get global position, rotation, scale 
-		//		 This is local p, r, s
-		if (transform->GetParent() != nullptr)
-		{
-			auto transformParent = transform->GetParent()->GetTransform();
-
-			if (transformParent != nullptr)
-			{
-				parentPosition = transformParent->GetPosition();
-				parentRotation = transformParent->GetRotation();
-				parentScale = transformParent->GetScale();
-			}
-		}
-
-		wMatrix = DirectX::XMMatrixTransformation(
-			//Scale
-			//Center | Rotation | Scaling
-			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, transform->GetScale() * parentScale * CalcScaleFactor(),
-			//Rotation
-			//Center | Quatarnion
-			DirectX::SimpleMath::Vector3::Zero, TransformHelpers::ToQuaternion(transform->GetRotation() + parentRotation),
-			//Translation
-			transform->GetPosition() + parentPosition);
-
-		wMatrix.Transpose(wMatrix);
-
-		return wMatrix;
-	}
 
 	void Sprite::CreateVertexBuffer()
 	{	 
@@ -257,8 +224,8 @@ namespace S2DE::GameObjects::Components
 		 
 	inline DirectX::SimpleMath::Vector3 Sprite::CalcScaleFactor()
 	{
-		return m_tileFrame.z == 0.0f && m_tileFrame.w == 0.0f ? DirectX::SimpleMath::Vector3(m_texture->GetWidth() * 0.01f, m_texture->GetHeight() * 0.01f, 1.0f) :
-			DirectX::SimpleMath::Vector3(m_tileFrame.z * 0.01f, m_tileFrame.w * 0.01f, 1.0f);
+		const auto scaleFactor = m_tileFrame.z == 0.0f && m_tileFrame.w == 0.0f ? m_texture->GetWidth() / m_texture->GetHeight() : m_tileFrame.z / m_tileFrame.w;
+		return DirectX::SimpleMath::Vector3(scaleFactor, scaleFactor, 1.0f);
 	}
 
 	void Sprite::SetDefaultTexture()

@@ -8,7 +8,8 @@ namespace S2DE::GameObjects::Components
 	Transform::Transform() :
 		m_position(DirectX::SimpleMath::Vector3::Zero),
 		m_rotation(DirectX::SimpleMath::Vector3::Zero),
-		m_scale(DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f)),
+		m_scale(DirectX::SimpleMath::Vector3::One),
+		m_scaleFactor(DirectX::SimpleMath::Vector3::One),
 		m_worldMatrix(DirectX::SimpleMath::Matrix::Identity),
 		m_parent(nullptr),
 		m_child(nullptr)
@@ -163,6 +164,11 @@ namespace S2DE::GameObjects::Components
 		RunOnScaleChangedCallbacks();
 	}
 
+	void Transform::SetScaleFactor(DirectX::SimpleMath::Vector3 _scaleFactor)
+	{
+		m_scaleFactor = _scaleFactor;
+	}
+
 	inline DirectX::SimpleMath::Quaternion TransformHelpers::ToQuaternion(DirectX::SimpleMath::Vector3 rot)
 	{
 		return DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.z),
@@ -170,39 +176,44 @@ namespace S2DE::GameObjects::Components
 			DirectX::XMConvertToRadians(rot.x));
 	}
 
-	DirectX::SimpleMath::Matrix Transform::UpdateTransformation2D()
+	inline DirectX::SimpleMath::Matrix Transform::UpdateTransformation2D()
 	{
 		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
 		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
-		auto parentScale = DirectX::SimpleMath::Vector3::Zero;
+		auto parentScale = DirectX::SimpleMath::Vector3::One;
 
 		if (m_parent != nullptr)
 		{
 			const auto transformParent = m_parent->GetTransform();
-			parentPosition = transformParent->GetPosition();
-			parentRotation = transformParent->GetPosition();
-			parentScale = transformParent->GetPosition();
+
+			if (transformParent != nullptr)
+			{
+				parentPosition = transformParent->GetPosition();
+				parentRotation = transformParent->GetRotation();
+				parentScale = transformParent->GetScale();
+			}
 		}
 
+		const auto windowHeight = static_cast<float>(Core::Engine::GetGameWindow()->GetHeight());
 
 		m_worldMatrix = DirectX::XMMatrixTransformation2D(
 			//Scale
 			//Scale center | scale rotation | scale vec
-			DirectX::SimpleMath::Vector2::Zero, 0.0f, DirectX::SimpleMath::Vector2(m_scale.x * parentScale.x, m_scale.y * parentScale.y),
+			DirectX::SimpleMath::Vector2::Zero, 0.0f, DirectX::SimpleMath::Vector2(m_scale.x * parentScale.x * m_scaleFactor.x, m_scale.y * parentScale.y * m_scaleFactor.y),
 			//Angle in radians
 			//Rotation center | Angle
-			DirectX::SimpleMath::Vector2(float(Core::Engine::GetGameWindow()->GetWidth() / 2), 
-				float(Core::Engine::GetGameWindow()->GetHeight() / 2)), 
-			m_rotation.x + parentRotation.x,
+			DirectX::SimpleMath::Vector3::Zero,
+			DirectX::XMConvertToRadians(m_rotation.x + parentRotation.x),
 			//Position 
-			DirectX::SimpleMath::Vector2(m_position.x + parentPosition.x, m_position.y + parentPosition.y));
+			DirectX::SimpleMath::Vector2(m_position.x + parentPosition.x, windowHeight - (m_position.y + parentPosition.y)) * 0.15f);
+
 
 		m_worldMatrix.Transpose(m_worldMatrix);
 
 		return m_worldMatrix;
 	}
 
-	DirectX::SimpleMath::Matrix Transform::UpdateTransformation()
+	inline DirectX::SimpleMath::Matrix Transform::UpdateTransformation()
 	{
 		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
 		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
@@ -223,7 +234,7 @@ namespace S2DE::GameObjects::Components
 		m_worldMatrix = DirectX::XMMatrixTransformation(
 			//Scale
 			//Center | Rotation | Scaling
-			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, m_scale * parentScale,
+			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, m_scale * parentScale * m_scaleFactor,
 			//Rotation
 			//Center | Quatarnion
 			DirectX::SimpleMath::Vector3::Zero, TransformHelpers::ToQuaternion(m_rotation + parentRotation),
@@ -260,7 +271,12 @@ namespace S2DE::GameObjects::Components
 		return m_parent;
 	}
 
-	DirectX::SimpleMath::Matrix& Transform::GetWorldMatrix()
+	inline DirectX::SimpleMath::Vector3	Transform::GetScaleFactor() const
+	{
+		return m_scaleFactor;
+	}
+
+	inline 	DirectX::SimpleMath::Matrix& Transform::GetWorldMatrix()
 	{
 		return m_worldMatrix;
 	}

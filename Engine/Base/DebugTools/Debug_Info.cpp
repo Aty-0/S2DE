@@ -51,7 +51,7 @@ namespace S2DE::Core::Debug
 		for (std::int32_t i = 1; i <= TEXT_COUNT; i++)
 		{
 			const auto text_go = Scene::CreateGameObject<S2DE::GameObjects::GameObject>("__Debug_Info_TextGO_" + std::to_string(i), S2DE_ENGINE_GAMEOBJECT_TYPE, -1,
-				DirectX::SimpleMath::Vector3(0, i * 7, 0));
+				DirectX::SimpleMath::Vector3(100.0f, i * 50.0f, 0));
 			const auto text_ft = text_go->CreateComponent<GameObjects::Components::UI::UIText>();
 			text_ft->SetFont(default_font);
 			text_ft->SetHeight(GlobalHeight);

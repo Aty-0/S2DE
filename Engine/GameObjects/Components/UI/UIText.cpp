@@ -33,7 +33,8 @@ namespace S2DE::GameObjects::Components::UI
 
 	void UIText::OnCreate()
 	{
-		GetOwner()->CreateComponent<GameObjects::Components::AlphaComponent>();
+		const auto alphaComp = GetOwner()->CreateComponent<GameObjects::Components::AlphaComponent>();
+		alphaComp->SetAlpha(true);
 	}
 
 	void UIText::SetHeight(float height)
@@ -152,7 +153,7 @@ namespace S2DE::GameObjects::Components::UI
 		if (!Rebuild())
 			return;
 
-		m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation(), true);
+		m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation2D(), true);
 		m_shader->Bind();
 
 		m_font->GetFontTexture()->Bind();

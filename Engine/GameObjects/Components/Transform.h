@@ -6,6 +6,8 @@ namespace S2DE::GameObjects
 {
 	class GameObject;
 }
+// TODO: Add scale factor 
+//		 Will fix sprite tile scaling 
 
 namespace S2DE::GameObjects::Components
 {
@@ -38,16 +40,19 @@ namespace S2DE::GameObjects::Components
 		void									SetScale_Y(float y);
 		void									SetScale_Z(float z);
 		void									SetParent(GameObject* go);
-
+		void									SetScaleFactor(DirectX::SimpleMath::Vector3 _scaleFactor);
 
 		[[nodiscard]] inline DirectX::SimpleMath::Matrix&		GetWorldMatrix();
-		// TODO: Make basic template for UpdateTransformation to avoid copy-paste code
+
 		[[nodiscard]] inline DirectX::SimpleMath::Matrix		UpdateTransformation();
+
 		[[nodiscard]] inline DirectX::SimpleMath::Matrix		UpdateTransformation2D();
+
 		[[nodiscard]] inline bool								isChildOf(GameObject* go) const;
 		[[nodiscard]] inline DirectX::SimpleMath::Vector3		GetPosition()   const;
 		[[nodiscard]] inline DirectX::SimpleMath::Vector3		GetRotation()   const;
 		[[nodiscard]] inline DirectX::SimpleMath::Vector3		GetScale()      const;
+		[[nodiscard]] inline DirectX::SimpleMath::Vector3		GetScaleFactor() const;
 		[[nodiscard]] inline GameObject*						GetChild() const;
 		[[nodiscard]] inline GameObject*						GetParent() const;
 
@@ -57,7 +62,9 @@ namespace S2DE::GameObjects::Components
 	private:
 		DirectX::SimpleMath::Vector3			m_position;
 		DirectX::SimpleMath::Vector3			m_rotation;
+
 		DirectX::SimpleMath::Vector3			m_scale;
+		DirectX::SimpleMath::Vector3			m_scaleFactor;
 
 
 		DirectX::SimpleMath::Matrix				m_worldMatrix;

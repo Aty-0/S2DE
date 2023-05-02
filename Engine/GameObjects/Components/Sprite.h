@@ -62,8 +62,7 @@ namespace S2DE::GameObjects::Components
 		void											SetDefaultTexture();
 
 		[[nodiscard]] virtual inline DirectX::SimpleMath::Vector3		CalcScaleFactor();
-		[[nodiscard]] inline DirectX::SimpleMath::Matrix				UpdateTransformation();
-
+		
 	private:
 		Render::Texture*								m_texture;
 		bool											m_unloadTexture;
