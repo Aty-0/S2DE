@@ -23,11 +23,11 @@ namespace S2DE::GameObjects::Components::Editor
 		virtual ~EditorGrid();
 
 	protected:
-		virtual void				 OnRender(Render::Renderer* renderer)  override;
-
-		virtual void				 CreateVertexBuffer();
-		virtual void				 CreateIndexBuffer();
-		virtual void				 SetDefaultShader();
+		virtual void OnRender(Render::Renderer* renderer)  override;
+					 
+		virtual void CreateVertexBuffer();
+		virtual void CreateIndexBuffer();
+		virtual void SetDefaultShader();
 
 	private:
 		Render::Shader* m_shader;

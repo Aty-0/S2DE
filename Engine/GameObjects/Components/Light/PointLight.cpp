@@ -23,8 +23,7 @@ namespace S2DE::GameObjects::Components::Light
 
 	void PointLight::InitLight()
 	{
-		//m_attenuation = DirectX::SimpleMath::Vector3(0.04f, 0.1f, 0.06f);
-		m_attenuation = DirectX::SimpleMath::Vector3(3.0f, 0.0f, 1.0f);
+		m_attenuation = Math::float3(3.0f, 0.0f, 1.0f);
 		m_range = 100.0f;
 		m_pad = 1.0f;
 		m_strength = 1.0f;
@@ -42,7 +41,10 @@ namespace S2DE::GameObjects::Components::Light
 
 	void PointLight::UpdateCB()
 	{
-		Render::LightGlobals::LightConstantBuffer->Lock();
+		const static auto lightGlobals = Render::LightGlobals::GetInstance();
+		const static auto renderer = Render::Renderer::GetInstance();
+
+		lightGlobals->Begin(renderer);
 
 		auto& str = m_lightStructure;
 
@@ -52,13 +54,13 @@ namespace S2DE::GameObjects::Components::Light
 		str.pad = m_pad;
 		str.light_type = static_cast<std::int32_t>(LightTypes::PointLight);
 		str.enabled = static_cast<std::int32_t>(GetOwner()->isEnabled());
-		str.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
+		str.color = Math::float4(m_color.r, m_color.g, m_color.b, 1);
 
 		const auto transform = GetOwner()->GetTransform();
 		Assert(transform, "transform is nullptr");
 
-		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
-		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
+		auto parentPosition = Math::float3::Zero;
+		auto parentRotation = Math::float3::Zero;
 
 		// TODO: Get global position, rotation, scale 
 		//		 This is local p, r, s
@@ -76,20 +78,16 @@ namespace S2DE::GameObjects::Components::Light
 
 		if (transform != nullptr)
 		{
-			str.position = DirectX::SimpleMath::Vector4(transform->GetPosition().x + parentPosition.x,
+			str.position = Math::float4(transform->GetPosition().x + parentPosition.x,
 				transform->GetPosition().y + parentPosition.y, transform->GetPosition().z + parentPosition.z, 1);
 
-			str.direction = DirectX::SimpleMath::Vector4(transform->GetRotation().x + parentRotation.x,
+			str.direction = Math::float4(transform->GetRotation().x + parentRotation.x,
 				transform->GetRotation().y + parentRotation.y, transform->GetRotation().z + parentRotation.z, 1);
 		}
 
 
-		Render::LightGlobals::SetNewLightStructure(str, GetUUID());
+		lightGlobals->SetNewLightStructure(str, GetUUID());
+		lightGlobals->End(renderer);
 
-
-		Render::LightGlobals::LightConstantBuffer->Unlock();
-		Render::LightGlobals::LightConstantBuffer->Bind(1);
-		Render::LightGlobals::LightConstantBuffer->Unbind();
-		
 	}
 }

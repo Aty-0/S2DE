@@ -13,7 +13,7 @@ namespace S2DE::Core
 	public: 
 		ApplicationHandle() = default;
 
-		//Application custom functions
+		// Application custom functions
 		virtual ~ApplicationHandle() {}
 		virtual bool LoadResources() { return true; }
 

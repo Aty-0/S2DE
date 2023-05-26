@@ -43,14 +43,14 @@ namespace S2DE::GameObjects::Components
 			if (m_mesh->GetCountMeshes() <= 1)
 				return;
 
-			auto transform = GetOwner()->GetTransform();
+			const auto transform = GetOwner()->GetTransform();
 
 			for (std::uint32_t i = 0; i < m_mesh->GetCountMeshes(); i++)
 			{
 				static GameObject* prMeshPartObject = nullptr;
 
 				// TODO: Get name of node
-				auto meshPartObject = Scene::CreateGameObject<GameObjects::GameObject>(GetName() + std::to_string(i));
+				const auto meshPartObject = Scene::CreateGameObject<GameObjects::GameObject>(GetName() + std::to_string(i));
 
 
 				meshPartObject->GetTransform()->SetPosition(transform->GetPosition());
@@ -58,7 +58,7 @@ namespace S2DE::GameObjects::Components
 				meshPartObject->GetTransform()->SetParent(GetOwner());
 				
 				
-				auto meshPartSMComponent = meshPartObject->CreateComponent<StaticMesh>();
+				const auto meshPartSMComponent = meshPartObject->CreateComponent<StaticMesh>();
 				meshPartSMComponent->m_mesh = m_mesh;
 				meshPartSMComponent->m_shader = m_shader;
 				meshPartSMComponent->m_textureCube = m_textureCube;
@@ -73,27 +73,28 @@ namespace S2DE::GameObjects::Components
 	// TODO: Change shader, skycube 
 	bool StaticMesh::LoadMesh(std::string name)
 	{	
+		const auto resourceManager = Core::Resources::ResourceManager::GetInstance();
 		// If mesh not found in resource manager storage we try to load it 
-		if (!Core::Engine::GetResourceManager().IsExists<Render::Mesh>(name))
+		if (!resourceManager->IsExists<Render::Mesh>(name))
 		{
 			m_mesh = new Render::Mesh();
 			m_mesh->SetMeshGameObject(GetOwner());
 			m_mesh->Load(name);
 
-			if (!Core::Engine::GetResourceManager().Add<Render::Mesh>(m_mesh))
+			if (!resourceManager->Add<Render::Mesh>(m_mesh))
 				return false;
 		}
 		else
 		{
 			// Set mesh if mesh is exist
-			m_mesh = new Render::Mesh(*Core::Engine::GetResourceManager().Get<Render::Mesh>(name));
+			m_mesh = new Render::Mesh(*resourceManager->Get<Render::Mesh>(name));
 			Assert(m_mesh != nullptr, "Failed to load mesh!");
 		}
 
-		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Mesh"));
+		m_shader = new Render::Shader(*resourceManager->Get<Render::Shader>("Mesh"));
 		if (m_useSkyCube)
 		{
-			m_textureCube = Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultCubemap");
+			m_textureCube = resourceManager->Get<Render::Texture>("DefaultCubemap");
 		}
 
 
@@ -103,11 +104,6 @@ namespace S2DE::GameObjects::Components
 	}	 
 		 
 	bool StaticMesh::LoadTexture(std::string name)
-	{	 
-		return LoadTextureA(name);
-	}	 
-		 
-	bool StaticMesh::LoadTextureA(std::string name, bool unload_texture, bool auto_load_texture)
 	{	 
 		S2DE_NO_IMPL();
 		return true;
@@ -120,16 +116,18 @@ namespace S2DE::GameObjects::Components
 			return;
 		}
 		
+		const auto resourceManager = Core::Resources::ResourceManager::GetInstance();
+
 		// Get shader name
 		const auto name = m_shader->GetName();
 
 		// Try to get shader by name from resource manager
-		const auto new_shader = Core::Engine::GetResourceManager().Get<Render::Shader>(name);
+		const auto new_shader = resourceManager->Get<Render::Shader>(name);
 
 		// If shader not found
 		if (new_shader == nullptr)
 		{
-			Logger::Error("%s Can't update shader!", GetName().c_str());
+			Core::Utils::Logger::Error("%s Can't update shader!", GetName().c_str());
 			return;
 		}
 
@@ -143,6 +141,8 @@ namespace S2DE::GameObjects::Components
 		{
 			return;
 		}
+
+		const auto resourceManager = Core::Resources::ResourceManager::GetInstance();
 
 		auto tex = m_mesh->GetTextures();
 
@@ -159,12 +159,12 @@ namespace S2DE::GameObjects::Components
 					//Core::Delete(m_texture);
 
 					// Try to get texture by name from resource manager
-					auto new_texture = Core::Engine::GetResourceManager().Get<Render::Texture>(name);
+					auto new_texture = resourceManager->Get<Render::Texture>(name);
 
 					// If texture not found
-					if (new_texture == Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultTexture"))
+					if (new_texture == resourceManager->Get<Render::Texture>("DefaultTexture"))
 					{
-						Logger::Error("%s Can't update texture!", GetName().c_str());
+						Core::Utils::Logger::Error("%s Can't update texture!", GetName().c_str());
 						return;
 					}
 
@@ -210,7 +210,7 @@ namespace S2DE::GameObjects::Components
 			{
 				if (tex[j].index == m_savedIndex)
 				{
-					tex[j].texture->Bind(3);
+					tex[j].texture->Bind(renderer, 3);
 					break;
 				}
 			}
@@ -218,24 +218,24 @@ namespace S2DE::GameObjects::Components
 
 		if (m_useSkyCube)
 		{
-			m_textureCube->Bind(1);
+			m_textureCube->Bind(renderer, 1);
 		}
 
 		// Bind and update variables in const buffer
-		m_shader->UpdateMainConstBuffer(transform->UpdateTransformation());
+		m_shader->UpdateMainConstBuffer(renderer, transform->UpdateTransformation());
 
 		// Bind shader and texture 
-		m_shader->Bind();
+		m_shader->Bind(renderer);
 
 		// Bind buffers
-		vBuff->Bind();
+		vBuff->Bind(renderer);
 		if (m_useIndices)
 		{
-			iBuff->Bind();
+			iBuff->Bind(renderer);
 		}
 
 		// Draw poly 		
-		renderer->SetRasterizerState("fcc");
+		renderer->SetRasterizerState(Render::Api::RasterizerMode::TwoSided);
 
 		if (m_useIndices)
 		{
@@ -253,7 +253,7 @@ namespace S2DE::GameObjects::Components
 			{
 				if (tex[j].index == m_savedIndex)
 				{
-					tex[j].texture->Unbind(3);
+					tex[j].texture->Unbind(renderer, 3);
 					break;
 				}
 			}
@@ -261,16 +261,16 @@ namespace S2DE::GameObjects::Components
 
 		if (m_useSkyCube)
 		{
-			m_textureCube->Unbind(1);
+			m_textureCube->Unbind(renderer, 1);
 		}
 
-		m_shader->Unbind();
+		m_shader->Unbind(renderer);
 
-		vBuff->Unbind();
+		vBuff->Unbind(renderer);
 
 		if (m_useIndices)
 		{
-			iBuff->Unbind();
+			iBuff->Unbind(renderer);
 		}
 
 		

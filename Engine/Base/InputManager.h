@@ -4,7 +4,7 @@
 
 namespace S2DE::Core
 {
-	class S2DE_API InputManager
+	class S2DE_API InputManager : public Core::Utils::Singleton<InputManager>
 	{
 	public:
 		InputManager();
@@ -14,6 +14,7 @@ namespace S2DE::Core
 		void LockKeyboardControl(bool lock);
 		void LockWheel(bool lock);
 		void Update();
+		void Destroy();
 			 
 		void _MWheelUpdate(SDL_Event event);
 		void _MMotionUpdate(SDL_Event event);
@@ -33,30 +34,30 @@ namespace S2DE::Core
 		[[nodiscard]] inline bool IsMouseKeyPressed(Other::MouseKeyCode keycode) const;
 		[[nodiscard]] inline bool IsMouseKeyUp(Other::MouseKeyCode keycode)      const;
 		[[nodiscard]] inline bool IsMouseKeyDown(Other::MouseKeyCode keycode)    const;
-		[[nodiscard]] inline DirectX::SimpleMath::Vector2 GetMousePositionRelative() const;
-		[[nodiscard]] inline DirectX::SimpleMath::Vector2 GetMousePositionGlobal() const;
-		[[nodiscard]] inline DirectX::SimpleMath::Vector2 GetMousePosition()		 const;
-		[[nodiscard]] inline DirectX::SimpleMath::Vector2 GetMouseWheelPosition()	 const;
+		[[nodiscard]] inline Math::float2 GetMousePositionRelative() const;
+		[[nodiscard]] inline Math::float2 GetMousePositionGlobal() const;
+		[[nodiscard]] inline Math::float2 GetMousePosition()		 const;
+		[[nodiscard]] inline Math::float2 GetMouseWheelPosition()	 const;
 
 	private:
-		std::uint32_t						m_mouse;
-		const std::uint8_t*					m_keyboard;
-		bool								m_keyboardKeyUp[Other::KeyboardSize];
-		bool								m_keyboardKeyDown[Other::KeyboardSize];
-		bool								m_mouseKeyUp[Other::MouseSize];
-		bool								m_mouseKeyDown[Other::MouseSize];
-		bool								m_lock_wheel;
-		bool								m_lock_mouse;
-		bool								m_lock_keyboard;
-		bool								m_isMouseMotionWork;
-		bool								m_isMouseWheelMotionWork;
-		bool								m_isWheelTurnsForward;
-		bool								m_isWheelTurnsBackward;
-		DirectX::SimpleMath::Vector2		m_mRPMouseState;
-		DirectX::SimpleMath::Vector2		m_mRCMouseState;
-		DirectX::SimpleMath::Vector2		m_mRMouseState;
-		DirectX::SimpleMath::Vector2		m_mPosition;
-		DirectX::SimpleMath::Vector2		m_mGlobalPosition;
-		DirectX::SimpleMath::Vector2		m_mWheel;
+		std::uint32_t m_mouse;
+		const std::uint8_t*	m_keyboard;
+		bool m_keyboardKeyUp[Other::KeyboardSize];
+		bool m_keyboardKeyDown[Other::KeyboardSize];
+		bool m_mouseKeyUp[Other::MouseSize];
+		bool m_mouseKeyDown[Other::MouseSize];
+		bool m_lock_wheel;
+		bool m_lock_mouse;
+		bool m_lock_keyboard;
+		bool m_isMouseMotionWork;
+		bool m_isMouseWheelMotionWork;
+		bool m_isWheelTurnsForward;
+		bool m_isWheelTurnsBackward;
+		Math::float2 m_mRPMouseState;
+		Math::float2 m_mRCMouseState;
+		Math::float2 m_mRMouseState;
+		Math::float2 m_mPosition;
+		Math::float2 m_mGlobalPosition;
+		Math::float2 m_mWheel;
 	};
 }

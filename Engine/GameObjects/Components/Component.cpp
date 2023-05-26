@@ -26,7 +26,7 @@ namespace S2DE::GameObjects::Components
 
 	void Component::OnRenderSelected(Render::Renderer* renderer, Transform* transform)
 	{		
-		renderer->DebugDrawCube(transform->GetPosition(), { 0,0,0 }, DirectX::SimpleMath::Vector3(1, 1, 1) + transform->GetScale(),
+		renderer->DebugDrawCube(transform->GetPosition(), { 0,0,0 }, Math::float3::One + transform->GetScale(),
 			{ 1, 1, 1, 1 });
 	}
 

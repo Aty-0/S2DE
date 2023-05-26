@@ -23,7 +23,10 @@ namespace S2DE::Render
 	{
 		Core::Delete(m_fontTexture);
 		Core::Delete(m_ttf_buffer);
-		delete[] m_cdata;
+		if (m_cdata)
+		{
+			delete[] m_cdata;
+		}
 	}
 
 	bool Font::Create(float height, std::uint16_t w, std::uint16_t h)
@@ -42,7 +45,7 @@ namespace S2DE::Render
 		Verify(m_fontTexture->CreateFontTexture(w, h, bitmap), "Font texture is not created!");
 		delete[] bitmap;
 
-		return Core::Engine::GetResourceManager().Add(m_fontTexture, m_name + "_fnt_tex", m_cantDelete);
+		return Core::Resources::ResourceManager::GetInstance()->Add(m_fontTexture, m_name + "_fnt_tex", m_cantDelete);
 	}
 
 	bool Font::Load(std::string name)

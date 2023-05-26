@@ -42,17 +42,17 @@
 #define S2DE_BUILD_DAY_0 ((__DATE__[4] >= '0') ? (__DATE__[4]) : '0')
 #define S2DE_BUILD_DAY_1 (__DATE__[ 5])
 
-#define S2DE_BUILD_VER '0'
+#define S2DE_BUILD_VER __COUNTER__
 
 namespace S2DE::Core
 {
-	static const wchar_t S2DE_BUILD_DATE_W[]
+	static constexpr wchar_t S2DE_BUILD_DATE_W[]
 	{
 		(wchar_t)S2DE_BUILD_YEAR_0, (wchar_t)S2DE_BUILD_YEAR_1, (wchar_t)S2DE_BUILD_YEAR_2, (wchar_t)S2DE_BUILD_YEAR_3, (wchar_t)S2DE_BUILD_MONTH_0, (wchar_t)S2DE_BUILD_MONTH_1, (wchar_t)S2DE_BUILD_DAY_0, (wchar_t)S2DE_BUILD_DAY_1, '.', (wchar_t)S2DE_BUILD_VER,  L'\0'
 	};
 
-	static const char S2DE_BUILD_DATE[]
+	static constexpr char S2DE_BUILD_DATE[]
 	{
-		S2DE_BUILD_YEAR_0, S2DE_BUILD_YEAR_1, S2DE_BUILD_YEAR_2, S2DE_BUILD_YEAR_3, S2DE_BUILD_MONTH_0, S2DE_BUILD_MONTH_1, S2DE_BUILD_DAY_0, S2DE_BUILD_DAY_1, '.', S2DE_BUILD_VER, '\0'
+		S2DE_BUILD_YEAR_0, S2DE_BUILD_YEAR_1, S2DE_BUILD_YEAR_2, S2DE_BUILD_YEAR_3, S2DE_BUILD_MONTH_0, S2DE_BUILD_MONTH_1, S2DE_BUILD_DAY_0, S2DE_BUILD_DAY_1, '.', (char)S2DE_BUILD_VER, '\0'
 	};
 }

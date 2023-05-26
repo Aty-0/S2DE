@@ -6,8 +6,8 @@
 
 namespace S2DE::Scene
 {
-	//SceneObjectStorage type
-	typedef std::vector<std::pair<std::pair<std::string, boost::uuids::uuid>, std::shared_ptr<GameObjects::GameObject>>> SceneObjectStorage;
+	typedef std::vector<std::pair<std::pair<std::string, boost::uuids::uuid>, 
+		std::shared_ptr<GameObjects::GameObject>>> SceneObjectStorage;
 
 	class S2DE_API Scene
 	{
@@ -30,14 +30,15 @@ namespace S2DE::Scene
 		// Replace game object (by uuid)
 		void							Replace(boost::uuids::uuid object_id, GameObjects::GameObject* object);
 
-		// Clear all scene
-		// NOTE: Object with engine prefix (-1) will not been deleted
+		// Clear scene 
+		// NOTE: Objects with engine prefix (it is -1) can't be removed
 		void							Clear();
-		// Destroy scene
+
+		// Destroy scene, remove all objects
 		void							Destroy();
 
-		// Check object name on exist, if we found object with same name we are add num prefix 
-		void							CheckNameOnExist(std::string& name);
+		// Check name on uniqueness, if we found object with same name we are add num prefix 
+		std::string						MakeNameUnique(std::string name);
 
 		[[nodiscard]] inline SceneObjectStorage& GetStorage();
 		[[nodiscard]] inline std::string				GetName() const;
@@ -48,33 +49,31 @@ namespace S2DE::Scene
 		{
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
-			//Check object on valid
+			// Check object on valid
 			if (g == nullptr)
 			{
-				Logger::Error("[Scene] [%s] Can't add this game object because it is nullptr!", m_name.c_str());
+				Core::Utils::Logger::Error("[Scene] [%s] Can't add this game object because it is nullptr!", m_name.c_str());
 				return nullptr;
 			}
 			else if (Core::Utils::isStringEmpty(g->GetName()) || Core::Utils::isStringEmpty(g->GetUUIDString()))
 			{
-				Logger::Error("[Scene] [%s] Can't add this game object because it is not initialized!", m_name.c_str());
+				Core::Utils::Logger::Error("[Scene] [%s] Can't add this game object because it is not initialized!", m_name.c_str());
 				return nullptr;
 			}
 
-			std::string name = g->GetName();
-			//Check objects in scene on same name 
-			CheckNameOnExist(name);
-			g->SetName(name); //It will be renamed if we are found same name
+			// Check objects on the same name 
+			g->SetName(MakeNameUnique(g->GetName()));
 
-			Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Added [%s] Name: %s UUID: %s at Position (%f %f %f)",
+			Core::Utils::Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Added [%s] Name: %s UUID: %s at Position (%f %f %f)",
 				m_name.c_str(), Core::Utils::GetClassNameInString(g).c_str(),
-				name.c_str(), g->GetUUIDString().c_str(),
+				g->GetName().c_str(), g->GetUUIDString().c_str(),
 				g->GetTransform()->GetPosition().x, g->GetTransform()->GetPosition().y, g->GetTransform()->GetPosition().z);
 
-			//Add object to storage
-			std::shared_ptr<T> objectShared = std::make_shared<T>(*g);
-			m_storage.push_back(std::move(std::make_pair(std::make_pair(name, g->GetUUID()), objectShared)));
+			// Add object to storage
+			const auto gameObjectPtr = std::make_shared<T>(*g);
+			m_storage.push_back(std::move(std::make_pair(std::make_pair(g->GetName(), g->GetUUID()), gameObjectPtr)));
 
-			return objectShared.get();
+			return gameObjectPtr.get();
 		}
 
 
@@ -84,7 +83,7 @@ namespace S2DE::Scene
 		{
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
-			Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), object_name.c_str(),
+			Core::Utils::Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), object_name.c_str(),
 				Core::Utils::isStringEmpty(new_name) ? "No" : new_name.c_str());
 
 			SceneObjectStorage::iterator it = std::find_if(m_storage.begin(), m_storage.end(),
@@ -93,19 +92,18 @@ namespace S2DE::Scene
 
 			if (it == m_storage.end())
 			{
-				Logger::Error("[Scene] [%s] Can't clone object!", m_name.c_str());
+				Core::Utils::Logger::Error("[Scene] [%s] Can't clone object!", m_name.c_str());
 				return nullptr;
 			}
 			
 			if (dynamic_cast<T*>(it->second.get()) != it->second.get())
 			{
-				Logger::Error("[Scene] [%s] Wrong type! Can't clone object", m_name.c_str());
+				Core::Utils::Logger::Error("[Scene] [%s] Wrong type! Can't clone object", m_name.c_str());
 				return nullptr;
 			}
 
-			auto new_obj = new T(*dynamic_cast<T*>(it->second.get()));
-
-			std::string name = Core::Utils::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
+			const auto new_obj = new T(*dynamic_cast<T*>(it->second.get()));
+			const auto name = Core::Utils::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
 			new_obj->Init(name, new_obj->GetType(), new_obj->GetPrefix(), "REGENERATE");
 
 			return Add<T>(new_obj);
@@ -117,7 +115,7 @@ namespace S2DE::Scene
 		{
 			static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
 
-			Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), Core::Utils::UUID::ConvertUUIDToString(object_id).c_str(),
+			Core::Utils::Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Clone object Name: %s New name: %s", m_name.c_str(), Core::Utils::UUID::ConvertUUIDToString(object_id).c_str(),
 				Core::Utils::isStringEmpty(new_name) ? "No" : new_name.c_str());
 
 			SceneObjectStorage::iterator it = std::find_if(m_storage.begin(), m_storage.end(),
@@ -126,19 +124,18 @@ namespace S2DE::Scene
 
 			if (it == m_storage.end())
 			{
-				Logger::Error("[Scene] [%s] Can't clone object!", m_name.c_str());
+				Core::Utils::Logger::Error("[Scene] [%s] Can't clone object!", m_name.c_str());
 				return nullptr;
 			}
 
 			if (dynamic_cast<T*>(it->second.get()) != it->second.get())
 			{
-				Logger::Error("[Scene] [%s] Wrong type! Can't clone object", m_name.c_str());
+				Core::Utils::Logger::Error("[Scene] [%s] Wrong type! Can't clone object", m_name.c_str());
 				return nullptr;
 			}
 
-			auto new_obj = new T(*dynamic_cast<T*>(it->second));
-
-			std::string name = Core::Utils::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
+			const auto new_obj = new T(*dynamic_cast<T*>(it->second));
+			const auto name = Core::Utils::isStringEmpty(new_name) ? new_obj->GetName() + "_clone" : new_name;
 			new_obj->Init(name, new_obj->GetType(), new_obj->GetPrefix(), "REGENERATE");
 
 			return Add<T>(new_obj);

@@ -4,7 +4,7 @@
 
 namespace S2DE::Core
 {
-	class S2DE_API GameTime
+	class S2DE_API GameTime : public Core::Utils::Singleton<GameTime>
 	{
 	public:
 		GameTime();

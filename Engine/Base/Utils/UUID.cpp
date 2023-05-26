@@ -24,7 +24,7 @@ namespace S2DE::Core::Utils
 		m_uuidInStringFIXME = GetUUIDString();
 	}
 
-	inline bool UUID::isUUIDValid(std::string const& uuidInString, boost::uuids::uuid& result)
+	bool UUID::isUUIDValid(std::string const& uuidInString, boost::uuids::uuid& result)
 	{
 		try
 		{

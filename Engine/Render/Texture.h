@@ -1,10 +1,11 @@
 #pragma once
 #include "Base/Main/Common.h"
 #include "Base/Resource.h"
-#include "Render/Renderer.h"
+#include "Math/Color.h"
 
 namespace S2DE::Render
-{
+{	
+	class Renderer;
 	class S2DE_API Texture : public Core::Resources::Resource
 	{
 	public:
@@ -23,8 +24,8 @@ namespace S2DE::Render
 		bool							 CreateDefaultSamplerState();
 		bool							 SetSamplerState(D3D11_SAMPLER_DESC const& samplerDesc);
 		// Bind texture 
-		void							 Bind(std::uint32_t startSlot = 0, std::uint32_t numViews = 1);
-		void							 Unbind(std::uint32_t startSlot = 0, std::uint32_t numViews = 1);
+		void							 Bind(Renderer* renderer, std::uint32_t startSlot = 0, std::uint32_t numViews = 1);
+		void							 Unbind(Renderer* renderer, std::uint32_t startSlot = 0, std::uint32_t numViews = 1);
 		
 		[[nodiscard]] inline ID3D11ShaderResourceView* GetResourceView() const;
 		[[nodiscard]] inline ID3D11Texture2D* GetTexture2D() const;

@@ -15,7 +15,7 @@ namespace S2DE::GameObjects::Components::Light
 
 	void DirectionalLight::InitLight()
 	{
-		m_attenuation = DirectX::SimpleMath::Vector3(0.0f, 0.1f, 0.0f);
+		m_attenuation = Math::float3(0.0f, 0.1f, 0.0f);
 		m_range = 25.0f;
 		m_pad = 1.0f;
 
@@ -32,7 +32,11 @@ namespace S2DE::GameObjects::Components::Light
 
 	void DirectionalLight::UpdateCB()
 	{
-		Render::LightGlobals::LightConstantBuffer->Lock();
+		const static auto lightGlobals = Render::LightGlobals::GetInstance();
+		const static auto renderer = Render::Renderer::GetInstance();
+
+		lightGlobals->Begin(renderer);
+
 		auto& str = m_lightStructure;
 
 		str.attenuation = m_attenuation;
@@ -42,8 +46,8 @@ namespace S2DE::GameObjects::Components::Light
 		const auto transform = GetOwner()->GetTransform();
 		Assert(transform, "transform is null");
 
-		auto parentPosition = DirectX::SimpleMath::Vector3::Zero;
-		auto parentRotation = DirectX::SimpleMath::Vector3::Zero;
+		auto parentPosition = Math::float3::Zero;
+		auto parentRotation = Math::float3::Zero;
 
 		// TODO: Get global position, rotation, scale 
 		//		 This is local p, r, s
@@ -60,20 +64,19 @@ namespace S2DE::GameObjects::Components::Light
 
 		if (transform != nullptr)
 		{
-			str.position = DirectX::SimpleMath::Vector4(transform->GetPosition().x + parentPosition.x,
+			str.position = Math::float4(transform->GetPosition().x + parentPosition.x,
 				transform->GetPosition().y + parentPosition.y, transform->GetPosition().z + parentPosition.z, 1);
 
-			str.direction = DirectX::SimpleMath::Vector4(transform->GetRotation().x + parentRotation.x,
+			str.direction = Math::float4(transform->GetRotation().x + parentRotation.x,
 				transform->GetRotation().y + parentRotation.y, transform->GetRotation().z + parentRotation.z, 1);
 		}
 
-		str.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
+		str.color = Math::float4(m_color.r, m_color.g, m_color.b, 1);
 
-		Render::LightGlobals::SetNewLightStructure(str, GetUUID());
+		lightGlobals->SetNewLightStructure(str, GetUUID());
 
-		Render::LightGlobals::LightConstantBuffer->Unlock();
-		Render::LightGlobals::LightConstantBuffer->Bind(1);
-		Render::LightGlobals::LightConstantBuffer->Unbind();
+		lightGlobals->End(renderer);
+
 
 	}
 }

@@ -6,31 +6,21 @@
 
 #include "GameObjects/Base/GameObject.h"
 
-#define CAMERA_DEFAULT_FOV 90.0f
-#define CAMERA_DEFAULT_ZOOM 0.009f
-#define CAMERA_DEFAULT_SPEED 20.0f
-#define CAMERA_DEFAULT_ZNEAR 0.01f
-#define CAMERA_DEFAULT_ZFAR 1000.0f
-#define CAMERA_DEFAULT_ORTHO_ZOOM 0.15f
-//#define CAMERA_DEFAULT_SENSITIVITY 0.34f 
-#define CAMERA_DEFAULT_SENSITIVITY 34.0f
-#define CAMERA_MAX_SPEED_BOOST 10.0f 
-#define CAMERA_MIN_SPEED_BOOST 0.001f
 
 namespace S2DE::GameObjects::Components
 {
 	Camera::Camera() :
-		m_projectionMatrix(DirectX::SimpleMath::Matrix::Identity),
-		m_viewMatrix(DirectX::SimpleMath::Matrix::Identity),
-		m_ortho_Matrix(DirectX::SimpleMath::Matrix::Identity),
-		m_speed(CAMERA_DEFAULT_SPEED),
-		m_zoom(CAMERA_DEFAULT_ZOOM),
-		m_zNear(CAMERA_DEFAULT_ZNEAR),
-		m_zFar(CAMERA_DEFAULT_ZFAR),
-		m_fov(CAMERA_DEFAULT_FOV),
-		m_speedBoost(1.0f),
-		m_sensitivity(CAMERA_DEFAULT_SENSITIVITY),
-		m_mode(CameraProjectionMode::Orthographics)
+		m_projectionMatrix(Math::float4x4::Identity),
+		m_viewMatrix(Math::float4x4::Identity),
+		m_orthoMatrix(Math::float4x4::Identity),
+		m_speed(DefaultCameraSpeed),
+		m_zoom(DefaultCameraOrthoZoom),
+		m_zNear(DefaultCameraZNear),
+		m_zFar(DefaultCameraZFar),
+		m_fov(DefaultCameraFOV),
+		m_speedBoost(DefaultEditorSpeedBoost),
+		m_sensitivity(DefaultCameraSensitivity),
+		m_mode(ProjectionMode::Orthographics)
 	{
 
 	}
@@ -42,23 +32,23 @@ namespace S2DE::GameObjects::Components
 
 	void Camera::OnRender(Render::Renderer* renderer)
 	{
-		const auto transform = GetOwner()->GetTransform();
-		const auto gameWindow = Core::Engine::GetGameWindow();
+		static const auto transform = GetOwner()->GetTransform();
+		static const auto gameWindow = Core::GameWindow::GetInstance();
 
 		switch (m_mode)
 		{
-		case Camera::CameraProjectionMode::Orthographics:
-			m_projectionMatrix = DirectX::SimpleMath::Matrix::CreateOrthographic(
+		case Camera::ProjectionMode::Orthographics:
+			m_projectionMatrix = Math::float4x4::CreateOrthographic(
 				static_cast<float>(gameWindow->GetWidth())  * m_zoom,
 				static_cast<float>(gameWindow->GetHeight()) * m_zoom,
 				m_zNear, m_zFar);
 
-			m_target = DirectX::SimpleMath::Vector3(transform->GetPosition().x, transform->GetPosition().y, 1);
+			m_target = Math::float3(transform->GetPosition().x, transform->GetPosition().y, 1);
 
-			m_viewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(transform->GetPosition(), m_target, DirectX::SimpleMath::Vector3::UnitY);
+			m_viewMatrix = Math::float4x4::CreateLookAt(transform->GetPosition(), m_target, Math::float3::UnitY);
 			break;
-		case Camera::CameraProjectionMode::Perspective:
-			m_projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView((m_fov / 360.0f) * DirectX::XM_2PI,
+		case Camera::ProjectionMode::Perspective:
+			m_projectionMatrix = Math::float4x4::CreatePerspectiveFieldOfView((m_fov / 360.0f) * DirectX::XM_2PI,
 				static_cast<float>(gameWindow->GetWidth() / gameWindow->GetHeight()), m_zNear, m_zFar);
 
 			// Create the rotation matrix 
@@ -68,39 +58,39 @@ namespace S2DE::GameObjects::Components
 			// Just simple check on Y angle to avoid breaking view
 			if (y > 85.0f)
 			{
-				transform->SetRotation_Y(85.0f);
+				transform->SetRotationY(85.0f);
 			}
 			else if (y < -85.0f)
 			{
-				transform->SetRotation_Y(-85.0f);
+				transform->SetRotationY(-85.0f);
 			}
 
-			m_rotationMatrix = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(
+			m_rotationMatrix = Math::float4x4::CreateFromYawPitchRoll(
 				-DirectX::XMConvertToRadians(z), 
 				-DirectX::XMConvertToRadians(y),
 				-DirectX::XMConvertToRadians(x));
 		
 			// Use transform to make target vector from rotation matrix 
-			m_target = DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Forward, m_rotationMatrix);
+			m_target = Math::float3::TransformNormal(Math::float3::Forward, m_rotationMatrix);
 
 
 			// Calculate movement vectors
-			m_right = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Right, m_rotationMatrix);
-			m_forward = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Forward, m_rotationMatrix);
+			m_right = Math::float3::Transform(Math::float3::Right, m_rotationMatrix);
+			m_forward = Math::float3::Transform(Math::float3::Forward, m_rotationMatrix);
 
 			m_up.Cross(m_forward, m_up);
 			m_up.Cross(m_right, m_up);
 
 			m_target = transform->GetPosition() + m_target;
 
-			m_viewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(transform->GetPosition(), m_target, DirectX::SimpleMath::Vector3::Up);
+			m_viewMatrix = Math::float4x4::CreateLookAt(transform->GetPosition(), m_target, Math::float3::Up);
 			break;
 		}
 
 
-		m_ortho_Matrix = DirectX::SimpleMath::Matrix::CreateOrthographic(
-			static_cast<float>(gameWindow->GetWidth()) * CAMERA_DEFAULT_ORTHO_ZOOM,
-			static_cast<float>(gameWindow->GetHeight()) * CAMERA_DEFAULT_ORTHO_ZOOM,
+		m_orthoMatrix = Math::float4x4::CreateOrthographic(
+			static_cast<float>(gameWindow->GetWidth()) * DefaultCameraUIOrthoZoom,
+			static_cast<float>(gameWindow->GetHeight()) * DefaultCameraUIOrthoZoom,
 			0.0f, 10.0f);
 
 		m_projectionMatrix.Transpose(m_projectionMatrix);
@@ -115,28 +105,32 @@ namespace S2DE::GameObjects::Components
 
 	void Camera::UpdateCameraControls(float delta)
 	{
+		static const auto inputManager = Core::InputManager::GetInstance();
+
 		const auto transform = GetOwner()->GetTransform();
 		auto position = transform->GetPosition();
 
 		switch (m_mode)
 		{
-		case Camera::CameraProjectionMode::Perspective:
+		case Camera::ProjectionMode::Perspective:
 			if (Core::Engine::isEditor())
 			{
-				if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_LEFT_SHIFT))
+				static const auto window = Core::GameWindow::GetInstance();
+
+				if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_LEFT_SHIFT))
 				{
-					transform->SetRotation_Z(transform->GetRotation().z + Core::Engine::GetInputManager()->GetMousePositionRelative().x * m_sensitivity * delta);
-					transform->SetRotation_Y(transform->GetRotation().y + Core::Engine::GetInputManager()->GetMousePositionRelative().y * m_sensitivity * delta);
-					Core::Engine::GetGameWindow()->SetMouseVisible(false);
+					transform->SetRotationZ(transform->GetRotation().z + inputManager->GetMousePositionRelative().x * m_sensitivity * delta);
+					transform->SetRotationY(transform->GetRotation().y + inputManager->GetMousePositionRelative().y * m_sensitivity * delta);
+					window->SetMouseVisible(false);
 				}
 				else
 				{
-					Core::Engine::GetGameWindow()->SetMouseVisible(true);
+					window->SetMouseVisible(true);
 				}
 
-				if (Core::Engine::GetInputManager()->IsMouseWheelTurnsForward())
+				if (inputManager->IsMouseWheelTurnsForward())
 				{
-					if (m_speedBoost < CAMERA_MAX_SPEED_BOOST)
+					if (m_speedBoost < EditorSpeedBoostMax)
 					{
 						if (m_speedBoost <= 0.1f)
 						{
@@ -149,9 +143,9 @@ namespace S2DE::GameObjects::Components
 					}
 				}
 
-				if (Core::Engine::GetInputManager()->IsMouseWheelTurnsBackward())
+				if (inputManager->IsMouseWheelTurnsBackward())
 				{
-					if (m_speedBoost > CAMERA_MIN_SPEED_BOOST)
+					if (m_speedBoost > EditorSpeedBoostMin)
 					{
 						if (m_speedBoost <= 0.1f)
 						{
@@ -167,61 +161,61 @@ namespace S2DE::GameObjects::Components
 			}
 			else
 			{
-				transform->SetRotation_Z(transform->GetRotation().z + Core::Engine::GetInputManager()->GetMousePositionRelative().x * m_sensitivity * delta);
-				transform->SetRotation_Y(transform->GetRotation().y + Core::Engine::GetInputManager()->GetMousePositionRelative().y * m_sensitivity * delta);
+				transform->SetRotationZ(transform->GetRotation().z + inputManager->GetMousePositionRelative().x * m_sensitivity * delta);
+				transform->SetRotationY(transform->GetRotation().y + inputManager->GetMousePositionRelative().y * m_sensitivity * delta);
 			}
 
 			
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_W))
 			{
 				position += m_speed * m_speedBoost * delta * m_forward;
 				transform->SetPosition(position);
 			}
 
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_S))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_S))
 			{
 				position -= m_speed * m_speedBoost * delta * m_forward;
 				transform->SetPosition(position);
 			}
 
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_D))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_D))
 			{
 				position += m_speed * m_speedBoost * delta * m_right;
 				transform->SetPosition(position);
 			}
 
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_A))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_A))
 			{
 				position -= m_speed * m_speedBoost * delta * m_right;
 				transform->SetPosition(position);
 			}
 
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_SPACE))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_SPACE))
 			{
 				Fly(1.0f, delta);
 			}
 
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_C))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_C))
 			{
 				Fly(-1.0f, delta);
 			}
 
 			break;
-		case Camera::CameraProjectionMode::Orthographics:
+		case Camera::ProjectionMode::Orthographics:
 			if (Core::Engine::isEditor())
 			{
-				if (Core::Engine::GetInputManager()->IsMouseWheelTurnsForward())
+				if (inputManager->IsMouseWheelTurnsForward())
 				{
-					if (m_speedBoost < CAMERA_MAX_SPEED_BOOST)
+					if (m_speedBoost < EditorSpeedBoostMax)
 						if (m_speedBoost <= 0.1f)
 							m_speedBoost += 0.001f;
 						else
 							m_speedBoost += 0.1f;
 				}
 
-				if (Core::Engine::GetInputManager()->IsMouseWheelTurnsBackward())
+				if (inputManager->IsMouseWheelTurnsBackward())
 				{
-					if (m_speedBoost > CAMERA_MIN_SPEED_BOOST)
+					if (m_speedBoost > EditorSpeedBoostMin)
 						if (m_speedBoost <= 0.1f)
 							m_speedBoost -= 0.001f;
 						else
@@ -229,22 +223,22 @@ namespace S2DE::GameObjects::Components
 				}
 			}
 
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_W))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_W))
 			{
 				Fly(1.0f, delta);
 			}
 
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_S))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_S))
 			{
 				Fly(-1.0f, delta);
 			}
 
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_D))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_D))
 			{
 				Strafe(1.0f, delta);
 			}
 
-			if (Core::Engine::GetInputManager()->IsKeyDown(Core::Other::KeyCode::KEY_A))
+			if (inputManager->IsKeyDown(Core::Other::KeyCode::KEY_A))
 			{
 				Strafe(-1.0f, delta);
 			}
@@ -256,22 +250,22 @@ namespace S2DE::GameObjects::Components
 	void Camera::Strafe(float side, float delta)
 	{
 		auto transform = GetOwner()->GetTransform();
-		transform->SetPosition_X(transform->GetPosition().x + side * m_speedBoost * m_speed * delta);
+		transform->SetPositionX(transform->GetPosition().x + side * m_speedBoost * m_speed * delta);
 	}
 
 	void Camera::Fly(float side, float delta)
 	{
 		auto transform = GetOwner()->GetTransform();
-		transform->SetPosition_Y(transform->GetPosition().y + side * m_speedBoost * m_speed * delta);
+		transform->SetPositionY(transform->GetPosition().y + side * m_speedBoost * m_speed * delta);
 	}
 
 	void Camera::Walk(float side, float delta)
 	{
 		auto transform = GetOwner()->GetTransform();
-		transform->SetPosition_Z(transform->GetPosition().z + side * m_speedBoost * m_speed * delta);
+		transform->SetPositionZ(transform->GetPosition().z + side * m_speedBoost * m_speed * delta);
 	}
 
-	void Camera::SetProjectionMode(CameraProjectionMode mode)
+	void Camera::SetProjectionMode(ProjectionMode mode)
 	{
 		m_mode = mode;
 	}
@@ -297,22 +291,22 @@ namespace S2DE::GameObjects::Components
 	}
 
 
-	inline DirectX::SimpleMath::Matrix& Camera::GetViewMatrix()
+	inline Math::float4x4& Camera::GetViewMatrix()
 	{
 		return m_viewMatrix;
 	}
 
-	inline DirectX::SimpleMath::Matrix& Camera::GetProjectionMatrix()
+	inline Math::float4x4& Camera::GetProjectionMatrix()
 	{
 		return m_projectionMatrix;
 	}
 
-	inline DirectX::SimpleMath::Matrix& Camera::GetOrthoMatrix()
+	inline Math::float4x4& Camera::GetOrthoMatrix()
 	{
-		return m_ortho_Matrix;
+		return m_orthoMatrix;
 	}
 
-	inline Camera::CameraProjectionMode	Camera::GetProjectionMode() const
+	inline Camera::ProjectionMode Camera::GetProjectionMode() const
 	{
 		return m_mode;
 	}

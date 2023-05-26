@@ -10,9 +10,9 @@ namespace S2DE::GameObjects::Components::Light
 		~PointLight();
 
 	protected:
-		void		 UpdateCB() override;
-		void		 InitLight() override;
-		void		 OnRenderSelected(Render::Renderer* renderer, Transform* transform) override;
+		void UpdateCB() override;
+		void InitLight() override;
+		void OnRenderSelected(Render::Renderer* renderer, Transform* transform) override;
 
 	};
 }

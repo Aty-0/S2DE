@@ -26,23 +26,23 @@ namespace S2DE::GameObjects::Components::Editor
 
 	void EditorGrid::OnRender(Render::Renderer* renderer)
 	{
-		//Bind and update variables in const buffer
-		m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation());
+		// Bind and update variables in const buffer
+		m_shader->UpdateMainConstBuffer(renderer, GetOwner()->GetTransform()->UpdateTransformation());
 
-		//Bind shader and texture 
-		m_shader->Bind();
+		// Bind shader 
+		m_shader->Bind(renderer);
 
-		//Bind buffers
-		m_vertexBuffer->Bind();
-		m_indexBuffer->Bind();
+		// Bind buffers
+		m_vertexBuffer->Bind(renderer);
+		m_indexBuffer->Bind(renderer);
 
-		//Draw poly 
+		// Draw grid 
 		renderer->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-		//Unbind 
-		m_shader->Unbind();
-		m_vertexBuffer->Unbind();
-		m_indexBuffer->Unbind();
+		// Unbind 
+		m_shader->Unbind(renderer);
+		m_vertexBuffer->Unbind(renderer);
+		m_indexBuffer->Unbind(renderer);
 	}
 
 	void EditorGrid::CreateVertexBuffer()
@@ -60,7 +60,7 @@ namespace S2DE::GameObjects::Components::Editor
 	
 
 		Assert(m_vertexBuffer->Create(), "Failed to create vertex buffer");
-		m_vertexBuffer->Update();
+		m_vertexBuffer->Update(Render::Renderer::GetInstance());
 	}
 
 	void EditorGrid::CreateIndexBuffer()
@@ -78,11 +78,11 @@ namespace S2DE::GameObjects::Components::Editor
 			}
 		}
 		Assert(m_indexBuffer->Create(), "Failed to create vertex buffer");
-		m_indexBuffer->Update();
+		m_indexBuffer->Update(Render::Renderer::GetInstance());
 	}
 
 	void EditorGrid::SetDefaultShader()
 	{
-		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Line"));
+		m_shader = new Render::Shader(*Core::Resources::ResourceManager::GetInstance()->Get<Render::Shader>("Line"));
 	}
 }

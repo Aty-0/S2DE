@@ -21,8 +21,9 @@ namespace S2DE::GameObjects::Components
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 
-		m_shader = new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Skybox"));
-		m_texture = new Render::Texture(*Core::Engine::GetResourceManager().Get<Render::Texture>("DefaultSky"));
+		const auto resourceManager = Core::Resources::ResourceManager::GetInstance();
+		m_shader = new Render::Shader(*resourceManager->Get<Render::Shader>("Skybox"));
+		m_texture = new Render::Texture(*resourceManager->Get<Render::Texture>("DefaultSky"));
 	}
 
 	Skybox::~Skybox()
@@ -33,48 +34,43 @@ namespace S2DE::GameObjects::Components
 		Core::Delete(m_texture);
 	}
 
-	bool Skybox::LoadTextureA(std::string name, bool unload_texture, bool auto_load_texture)
-	{
-		Logger::Warning("LoadTextureA method is not usable for Skybox!");
-		return LoadTexture(name);
-	}
-
 	bool Skybox::LoadTexture(std::string name)
 	{
 		// FIXME: Release old texture!
 
 		Render::Texture* skyTexture = new Render::Texture();
-		const auto skyPath = Core::Engine::GetResourceManager().GetFilePath(name, skyTexture);
+		const auto resourceManager = Core::Resources::ResourceManager::GetInstance();
+
+		const auto skyPath = resourceManager->GetFilePath(name, skyTexture);
 		Verify(skyTexture->CreateCubeMapTexture(skyPath), "Can't create default cubemap");
-		Core::Engine::GetResourceManager().Add(skyTexture, name);
+		resourceManager->Add(skyTexture, name);
 		m_texture = skyTexture;
 		return true;
 	}
 
 	void Skybox::OnRender(Render::Renderer* renderer)
 	{	 
-		m_shader->UpdateMainConstBuffer(UpdateTransformation());
+		m_shader->UpdateMainConstBuffer(renderer, UpdateTransformation());
 
 		// Bind shader and texture 
-		m_shader->Bind();
-		m_texture->Bind();
+		m_shader->Bind(renderer);
+		m_texture->Bind(renderer);
 
 		// Bind buffers
-		m_vertexBuffer->Bind();
-		m_indexBuffer->Bind();
+		m_vertexBuffer->Bind(renderer);
+		m_indexBuffer->Bind(renderer);
 
 		// Draw poly 
 		renderer->TurnZBufferOff();
-		renderer->SetRasterizerState("nocull");
+		renderer->SetRasterizerState(Render::Api::RasterizerMode::Default);
 		renderer->DrawIndexed(m_indexBuffer->GetArray().size(), 0, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		renderer->SetRasterizerState();
 		renderer->TurnZBufferOn();
 
 		// Unbind 
-		m_shader->Unbind();
-		m_texture->Unbind();
-		m_vertexBuffer->Unbind();
-		m_indexBuffer->Unbind();
+		m_shader->Unbind(renderer);
+		m_texture->Unbind(renderer);
+		m_vertexBuffer->Unbind(renderer);
+		m_indexBuffer->Unbind(renderer);
 
 	}	 
 		 
@@ -82,76 +78,76 @@ namespace S2DE::GameObjects::Components
 	{
 		m_vertexBuffer->GetArray() =
 		{
-			//Front
-			{   DirectX::SimpleMath::Vector3(-1.0f, 1.0f,-1.0f),  DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
-			{	DirectX::SimpleMath::Vector3(1.0f, 1.0f,-1.0f),	  DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
-			{   DirectX::SimpleMath::Vector3(-1.0f, -1.0f,-1.0f), DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
-			{	DirectX::SimpleMath::Vector3(1.0f, -1.0f,-1.0f),  DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
-			//Back										  																						  
-			{	DirectX::SimpleMath::Vector3(-1.0f, 1.0f, 1.0f),  DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
-			{	DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f),   DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
-			{   DirectX::SimpleMath::Vector3(-1.0f, -1.0f, 1.0f), DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
-			{	DirectX::SimpleMath::Vector3(1.0f, -1.0f,  1.0f), DirectX::SimpleMath::Vector4(1,1,1,1), DirectX::SimpleMath::Vector2(0.0f, 0.0f) },
+			// Front
+			{   { -1.0f, 1.0f,-1.0f },  { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+			{	{ 1.0f, 1.0f,-1.0f },	{ 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+			{   { -1.0f, -1.0f,-1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+			{	{ 1.0f, -1.0f,-1.0f },  { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+			// Back										  																						  
+			{	{ -1.0f, 1.0f, 1.0f },  { 1.0f, 1.0f, 1.0f, 1.0f }, {0.0f, 0.0f} },
+			{	{ 1.0f, 1.0f, 1.0f },   { 1.0f, 1.0f, 1.0f, 1.0f }, {0.0f, 0.0f} },
+			{   { -1.0f, -1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, {0.0f, 0.0f} },
+			{	{ 1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, {0.0f, 0.0f} },
 		};
 		Assert(m_vertexBuffer->Create(), "Failed to create index buffer");
-		m_vertexBuffer->Update();
+		m_vertexBuffer->Update(Render::Renderer::GetInstance());
 	}	 
 		 
 	void Skybox::CreateIndexBuffer()
 	{	 
 		m_indexBuffer->GetArray() =
 		{
-			//Front
+			// Front
 			0, 1, 2,
 			2, 1, 3,
 
-			//Back
+			// Back
 			5, 4, 7,
 			7, 4, 6,
 
-			//Right
+			// Right
 			1, 5, 3,
 			3, 5, 7,
 
-			//Left
+			// Left
 			4, 0, 6,
 			6, 0, 2,
 
-			//Top
+			// Top
 			4, 5, 0,
 			0, 5, 1,
 
-			//Bottom
+			// Bottom
 			2, 3, 6,
 			6, 3, 7,
 		};
 
 		Assert(m_indexBuffer->Create(), "Failed to create index buffer");
-		m_indexBuffer->Update();
+		m_indexBuffer->Update(Render::Renderer::GetInstance());
 	}
 	 
 
-	inline DirectX::SimpleMath::Matrix Skybox::UpdateTransformation()
+	inline Math::float4x4 Skybox::UpdateTransformation()
 	{
-		const auto transform = GetOwner()->GetTransform();
-
+		const static auto transform = GetOwner()->GetTransform();
 		auto wMatrix = transform->GetWorldMatrix();
-		auto camera = Scene::GetObjectByName<GameObject>(S2DE_MAIN_CAMERA_NAME)->GetComponent<Camera>();
-		auto camPosition = DirectX::SimpleMath::Vector3(1, 1, 1);
+		auto camPosition = Math::float3(1, 1, 1);
 
+		const static auto camera = Scene::GetObjectByName<GameObject>(Camera::EngineCameraName)->GetComponent<Camera>();
 		if (camera != nullptr)
 		{
 			camPosition = camera->GetOwner()->GetTransform()->GetPosition();
 		}
 
 		wMatrix = DirectX::XMMatrixTransformation(
-			//Scale
-			//Center | Rotation | Scaling
-			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3(20, 20, 20),
-			//Rotation
-			//Center | Quatarnion
-			DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::Zero,
-			//Translation
+			// Scale
+			// Center | Rotation | Scaling
+			Math::float3::Zero, Math::float3::Zero,
+			Math::float3(20, 20, 20), // FIXME: magic size 
+			// Rotation
+			// Center | Quatarnion
+			Math::float3::Zero, Math::float3::Zero,
+			// Translation
 			camPosition);
 
 		wMatrix.Transpose(wMatrix);

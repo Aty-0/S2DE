@@ -10,7 +10,7 @@ namespace S2DE::Editor
 	public:
 		EditorToolStrip();
 		~EditorToolStrip();
-		void Render() override;
+		void Render(Render::Renderer* renderer) override;
 	private:
 		EditorObjectInspector* m_inspector;
 

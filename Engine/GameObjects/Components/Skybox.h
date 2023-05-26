@@ -21,16 +21,15 @@ namespace S2DE::GameObjects::Components
 		Skybox();
 		~Skybox();
 
-		bool			LoadTexture(std::string name) override;
-		bool			LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = false) override;
+		bool LoadTexture(std::string name) override;
 
 	protected:
-		void			OnRender(Render::Renderer* renderer) override;
-		void			CreateVertexBuffer();
-		void			CreateIndexBuffer();
+		void OnRender(Render::Renderer* renderer) override;
+		void CreateVertexBuffer();
+		void CreateIndexBuffer();
 
 
-		[[nodiscard]] inline DirectX::SimpleMath::Matrix	UpdateTransformation();
+		[[nodiscard]] inline Math::float4x4	UpdateTransformation();
 
 	private:
 		Render::Texture*						m_texture;

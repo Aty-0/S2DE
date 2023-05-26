@@ -50,7 +50,7 @@ namespace S2DE::Render
 
 		if (format == "fbx")
 		{
-			if (!FBX_Importer::Importer.Import(path, this))
+			if (!FBX_Importer::GetInstance()->Import(path, this))
 			{
 				return false;
 			}

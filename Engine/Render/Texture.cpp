@@ -46,12 +46,14 @@ namespace S2DE::Render
 
 	bool Texture::SetSamplerState(D3D11_SAMPLER_DESC const& samplerDesc)
 	{
-		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&samplerDesc, &m_textureSamplerState), "Can't create sampler state");
+		static const auto renderer = Render::Renderer::GetInstance();
+		Verify_HR(renderer->GetDevice()->CreateSamplerState(&samplerDesc, &m_textureSamplerState), "Can't create sampler state");
 		return true;
 	}
 
 	bool Texture::CreateDefaultSamplerState()
 	{
+		static const auto renderer = Render::Renderer::GetInstance();
 		D3D11_SAMPLER_DESC sampler_desc = { };
 		sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -67,12 +69,13 @@ namespace S2DE::Render
 		sampler_desc.BorderColor[2] = 0;
 		sampler_desc.BorderColor[3] = 0;
 
-		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
+		Verify_HR(renderer->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
 		return true;
 	}
 
 	bool Texture::Load(std::string name)
 	{
+		static const auto renderer = Render::Renderer::GetInstance();
 		const auto paths = FindPath({ name });
 		if (m_notLoaded == true)
 		{
@@ -86,24 +89,24 @@ namespace S2DE::Render
 		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
-			hr = DirectX::CreateDDSTextureFromFileEx(Core::Engine::GetRenderer()->GetDevice(), Core::Utils::StringToWString(path).c_str(), 
+			hr = DirectX::CreateDDSTextureFromFileEx(renderer->GetDevice(), Core::Utils::StringToWString(path).c_str(),
 				0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, false, &m_resource, &m_resourceView);
 
 			if (FAILED(hr))
 			{
-				Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
+				Core::Utils::Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Core::Utils::Logger::GetHRCodeDetails(hr).c_str());
 				return false;
 			}
 		}
 		else
 		{
-			hr = DirectX::CreateWICTextureFromFileEx(Core::Engine::GetRenderer()->GetDevice(), 
+			hr = DirectX::CreateWICTextureFromFileEx(renderer->GetDevice(),
 				Core::Utils::StringToWString(path).c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0,
 				DirectX::WIC_LOADER_FLAGS::WIC_LOADER_IGNORE_SRGB, &m_resource, &m_resourceView);
 
 			if (FAILED(hr))
 			{
-				Logger::Error("Can't create texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
+				Core::Utils::Logger::Error("Can't create texture from file Path:%s Details:%s", path.c_str(), Core::Utils::Logger::GetHRCodeDetails(hr).c_str());
 				return false;
 			}
 		}
@@ -118,10 +121,11 @@ namespace S2DE::Render
 
 	bool Texture::CreateCubeMapTexture(std::string path)
 	{
+		static const auto renderer = Render::Renderer::GetInstance();
 		// If path is empty 
 		if (Core::Utils::isStringEmpty(path))
 		{
-			Logger::Error("Path string is empty, can't load texture!");
+			Core::Utils::Logger::Error("Path string is empty, can't load texture!");
 			CreateEmptyTexture(Math::Color<std::uint32_t>(255, 0, 0, 255));
 			return false;
 		}
@@ -132,19 +136,19 @@ namespace S2DE::Render
 		std::int64_t pos = path.find(".dds");
 		if (pos != std::string::npos)
 		{
-			hr = DirectX::CreateDDSTextureFromFileEx(Core::Engine::GetRenderer()->GetDevice(), Core::Utils::StringToWString(path).c_str(),
+			hr = DirectX::CreateDDSTextureFromFileEx(renderer->GetDevice(), Core::Utils::StringToWString(path).c_str(),
 				0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE,
 				false, &m_resource, &m_resourceView);
 
 			if (FAILED(hr))
 			{
-				Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Logger::GetHRCodeDetails(hr).c_str());
+				Core::Utils::Logger::Error("Can't create dds texture from file Path:%s Details:%s", path.c_str(), Core::Utils::Logger::GetHRCodeDetails(hr).c_str());
 				return false;
 			}
 		}
 		else
 		{
-			Logger::Error("Can't create cube map for this extension, supported only dds! Path:%s", path.c_str());
+			Core::Utils::Logger::Error("Can't create cube map for this extension, supported only dds! Path:%s", path.c_str());
 			CreateEmptyTexture(Math::Color<std::uint32_t>(255, 0, 0, 255));
 			return false;
 		}
@@ -155,6 +159,7 @@ namespace S2DE::Render
 
 	bool Texture::CreateFontTexture(std::int32_t w, std::int32_t h, std::uint8_t* data)
 	{
+		static const auto renderer = Render::Renderer::GetInstance();
 		D3D11_SUBRESOURCE_DATA initData = { };
 
 		initData.pSysMem = (void*)data;
@@ -174,7 +179,7 @@ namespace S2DE::Render
 		texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
 		ID3D11Texture2D* texture = nullptr;
-		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateTexture2D(&texture_desc, &initData, &texture), "Can't create font texture");
+		Verify_HR(renderer->GetDevice()->CreateTexture2D(&texture_desc, &initData, &texture), "Can't create font texture");
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC shader_desc = { };
 
@@ -182,7 +187,7 @@ namespace S2DE::Render
 		shader_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		shader_desc.Texture2D.MipLevels = 1;
 
-		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for font texture");
+		Verify_HR(renderer->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for font texture");
 
 		UpdateTextureDesc();
 		//CreateDefaultSamplerState();
@@ -196,12 +201,13 @@ namespace S2DE::Render
 		sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 		sampler_desc.MinLOD = 0.f;
 		sampler_desc.MaxLOD = 0.f;
-		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
+		Verify_HR(renderer->GetDevice()->CreateSamplerState(&sampler_desc, &m_textureSamplerState), "Can't create sampler state");
 		return true;
 	}
 
 	bool Texture::CreateEmptyTexture(Math::Color<std::uint32_t> color)
 	{
+		static const auto renderer = Render::Renderer::GetInstance();
 		const std::uint32_t pixel = color.r | (color.g << 8) | (color.b << 16) | (color.a << 24); 
 		D3D11_SUBRESOURCE_DATA initData = { &pixel, sizeof(uint32_t), 0 };
 		D3D11_TEXTURE2D_DESC texture_desc = { };
@@ -216,7 +222,7 @@ namespace S2DE::Render
 		texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
 		ID3D11Texture2D* texture = nullptr;
-		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateTexture2D(&texture_desc, &initData, &texture), "Can't create empty texture");
+		Verify_HR(renderer->GetDevice()->CreateTexture2D(&texture_desc, &initData, &texture), "Can't create empty texture");
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC shader_desc = { };
 
@@ -224,30 +230,30 @@ namespace S2DE::Render
 		shader_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		shader_desc.Texture2D.MipLevels = 1;
 
-		Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for empty texture");
+		Verify_HR(renderer->GetDevice()->CreateShaderResourceView(texture, &shader_desc, &m_resourceView), "Can't create shader resource for empty texture");
 
 		UpdateTextureDesc();
 		CreateDefaultSamplerState();
 		return true;
 	}
 
-	void Texture::Unbind(std::uint32_t startSlot, std::uint32_t numViews)
+	void Texture::Unbind(Renderer* renderer, std::uint32_t startSlot, std::uint32_t numViews)
 	{
 		ID3D11ShaderResourceView* nullSRV = { nullptr };
 
-		Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(startSlot, numViews, &nullSRV);
-		//Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(startSlot, numViews, nullptr);
+		renderer->GetContext()->PSSetShaderResources(startSlot, numViews, &nullSRV);
+		//renderer->GetContext()->PSSetSamplers(startSlot, numViews, nullptr);
 	}
 
-	void Texture::Bind(std::uint32_t startSlot, std::uint32_t numViews)
+	void Texture::Bind(Renderer* renderer, std::uint32_t startSlot, std::uint32_t numViews)
 	{
 		if (m_resourceView != nullptr)
 		{
-			Core::Engine::GetRenderer()->GetContext()->PSSetShaderResources(startSlot, numViews, &m_resourceView);
+			renderer->GetContext()->PSSetShaderResources(startSlot, numViews, &m_resourceView);
 
 			if (m_textureSamplerState != nullptr)
 			{
-				Core::Engine::GetRenderer()->GetContext()->PSSetSamplers(startSlot, numViews, &m_textureSamplerState);
+				renderer->GetContext()->PSSetSamplers(startSlot, numViews, &m_textureSamplerState);
 			}
 		}
 

@@ -14,33 +14,36 @@ namespace S2DE::Scene
 
 	}
 
-	// FIX ME: Reducing perfomance
-	void Scene::CheckNameOnExist(std::string& name)
-	{
-		std::uint32_t count = 0;
-		std::string new_name = std::string();
+	// FIX ME:  Reducing perfomance
+	//			Need to make better algorithm, currently it is very bad way to do this.
 
+	std::string Scene::MakeNameUnique(std::string name)
+	{
+		auto newName = std::string();
+
+		// How much objects we found with the same name
+		auto count = 0;
+
+		SceneObjectStorage::iterator it = { };
 		while (true)
 		{
-			//If count == 0 then we set the name of the original 
-			//if we found object we set name with count
-			count != 0 ? new_name = name + std::to_string(count) : new_name = name;
-			SceneObjectStorage::iterator it = std::find_if(
+			count != 0 ? newName = name + std::to_string(count) : newName = name;
+			it = std::find_if(
 				m_storage.begin(), m_storage.end(),
-				[&new_name](std::pair<std::pair<std::string, boost::uuids::uuid>,
+				[&newName](std::pair<std::pair<std::string, boost::uuids::uuid>,
 					std::shared_ptr<GameObjects::GameObject>> const& elem) {
-						return elem.first.first == new_name;
+						return elem.first.first == newName;
 				});
 
-			//if we not found object
 			if (it == m_storage.end())
 			{
-				name = new_name;
 				break;
 			}
 
 			count++;
 		}
+
+		return newName;
 	}
 
 	void Scene::Rename(std::string object_name, std::string new_object_name)
@@ -65,13 +68,13 @@ namespace S2DE::Scene
 		
 		if (it == m_storage.end() || it->second->GetPrefix() == -1 || it->second->GetType() == S2DE_ENGINE_GAMEOBJECT_TYPE)
 		{
-			Logger::Error("[Scene] [%s] Can't delete object Name: %s",
+			Core::Utils::Logger::Error("[Scene] [%s] Can't delete object Name: %s",
 				m_name.c_str(), 
 				object_name.c_str());
 			return;
 		}
 		
-		Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Delete [%s] Name: %s UUID: %s",
+		Core::Utils::Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Delete [%s] Name: %s UUID: %s",
 			m_name.c_str(), 
 			Core::Utils::GetClassNameInString(it->second.get()).c_str(),
 			it->second.get()->GetName().c_str(), 
@@ -92,13 +95,13 @@ namespace S2DE::Scene
 
 		if (it == m_storage.end() || it->second->GetPrefix() == -1 || it->second->GetType() == S2DE_ENGINE_GAMEOBJECT_TYPE)
 		{
-			Logger::Error("[Scene] [%s] Can't delete object UUID: %s", 
+			Core::Utils::Logger::Error("[Scene] [%s] Can't delete object UUID: %s",
 				m_name.c_str(), 
 				Core::Utils::UUID::ConvertUUIDToString(object_id).c_str());
 			return;
 		}
 
-		Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Delete [%s] Name: %s UUID: %s",
+		Core::Utils::Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Delete [%s] Name: %s UUID: %s",
 			m_name.c_str(), 
 			Core::Utils::GetClassNameInString(it->second.get()).c_str(),
 			it->second.get()->GetName().c_str(),
@@ -119,13 +122,13 @@ namespace S2DE::Scene
 
 	void Scene::Clear()
 	{
-		Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Try to clear scene...", m_name.c_str());
+		Core::Utils::Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Try to clear scene...", m_name.c_str());
 
 		for (SceneObjectStorage::iterator it = m_storage.begin(); it != m_storage.end();)
 		{
 			if (it->second->GetPrefix() != -1 || it->second->GetType() != S2DE_ENGINE_GAMEOBJECT_TYPE)
 			{
-				Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Delete [%s] Name: %s UUID: %s",
+				Core::Utils::Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Delete [%s] Name: %s UUID: %s",
 					m_name.c_str(), 
 					Core::Utils::GetClassNameInString(it->second.get()).c_str(),
 					it->second.get()->GetName().c_str(),
@@ -142,7 +145,7 @@ namespace S2DE::Scene
 
 	void Scene::Destroy()
 	{
-		Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Destroy ", m_name.c_str());
+		Core::Utils::Logger::LogColored(DirectX::SimpleMath::Color(0.7f, 0.4f, 0.8f, 1.0f), "[Scene] [%s] Destroy ", m_name.c_str());
 		m_storage.erase(m_storage.begin(), m_storage.end());
 		m_storage.shrink_to_fit();
 	}

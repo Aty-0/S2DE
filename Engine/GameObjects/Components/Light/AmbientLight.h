@@ -12,8 +12,8 @@ namespace S2DE::GameObjects::Components::Light
 		~AmbientLight();
 
 	protected:
-		void		 UpdateCB() override;
-		void		 InitLight() override;
-		void		 OnRenderSelected(Render::Renderer* renderer, Transform* transform) override;
+		void UpdateCB() override;
+		void InitLight() override;
+		void OnRenderSelected(Render::Renderer* renderer, Transform* transform) override;
 	};
 }

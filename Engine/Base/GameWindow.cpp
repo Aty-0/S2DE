@@ -8,7 +8,10 @@
 
 namespace S2DE::Core
 {
-	GameWindow::GameWindow() 
+	GameWindow::GameWindow() : 
+		m_cursorVisible(false), 
+		m_window(nullptr),
+		m_event()
 	{
 
 	}
@@ -21,17 +24,17 @@ namespace S2DE::Core
 
 	bool GameWindow::Create(std::string name, std::uint32_t w, std::uint32_t h, std::int32_t x, std::int32_t y, SDL_WindowFlags flags)
 	{
-		Logger::Log("[SDL] Create game window...");
+		Utils::Logger::Log("Create game window...");
 		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		{
-			Logger::Error("[SDL] Error Desc: %s", SDL_GetError());
-			S2DE_FATAL_ERROR("[SDL] Can't initilize video!");
+			Utils::Logger::Error("Error Desc: %s", SDL_GetError());
+			S2DE_FATAL_ERROR("Can't initilize video!");
 			return false;
 		}
 
 		SDL_version ver = { };
 		SDL_GetVersion(&ver);
-		Logger::Log("[SDL] SDL Version %d.%d.%d", ver.major, ver.minor, ver.patch);
+		Utils::Logger::Log("SDL Version %d.%d.%d", ver.major, ver.minor, ver.patch);
 
 		std::string str = std::string();
 
@@ -57,8 +60,8 @@ namespace S2DE::Core
 
 		if (m_window == nullptr)
 		{
-			Logger::Error("[SDL] Error Desc: %s", SDL_GetError());
-			S2DE_FATAL_ERROR("[SDL] Can't initilize window!");
+			Utils::Logger::Error("Error Desc: %s", SDL_GetError());
+			S2DE_FATAL_ERROR("Can't initilize window!");
 			return false;
 		}
 		
@@ -70,25 +73,32 @@ namespace S2DE::Core
 		switch (event.window.event)
 		{		
 			case SDL_WindowEventID::SDL_WINDOWEVENT_DISPLAY_CHANGED: // It's needed ?
-			case SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED:
+			case SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED:				
 			case SDL_WindowEventID::SDL_WINDOWEVENT_SIZE_CHANGED:
 			case SDL_WindowEventID::SDL_WINDOWEVENT_MAXIMIZED:
-				Core::Engine::GetRenderer()->Reset();
+				const static auto renderer = Render::Renderer::GetInstance();
+				renderer->Reset();
 				if (Engine::isEditor() == false)
 				{
-					Core::Engine::GetRenderer()->UpdateViewport();
+					renderer->UpdateViewport();
 				}
+
+				onWindowResized.RunAllCallbacks();
 				break;			
 		}
 	}
 
 	bool GameWindow::PoolEvents()
 	{
-		Core::Engine::GetInputManager()->Update();
+		const static auto inputManager = Core::InputManager::GetInstance();
+		inputManager->Update();
 
 		while (SDL_PollEvent(&m_event) != 0)
 		{
 			ImGui_ImplSDL2_ProcessEvent(&m_event);
+
+			// TODO: It's not all control events, we need to support more events
+			//		 for example it's joystick events
 
 			switch (m_event.type)
 			{		
@@ -96,37 +106,35 @@ namespace S2DE::Core
 				case SDL_EventType::SDL_WINDOWEVENT:
 					ParseWindowEvents(m_event);
 					break;
-				// TODO: It's not all control events 
-				// TODO: joystick support
 				// Call event update when we are get the control type event
 				case SDL_EventType::SDL_TEXTINPUT:
 					break;
 				case SDL_EventType::SDL_MOUSEWHEEL:
-					Core::Engine::GetInputManager()->_MWheelUpdate(m_event);
+					inputManager->_MWheelUpdate(m_event);
 					break;
 				case SDL_EventType::SDL_MOUSEMOTION:
-					Core::Engine::GetInputManager()->_MMotionUpdate(m_event);
+					inputManager->_MMotionUpdate(m_event);
 					break;
 				case SDL_EventType::SDL_MOUSEBUTTONDOWN:
 					// Process the all keys on mouseDown array
-					Core::Engine::GetInputManager()->_MKeyDownArrayStateUpdate(m_event);
+					inputManager->_MKeyDownArrayStateUpdate(m_event);
 					break;
 				case SDL_EventType::SDL_MOUSEBUTTONUP:
 					// Process the all keys on mouseUp array
-					Core::Engine::GetInputManager()->_MKeyUpArrayStateUpdate(m_event);
+					inputManager->_MKeyUpArrayStateUpdate(m_event);
 					break;					
 				case SDL_EventType::SDL_KEYDOWN:
 					// Process the all keys on keyDown array
-					Core::Engine::GetInputManager()->_KKeyDownArrayStateUpdate(m_event);
+					inputManager->_KKeyDownArrayStateUpdate(m_event);
 					break;
 				case SDL_EventType::SDL_KEYUP:
 					// Process the all keys on keyUp array
-					Core::Engine::GetInputManager()->_KKeyUpArrayStateUpdate(m_event);
+					inputManager->_KKeyUpArrayStateUpdate(m_event);
 					break;
 
-				// Application close
+				// Window close
 				case SDL_EventType::SDL_QUIT:
-					return false;
+					return false; // will stop main loop 
 			}
 		}
 		return true;
@@ -171,16 +179,17 @@ namespace S2DE::Core
 			SDL_SetWindowSize(m_window, displayMode.w, displayMode.h);
 		}
 
-		std::uint32_t flags = fullscreen == true ? SDL_WINDOW_FULLSCREEN : false;
+		const auto flags = fullscreen == true ? SDL_WINDOW_FULLSCREEN : 0;
 		SDL_SetWindowFullscreen(m_window, flags);
 
-		Core::Engine::GetRenderer()->Reset();
-		Core::Engine::GetRenderer()->UpdateViewport();
+		const static auto renderer = Render::Renderer::GetInstance();
+		renderer->Reset();
+		renderer->UpdateViewport();
 	}
 
 	void GameWindow::SetMouseVisible(bool visible)
 	{
-		if (m_cursorVisible != visible) // Don't call any function if we are have same parameter state 
+		if (m_cursorVisible != visible) // Do not continue if we are have same parameter state 
 		{
 			m_cursorVisible = visible;
 			SDL_ShowCursor(m_cursorVisible);
@@ -193,7 +202,7 @@ namespace S2DE::Core
 
 	void GameWindow::Destroy()
 	{
-		Logger::Log("[SDL] Destroy game window...");
+		Utils::Logger::Log("Destroy game window...");
 		SDL_DestroyWindow(m_window);
 		SDL_Quit();
 	}
@@ -227,7 +236,8 @@ namespace S2DE::Core
 	{
 		if (Engine::isEditor())
 		{
-			const auto renderWindow = Engine::GetRenderer()->GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
+			const static auto renderer = Render::Renderer::GetInstance();
+			const static auto renderWindow = renderer->GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
 			if (renderWindow != nullptr)
 			{
 				return static_cast<std::int32_t>(renderWindow->GetWindowWidth());
@@ -241,7 +251,8 @@ namespace S2DE::Core
 	{
 		if (Engine::isEditor())
 		{
-			const auto renderWindow = Engine::GetRenderer()->GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
+			const static auto renderer = Render::Renderer::GetInstance();
+			const auto renderWindow = renderer->GetImGui_Window<Editor::EditorRenderWindow*>("EditorRenderWindow");
 			if (renderWindow != nullptr)
 			{
 				return static_cast<std::int32_t>(renderWindow->GetWindowHeight());
@@ -263,7 +274,7 @@ namespace S2DE::Core
 
 	bool GameWindow::isFullscreen() const 
 	{ 
-		std::uint32_t flags = SDL_GetWindowFlags(m_window); 
+		const auto flags = SDL_GetWindowFlags(m_window);
 		return (flags & SDL_WindowFlags::SDL_WINDOW_FULLSCREEN) || (flags & SDL_WindowFlags::SDL_WINDOW_FULLSCREEN_DESKTOP); 
 	}
 
@@ -274,11 +285,11 @@ namespace S2DE::Core
 
 	bool GameWindow::isActive() const 
 	{ 
-		std::uint32_t flags = SDL_GetWindowFlags(m_window); 
+		const auto flags = SDL_GetWindowFlags(m_window); 
 		return (flags & SDL_WindowFlags::SDL_WINDOW_INPUT_FOCUS) || (flags & SDL_WindowFlags::SDL_WINDOW_MOUSE_FOCUS); 
 	}
 	
-	HINSTANCE GameWindow::GetInstance() 
+	HINSTANCE GameWindow::GetHInstance() 
 	{ 
 		return GetModuleHandle(NULL); 
 	}

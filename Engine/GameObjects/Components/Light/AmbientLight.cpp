@@ -29,14 +29,15 @@ namespace S2DE::GameObjects::Components::Light
 
 	void AmbientLight::UpdateCB()
 	{	
-		Render::LightGlobals::LightConstantBuffer->Lock();
+		static const auto lightGlobals = Render::LightGlobals::GetInstance();
+		static const auto renderer = Render::Renderer::GetInstance();
 
-		Render::LightGlobals::LightConstantBuffer->GetData()->ambient_light.strength = m_strength;
-		Render::LightGlobals::LightConstantBuffer->GetData()->ambient_light.color = DirectX::SimpleMath::Vector4(m_color.r, m_color.g, m_color.b, 1);
-		Render::LightGlobals::LightConstantBuffer->Unlock();
+		lightGlobals->Begin(renderer);
+		const auto buffer = lightGlobals->GetLightConstantBuffer();
 
-		Render::LightGlobals::LightConstantBuffer->Bind(1);
-		Render::LightGlobals::LightConstantBuffer->Unbind();
-
+		buffer->GetData()->ambient_light.strength = m_strength;
+		buffer->GetData()->ambient_light.color = Math::float4(m_color.r, m_color.g, m_color.b, 1);
+		
+		lightGlobals->End(renderer);
 	}
 }

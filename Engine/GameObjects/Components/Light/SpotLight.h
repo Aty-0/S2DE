@@ -10,8 +10,8 @@ namespace S2DE::GameObjects::Components::Light
 		~SpotLight();
 
 	protected:
-		void		 UpdateCB() override;
-		void		 InitLight() override;
+		void UpdateCB() override;
+		void InitLight() override;
 
 	private:
 		float m_spot;

@@ -1,5 +1,5 @@
 #include "EditorColorPicker.h"
-
+#include "Render/Renderer.h"
 
 namespace S2DE::Editor
 {
@@ -26,7 +26,7 @@ namespace S2DE::Editor
 		color = m_color;
 	}
 
-	void EditorColorPicker::Render()
+	void EditorColorPicker::Render(Render::Renderer* renderer)
 	{
 		if (!m_draw)
 			return;

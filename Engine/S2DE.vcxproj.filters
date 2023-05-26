@@ -237,7 +237,7 @@
     <ClInclude Include="Base\Utils\SerializeUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Base\Utils\CallbackWrapper.h">
+    <ClInclude Include="Base\Utils\Callback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObjects\Components\Light\SpotLight.h">
@@ -259,6 +259,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libs\stb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\Utils\Singleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\RenderCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\RenderCommon_inline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Base\GameObject_inline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\ResourceManager_inline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\Utils\Callback_inline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -206,7 +206,7 @@ namespace S2DE::GameObjects
 	{
 		if (!Core::Engine::isEditor())
 		{
-			Logger::Warning("!!! You trying to get sprite icon in game mode, in game mode icon is not created!");
+			Core::Utils::Logger::Warning("!!! You trying to get sprite icon in game mode, in game mode icon is not created!");
 		}
 
 		return m_objectIconSprite;

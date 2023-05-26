@@ -15,7 +15,7 @@ namespace S2DE::Editor
 		void		 SetColorRawFormat(const float* color);
 		void		 SetColor(Math::Color<float>& color);
 
-		void Render() override;
+		void Render(Render::Renderer* renderer) override;
 
 	private:
 		Math::Color <float>	 m_color;

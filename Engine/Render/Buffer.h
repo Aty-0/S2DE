@@ -14,11 +14,13 @@ namespace S2DE::Render
 		}
 		virtual ~Buffer() { }
 		virtual bool				  Create(D3D11_USAGE buffer_usage = D3D11_USAGE_DEFAULT) = 0;
-		virtual bool				  Lock() = 0;
-		virtual void				  Unlock() = 0;
-		virtual void				  Update() { Lock(); Unlock(); }
-		virtual void				  Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1) = 0;
-		virtual void				  Unbind() = 0;
+
+		virtual bool				  Lock(Render::Renderer* renderer) = 0;
+		virtual void				  Unlock(Render::Renderer* renderer) = 0;
+		virtual void				  Update(Render::Renderer* renderer) { Lock(renderer); Unlock(renderer); }
+		virtual void				  Bind(Render::Renderer* renderer, std::int32_t startSlot = 0, std::int32_t num_buffers = 1) = 0;
+		virtual void				  Unbind(Render::Renderer* renderer) = 0;
+
 		[[nodiscard]] virtual ID3D11Buffer*& GetBuffer() { return m_buffer; }
 
 		[[nodiscard]] virtual D3D11_BUFFER_DESC GetBufferDesc()

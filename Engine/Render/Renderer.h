@@ -1,12 +1,5 @@
 #pragma once
-#include "Base/Main/Common.h"
-#include "Math/Color.h"
-
-#include "Libs/imgui/imgui.h"
-#include "Libs/imgui/imgui_impl_sdl.h"
-#include "Libs/imgui/imgui_impl_dx11.h"
-
-#include "atlbase.h"
+#include "Render/RenderCommon.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -25,27 +18,7 @@ namespace S2DE
 
 namespace S2DE::Render
 {
-	enum class RenderFillMode : std::int32_t
-	{
-		Solid = D3D11_FILL_MODE::D3D11_FILL_SOLID,
-		Wireframe = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME,
-	};
-
-	static D3D11_RASTERIZER_DESC defaultRasterDesc =
-	{
-		/* FillMode 				*/	static_cast<D3D11_FILL_MODE>(RenderFillMode::Solid),
-		/* CullMode 				*/	D3D11_CULL_BACK,
-		/* FrontCounterClockwise  */	false,
-		/* DepthBias 				*/	0,
-		/* DepthBiasClamp 		*/		0.0f,
-		/* SlopeScaledDepthBias 	*/	0.0f,
-		/* DepthClipEnable 			*/	true,
-		/* ScissorEnable 			*/	false,
-		/* MultisampleEnable 		*/	false,
-		/* AntialiasedLineEnable	*/	true,
-	};
-
-	class S2DE_API Renderer
+	class S2DE_API Renderer : public Core::Utils::Singleton<Renderer>
 	{
 	public:
 		Renderer();
@@ -59,8 +32,6 @@ namespace S2DE::Render
 		void								Destroy();
 		// Update render and presents a rendered image
 		void								Render();
-		// Set new fill mode
-		void								SwitchFillMode(RenderFillMode mode);
 		// Set new back color
 		void								SetBackColor(Math::Color<float> color);
 		// Set disabled depth state 
@@ -77,14 +48,10 @@ namespace S2DE::Render
 		void								ToggleImGuiDemoWindowVisible();
 
 		void								SetVsync(bool vsync);
+
 		// Set rasterize state by name
-		void								SetRasterizerState(std::string name = "default");
-		// Set rasterize state by rasterizer state pointer
-		void								SetRasterizerState(ID3D11RasterizerState* raster);
-
-		// Get rasterize state by name from rasterizerVariants storage
-		[[nodiscard]] inline ID3D11RasterizerState*		GetRasterizerState(std::string name);
-
+		void								SetRasterizerState(Api::RasterizerMode mode);
+		
 		[[nodiscard]] inline ID3D11Device* GetDevice();
 		[[nodiscard]] inline ID3D11DeviceContext* GetContext();
 		[[nodiscard]] inline IDXGISwapChain* GetSwapChain();
@@ -124,7 +91,7 @@ namespace S2DE::Render
 		// Presents a rendered image to the user.
 		void								End();
 		// Create rasterizer
-		bool								CreateRasterizerState(D3D11_RASTERIZER_DESC desc = defaultRasterDesc, std::string name = "default");
+		bool								CreateRasterizerStates();
 		// Create blend state
 		bool								CreateBlendState();
 		// Create framebuffer texture by back buffer
@@ -132,43 +99,76 @@ namespace S2DE::Render
 		// Update framebuffer
 		void								UpdateFramebufferShaderResource();
 		// Create debug layer if we are in debug build and added special macro S2DE_DEBUG_RENDER_MODE
-		void								CreateDebugLayer();
+		bool								CreateDebugLayer();
 		// Capture messages from debug layer and print it to logger
 		bool								CaptureMessages();
 		// Create engine window and editor ui if it's we are have editor flag
 		void								CreateEngineWindowsAndEditorUI();
 
-		D3D11_VIEWPORT				m_viewport;
-		ID3D11Texture2D*			m_frameBufferData;
-		ID3D11ShaderResourceView*	m_frameBufferShaderResourceView;
-		ID3D11RenderTargetView*		m_frameRenderTarget;
 
+		struct Framebuffer
+		{
+			ID3D11Texture2D*			BufferData;
+			ID3D11ShaderResourceView*	BufferSRV;
+			ID3D11RenderTargetView*		RenderTarget;
+		};
 
-		IDXGISwapChain*				m_swapChain;
-		ID3D11Device*				m_device;
-		ID3D11DeviceContext*		m_context;
-		ID3D11RenderTargetView*		m_targetView;
-		ID3D11Texture2D*			m_backBuffer;
-		ID3D11Texture2D*			m_depthStencilBuffer;
-		ID3D11DepthStencilView*		m_depthStencilView;
-		ID3D11DepthStencilState*	m_depthStateEnabled;
-		ID3D11DepthStencilState*	m_depthStateDisabled;
+		Framebuffer	m_framebuffer;
 
-		bool						m_vsync;
-		std::uint32_t				m_deviceFlags;
-		Math::Color<float>			m_clearColor;
-		RenderFillMode				m_fillMode;
+		struct Base
+		{
+			IDXGISwapChain*				SwapChain;
+			ID3D11Device*				Device;
+			ID3D11DeviceContext*		Context;
+			ID3D11RenderTargetView*		RenderTarget;
+			D3D11_VIEWPORT				Viewport;
+			
+			std::uint32_t				DeviceFlags;
 
-		ID3D11Debug*				m_d3dDebug;
-		ID3D11InfoQueue*			m_d3dInfoQueue;
-	
-		std::vector<std::pair<std::string, CComPtr<ID3D11RasterizerState>>> m_rasterizerVariants;
+			std::map<Api::RasterizerMode, CComPtr<ID3D11RasterizerState>> Rasterizer;
+		};
 
-		ID3D11BlendState*			m_blendStateOn; // TODO: Many modes, and use not like this
-		ID3D11BlendState*			m_blendStateOff; 
+		Base m_base;
 
-		bool						m_showImguiWindows;
-		bool						m_showImguiDemoWindow;
+		struct ZBuffer
+		{
+			ID3D11Texture2D*			BackBuffer;
+			ID3D11Texture2D*			DepthStencilBuffer;
+			ID3D11DepthStencilView*		DepthStencilView;
+			ID3D11DepthStencilState*	DepthState[2]; // 0 - Enabled 1 - Disabled
+		};
+
+		ZBuffer m_zBuffer;
+
+		struct Params
+		{
+			Math::Color<float>			ClearColor;
+			Api::FillMode				FillMode;
+			bool						Vsync;
+			bool						ShowImguiWindows;
+			bool						ShowImguiDemoWindow;
+		};
+
+		Params m_params;
+
+		struct Debug
+		{
+			ID3D11Debug*				DebugCore;
+			ID3D11InfoQueue*			InfoQueue;	
+		};
+
+		Debug m_debug;
+
+		struct Blend
+		{
+			// TODO: Hash by diffrent modes
+			//		 Currently we are have some custom blend mode and disabled variant 
+
+			ID3D11BlendState*			BlendState[2]; 
+		};
+
+		Blend m_blend;
+
 
 		class Editor::EditorCenterCursor*				m_editorCenterCursor;
 		class ImGui_Window*								m_editorToolStrip;
@@ -194,27 +194,19 @@ namespace S2DE::Render
 
 
 
-		void						DebugDrawLineCross(DirectX::SimpleMath::Vector3 pos,
-													DirectX::SimpleMath::Vector3 rot,
-													DirectX::SimpleMath::Vector3 scale,
-													DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
+		void						DebugDrawLineCross(Math::float3 pos, Math::float3 rot, Math::float3 scale,
+													   DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
 
-		void						DebugDrawLine(DirectX::SimpleMath::Vector3 begin,
-												  DirectX::SimpleMath::Vector3 end,
+		void						DebugDrawLine(Math::float3 begin, Math::float3 end,
 												  DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
 
-		void						DebugDrawCube(DirectX::SimpleMath::Vector3 pos, 
-												DirectX::SimpleMath::Vector3 rot = DirectX::SimpleMath::Vector3(0,0,0),
-												DirectX::SimpleMath::Vector3 scale = DirectX::SimpleMath::Vector3(1, 1, 1),
-												DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1,1,1,1));
+		void						DebugDrawCube(Math::float3 pos, Math::float3 rot = Math::float3(0,0,0), Math::float3 scale = Math::float3(1, 1, 1),
+												  DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1,1,1,1));
 
-		void						DebugDrawRing(DirectX::SimpleMath::Vector3 pos, 			
-												  DirectX::SimpleMath::Vector3 majorAxis,
-												  DirectX::SimpleMath::Vector3 minorAxis,
+		void						DebugDrawRing(Math::float3 pos, Math::float3 majorAxis, Math::float3 minorAxis,
 												  DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
 
-		void						DebugDrawSphere(DirectX::SimpleMath::Vector3 pos,
-													float radius,
+		void						DebugDrawSphere(Math::float3 pos, float radius,
 													DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(1, 1, 1, 1));
 
 	};											  

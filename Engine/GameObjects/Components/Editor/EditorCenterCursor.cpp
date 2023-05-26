@@ -20,6 +20,13 @@ namespace S2DE::GameObjects::Components::Editor
 
 	}
 
+	void EditorCenterCursor::UpdatePosition()
+	{
+		const static auto window = Core::GameWindow::GetInstance();
+		const auto transform = GetOwner()->GetTransform();
+		transform->SetPosition({ static_cast<float>(window->GetWidth() / 2.0f), static_cast<float>(window->GetHeight() / 2.0f), 0.0f });
+	}
+
 	void EditorCenterCursor::OnCreate()
 	{	
 		const auto owner = GetOwner();
@@ -29,18 +36,22 @@ namespace S2DE::GameObjects::Components::Editor
 
 		const auto alpha = owner->CreateComponent<Components::AlphaComponent>();
 		alpha->SetAlpha(true);
+
+		const auto window = Core::GameWindow::GetInstance();
+		window->onWindowResized.AddCallback(std::bind(&EditorCenterCursor::UpdatePosition, this));
 	}
 
 	void EditorCenterCursor::OnRender(Render::Renderer* renderer)
 	{
-		const auto transform = GetOwner()->GetTransform();
-		const auto window = Core::Engine::GetGameWindow();
-		transform->SetPosition({ static_cast<float>(window->GetWidth() / 2.0f), static_cast<float>(window->GetHeight() / 2.0f), 0.0f });
-		static float x = 0.0f;
+		// TODO: Can be removed, test animation 
 		static const float speed = 20.0f;
-		x += speed * Core::Engine::GetGameTime().GetDeltaTime();
+		static const auto time = Core::GameTime::GetInstance();
+		static float x = 0.0f;
+		x += speed * time->GetDeltaTime();
 
-		transform->SetRotation_X(x);
+		static const auto transform = GetOwner()->GetTransform();
+		transform->SetRotationX(x);
+
 		m_sprite->OnRender(renderer);
 	}
 }

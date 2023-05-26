@@ -13,6 +13,6 @@ namespace S2DE::GameObjects::Components
 
 		[[nodiscard]] inline bool HaveAlpha() const;
 	private:
-		bool m_haveAlpha;
+		bool m_haveAlpha = false;
 	};
 }

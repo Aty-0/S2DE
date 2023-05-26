@@ -23,8 +23,7 @@ namespace S2DE::Scene
 {
 	SceneManager::SceneManager() : 
 		m_scene(nullptr),
-		m_update_enabled(true),
-		m_render_enabled(true)
+		m_updateEnabled(true)
 	{
 
 	}
@@ -37,18 +36,13 @@ namespace S2DE::Scene
 	void SceneManager::CreateNewScene()
 	{	 
 		m_scene = new Scene();
-		const auto camera = CreateGameObject<GameObjects::GameObject>(S2DE_MAIN_CAMERA_NAME, S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
-		camera->CreateComponent<GameObjects::Components::Camera>();
-		const auto sky = CreateGameObject<GameObjects::GameObject>("Sky", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
-		sky->CreateComponent<GameObjects::Components::Skybox>();
-		
+		CreateGameObject<GameObjects::GameObject>(GameObjects::Components::Camera::EngineCameraName, S2DE_ENGINE_GAMEOBJECT_TYPE, -1)->CreateComponent<GameObjects::Components::Camera>();;
+		CreateGameObject<GameObjects::GameObject>("Sky", S2DE_ENGINE_GAMEOBJECT_TYPE, -1)->CreateComponent<GameObjects::Components::Skybox>();
+
 		if (Core::Engine::isEditor())
 		{
-			const auto editorGrid = CreateGameObject<GameObjects::GameObject>("_EditorGrid", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, DirectX::SimpleMath::Vector3(GRID_CELLS / 2, -1, GRID_CELLS / 2));
-			editorGrid->CreateComponent<GameObjects::Components::Editor::EditorGrid>();
-
-			const auto editorCenterCursor = CreateGameObject<GameObjects::GameObject>("_EditorCenterCursor", S2DE_ENGINE_GAMEOBJECT_TYPE, -1);
-			editorCenterCursor->CreateComponent<GameObjects::Components::Editor::EditorCenterCursor>();
+			CreateGameObject<GameObjects::GameObject>("__Editor_Grid__", S2DE_ENGINE_GAMEOBJECT_TYPE, -1, Math::float3(GRID_CELLS / 2, -1, GRID_CELLS / 2))->CreateComponent<GameObjects::Components::Editor::EditorGrid>();;
+			CreateGameObject<GameObjects::GameObject>("__Editor_Center_Cursor__", S2DE_ENGINE_GAMEOBJECT_TYPE, -1)->CreateComponent<GameObjects::Components::Editor::EditorCenterCursor>();
 		}
 
 		// TODO: Callbacks
@@ -62,22 +56,8 @@ namespace S2DE::Scene
 
 	bool SceneManager::SaveScene()
 	{	 
-		Logger::Log("[SceneManager] Save scene");
-		boost::archive::xml_oarchive oa(m_os);
-
-		for (const auto& object : m_scene->GetStorage())
-		{
-			oa << boost::serialization::make_nvp(object.first.first.c_str(), static_cast<GameObjects::GameObject&>(*object.second.get()));
-		}	
-
-		//PrintSerializedObjects();
-		
-		std::ofstream file;
-
-		file.open("scene.xml");
-		file << m_os.str();
-		file.close();
-
+		Core::Utils::Logger::Log("[SceneManager] Save scene");
+		S2DE_NO_IMPL();
 		return true;
 	}	 
 
@@ -89,7 +69,7 @@ namespace S2DE::Scene
 
 			if (components != nullptr)
 			{
-				Logger::Log("Update shader for %s", object.first.first.c_str());
+				Core::Utils::Logger::Log("Update shader for %s", object.first.first.c_str());
 				components->UpdateShader();
 			}
 		}
@@ -110,7 +90,7 @@ namespace S2DE::Scene
 		 	 
 	void SceneManager::RenderScene(Render::Renderer* renderer)
 	{
-		if (m_render_enabled && m_scene)
+		if (m_scene)
 		{
 			for (const auto& object : m_scene->GetStorage())
 			{
@@ -172,7 +152,7 @@ namespace S2DE::Scene
 
 	void SceneManager::UpdateScene(float DeltaTime)
 	{
-		if (m_update_enabled && m_scene)
+		if (m_updateEnabled && m_scene)
 		{
 			for (const auto& object : m_scene->GetStorage())
 			{
@@ -181,14 +161,9 @@ namespace S2DE::Scene
 		}
 	}
 
-	void SceneManager::ToggleGameObjectVisibility()
-	{
-		m_render_enabled =! m_render_enabled;
-	}
-
 	void SceneManager::ToggleGameObjectUpdating()
 	{
-		m_update_enabled =! m_update_enabled;
+		m_updateEnabled =! m_updateEnabled;
 	}
 
 	inline Scene* SceneManager::GetScene() const
@@ -199,6 +174,6 @@ namespace S2DE::Scene
 	void SceneManager::Clear()
 	{
 		m_scene->Destroy();
-		Logger::Log("[SceneManager] Current scene deleted");
+		Core::Utils::Logger::Log("[SceneManager] Current scene deleted");
 	}
 }

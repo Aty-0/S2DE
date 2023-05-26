@@ -3,7 +3,7 @@
 
 namespace S2DE::GameObjects::Components::UI
 {
-	//NOTE: Needed for parse UI objects properly 
+	// NOTE: Needed for parse UI objects properly 
 	class S2DE_API UIDrawableComponent : public DrawableComponent
 	{
 	public:

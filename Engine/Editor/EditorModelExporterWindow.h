@@ -10,6 +10,6 @@ namespace S2DE::Editor
 		EditorModelExporterWindow();
 		~EditorModelExporterWindow();
 
-		void Render() override;
+		void Render(Render::Renderer* renderer) override;
 	};
 }

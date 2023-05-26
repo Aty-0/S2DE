@@ -39,39 +39,42 @@ namespace S2DE::Render
 			subData.SysMemPitch = 0;
 			subData.SysMemSlicePitch = 0;
 
-			Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subData, &m_buffer), "Can't create buffer!");
+			const auto renderer = Render::Renderer::GetInstance();
+			Verify_HR(renderer->GetDevice()->CreateBuffer(&bufferDesc, &subData, &m_buffer), "Can't create buffer!");
 
 			return true;
 		}
 
-		bool Lock() final
+		bool Lock(Render::Renderer* renderer) final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 			{
 				D3D11_MAPPED_SUBRESOURCE mappedResource = { };
-				Verify_HR(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in index buffer");
+				Verify_HR(renderer->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in index buffer");
 			}
 
 			return true;
 		}
 
-		void Unlock() final
+		void Unlock(Render::Renderer* renderer) final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
-				Core::Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
+			{
+				renderer->GetContext()->Unmap(m_buffer, 0);
+			}
 		}
 
-		void Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1) final
+		void Bind(Render::Renderer* renderer, std::int32_t startSlot = 0, std::int32_t num_buffers = 1) final
 		{
-			Core::Engine::GetRenderer()->GetContext()->IASetIndexBuffer(m_buffer, DXGI_FORMAT_R32_UINT, 0);
+			renderer->GetContext()->IASetIndexBuffer(m_buffer, DXGI_FORMAT_R32_UINT, 0);
 		}
 
-		void Unbind() final
+		void Unbind(Render::Renderer* renderer) final
 		{
-			Core::Engine::GetRenderer()->GetContext()->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
+			renderer->GetContext()->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
 		}
 
-		inline std::vector<T>& GetArray() { return m_array; }
+		[[nodiscard]] std::vector<T>& GetArray() { return m_array; }
 
 	private:
 		std::vector<T> m_array;

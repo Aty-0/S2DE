@@ -1,8 +1,9 @@
 #include "EditorRenderWindow.h"
 #include "Base/Engine.h"
 #include "Base/ResourceManager.h"
-#include "Scene/SceneManager.h"
 #include "Base/GameWindow.h"
+#include "Scene/SceneManager.h"
+#include "Render/Renderer.h"
 
 namespace S2DE::Editor
 {
@@ -16,7 +17,7 @@ namespace S2DE::Editor
 
 	}
 
-	bool EditorRenderWindow::HandleWindowResize()
+	bool EditorRenderWindow::HandleWindowResize(Render::Renderer* renderer)
 	{
 		ImVec2 view = ImGui::GetContentRegionAvail();
 
@@ -31,7 +32,7 @@ namespace S2DE::Editor
 			m_width = view.x;
 			m_height = view.y;
 
-			Core::Engine::GetRenderer()->UpdateViewport();
+			renderer->UpdateViewport();
 
 			// The window state has been successfully changed.
 			return true;
@@ -53,8 +54,9 @@ namespace S2DE::Editor
 
 	void EditorRenderWindow::SetDefaultResolution()
 	{
-		ImGui::SetWindowSize("Render Window", ImVec2(float(Core::Engine::GetGameWindow()->GetWidth() / 2), 
-			float(Core::Engine::GetGameWindow()->GetHeight() / 2)));
+		const static auto window = Core::GameWindow::GetInstance();
+		ImGui::SetWindowSize("Render Window", ImVec2(static_cast<float>(window->GetWidth() / 2),
+			static_cast<float>(window->GetHeight() / 2)));
 	}
 
 	void EditorRenderWindow::PushRenderTexture(void* texture)
@@ -67,7 +69,7 @@ namespace S2DE::Editor
 		m_bufferdata = nullptr;
 	}
 
-	void EditorRenderWindow::Render()
+	void EditorRenderWindow::Render(Render::Renderer* renderer)
 	{
 		if (m_draw)
 		{
@@ -76,15 +78,15 @@ namespace S2DE::Editor
 			m_width  = ImGui::GetWindowWidth();
 			m_height = ImGui::GetWindowHeight();
 
-			if(!HandleWindowResize())
+			if(!HandleWindowResize(renderer))
 			{
 				ImGui::End();
 				return; 
 			}
 
 			if (m_bufferdata != nullptr)
-			{				
-				const auto window = Core::Engine::GetGameWindow();
+			{			
+				const static auto window = Core::GameWindow::GetInstance();
 				ImGui::Image(m_bufferdata, ImVec2(window->GetWidth(), window->GetHeight()));
 			}
 

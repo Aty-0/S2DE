@@ -10,7 +10,7 @@ namespace S2DE::GameObjects::Components::Light
 		~DirectionalLight();
 		
 	protected:
-		void		 UpdateCB() override;
+		void UpdateCB() override;
 		virtual void InitLight();
 	};
 }

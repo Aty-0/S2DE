@@ -15,12 +15,12 @@ namespace S2DE::GameObjects::Components::Light
 
 	void Light::InitLight()
 	{
-		Logger::Warning("InitLight is empty %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
+		Core::Utils::Logger::Warning("InitLight is empty %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
 	}
 
 	void Light::UpdateCB()
 	{
-		Logger::Warning("UpdateCB is empty %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
+		Core::Utils::Logger::Warning("UpdateCB is empty %s %s", GetName().c_str(), GetOwner()->GetName().c_str());
 	}
 
 	void Light::CreateIcon()
@@ -34,13 +34,15 @@ namespace S2DE::GameObjects::Components::Light
 
 	void Light::OnDestroy()
 	{
-		Render::LightGlobals::RemoveLight(GetUUID());
+		const static auto lightGlobals = Render::LightGlobals::GetInstance();
+		lightGlobals->RemoveLight(GetUUID());
 	}
 
 	void Light::OnCreate()
 	{
 		// Light first initialization
-		Render::LightGlobals::AddLight(m_lightStructure, GetUUID());
+		const static auto lightGlobals = Render::LightGlobals::GetInstance();
+		lightGlobals->AddLight(m_lightStructure, GetUUID());
 		UpdateCB();
 		CreateIcon();
 		InitLight();
@@ -66,7 +68,7 @@ namespace S2DE::GameObjects::Components::Light
 		return m_range;
 	}
 
-	inline DirectX::SimpleMath::Vector3 Light::GetAttenuation() const
+	inline Math::float3 Light::GetAttenuation() const
 	{
 		return m_attenuation;
 	}
@@ -81,7 +83,7 @@ namespace S2DE::GameObjects::Components::Light
 		m_range = range;
 	}
 
-	void Light::SetAttenuation(DirectX::SimpleMath::Vector3 attenuation)
+	void Light::SetAttenuation(Math::float3 attenuation)
 	{
 		m_attenuation = attenuation;
 	}

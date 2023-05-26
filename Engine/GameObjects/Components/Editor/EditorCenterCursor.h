@@ -17,7 +17,7 @@ namespace S2DE::GameObjects::Components::Editor
 
 		virtual void OnRender(Render::Renderer* renderer) override;
 		virtual void OnCreate() override;
-
+		void		 UpdatePosition();
 	private:
 		class GameObjects::Components::Sprite* m_sprite;
 	};

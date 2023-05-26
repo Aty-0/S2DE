@@ -30,12 +30,12 @@ namespace S2DE::Core
 
 	InputManager::~InputManager()
 	{
+
+	}
+
+	void InputManager::Destroy()
+	{
 		m_mouse = 0;
-		Delete(m_keyboard);
-		Delete(m_keyboardKeyUp);
-		Delete(m_keyboardKeyDown);
-		Delete(m_mouseKeyUp);
-		Delete(m_mouseKeyDown);
 		m_lock_wheel = false;
 		m_lock_mouse = false;
 		m_lock_keyboard = false;
@@ -69,6 +69,7 @@ namespace S2DE::Core
 		//m_mRPMouseState = m_mRCMouseState;		
 		//m_mRCMouseState = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.x), static_cast<float>(event.motion.y));
 		//m_mRMouseState = m_mRCMouseState - m_mRPMouseState;
+		//SDL_WarpMouseInWindow(Engine::GetGameWindow()->GetSDLWindow(), Engine::GetGameWindow()->GetWidth() / 2, Engine::GetGameWindow()->GetHeight() / 2);
 		// Second:
 		m_mRMouseState = DirectX::SimpleMath::Vector2(static_cast<float>(event.motion.xrel), static_cast<float>(event.motion.yrel));
 		//SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -129,9 +130,8 @@ namespace S2DE::Core
 
 	inline DirectX::SimpleMath::Vector2 InputManager::GetMousePositionRelative() const
 	{
-		//SDL_CaptureMouse(SDL_TRUE);
+		SDL_CaptureMouse(SDL_TRUE);
 		SDL_SetRelativeMouseMode(SDL_TRUE);
-		//SDL_WarpMouseInWindow(Engine::GetGameWindow()->GetSDLWindow(), Engine::GetGameWindow()->GetWidth() / 2, Engine::GetGameWindow()->GetHeight() / 2);
 		if(m_isMouseMotionWork == false)
 			return DirectX::SimpleMath::Vector2::Zero;
 

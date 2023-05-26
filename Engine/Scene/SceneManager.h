@@ -16,52 +16,52 @@ namespace S2DE::GameObjects
 
 namespace S2DE::Scene
 {
-	class S2DE_API SceneManager
+	class S2DE_API SceneManager : public Core::Utils::Singleton<SceneManager>
 	{
 	public:
 		SceneManager();
 		~SceneManager();
 
 		// Create new scene 
-		void		   CreateNewScene();
+		void CreateNewScene();
 		// Load scene from file 
-		bool		   LoadScene(std::string name);
+		bool LoadScene(std::string name);
 		// Save current scene
-		bool		   SaveScene();
-
-		void		   RenderScene(Render::Renderer* renderer);
-		void		   UpdateScene(float DeltaTime);
-		void		   UpdateShaders();
-		void		   UpdateTextures();
-
-		void		   Clear();
-
-		// TODO: Remove
-		void		   ToggleGameObjectVisibility();
-		void		   ToggleGameObjectUpdating();
+		bool SaveScene();
+		// Render game objects 
+		void RenderScene(Render::Renderer* renderer);
+		// Update game objects 
+		void UpdateScene(float DeltaTime);
+		// Calls for all drawable objects update shader
+		void UpdateShaders();
+		// Calls for all drawable objects update texture
+		void UpdateTextures();
+		// Destroy current scene 
+		void Clear();
+		// Turn off Update for game objects
+		void ToggleGameObjectUpdating();
 
 		[[nodiscard]] inline Scene* GetScene() const;
+
 	private:
 		Scene*		   m_scene;
-					   
-		bool		   m_update_enabled;
-		bool		   m_render_enabled;
-
-		std::stringstream m_os;
+		bool		   m_updateEnabled;
 	};
 
-	//FIX ME: Need to relocate this functions, where ?
+	// FIX ME: Need to relocate this functions, where ?
 
-	//Get game object from scene by name
+	// Get game object from scene by name
 	template<typename T = GameObjects::GameObject>
 	[[nodiscard]] static T* GetObjectByName(std::string name)
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
+		static const auto sceneManager = SceneManager::GetInstance();
 
-		Assert(Core::Engine::GetSceneManager()->GetScene() != nullptr, "Scene is nullptr");
+		Assert(sceneManager->GetScene() != nullptr, "Scene is nullptr");
+
+		auto storage = sceneManager->GetScene()->GetStorage();
 		SceneObjectStorage::iterator it = std::find_if(
-			Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
-			Core::Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
+			storage.begin(), storage.end(), 
 			[&name](std::pair<std::pair<std::string, boost::uuids::uuid>,
 				std::shared_ptr<GameObjects::GameObject>> const& elem) {
 				return elem.first.first == name;
@@ -70,16 +70,18 @@ namespace S2DE::Scene
 		return dynamic_cast<T*>(it->second.get());
 	}
 
-	//Get game object from scene by uuid
+	// Get game object from scene by uuid
 	template<typename T = GameObjects::GameObject>
 	[[nodiscard]] static T* GetObjectByUUID(boost::uuids::uuid uuid)
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, "This is not GameObject or GameObject based class");
+		static const auto sceneManager = SceneManager::GetInstance();
 
-		Assert(Core::Engine::GetSceneManager()->GetScene() != nullptr, "Scene is nullptr");
+		Assert(sceneManager->GetScene() != nullptr, "Scene is nullptr");
+
+		auto storage = sceneManager->GetScene()->GetStorage();
 		SceneObjectStorage::iterator it = std::find_if(
-			Core::Engine::GetSceneManager()->GetScene()->GetStorage().begin(), 
-			Core::Engine::GetSceneManager()->GetScene()->GetStorage().end(), 
+			storage.begin(), storage.end(), 
 			[&uuid](std::pair<std::pair<std::string, boost::uuids::uuid>,
 				std::shared_ptr<GameObjects::GameObject>> const& elem) {
 					return elem.first.second == uuid;
@@ -88,24 +90,26 @@ namespace S2DE::Scene
 		return dynamic_cast<T*>(it->second.get());
 	}
 
-	//Create game object in scene
+	// Create game object in scene
 	template<typename T = GameObjects::GameObject>
 	static T* CreateGameObject(
 		std::string name = std::string(),
 		std::string type = std::string(),
 		std::int32_t prefix = S2DE_DEFAULT_GAMEOBJECT_PREFIX,
-		DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3::Zero,
-		DirectX::SimpleMath::Vector3 rotation = DirectX::SimpleMath::Vector3::Zero,
-		DirectX::SimpleMath::Vector3 scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f))
+		Math::float3 position = Math::float3::Zero,
+		Math::float3 rotation = Math::float3::Zero,
+		Math::float3 scale    = Math::float3(1.0f, 1.0f, 1.0f))
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, 
 			"This is not GameObject or GameObject based class");
 
-		// Without scene we can't continue 
-		Assert(Core::Engine::GetSceneManager()->GetScene() != nullptr, "Scene is nullptr");
+		static const auto sceneManager = SceneManager::GetInstance();
 
-		auto object = new T(name, type, prefix, std::string());
-		auto transform = object->GetTransform();
+		// Without scene we can't continue 
+		Assert(sceneManager->GetScene() != nullptr, "Scene is nullptr");
+
+		const auto object = new T(name, type, prefix, std::string());
+		const auto transform = object->GetTransform();
 
 		// If we get there assertion fail it means something very bad happened. 
 		Assert(transform, "Transform component is nullptr, wat ?");
@@ -114,18 +118,21 @@ namespace S2DE::Scene
 		transform->SetRotation(rotation);
 		transform->SetScale(scale);
 		
-		return Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
+		return sceneManager->GetScene()->Add<T>(object);
 	}
 
-	//Create game object function without initialization 
+	// Create game object function without initialization 
 	template<typename T = GameObjects::GameObject>
 	static T* CreateGameObjectNoInit()
 	{
 		static_assert(!std::is_base_of<T, GameObjects::GameObject>::value || std::is_same<T, GameObjects::GameObject>::value, 
 			"This is not GameObject or GameObject based class");
+		static const auto sceneManager = SceneManager::GetInstance();
+
 		// Without scene we can't continue 
-		Assert(Core::Engine::GetSceneManager()->GetScene() != nullptr, "Scene is nullptr");
-		auto object = new T();
-		return Core::Engine::GetSceneManager()->GetScene()->Add<T>(object);
+		Assert(sceneManager->GetScene() != nullptr, "Scene is nullptr");
+
+		const auto object = new T();
+		return sceneManager->GetScene()->Add<T>(object);
 	}
 }

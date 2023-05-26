@@ -43,6 +43,9 @@ namespace S2DE::GameObjects::Components::UI
 		void OnCreate() override;
 		void OnRender(Render::Renderer* renderer) override;
 
+		[[nodiscard]] inline std::string   GetText() const;
+		[[nodiscard]] inline Render::Font* GetFont() const;
+		[[nodiscard]] inline Math::Color<float> GetColor() const;
 	private:
 		Render::Shader* m_shader;
 		Render::VertexBuffer<Render::Vertex>* m_vertexBuffer;

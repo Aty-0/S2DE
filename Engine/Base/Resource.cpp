@@ -57,8 +57,10 @@ namespace S2DE::Core::Resources
 
 		for (const auto name : names)
 		{
-			std::string path = std::string();
-			if (Core::Engine::GetResourceManager().GetFilePath(name, this, path))
+			const static auto resourceManager = Core::Resources::ResourceManager::GetInstance();
+
+			auto path = std::string();
+			if (resourceManager->GetFilePath(name, this, path))
 			{
 				paths.push_back(path);
 			}

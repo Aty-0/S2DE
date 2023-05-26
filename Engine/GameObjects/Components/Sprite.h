@@ -31,49 +31,43 @@ namespace S2DE::GameObjects::Components
 		virtual ~Sprite();
 
 		// Load sprite texture
-		bool											LoadTexture(std::string name) override;
-		// Load sprite texture with some options
-		bool											LoadTextureA(std::string name, bool unload_texture = false, bool auto_load_texture = true) override;
+		bool LoadTexture(std::string name) override;
 		// Get new version of current shader from resource manager
-		void											UpdateShader() override;
+		void UpdateShader() override;
 		// Get new version of current texture from resource manager
-		void											UpdateTexture() override;
+		void UpdateTexture() override;
 		// Set atlas frame position 
-		void											SetAtlasFramePosition(DirectX::SimpleMath::Vector2 position);
+		void SetAtlasFramePosition(Math::float2 position);
 		// Set atlas frame size								 
-		void											SetAtlasSize(DirectX::SimpleMath::Vector2 size);
+		void SetAtlasSize(Math::float2 size);
 		// Set sprite color 
-		void											SetColor(Math::Color<float> color);
+		void SetColor(Math::Color<float> color);
 		// Set billboard mode
-		void											SetBillboard(bool billboard);
+		void SetBillboard(bool billboard);
 		// Set two sided mode
-		void											SetTwoSidedMode(bool mode);
-
-		void											SetUIMode(bool mode);
-
-		void											OnRender(Render::Renderer* renderer) override;
-
-		void											OnCreate() override;
+		void SetTwoSidedMode(bool mode);			 
+		void SetUIMode(bool mode);			 
+		void OnRender(Render::Renderer* renderer) override;			 
+		void OnCreate() override;
 
 	protected:
-		void											CreateVertexBuffer();
-		void											CreateIndexBuffer();
-		void											SetDefaultShader();
-		void											SetDefaultTexture();
+		void CreateVertexBuffer();
+		void CreateIndexBuffer();
+		void SetDefaultShader();
+		void SetDefaultTexture();
 
-		[[nodiscard]] virtual inline DirectX::SimpleMath::Vector3		CalcScaleFactor();
+		[[nodiscard]] virtual inline Math::float3 CalcScaleFactor();
 		
 	private:
-		Render::Texture*								m_texture;
-		bool											m_unloadTexture;
-		Render::Shader*									m_shader;
-		Render::VertexBuffer<Render::Vertex>*			m_vertexBuffer;
-		Render::IndexBuffer<std::int32_t>*				m_indexBuffer;
-		DirectX::SimpleMath::Vector4					m_tileFrame;
-		Math::Color<float>								m_color;
+		Render::Texture* m_texture;
+		Render::Shader* m_shader;
+		Render::VertexBuffer<Render::Vertex>* m_vertexBuffer;
+		Render::IndexBuffer<std::int32_t>* m_indexBuffer;
+		Math::float4 m_tileFrame;
+		Math::Color<float> m_color;
 		Render::ConstantBuffer<struct Render::CB::CB_Sprite>*	m_spriteCB;
-		bool											m_billboard;
-		bool											m_twoSided;
-		bool											m_uiMode;
+		bool m_billboard;
+		bool m_twoSided;
+		bool m_uiMode;
 	};
 }

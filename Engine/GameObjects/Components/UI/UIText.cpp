@@ -19,7 +19,7 @@ namespace S2DE::GameObjects::Components::UI
 	UIText::UIText() :
 		m_color({255,255,255,255}),
 		m_font(nullptr),
-		m_shader(new Render::Shader(*Core::Engine::GetResourceManager().Get<Render::Shader>("Text"))),
+		m_shader(new Render::Shader(*Core::Resources::ResourceManager::GetInstance()->Get<Render::Shader>("Text"))),
 		m_text(),
 		m_vertexBuffer()
 	{
@@ -50,17 +50,19 @@ namespace S2DE::GameObjects::Components::UI
 
 	void UIText::SetFont(std::string nameFont)
 	{
-		auto font = Core::Engine::GetResourceManager().Get<Render::Font>(nameFont);
+		const auto resourceManager = Core::Resources::ResourceManager::GetInstance();
+
+		auto font = resourceManager->Get<Render::Font>(nameFont);
 		if (font == nullptr)
 		{
-			bool result = Core::Engine::GetResourceManager().Load<Render::Font>(nameFont);
+			bool result = resourceManager->Load<Render::Font>(nameFont);
 			if (result)
 			{
-				Logger::Error("Font is not found in resources!");
+				Core::Utils::Logger::Error("Font is not found in resources!");
 				return;
 			}
 
-			font = Core::Engine::GetResourceManager().Get<Render::Font>(nameFont);
+			font = resourceManager->Get<Render::Font>(nameFont);
 		}
 
 		m_font = new Render::Font(*font);
@@ -70,7 +72,7 @@ namespace S2DE::GameObjects::Components::UI
 	{
 		if (font == nullptr)
 		{
-			Logger::Error("Font is null...");
+			Core::Utils::Logger::Error("Font is null...");
 			return;
 		}
 
@@ -126,8 +128,6 @@ namespace S2DE::GameObjects::Components::UI
 
 
 		Assert(m_vertexBuffer->Create(), "Failed to create vertex buffer");
-		//m_vertexBuffer->Update();
-
 		return true;
 	}
 
@@ -153,17 +153,33 @@ namespace S2DE::GameObjects::Components::UI
 		if (!Rebuild())
 			return;
 
-		m_shader->UpdateMainConstBuffer(GetOwner()->GetTransform()->UpdateTransformation2D(), true);
-		m_shader->Bind();
+		m_shader->UpdateMainConstBuffer(renderer, GetOwner()->GetTransform()->UpdateTransformation2D(), true);
+		m_shader->Bind(renderer);
 
-		m_font->GetFontTexture()->Bind();
+		m_font->GetFontTexture()->Bind(renderer);
 
-		m_vertexBuffer->Bind();
+		m_vertexBuffer->Bind(renderer);
 		renderer->Draw(m_vertexBuffer->GetArray().size(), 0, D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-		m_vertexBuffer->Unbind();
-		m_font->GetFontTexture()->Unbind();
+		m_vertexBuffer->Unbind(renderer);
+		m_font->GetFontTexture()->Unbind(renderer);
 
 		Core::Delete(m_vertexBuffer);
+	}
+
+	[[nodiscard]] inline std::string UIText::GetText() const
+	{
+		return m_text;
+	}
+
+	
+	[[nodiscard]] inline Render::Font* UIText::GetFont() const
+	{
+		return m_font;
+	}
+
+	[[nodiscard]] inline Math::Color<float>  UIText::GetColor() const
+	{
+		return m_color;
 	}
 }

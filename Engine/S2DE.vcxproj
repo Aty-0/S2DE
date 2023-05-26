@@ -23,8 +23,12 @@
     <ClInclude Include="Base\CoreMinimal.h" />
     <ClInclude Include="Base\DebugTools\Debug_Info.h" />
     <ClInclude Include="Base\Resource.h" />
-    <ClInclude Include="Base\Utils\CallbackWrapper.h" />
+    <ClInclude Include="Base\ResourceManager_inline.h" />
+    <ClInclude Include="Base\Utils\Callback.h" />
+    <ClInclude Include="Base\Utils\Callback_inline.h" />
     <ClInclude Include="Base\Utils\LoggerDebugTools.h" />
+    <ClInclude Include="Base\Utils\Singleton.h" />
+    <ClInclude Include="GameObjects\Base\GameObject_inline.h" />
     <ClInclude Include="Libs\stb_truetype.h" />
     <ClInclude Include="Render\Font.h" />
     <ClInclude Include="GameObjects\Components\AlphaComponent.h" />
@@ -72,7 +76,9 @@
     <ClInclude Include="GameObjects\Components\Transform.h" />
     <ClInclude Include="Render\Buffers.h" />
     <ClInclude Include="Render\IndexBuffer.h" />
+    <ClInclude Include="Render\RenderCommon_inline.h" />
     <ClInclude Include="Render\Renderer.h" />
+    <ClInclude Include="Render\RenderCommon.h" />
     <ClInclude Include="Render\Shader.h" />
     <ClInclude Include="Render\Texture.h" />
     <ClInclude Include="Render\VertexBuffer.h" />
@@ -275,7 +281,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>../Libs/SDL/include/;../Libs/FBX SDK/2020.2.1/include/;$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;../Libs/DirectXMath/D3D/;#(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -297,7 +303,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>../Libs/SDL/include/;../Libs/FBX SDK/2020.2.1/include/;$(IncludePath);../Libs/boost_1_76_0/;../Engine/;../Libs/DirectXTK/Inc/;../Libs/DirectXMath/D3D/;#(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

@@ -40,45 +40,48 @@ namespace S2DE::Render
 			subResource.SysMemPitch = 0;
 			subResource.SysMemSlicePitch = 0;
 
-			Verify_HR(Core::Engine::GetRenderer()->GetDevice()->CreateBuffer(&bufferDesc, &subResource, &m_buffer), "Can't create constant buffer");
+			const auto renderer = Render::Renderer::GetInstance();
+			Verify_HR(renderer->GetDevice()->CreateBuffer(&bufferDesc, &subResource, &m_buffer), "Can't create constant buffer");
 
 			return true;
 		}
 
-		bool Lock() final
+		bool Lock(Render::Renderer* renderer) final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
 			{
 				D3D11_MAPPED_SUBRESOURCE mappedResource = { };
-				Verify_HR(Core::Engine::GetRenderer()->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in constant buffer");
+				Verify_HR(renderer->GetContext()->Map(m_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource), "Can't map resource in constant buffer");
 				m_data = reinterpret_cast<T*>(mappedResource.pData);
 			}
 
 			return true;
 		}
 
-		void Unbind() final
+		void Unbind(Render::Renderer* renderer) final
 		{
-			Core::Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(0, 0, nullptr);
-			Core::Engine::GetRenderer()->GetContext()->PSSetConstantBuffers(0, 0, nullptr);
+			renderer->GetContext()->VSSetConstantBuffers(0, 0, nullptr);
+			renderer->GetContext()->PSSetConstantBuffers(0, 0, nullptr);
 		}
 
-		void Unlock() final
+		void Unlock(Render::Renderer* renderer) final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DYNAMIC)
-				Core::Engine::GetRenderer()->GetContext()->Unmap(m_buffer, 0);
+				renderer->GetContext()->Unmap(m_buffer, 0);
 		}
 
-		void Bind(std::int32_t startSlot = 0, std::int32_t num_buffers = 1) final
+		void Bind(Render::Renderer* renderer, std::int32_t startSlot = 0, std::int32_t num_buffers = 1) final
 		{
 			if (m_buffer_desc.Usage == D3D11_USAGE_DEFAULT)
-				Core::Engine::GetRenderer()->GetContext()->UpdateSubresource(m_buffer, 0, NULL, m_data, 0, 0);
+			{
+				renderer->GetContext()->UpdateSubresource(m_buffer, 0, NULL, m_data, 0, 0);
+			}
 
-			Core::Engine::GetRenderer()->GetContext()->VSSetConstantBuffers(startSlot, num_buffers, &m_buffer);
-			Core::Engine::GetRenderer()->GetContext()->PSSetConstantBuffers(startSlot, num_buffers, &m_buffer);
+			renderer->GetContext()->VSSetConstantBuffers(startSlot, num_buffers, &m_buffer);
+			renderer->GetContext()->PSSetConstantBuffers(startSlot, num_buffers, &m_buffer);
 		}
 
-		inline T*& GetData() { return reinterpret_cast<T*&>(m_data); }
+		[[nodiscard]] T*& GetData() { return reinterpret_cast<T*&>(m_data); }
 
 	private:
 		ConstantBufferData			  m_data;

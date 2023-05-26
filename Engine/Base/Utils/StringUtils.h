@@ -5,17 +5,17 @@
 
 namespace S2DE::Core::Utils
 {
-	[[nodiscard]] static bool isStringEmpty(std::string str)
+	[[nodiscard]] inline bool isStringEmpty(std::string str)
 	{
 		return str == "" || str.empty();
 	}
 
-	[[nodiscard]] static bool isWStringEmpty(std::wstring str)
+	[[nodiscard]] inline bool isWStringEmpty(std::wstring str)
 	{
 		return str == L"" || str.empty();
 	}
 
-	[[nodiscard]] static bool StringAllReplace(std::string& str, const std::string& from, const std::string& to)
+	[[nodiscard]] inline bool StringAllReplace(std::string& str, const std::string& from, const std::string& to)
 	{
 		if (from.empty())
 		{
@@ -33,7 +33,7 @@ namespace S2DE::Core::Utils
 		return true;
 	}
 
-	[[nodiscard]] static bool StringReplace(std::string& str, const std::string& from, const std::string& to)
+	[[nodiscard]] inline bool StringReplace(std::string& str, const std::string& from, const std::string& to)
 	{
 		if (from.empty())
 		{
@@ -52,7 +52,7 @@ namespace S2DE::Core::Utils
 	}
 
 	template<typename T>
-	[[nodiscard]] static std::string GetClassNameInString(T obj)
+	[[nodiscard]] inline std::string GetClassNameInString(T obj)
 	{
 		//Get class name by typeid function
 		std::string class_name = typeid(obj).name();
@@ -73,7 +73,7 @@ namespace S2DE::Core::Utils
 		return class_name;
 	}
 
-	[[nodiscard]] static std::string GetFileExtension(const std::string& filename)
+	[[nodiscard]] inline std::string GetFileExtension(const std::string& filename)
 	{
 		size_t off = filename.find_last_of('.');
 
@@ -83,7 +83,7 @@ namespace S2DE::Core::Utils
 		return std::string(filename.substr(off + 1));
 	}
 
-	[[nodiscard]] static std::wstring StringToWString(std::string str)
+	[[nodiscard]] inline std::wstring StringToWString(std::string str)
 	{
 		std::wstring wstr;
 #ifdef _MSC_VER
@@ -95,7 +95,7 @@ namespace S2DE::Core::Utils
 		return wstr;
 	}
 
-	[[nodiscard]] static std::string WStringToString(std::wstring wstr)
+	[[nodiscard]] inline std::string WStringToString(std::wstring wstr)
 	{
 		std::string str;
 

@@ -38,7 +38,7 @@ namespace S2DE::Core::Debug
 		// Clear text buffer
 		void Clear();
 		
-		void Render() override;
+		void Render(Render::Renderer* renderer) override;
 		void Scroll();
 
 		// Set window size

@@ -5,6 +5,8 @@
 #include "Scene/SceneManager.h"
 #include "Base/GameWindow.h"
 
+#include "Render/Renderer.h"
+
 #include "GameObjects/Base/GameObject.h"
 #include "GameObjects/Components/Component.h"
 
@@ -39,7 +41,7 @@ namespace S2DE::Editor
 		m_selectedGameObject = nullptr;
 	}
 
-	void EditorObjectInspector::Render()
+	void EditorObjectInspector::Render(Render::Renderer* renderer)
 	{
 		if (!m_draw)
 			return;
@@ -47,19 +49,17 @@ namespace S2DE::Editor
 		// Save inspector focus 
 		static bool isFocused = false;
 
-		Scene::SceneManager* sceneManager = Core::Engine::GetSceneManager();
+		static const auto scene = Scene::SceneManager::GetInstance()->GetScene();
 
-		// Lock all control stuff if window is active
-		Core::Engine::GetInputManager()->LockKeyboardControl(isFocused && m_draw);
-		Core::Engine::GetInputManager()->LockMouseControl(isFocused && m_draw);
-		Core::Engine::GetInputManager()->LockWheel(isFocused && m_draw);
+		// TODO: Lock game input 
 
-		ImGui::SetNextWindowSizeConstraints(ImVec2(300, 300), ImVec2(800, Core::Engine::GetGameWindow()->GetHeight()));
+		static const auto window = Core::GameWindow::GetInstance();
+		ImGui::SetNextWindowSizeConstraints(ImVec2(300, 300), ImVec2(800, window->GetHeight()));
 
 		ImGui::Begin("Inspector", &m_draw, ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar);
 		isFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_::ImGuiFocusedFlags_ChildWindows);
 
-		if (Core::Engine::GetSceneManager()->GetScene() != nullptr)
+		if (scene != nullptr)
 		{
 			if (ImGui::Checkbox("Show Engine Objects", &m_showEngineGameObjects))
 			{
@@ -68,7 +68,7 @@ namespace S2DE::Editor
 
 			if (ImGui::ListBoxHeader("Objects", ImVec2(ImGui::GetWindowSize().x, 300)))
 			{
-				for (const auto& object : Core::Engine::GetSceneManager()->GetScene()->GetStorage())
+				for (const auto& object : scene->GetStorage())
 				{
 					auto gameObject = object.second.get();
 
@@ -80,7 +80,7 @@ namespace S2DE::Editor
 					if (m_showEngineGameObjects == false && gameObject->GetPrefix() == -1)
 						continue;
 
-					if (object.second->GetTransform()->GetParent() == nullptr)
+					//if (object.second->GetTransform()->GetParent() == nullptr)
 					{
 						ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1, m_uiElementsHeight));
 						if (m_selectedGameObject == gameObject)
