@@ -279,6 +279,9 @@
     <ClInclude Include="Base\Utils\Callback_inline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Scene\SceneManager_inline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc">

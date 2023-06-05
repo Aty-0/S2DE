@@ -62,8 +62,8 @@ namespace S2DE::GameObjects
 
 			// FIX ME: This is KEKW fix of 
 			// some problems with our basic render priority
-			
-			GameObject* go = Scene::CreateGameObjectNoInit<GameObject>();
+			static const auto sceneManager = Scene::SceneManager::GetInstance();
+			GameObject* go = sceneManager->CreateGameObjectNoInit<GameObject>();
 			go->SetName("__Icon__"); // Name is actualy not important
 			go->GetTransform()->SetParent(this);
 

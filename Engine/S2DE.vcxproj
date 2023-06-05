@@ -107,6 +107,7 @@
     <ClInclude Include="GameObjects\Components\StaticMesh.h" />
     <ClInclude Include="GameObjects\Components\Light\SpotLight.h" />
     <ClInclude Include="GameObjects\Components\UI\UIText.h" />
+    <ClInclude Include="Scene\SceneManager_inline.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="S2DE.rc" />

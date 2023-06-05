@@ -129,11 +129,12 @@ namespace S2DE::GameObjects::Components
 
 	inline Math::float4x4 Skybox::UpdateTransformation()
 	{
-		const static auto transform = GetOwner()->GetTransform();
+		static const auto transform = GetOwner()->GetTransform();
+		static const auto sceneManager = Scene::SceneManager::GetInstance();
 		auto wMatrix = transform->GetWorldMatrix();
 		auto camPosition = Math::float3(1, 1, 1);
 
-		const static auto camera = Scene::GetObjectByName<GameObject>(Camera::EngineCameraName)->GetComponent<Camera>();
+		const static auto camera = sceneManager->GetObjectByName<GameObject>(Camera::EngineCameraName)->GetComponent<Camera>();
 		if (camera != nullptr)
 		{
 			camPosition = camera->GetOwner()->GetTransform()->GetPosition();

@@ -244,7 +244,8 @@ namespace S2DE::Render
 
 		data->world = world;
 
-		static const auto camera = Scene::GetObjectByName<GameObjects::GameObject>(GameObjects::Components::Camera::EngineCameraName)->GetComponent<GameObjects::Components::Camera>();
+		static const auto sceneManager = Scene::SceneManager::GetInstance();
+		static const auto camera = sceneManager->GetObjectByName<GameObjects::GameObject>(GameObjects::Components::Camera::EngineCameraName)->GetComponent<GameObjects::Components::Camera>();
 
 		if (camera != nullptr)
 		{

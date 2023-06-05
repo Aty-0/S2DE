@@ -28,7 +28,8 @@ namespace S2DE::Core
 {
 	bool Engine::m_isEditor = false;
 
-	Engine::Engine()
+	Engine::Engine() 
+		: m_applicationHandle(nullptr)
 	{
 
 	}
@@ -134,16 +135,19 @@ namespace S2DE::Core
 
 	void Engine::RunLoop()
 	{
-		const static auto window = Core::GameWindow::GetInstance();
+		static const auto window = Core::GameWindow::GetInstance();
+
 		while (window->PoolEvents())
-			OnLoop();	
+		{
+			OnLoop();
+		}
 	}
 
 	void Engine::UpdateEngineInputKeys()
 	{
-		const static auto inputManager = Core::InputManager::GetInstance();
-		const static auto renderer = Render::Renderer::GetInstance();
-		const static auto window = Core::GameWindow::GetInstance();
+		static const auto inputManager = Core::InputManager::GetInstance();
+		static const auto renderer = Render::Renderer::GetInstance();
+		static const auto window = Core::GameWindow::GetInstance();
 
 		if (inputManager->IsKeyPressed(KeyCode::KEY_ESCAPE))
 		{
@@ -194,26 +198,26 @@ namespace S2DE::Core
 
 	void Engine::OnGlobalUpdate(float DeltaTime)
 	{
-		const static auto sceneManager = Scene::SceneManager::GetInstance();
+		static const auto sceneManager = Scene::SceneManager::GetInstance();
 
 		sceneManager->UpdateScene(DeltaTime);
 		m_applicationHandle->OnUpdate(DeltaTime);
 
-		const static auto debug = Core::Debug::Debug_Info::GetInstance();
+		static const auto debug = Core::Debug::Debug_Info::GetInstance();
 		debug->UpdateTexts();
 	}
 
 	void Engine::OnLoop()
 	{
-		const static auto time = Core::GameTime::GetInstance();
+		static const auto time = Core::GameTime::GetInstance();
 
 		time->Begin();
-		UpdateInput();
 		OnGlobalUpdate(time->GetDeltaTime());
 
-		const static auto renderer = Render::Renderer::GetInstance();
+		static const auto renderer = Render::Renderer::GetInstance();
 		renderer->Render();
 
+		UpdateInput();		
 		time->End();
 	}
 

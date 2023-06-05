@@ -48,9 +48,9 @@ namespace S2DE::GameObjects::Components
 			for (std::uint32_t i = 0; i < m_mesh->GetCountMeshes(); i++)
 			{
 				static GameObject* prMeshPartObject = nullptr;
-
+				static const auto sceneManager = Scene::SceneManager::GetInstance();
 				// TODO: Get name of node
-				const auto meshPartObject = Scene::CreateGameObject<GameObjects::GameObject>(GetName() + std::to_string(i));
+				const auto meshPartObject = sceneManager->CreateGameObject<GameObjects::GameObject>(GetName() + std::to_string(i));
 
 
 				meshPartObject->GetTransform()->SetPosition(transform->GetPosition());

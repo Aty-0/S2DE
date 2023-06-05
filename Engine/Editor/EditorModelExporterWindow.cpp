@@ -27,10 +27,12 @@ namespace S2DE::Editor
 		ImGui::Begin("EditorModelExporterWindow", &m_draw, ImGuiWindowFlags_::ImGuiWindowFlags_HorizontalScrollbar);
 		{
 			// TODO: Lock game input 
+			static const auto sceneManager = Scene::SceneManager::GetInstance();
 
 			static float position[3];
 			static float rotation[3];
 			static float scale[3];
+
 			static char fileName[1024];
 
 			ImGui::InputFloat3("Position", position);
@@ -42,7 +44,7 @@ namespace S2DE::Editor
 
 			if (ImGui::Button("Get camera position"))
 			{
-				const auto camera = Scene::GetObjectByName(GameObjects::Components::Camera::EngineCameraName);
+				const auto camera = sceneManager->GetObjectByName(GameObjects::Components::Camera::EngineCameraName);
 				const auto pos = camera->GetTransform()->GetPosition();
 				position[0] = pos.x;
 				position[1] = pos.y;
@@ -51,7 +53,7 @@ namespace S2DE::Editor
 
 			if (ImGui::Button("Get camera rotation"))
 			{
-				const auto camera = Scene::GetObjectByName(GameObjects::Components::Camera::EngineCameraName);
+				const auto camera = sceneManager->GetObjectByName(GameObjects::Components::Camera::EngineCameraName);
 				const auto rot = camera->GetTransform()->GetRotation();
 				rotation[0] = rot.x;
 				rotation[1] = rot.y;
@@ -61,7 +63,7 @@ namespace S2DE::Editor
 
 			if (ImGui::Button("Load & Create New Object"))
 			{
-				auto meshGO = Scene::CreateGameObject<GameObjects::GameObject>(fileName, std::string(), 0,
+				auto meshGO = sceneManager->CreateGameObject<GameObjects::GameObject>(fileName, std::string(), 0,
 					Math::float3(position[0], position[1], position[2]),
 					Math::float3(rotation[0], rotation[1], rotation[2]),
 					Math::float3(scale[0], scale[1], scale[2]));

@@ -35,7 +35,7 @@ namespace S2DE::Editor
 
 		if (ImGui::BeginMainMenuBar()) 
 		{
-			auto maincamera = Scene::GetObjectByName<GameObjects::GameObject>(GameObjects::Components::Camera::EngineCameraName)->GetComponent<GameObjects::Components::Camera>();
+			auto maincamera = sceneManager->GetObjectByName<GameObjects::GameObject>(GameObjects::Components::Camera::EngineCameraName)->GetComponent<GameObjects::Components::Camera>();
 
 			if (ImGui::BeginMenu("File")) 
 			{
@@ -136,11 +136,11 @@ namespace S2DE::Editor
 
 					if (ImGui::MenuItem("GameObject"))
 					{
-						Scene::CreateGameObject<GameObjects::GameObject>("GameObject", "GameObject", 1, spawn_vec);
+						sceneManager->CreateGameObject<GameObjects::GameObject>("GameObject", "GameObject", 1, spawn_vec);
 					}
 					if (ImGui::MenuItem("Sprite"))
 					{
-						auto sprite = Scene::CreateGameObject<GameObjects::GameObject>("Sprite", "GameObject", 1, spawn_vec + Math::float3(0,0,-1));
+						auto sprite = sceneManager->CreateGameObject<GameObjects::GameObject>("Sprite", "GameObject", 1, spawn_vec + Math::float3(0,0,-1));
 						sprite->CreateComponent<GameObjects::Components::Sprite>();
 					}
 					ImGui::EndMenu();
